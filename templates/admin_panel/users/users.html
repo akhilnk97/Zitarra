@@ -1,0 +1,719 @@
+{% extends 'admin_panel/base/base.html' %}
+{% block title %}User Database — Zitarra{% endblock %}
+
+{% block extra_head %}
+<style>
+  /* Custom Confirmation Modal Transitions */
+  #confirmModal {
+    transition: opacity 0.25s ease-in-out;
+  }
+
+  #confirmModalContent {
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
+
+  <!-- CSRF Token Container for AJAX -->
+  <div style="display:none;">
+    {% csrf_token %}
+  </div>
+
+  <!-- Header Bar (Full Width) -->
+  <header
+    class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 w-full z-10">
+    <div class="flex items-center">
+      <a href="{% url 'admin_dashboard' %}"
+        class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
+
+    <!-- User Profile Header -->
+    <div class="flex items-center gap-3.5">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN
+          ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name }}</p>
+      </div>
+      <div
+        class="w-9.5 h-9.5 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors duration-250 cursor-pointer">
+        <svg class="w-4.5 h-4.5" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar & Content Wrapper -->
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Sidebar Navigation (Sticky) -->
+    <aside
+      class="w-[260px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+
+      <nav class="flex flex-col overflow-y-auto flex-1">
+
+        <!-- Dashboard -->
+        <a href="{% url 'admin_dashboard' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>DASHBOARD</span>
+        </a>
+
+        <!-- Products -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span>PRODUCTS</span>
+        </a>
+
+        <!-- Order List -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+          <span>ORDER LIST</span>
+        </a>
+
+        <!-- Returns Management -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 5h.01M12 16h.01M12 12h.01" />
+          </svg>
+          <span>RETURNS MANAGEMENT</span>
+        </a>
+
+        <!-- Users (Active) -->
+        <a href="{% url 'admin_users' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-white" width="16" height="16" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>USERS</span>
+        </a>
+
+        <!-- Brands -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>BRANDS</span>
+        </a>
+
+        <!-- Sales Report -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9-1v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z" />
+          </svg>
+          <span>SALES REPORT</span>
+        </a>
+
+        <!-- Coupons -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+          </svg>
+          <span>COUPONS</span>
+        </a>
+
+        <!-- Category -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
+          <span>CATEGORY</span>
+        </a>
+
+        <!-- Reviews -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <span>REVIEWS</span>
+        </a>
+
+        <!-- Banners -->
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
+            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>BANNERS</span>
+        </a>
+
+      </nav>
+
+      <!-- Logout Button Container -->
+      <div class="p-6">
+        <a href="{% url 'admin_logout' %}"
+          class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.62rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all duration-250 no-underline text-center">
+          <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span>LOGOUT</span>
+        </a>
+      </div>
+
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="flex-1 bg-white p-8 flex flex-col justify-between h-full overflow-hidden">
+
+      <!-- Top Action Bar (Refined Layout) -->
+      <div class="shrink-0">
+        <div class="flex items-center justify-between mb-8 pb-5 border-b border-[#e8e8e8]">
+          <div class="flex items-center gap-6">
+            <div class="flex items-center gap-3">
+              <span class="w-2.5 h-2.5 bg-[#A33C08] inline-block"></span>
+              <h2 class="text-[0.95rem] font-black tracking-[0.2em] uppercase text-[#1A1A1A] leading-none">USER DATABASE
+              </h2>
+
+            </div>
+
+            <!-- Filter & Sort Dropdown Form -->
+            <div class="flex items-center gap-4.5">
+
+              <!-- Filter Dropdown -->
+              <div class="relative">
+                <select id="filterSelect" onchange="applyFiltersAndSort()"
+                  class="appearance-none bg-[#fcfbfa] border border-[#dcdcdc] px-5 py-2 pr-10 text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all duration-200 cursor-pointer rounded-none focus:outline-none">
+                  <option value="All Users" {% if filter_all or not filter_val %}selected{% endif %}>Filter
+                  </option>
+                  <option value="All Users" {% if filter_all %}selected{% endif %}>All Users</option>
+                  <option value="Active Accounts" {% if filter_active %}selected{% endif %}>Active
+                    Accounts</option>
+                  <option value="Blocked Accounts" {% if filter_blocked %}selected{% endif %}>Blocked
+                    Accounts</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
+                  <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Sort Dropdown -->
+              <div class="relative">
+                <select id="sortSelect" onchange="applyFiltersAndSort()"
+                  class="appearance-none bg-[#fcfbfa] border border-[#dcdcdc] px-5 py-2 pr-10 text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all duration-200 cursor-pointer rounded-none focus:outline-none">
+                  <option value="Latest First" {% if sort_latest or not sort_val %}selected{% endif %}>Sort
+                    By</option>
+                  <option value="Latest First" {% if sort_latest %}selected{% endif %}>Latest First
+                  </option>
+                  <option value="Oldest First" {% if sort_oldest %}selected{% endif %}>Oldest First
+                  </option>
+                  <option value="Name (A-Z)" {% if sort_name_az %}selected{% endif %}>Name (A-Z)</option>
+                  <option value="Name (Z-A)" {% if sort_name_za %}selected{% endif %}>Name (Z-A)</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
+                  <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                    stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="flex items-center gap-2">
+            <div class="relative w-[280px]">
+              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
+                <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  stroke-width="2.2">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </span>
+
+              <input type="text" id="searchInput" value="{{ search_query|default:'' }}" placeholder="SEARCH"
+                class="w-full bg-[#fcfbfa] border border-[#1a1a1a] py-2 pl-10 pr-10 text-[0.68rem] font-bold tracking-wide uppercase placeholder-gray-400 rounded-none focus:outline-none focus:border-brand-dark transition-all duration-200" />
+
+              <!-- Cancel / Clear button -->
+              <span id="searchClearBtn" onclick="clearSearch()"
+                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-red-600 transition-colors cursor-pointer {% if not search_query %}hidden{% endif %}"
+                title="Clear Search">
+                <svg class="w-4 h-4" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                  stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Table Container -->
+      <div class="w-full flex-1 overflow-y-auto border border-[#e8e8e8] bg-white">
+        <table class="w-full text-left border-collapse min-w-[700px]">
+          <thead>
+            <tr class="bg-[#fcfbfa] border-b border-[#e8e8e8]">
+              <th
+                class="py-5 px-6 border-r border-[#e8e8e8] text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[10%] select-none">
+                S.NO</th>
+              <th
+                class="py-5 px-6 border-r border-[#e8e8e8] text-left text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[35%] select-none">
+                NAME</th>
+              <th
+                class="py-5 px-6 border-r border-[#e8e8e8] text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[25%] select-none">
+                EMAIL</th>
+              <th
+                class="py-5 px-6 border-r border-[#e8e8e8] text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[20%] select-none">
+                MOBILE NUMBER</th>
+              <th
+                class="py-5 px-6 text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[15%] select-none">
+                ACTION</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-[#e8e8e8]">
+
+            {% for user in users %}
+            <tr class="user-row hover:bg-[#fcfbfa] transition-colors duration-150" data-id="{{ user.id }}"
+              data-name="{{ user.name }}" data-email="{{ user.email }}" data-mobile="{{ user.mobile }}"
+              data-blocked="{{ user.blocked|yesno:'true,false' }}">
+              <!-- S.NO -->
+              <td
+                class="s-no-cell py-3 px-6 border-r border-[#e8e8e8] text-center text-[0.68rem] font-bold text-[#a0aec0] tracking-wider align-middle select-none">
+                {{ user.s_no }}
+              </td>
+
+              <!-- NAME -->
+              <td class="py-3 px-6 border-r border-[#e8e8e8] align-middle">
+                <div class="flex items-center gap-3.5">
+                  <img src="{{ user.avatar }}" alt="{{ user.name }}"
+                    class="w-10 h-10 rounded-full object-cover object-center border border-gray-100 shrink-0 select-none" />
+                  <div class="min-w-[120px] name-container">
+                    <span
+                      class="user-name-text text-[0.7rem] font-bold text-[#1A1A1A] uppercase tracking-wide leading-none">
+                      {{ user.name }}
+                    </span>
+                  </div>
+                  <div class="badge-container shrink-0">
+                    {% if user.blocked %}
+                    <span
+                      class="status-badge px-2 py-0.5 text-[0.45rem] font-extrabold tracking-wider bg-red-50 text-red-600 uppercase rounded-sm select-none">BLOCKED</span>
+                    {% else %}
+                    <span
+                      class="status-badge px-2 py-0.5 text-[0.45rem] font-extrabold tracking-wider bg-green-50 text-green-600 uppercase rounded-sm select-none">ACTIVE</span>
+                    {% endif %}
+                  </div>
+                </div>
+              </td>
+
+              <!-- EMAIL -->
+              <td
+                class="py-3 px-6 border-r border-[#e8e8e8] text-center text-[0.68rem] font-medium text-gray-400 align-middle">
+                {{ user.email }}</td>
+
+              <!-- MOBILE NUMBER -->
+              <td
+                class="py-3 px-6 border-r border-[#e8e8e8] text-center text-[0.68rem] font-medium text-gray-500 align-middle">
+                {{ user.mobile }}</td>
+
+              <!-- ACTION -->
+              <td class="py-3 px-6 text-center align-middle">
+                <div class="flex items-center justify-center gap-4.5">
+
+                  <!-- Block/Unblock Action -->
+                  <button
+                    onclick="confirmBlockToggle('{{ user.id }}', '{{ user.name }}', '{{ user.blocked }}' === 'True')"
+                    class="lock-toggle-btn text-gray-400 hover:text-brand-dark transition-colors focus:outline-none"
+                    title="{% if user.blocked %}Unblock User{% else %}Block User{% endif %}">
+                    {% if user.blocked %}
+                    <!-- Closed Red Lock Icon -->
+                    <svg class="w-[18px] h-[18px] shrink-0 text-red-500 hover:text-red-700 transition-colors" width="18"
+                      height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                    {% else %}
+                    <!-- Open Gray Lock Icon -->
+                    <svg class="w-[18px] h-[18px] shrink-0 text-gray-400 hover:text-[#A33C08] transition-colors"
+                      width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 019.9-1" />
+                    </svg>
+                    {% endif %}
+                  </button>
+
+                </div>
+              </td>
+            </tr>
+            {% empty %}
+            <tr>
+              <td colspan="5"
+                class="py-12 text-center text-[0.75rem] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50">
+                No users match the query.
+              </td>
+            </tr>
+            {% endfor %}
+            <!-- Empty state row for client-side search (hidden by default) -->
+            <tr id="emptySearchRow" class="hidden">
+              <td colspan="5"
+                class="py-12 text-center text-[0.75rem] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50">
+                No users match the query.
+              </td>
+            </tr>
+
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Footer Action Row (Pagination) -->
+      <div class="flex justify-between items-center mt-8 pt-6 border-t border-[#e8e8e8] select-none shrink-0">
+
+        <!-- Entries Selector -->
+        <div class="flex items-center gap-2">
+          <span class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase">SHOWING ENTRIES:</span>
+          <div class="relative">
+            <select id="perPageSelect" onchange="applyFiltersAndSort()"
+              class="appearance-none bg-white border border-[#1a1a1a] px-4 py-1.5 pr-8 text-[0.62rem] font-bold text-brand-dark rounded-none focus:outline-none cursor-pointer">
+              <option value="10" {% if per_page_10 %}selected{% endif %}>10</option>
+              <option value="25" {% if per_page_25 %}selected{% endif %}>25</option>
+              <option value="50" {% if per_page_50 %}selected{% endif %}>50</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-600">
+              <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <!-- Paginator -->
+        <div class="flex items-center gap-6">
+          {% if page_obj.has_previous %}
+          <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}&per_page={{ per_page }}"
+            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">PREV</a>
+          {% else %}
+          <span
+            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">PREV</span>
+          {% endif %}
+
+          <div class="flex items-center gap-2">
+            {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span
+              class="w-7 h-7 bg-[#1A1A1A] text-white flex items-center justify-center text-[0.62rem] font-bold select-none cursor-default">
+              {{ num|stringformat:"02d" }}
+            </span>
+            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <a
+              href="?page={{ num }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}&per_page={{ per_page }}"
+              class="w-7 h-7 border border-transparent text-gray-500 hover:border-gray-200 flex items-center justify-center text-[0.62rem] font-bold no-underline transition-all duration-250">
+              {{ num|stringformat:"02d" }}</a>
+              {% endif %}
+              {% endfor %}
+          </div>
+
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}&per_page={{ per_page }}"
+            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">NEXT</a>
+          {% else %}
+          <span
+            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">NEXT</span>
+          {% endif %}
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+</div>
+
+<!-- Styled Toast Notification (replaces browser alert) -->
+<div id="adminToast"
+  class="fixed bottom-6 right-6 z-[9999] flex items-center gap-3 px-5 py-4 bg-white border-l-4 border-red-500 shadow-lg text-[0.7rem] font-bold tracking-widest uppercase text-brand-dark opacity-0 pointer-events-none transition-all duration-300 translate-y-2 max-w-sm">
+  <div id="adminToastIcon" class="flex items-center shrink-0">
+    <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+      <path stroke-linecap="round" stroke-linejoin="round"
+        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+    </svg>
+  </div>
+  <span id="adminToastMsg">An error occurred.</span>
+</div>
+
+<!-- Custom Confirmation Modal Overlay -->
+<div id="confirmModal"
+  class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[1px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none">
+  <div id="confirmModalContent"
+    class="bg-white border border-[#e8e8e8] w-[420px] p-8 relative flex flex-col justify-between transform scale-95 duration-250 ease-out">
+
+    <div>
+      <!-- Modal Accent & Title -->
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-2.5 h-2.5 bg-[#A33C08] inline-block"></span>
+        <h3 class="text-[0.8rem] font-bold tracking-[0.18em] uppercase text-brand-dark leading-none">CONFIRM USER STATUS
+          UPDATE</h3>
+      </div>
+
+      <!-- Modal Text -->
+      <p id="modalMessage" class="text-[0.7rem] text-gray-500 leading-relaxed mb-6 font-medium">
+        Are you sure you want to perform this action?
+      </p>
+    </div>
+
+    <!-- Modal Cancel/Confirm Buttons -->
+    <div class="flex justify-end gap-3">
+      <button id="modalCancel"
+        class="border border-[#dcdcdc] px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all duration-200 bg-white cursor-pointer rounded-none focus:outline-none">
+        CANCEL
+      </button>
+      <button id="modalConfirm"
+        class="bg-[#A33C08] hover:bg-[#c94008] text-white px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase border-none cursor-pointer transition-colors rounded-none focus:outline-none">
+        CONFIRM
+      </button>
+    </div>
+
+  </div>
+</div>
+
+<!-- Client-Side Search, Filter, Sort and Action Logic -->
+<script>
+  let pendingUserId = null;
+  let pendingAction = null; // 'block' or 'delete'
+  let pendingBlockedState = null;
+
+  // Show a styled toast notification instead of browser alert()
+  let toastTimer = null;
+  function showToast(message, type = 'error') {
+    const toast = document.getElementById('adminToast');
+    const toastMsg = document.getElementById('adminToastMsg');
+    const toastIcon = document.getElementById('adminToastIcon');
+
+    toastMsg.textContent = message;
+
+    if (type === 'success') {
+      toast.classList.remove('border-red-500');
+      toast.classList.add('border-green-600');
+      toastIcon.innerHTML = `
+        <svg class="w-4 h-4 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      `;
+    } else {
+      toast.classList.remove('border-green-600');
+      toast.classList.add('border-red-500');
+      toastIcon.innerHTML = `
+        <svg class="w-4 h-4 text-red-500 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+      `;
+    }
+
+    // Show
+    toast.classList.remove('opacity-0', 'pointer-events-none', 'translate-y-2');
+    toast.classList.add('opacity-100', 'pointer-events-auto', 'translate-y-0');
+    // Auto-hide after 4 seconds
+    if (toastTimer) clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toast.classList.add('opacity-0', 'pointer-events-none', 'translate-y-2');
+      toast.classList.remove('opacity-100', 'pointer-events-auto', 'translate-y-0');
+    }, 4000);
+  }
+
+  function confirmBlockToggle(userId, userName, isBlocked) {
+    pendingUserId = userId;
+    pendingAction = 'block';
+    pendingBlockedState = isBlocked;
+
+    const modal = document.getElementById('confirmModal');
+    const content = document.getElementById('confirmModalContent');
+    const title = modal.querySelector('h3');
+    const message = document.getElementById('modalMessage');
+
+    title.innerText = "CONFIRM USER STATUS UPDATE";
+    if (isBlocked) {
+      message.innerText = `Are you sure you want to unblock user "${userName}"? This will restore their active account status and grant them immediate system access.`;
+    } else {
+      message.innerText = `Are you sure you want to block user "${userName}"? This will suspend their account access and temporarily restrict them from logging in.`;
+    }
+
+    // Display and trigger fade-in transition
+    modal.classList.remove('hidden');
+    modal.classList.remove('pointer-events-none');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+    }, 10);
+  }
+
+  document.getElementById('modalCancel').addEventListener('click', closeModal);
+  document.getElementById('modalConfirm').addEventListener('click', function () {
+    if (pendingUserId && pendingAction) {
+      const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+
+      if (pendingAction === 'block') {
+        fetch(`/admin-panel/users/toggle-block/${pendingUserId}/`, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrfToken,
+            'Content-Type': 'application/json',
+          }
+        })
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              const newBlockedState = data.is_blocked;
+
+              // Show custom success toast
+              if (newBlockedState) {
+                showToast('Account blocked', 'success');
+              } else {
+                showToast('Account unblocked', 'success');
+              }
+
+              const row = document.querySelector(`.user-row[data-id="${pendingUserId}"]`);
+              if (row) {
+                // Update state attributes
+                row.setAttribute('data-blocked', newBlockedState ? 'true' : 'false');
+
+                // Update badge UI
+                const badgeContainer = row.querySelector('.badge-container');
+                if (badgeContainer) {
+                  if (newBlockedState) {
+                    badgeContainer.innerHTML = `<span class="status-badge px-2 py-0.5 text-[0.45rem] font-extrabold tracking-wider bg-red-50 text-red-600 uppercase rounded-sm select-none">BLOCKED</span>`;
+                  } else {
+                    badgeContainer.innerHTML = `<span class="status-badge px-2 py-0.5 text-[0.45rem] font-extrabold tracking-wider bg-green-50 text-green-600 uppercase rounded-sm select-none">ACTIVE</span>`;
+                  }
+                }
+
+                // Update action padlock icon
+                const lockBtn = row.querySelector('.lock-toggle-btn');
+                if (lockBtn) {
+                  const userName = row.getAttribute('data-name');
+                  lockBtn.setAttribute('onclick', `confirmBlockToggle('${pendingUserId}', '${userName}', ${newBlockedState})`);
+                  lockBtn.title = newBlockedState ? 'Unblock User' : 'Block User';
+
+                  if (newBlockedState) {
+                    lockBtn.innerHTML = `
+                    <svg class="w-[18px] h-[18px] shrink-0 text-red-500 hover:text-red-700 transition-colors" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 0110 0v4" />
+                    </svg>
+                  `;
+                  } else {
+                    lockBtn.innerHTML = `
+                    <svg class="w-[18px] h-[18px] shrink-0 text-gray-400 hover:text-[#A33C08] transition-colors" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+                      <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                      <path d="M7 11V7a5 5 0 019.9-1" />
+                    </svg>
+                  `;
+                  }
+                }
+                // If current filter excludes the new state, remove the row
+                const filterVal = document.getElementById('filterSelect').value;
+                if ((filterVal === 'Active Accounts' && newBlockedState) ||
+                  (filterVal === 'Blocked Accounts' && !newBlockedState)) {
+                  row.remove();
+                }
+              }
+            } else {
+              showToast(data.message || 'Failed to update user status.');
+            }
+            closeModal();
+          })
+          .catch(err => {
+            console.error(err);
+            showToast('An error occurred. Please try again.');
+            closeModal();
+          });
+      }
+    }
+  });
+
+  function closeModal() {
+    const modal = document.getElementById('confirmModal');
+    const content = document.getElementById('confirmModalContent');
+
+    modal.classList.add('opacity-0');
+    content.classList.add('scale-95');
+
+    setTimeout(() => {
+      modal.classList.add('hidden');
+      modal.classList.add('pointer-events-none');
+    }, 250);
+    pendingUserId = null;
+    pendingAction = null;
+    pendingBlockedState = null;
+  }
+
+  function applyFiltersAndSort() {
+    const filterVal = document.getElementById('filterSelect').value;
+    const sortVal = document.getElementById('sortSelect').value;
+    const perPageVal = document.getElementById('perPageSelect').value;
+    const searchVal = document.getElementById('searchInput').value.trim();
+
+    const url = new URL(window.location.href);
+    url.searchParams.set('filter', filterVal);
+    url.searchParams.set('sort', sortVal);
+    url.searchParams.set('per_page', perPageVal);
+    url.searchParams.set('search', searchVal);
+    url.searchParams.set('page', '1'); // Reset to page 1 on filter/search change
+    window.location.href = url.pathname + url.search;
+  }
+
+  function clearSearch() {
+    document.getElementById('searchInput').value = '';
+    applyFiltersAndSort();
+  }
+
+
+  // Submit search on Enter keypress
+  document.addEventListener('DOMContentLoaded', () => {
+    const searchInput = document.getElementById('searchInput');
+    if (searchInput) {
+      searchInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          applyFiltersAndSort();
+        }
+      });
+    }
+  });
+
+
+</script>
+
+{% endblock %}

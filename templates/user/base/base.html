@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{% block title %}Zitarra{% endblock %}</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            brand: { orange:'#E8500A', cream:'#F5F0EB', dark:'#1A1A1A' }
+          },
+          fontFamily: { sans: ['Inter','sans-serif'] },
+          keyframes: {
+            shake: {
+              '0%, 100%': { transform: 'translateX(0)' },
+              '20%, 60%': { transform: 'translateX(-5px)' },
+              '40%, 80%': { transform: 'translateX(5px)' }
+            },
+            ripple: {
+              'to': { transform: 'scale(4)', opacity: '0' }
+            },
+            iconBounce: {
+              '0%': { transform: 'scale(0)' },
+              '50%': { transform: 'scale(1.15)' },
+              '100%': { transform: 'scale(1)' }
+            }
+          },
+          animation: {
+            shake: 'shake 0.4s ease-in-out',
+            ripple: 'ripple 0.55s linear',
+            iconBounce: 'iconBounce 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55)'
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+
+  <style>
+    /* Hide scrollbar for Chrome, Safari and Opera */
+    ::-webkit-scrollbar {
+      display: none;
+    }
+    /* Hide scrollbar for IE, Edge and Firefox */
+    html {
+      -ms-overflow-style: none;  /* IE and Edge */
+      scrollbar-width: none;  /* Firefox */
+    }
+  </style>
+
+  {% block extra_head %}{% endblock %}
+</head>
+<body class="font-sans">
+
+  <!-- ── Navbar injected per-page via block navbar ── -->
+  {% block navbar %}
+    {% include 'user/partials/navbar.html' %}
+  {% endblock %}
+
+  {% block content %}{% endblock %}
+
+  <!-- ── Global Navbar JS ── -->
+  <script>
+    (function(){
+      const nav = document.getElementById('nav');
+      const links = document.querySelectorAll('.n-links a');
+
+      /* scroll: dark glass + scroll-spy */
+      window.addEventListener('scroll', function(){
+        if (nav) nav.classList.toggle('scrolled', window.scrollY > 10);
+      }, { passive: true });
+
+      /* click: move active underline */
+      links.forEach(function(link){
+        link.addEventListener('click', function(){
+          links.forEach(function(l){ l.classList.remove('act'); });
+          link.classList.add('act');
+        });
+      });
+
+      function triggerLoadingBar(color) {
+        if (document.getElementById('top-loading-bar')) return;
+        const bar = document.createElement('div');
+        bar.id = 'top-loading-bar';
+        bar.style.cssText = 'position:fixed;top:0;left:0;height:3px;z-index:99999;width:0%;transition:width 0.4s ease-out;background-color:' + color;
+        document.body.appendChild(bar);
+        setTimeout(() => { bar.style.width = '30%'; }, 50);
+        setTimeout(() => { bar.style.width = '60%'; }, 400);
+        setTimeout(() => { bar.style.width = '85%'; }, 900);
+        setTimeout(() => { bar.style.width = '95%'; }, 1800);
+      }
+
+      document.addEventListener('submit', function(e) {
+        if (!e.defaultPrevented) {
+          triggerLoadingBar('#E8500A');
+        }
+      });
+
+      document.addEventListener('click', function(e) {
+        const link = e.target.closest('a');
+        if (link && link.href && link.href.includes('/google/login/')) {
+          triggerLoadingBar('#E8500A');
+        }
+      });
+    })();
+  </script>
+
+</body>
+</html>

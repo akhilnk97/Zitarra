@@ -1,0 +1,790 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Edit Profile — Zitarra{% endblock %}
+
+{% block navbar %}
+{% include 'user/partials/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full max-w-full m-0 p-0 flex flex-col box-border min-h-[calc(100vh-60px-140px)] bg-[#f5f5f0]">
+  <div class="grid grid-cols-[240px_1fr] auto-rows-auto items-stretch gap-0 flex-1 w-full">
+
+    <!-- ── Sidebar ── -->
+    <aside class="bg-white border-r border-[#e8e8e8] flex flex-col self-stretch">
+      <div class="p-6 pb-[18px] border-b border-[#f0f0f0]">
+        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange mb-[3px]">User Profile</p>
+        <p class="font-semibold text-[0.5rem] tracking-[0.12em] uppercase text-[#bbb]">Manage Your Account</p>
+      </div>
+      <nav class="flex-1 py-2">
+        <a href="{% url 'profiles:profile' %}"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+          </svg>
+          Account Overview
+        </a>
+        <a href="/orders/"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
+          My Orders
+        </a>
+        <a href="{% url 'addresses' %}"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          Addresses
+        </a>
+        <a href="/wallet/"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Wallet
+        </a>
+        <a href="#wishlist"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+          </svg>
+          Wishlist
+        </a>
+        {% if not request.user.socialaccount_set.exists %}
+        <a href="{% url 'profiles:profile_password' %}"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+          </svg>
+          Password
+        </a>
+        {% endif %}
+      </nav>
+
+      <!-- Logout Button Container -->
+      <div class="p-6 border-t border-[#f0f0f0] mt-auto">
+        <a href="{% url 'logout' %}"
+          class="flex items-center justify-center gap-2.5 border border-brand-dark text-brand-dark text-[10px] font-bold tracking-[0.25em] uppercase w-full py-3 relative overflow-hidden transition-all duration-300 hover:text-white hover:border-brand-dark hover:-translate-y-[1px] group/logout before:content-[''] before:absolute before:inset-0 before:bg-brand-dark before:scale-x-0 before:origin-left before:transition-transform before:duration-350 hover:before:scale-x-100 before:z-0 no-underline text-center">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current fill-none relative z-10" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
+          <span class="relative z-10">LOGOUT</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- ── Main content area ── -->
+    <main class="bg-white flex flex-col min-h-full">
+
+      <!-- Top Profile Head with Avatar -->
+      <div class="flex items-center gap-7 border-b border-[#ebebeb] px-9 py-8">
+        <!-- Avatar Upload Wrapper -->
+        <div
+          class="relative w-[90px] h-[90px] rounded-full overflow-hidden border border-[#d0d0d0] bg-[#f5f5f0] flex items-center justify-center shrink-0 group">
+          {% if request.user.profile_image %}
+          <img src="{{ request.user.profile_image.url }}" alt="Profile Avatar" id="avatar-preview"
+            class="w-full h-full object-cover" />
+          {% else %}
+          <!-- Placeholder SVG -->
+          <svg class="w-10 h-10 text-[#bbb]" id="avatar-svg-placeholder" fill="none" stroke="currentColor"
+            stroke-width="1.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+          </svg>
+          {% endif %}
+
+          <!-- Image upload hover overlay -->
+          <div onclick="document.getElementById('profile-image-input').click();"
+            class="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer">
+            <svg class="w-5 h-5 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M6.827 6.175A2.31 2.31 0 015.186 7.23c-.38.054-.757.112-1.134.175C2.999 7.58 2.25 8.507 2.25 9.574V18a2.25 2.25 0 002.25 2.25h15A2.25 2.25 0 0021.75 18V9.574c0-1.067-.75-1.994-1.802-2.169a47.865 47.865 0 00-1.134-.175 2.31 2.31 0 01-1.64-1.055l-.822-1.316a2.192 2.192 0 00-1.736-1.039 48.774 48.774 0 00-5.232 0 2.192 2.192 0 00-1.736 1.039l-.821 1.316z" />
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M16.5 12.75a4.5 4.5 0 11-9 0 4.5 4.5 0 019 0zM18.75 10.5h.008v.008h-.008V10.5z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="flex-1">
+          <h1 class="text-[2rem] font-black tracking-[0.05em] uppercase text-[#1a1a1a] leading-none mb-2.5"
+            id="display-name">{{ request.user.fullname|upper }}</h1>
+          <p
+            class="flex items-center gap-2 text-[0.55rem] font-bold tracking-[0.14em] uppercase text-[#999] before:content-[''] before:inline-block before:w-[7px] before:h-[7px] before:rounded-full before:bg-brand-orange before:shrink-0">
+            Registered User Since {{ request.user.date_joined|date:"Y" }}</p>
+        </div>
+      </div>
+
+      <!-- Dynamic Alert Container -->
+      <div id="alert-container" class="px-9 pt-6 hidden"></div>
+
+      <!-- Personal Information Section Header -->
+      <div class="flex items-center justify-between px-9 py-5 pb-3.5 border-b border-[#ebebeb]">
+        <div class="flex items-center gap-2.5">
+          <svg class="w-4 h-4 stroke-[#1a1a1a] shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+          </svg>
+          <h3 class="text-[0.68rem] font-bold tracking-[0.18em] uppercase text-[#1a1a1a]">Edit Profile</h3>
+        </div>
+        <button type="submit" form="edit-profile-form"
+          class="text-white text-[10px] font-bold tracking-[0.25em] uppercase px-5 py-2 relative overflow-hidden bg-brand-orange transition-all duration-250 hover:bg-[#c94008] hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(232,80,10,0.45)] active:translate-y-0 active:scale-[0.98] active:shadow-none before:content-[''] before:absolute before:top-0 before:left-[-75%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/22 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-550 hover:before:left-[130%] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none cursor-pointer border-none rounded-none btn-save-changes flex items-center justify-center gap-1.5">
+          Save Changes
+        </button>
+      </div>
+
+      <!-- Inputs Form -->
+      <form id="edit-profile-form" class="grid grid-cols-2 gap-x-16 gap-y-12 px-9 pb-12 pt-8 flex-1 content-start"
+        novalidate>
+        {% csrf_token %}
+        <input type="file" id="profile-image-input" name="profile_image" class="hidden" accept="image/*" />
+
+        <!-- Full Name -->
+        <div class="pt-3 pb-2">
+          <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Full Name</p>
+          <div
+            class="relative border-b border-[#e8e8e8] pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+            id="name-wrap">
+            <input type="text" id="edit-name" name="fullname"
+              class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 placeholder:text-gray-300"
+              placeholder="FULL NAME" value="{{ request.user.fullname }}" required />
+          </div>
+          <span
+            class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-1.5 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
+            id="name-error">Full name is required.</span>
+        </div>
+
+        <!-- Email -->
+        <div class="pt-3 pb-2">
+          <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Email Address</p>
+          <div
+            class="relative border-b border-[#e8e8e8] pb-2 {% if not request.user.socialaccount_set.exists %}after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full{% endif %}"
+            id="email-wrap">
+            <input type="email" id="edit-email" name="email"
+              class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 placeholder:text-gray-300 {% if request.user.socialaccount_set.exists %}opacity-60 cursor-not-allowed{% endif %}"
+              placeholder="EMAIL" value="{{ request.user.email }}" {% if request.user.socialaccount_set.exists
+              %}readonly{% endif %} required />
+          </div>
+          <span
+            class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-1.5 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
+            id="email-error">Enter a valid email address.</span>
+        </div>
+
+        <!-- Phone Number -->
+        <div class="pt-3 pb-2">
+          <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Phone Number</p>
+          <div
+            class="relative border-b border-[#e8e8e8] pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+            id="phone-wrap">
+            <input type="text" id="edit-phone" name="mobile_number"
+              class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 placeholder:text-gray-300"
+              placeholder="PHONE NUMBER" value="{{ request.user.mobile_number|default:'' }}" />
+          </div>
+          <span
+            class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-1.5 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
+            id="phone-error">Enter a valid 10-digit phone number.</span>
+        </div>
+
+        <!-- Registration Date -->
+        <div class="pt-3 pb-2">
+          <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Registration Date</p>
+          <div class="relative border-b border-[#e8e8e8] pb-2" id="reg-wrap">
+            <input type="text"
+              class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 opacity-60 cursor-not-allowed"
+              value="{{ request.user.date_joined|date:'F d, Y' }}" readonly />
+          </div>
+        </div>
+      </form>
+    </main>
+  </div>
+</div>
+
+{% include 'user/partials/footer.html' %}
+
+<!-- ── Toast ── -->
+<div
+  class="fixed bottom-8 right-8 bg-[#1a1a1a] text-white px-5 py-3 text-[0.65rem] font-bold tracking-[0.12em] uppercase flex items-center gap-2.5 z-[99999] translate-y-4 opacity-0 transition-all duration-300 pointer-events-none [&.show]:opacity-100 [&.show]:translate-y-0"
+  id="toast">
+  <svg class="w-3.5 h-3.5 stroke-brand-orange" fill="none" viewBox="0 0 24 24">
+    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
+  </svg>
+  Profile updated successfully
+</div>
+
+<!-- ── OTP Verification Modal ── -->
+<div
+  class="fixed inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-[9999] opacity-0 transition-opacity duration-300 pointer-events-none"
+  id="otp-modal">
+  <div
+    class="bg-white px-10 py-12 max-w-[440px] w-[90%] text-center scale-[0.85] opacity-0 transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)] relative border border-[#e8e8e8]">
+    <!-- Close Button -->
+    <button type="button"
+      class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark transition-colors duration-200 cursor-pointer bg-none border-none p-1 outline-none"
+      id="close-otp-modal" aria-label="Close modal">
+      <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+      </svg>
+    </button>
+    <div class="w-16 h-16 mx-auto mb-6 bg-brand-orange rounded-full flex items-center justify-center">
+      <svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+      </svg>
+    </div>
+    <h2 class="text-xl font-extrabold uppercase tracking-[0.05em] text-brand-dark mb-1">Verify Your Email</h2>
+    <div class="w-12 h-[2px] bg-brand-orange mx-auto mb-4"></div>
+    <p class="text-[0.62rem] font-bold tracking-widest text-gray-500 mb-6 leading-relaxed" id="otp-instructions">
+      <span class="uppercase">ENTER THE 6-DIGIT CODE SENT TO</span> <span id="otp-email-display"
+        class="lowercase font-extrabold text-brand-dark tracking-normal" style="text-transform: lowercase;">your
+        email</span>.
+    </p>
+
+    <form id="otp-verification-form" class="relative" novalidate>
+      <div class="flex gap-2.5 mb-2 justify-center" id="otp-input-container">
+        <input type="text" maxlength="1"
+          class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
+          required />
+        <input type="text" maxlength="1"
+          class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
+          required />
+        <input type="text" maxlength="1"
+          class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
+          required />
+        <input type="text" maxlength="1"
+          class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
+          required />
+        <input type="text" maxlength="1"
+          class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
+          required />
+        <input type="text" maxlength="1"
+          class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
+          required />
+      </div>
+
+      <span
+        class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-2 mb-4 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
+        id="otp-error-msg">Invalid OTP code.</span>
+
+      <!-- Timer & Resend code links -->
+      <div class="mb-8 text-[0.58rem] font-extrabold tracking-widest uppercase" id="timer-wrap-modal">
+        Verification Code Expires in <span class="text-brand-orange font-black" id="timer-modal">01:00</span>
+      </div>
+      <div class="mb-8 hidden text-[0.58rem] font-extrabold tracking-widest uppercase" id="resend-wrap-modal">
+        Didn't receive code? <button type="button"
+          class="text-brand-orange font-black underline cursor-pointer bg-none border-none p-0 outline-none uppercase hover:text-[#c94008]"
+          id="resend-btn-modal">Resend Code</button>
+      </div>
+
+      <button type="submit"
+        class="relative overflow-hidden bg-brand-orange text-white py-3.5 text-[0.7rem] font-bold tracking-[0.15em] uppercase border-none cursor-pointer w-full transition-colors duration-200 hover:bg-[#c94008] flex items-center justify-center gap-2"
+        id="verify-btn-modal">
+        <span>VERIFY & SAVE</span>
+        <span class="font-sans">→</span>
+      </button>
+    </form>
+  </div>
+</div>
+
+<script>
+  let countdown = 60, interval;
+  const otpModal = document.getElementById('otp-modal');
+  const otpModalContent = otpModal.querySelector('div');
+  const closeOtpBtn = document.getElementById('close-otp-modal');
+  const saveBtn = document.querySelector('.btn-save-changes');
+  const form = document.getElementById('edit-profile-form');
+  const otpForm = document.getElementById('otp-verification-form');
+
+  const originalEmail = "{{ request.user.email|escapejs }}".trim().toLowerCase();
+  const originalPhone = "{{ request.user.mobile_number|default:''|escapejs }}".trim();
+  const originalName = "{{ request.user.fullname|escapejs }}".trim();
+
+  const boxes = Array.from(document.querySelectorAll('#otp-input-container input'));
+  const container = document.getElementById('otp-input-container');
+  const otpError = document.getElementById('otp-error-msg');
+  const verifyBtn = document.getElementById('verify-btn-modal');
+  const timerWrap = document.getElementById('timer-wrap-modal');
+  const resendWrap = document.getElementById('resend-wrap-modal');
+  const timerEl = document.getElementById('timer-modal');
+  const resendBtn = document.getElementById('resend-btn-modal');
+
+  const nameInput = document.getElementById('edit-name');
+  const emailInput = document.getElementById('edit-email');
+  const phoneInput = document.getElementById('edit-phone');
+
+  const nameWrap = document.getElementById('name-wrap');
+  const emailWrap = document.getElementById('email-wrap');
+  const phoneWrap = document.getElementById('phone-wrap');
+
+  const nameErr = document.getElementById('name-error');
+  const emailErr = document.getElementById('email-error');
+  const phoneErr = document.getElementById('phone-error');
+
+  const profileImageInput = document.getElementById('profile-image-input');
+  const avatarContainer = document.querySelector('div.group');
+
+  // Reset Save button text and status on error or reset
+  function updateButtonLabel() {
+    saveBtn.disabled = false;
+    saveBtn.textContent = 'save changes';
+    saveBtn.style.background = '';
+  }
+
+  function handleInput(input, wrap, errEl) {
+    clearErr(wrap, errEl);
+    input.dataset.dirty = 'true';
+  }
+
+  nameInput.addEventListener('input', () => handleInput(nameInput, nameWrap, nameErr));
+  emailInput.addEventListener('input', () => handleInput(emailInput, emailWrap, emailErr));
+  phoneInput.addEventListener('input', () => handleInput(phoneInput, phoneWrap, phoneErr));
+
+  nameInput.addEventListener('blur', () => { if (nameInput.dataset.dirty === 'true') validateName(); });
+  emailInput.addEventListener('blur', () => { if (emailInput.dataset.dirty === 'true') validateEmail(); });
+  phoneInput.addEventListener('blur', () => { if (phoneInput.dataset.dirty === 'true') validateMobile(); });
+
+  // Auto-hide alert messages
+  function autoHideAlerts() {
+    const alerts = document.querySelectorAll('.msg-alert');
+    alerts.forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          alert.style.maxHeight = '0';
+          alert.style.padding = '0';
+          alert.style.margin = '0';
+          alert.style.border = 'none';
+          setTimeout(() => alert.remove(), 500);
+        }, 300);
+      }, 3000);
+    });
+  }
+
+  // File preview logic
+  if (profileImageInput) {
+    profileImageInput.addEventListener('change', function () {
+      const file = this.files[0];
+      if (file) {
+        if (!file.type.startsWith('image/')) {
+          showGlobalError('Please select a valid image file.');
+          this.value = '';
+          return;
+        }
+
+        const reader = new FileReader();
+        reader.onload = function (e) {
+          const previewImg = document.getElementById('avatar-preview');
+          if (previewImg) {
+            previewImg.src = e.target.result;
+          } else {
+            const img = document.createElement('img');
+            img.id = 'avatar-preview';
+            img.src = e.target.result;
+            img.className = 'w-full h-full object-cover';
+
+            const placeholder = document.getElementById('avatar-svg-placeholder');
+            if (placeholder) {
+              placeholder.replaceWith(img);
+            } else {
+              avatarContainer.appendChild(img);
+            }
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  }
+
+  function showGlobalError(msg) {
+    const container = document.getElementById('alert-container');
+    container.className = 'px-9 pt-6 block';
+    container.innerHTML = `
+      <div class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+        </svg>
+        <span>${msg}</span>
+      </div>
+    `;
+    autoHideAlerts();
+  }
+
+  // Timer logic
+  function startTimer() {
+    countdown = 60;
+    timerEl.textContent = '01:00';
+    timerWrap.style.display = 'block';
+    resendWrap.style.display = 'none';
+
+    clearInterval(interval);
+    interval = setInterval(() => {
+      countdown--;
+      const s = countdown < 10 ? '0' + countdown : countdown;
+      timerEl.textContent = `00:${s}`;
+
+      if (countdown <= 0) {
+        clearInterval(interval);
+        timerWrap.style.display = 'none';
+        resendWrap.style.display = 'block';
+      }
+    }, 1000);
+  }
+
+  // 6-digit boxes navigation
+  boxes.forEach((box, i) => {
+    box.addEventListener('input', (e) => {
+      const v = e.target.value;
+      if (v.length > 0) {
+        box.classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+        if (i < 5) boxes[i + 1].focus();
+      }
+    });
+
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace' && !box.value && i > 0) {
+        boxes[i - 1].focus();
+      }
+    });
+
+    box.addEventListener('paste', (e) => {
+      e.preventDefault();
+      const text = (e.clipboardData || window.clipboardData).getData('text').trim();
+      if (text.length === 6 && /^\d+$/.test(text)) {
+        for (let j = 0; j < 6; j++) {
+          boxes[j].value = text[j];
+          boxes[j].classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+        }
+        boxes[5].focus();
+      }
+    });
+  });
+
+  // Modal open/close actions
+  function openOtpModal(email) {
+    document.getElementById('otp-email-display').textContent = email.toLowerCase();
+    otpModal.classList.add('opacity-100', 'pointer-events-auto');
+    otpModalContent.classList.add('scale-100', 'opacity-100');
+    otpModalContent.classList.remove('scale-[0.85]', 'opacity-0');
+    startTimer();
+    setTimeout(() => boxes[0].focus(), 150);
+  }
+
+  function closeOtpModalFunc() {
+    otpModal.classList.remove('opacity-100', 'pointer-events-auto');
+    otpModalContent.classList.remove('scale-100', 'opacity-100');
+    otpModalContent.classList.add('scale-[0.85]', 'opacity-0');
+    clearInterval(interval);
+    // clear boxes
+    boxes.forEach(b => {
+      b.value = '';
+      b.classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+    });
+    otpError.classList.add('opacity-0', '-translate-y-1', 'pointer-events-none');
+    otpError.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+  }
+
+  closeOtpBtn.addEventListener('click', closeOtpModalFunc);
+
+  // Field validation helper styling
+  function showErr(wrap, errEl, msg) {
+    wrap.classList.remove('after:bg-brand-orange');
+    wrap.classList.add('after:w-full', 'after:bg-red-500', 'border-red-500', 'animate-shake');
+    errEl.textContent = msg;
+    errEl.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
+    errEl.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+
+    // Trigger shake animation
+    wrap.classList.remove('animate-shake');
+    void wrap.offsetWidth; // trigger reflow
+    wrap.classList.add('animate-shake');
+  }
+
+  function clearErr(wrap, errEl) {
+    wrap.classList.remove('after:w-full', 'after:bg-red-500', 'border-red-500', 'animate-shake');
+    wrap.classList.add('after:bg-brand-orange');
+    errEl.classList.add('opacity-0', '-translate-y-1', 'pointer-events-none');
+    errEl.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+  }
+
+  function validateName() {
+    const rawVal = nameInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(nameWrap, nameErr, 'Full name cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(nameWrap, nameErr, 'Full name is required.');
+      return false;
+    }
+    if (val.length < 3) {
+      showErr(nameWrap, nameErr, 'Full name must be at least 3 characters.');
+      return false;
+    }
+    if (/[0-9]/.test(val)) {
+      showErr(nameWrap, nameErr, 'Full name cannot contain numbers.');
+      return false;
+    }
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
+      showErr(nameWrap, nameErr, 'Full name cannot contain special characters.');
+      return false;
+    }
+    const nameRe = /^[a-zA-Z]+( [a-zA-Z]+)*$/;
+    if (!nameRe.test(val)) {
+      if (/\s{2,}/.test(rawVal)) {
+        showErr(nameWrap, nameErr, 'Full name cannot contain consecutive spaces.');
+      } else {
+        showErr(nameWrap, nameErr, 'Please enter a valid full name.');
+      }
+      return false;
+    }
+    clearErr(nameWrap, nameErr);
+    return true;
+  }
+
+  function validateEmail() {
+    const rawVal = emailInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(emailWrap, emailErr, 'Email address cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(emailWrap, emailErr, 'Email address is required.');
+      return false;
+    }
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(val)) {
+      showErr(emailWrap, emailErr, 'Enter a valid email address.');
+      return false;
+    }
+    clearErr(emailWrap, emailErr);
+    return true;
+  }
+
+  function validateMobile() {
+    const rawVal = phoneInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(phoneWrap, phoneErr, 'Phone number cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      clearErr(phoneWrap, phoneErr);
+      return true;
+    }
+    if (!/^\d+$/.test(val)) {
+      showErr(phoneWrap, phoneErr, 'Mobile number must contain only digits.');
+      return false;
+    }
+    if (val.length !== 10) {
+      showErr(phoneWrap, phoneErr, 'Mobile number must be exactly 10 digits.');
+      return false;
+    }
+    clearErr(phoneWrap, phoneErr);
+    return true;
+  }
+
+  // Submit main form (saves changes directly or initiates OTP code request)
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    const isNameValid = validateName();
+    const isEmailValid = validateEmail();
+    const isMobileValid = validateMobile();
+
+    if (!isNameValid || !isEmailValid || !isMobileValid) return;
+
+    const nameVal = nameInput.value.trim();
+    const emailVal = emailInput.value.trim().toLowerCase();
+    const phoneVal = phoneInput.value.trim();
+
+    const emailChanged = emailVal !== originalEmail;
+    const phoneChanged = phoneVal !== originalPhone;
+
+    if (emailChanged || phoneChanged) {
+      // Sensitive changes require OTP
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'sending otp';
+
+      const formData = new FormData();
+      formData.append('fullname', nameVal);
+      formData.append('email', emailVal);
+      formData.append('mobile_number', phoneVal);
+
+      fetch('{% url "profiles:profile_send_otp" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            saveBtn.disabled = false;
+            saveBtn.textContent = 'sending otp';
+            openOtpModal(emailVal);
+          } else {
+            saveBtn.disabled = false;
+            updateButtonLabel();
+            showGlobalError(data.message || 'Verification code delivery failed.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          saveBtn.disabled = false;
+          updateButtonLabel();
+          showGlobalError('Connection error. Please try again.');
+        });
+    } else {
+      // Direct save
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'saving';
+
+      const formData = new FormData(form);
+
+      fetch('{% url "profiles:profile_edit" %}', {
+        method: 'POST',
+        headers: {
+          'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: formData
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.status === 'success') {
+            saveBtn.textContent = '✓ Saved';
+            saveBtn.style.background = '#16a34a';
+            setTimeout(() => {
+              window.location.href = "{% url 'profiles:profile' %}?success=1";
+            }, 800);
+          } else {
+            saveBtn.disabled = false;
+            updateButtonLabel();
+            showGlobalError(data.message || 'Failed to save changes.');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          saveBtn.disabled = false;
+          updateButtonLabel();
+          showGlobalError('Connection error. Please try again.');
+        });
+    }
+  });
+
+  // Resend OTP code action
+  resendBtn.addEventListener('click', () => {
+    resendWrap.style.display = 'none';
+    timerWrap.style.display = 'block';
+    timerEl.textContent = 'Sending...';
+
+    const formData = new FormData();
+    formData.append('fullname', nameInput.value.trim());
+    formData.append('email', emailInput.value.trim().toLowerCase());
+    formData.append('mobile_number', phoneInput.value.trim());
+
+    fetch('{% url "profiles:profile_send_otp" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          startTimer();
+        } else {
+          showGlobalError(data.message || 'Resending code failed.');
+          timerWrap.style.display = 'none';
+          resendWrap.style.display = 'block';
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        showGlobalError('Connection error. Please try again.');
+        timerWrap.style.display = 'none';
+        resendWrap.style.display = 'block';
+      });
+  });
+
+  // Submit OTP Verification
+  otpForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    const otpCode = boxes.map(b => b.value).join('');
+
+    if (otpCode.length < 6) {
+      boxes.forEach(b => {
+        if (!b.value) b.classList.add('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+      });
+      container.classList.remove('animate-shake');
+      void container.offsetWidth;
+      container.classList.add('animate-shake');
+
+      otpError.textContent = 'Please enter all 6 digits of the OTP code.';
+      otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
+      otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      return;
+    }
+
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML = '<span>Verifying...</span>';
+
+    const formData = new FormData();
+    formData.append('otp', otpCode);
+    if (profileImageInput.files[0]) {
+      formData.append('profile_image', profileImageInput.files[0]);
+    }
+
+    fetch('{% url "profiles:profile_edit" %}', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': '{{ csrf_token }}'
+      },
+      body: formData
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          verifyBtn.innerHTML = '<span>✓ Verified</span>';
+          verifyBtn.style.background = '#16a34a';
+
+          setTimeout(() => {
+            closeOtpModalFunc();
+            window.location.href = "{% url 'profiles:profile' %}?success=1";
+          }, 1000);
+        } else {
+          verifyBtn.disabled = false;
+          verifyBtn.innerHTML = '<span>VERIFY & SAVE</span> <span class="font-sans">→</span>';
+
+          container.classList.remove('animate-shake');
+          void container.offsetWidth;
+          container.classList.add('animate-shake');
+
+          otpError.textContent = data.message || 'Incorrect verification code.';
+          otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
+          otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+        }
+      })
+      .catch(err => {
+        console.error(err);
+        verifyBtn.disabled = false;
+        verifyBtn.innerHTML = '<span>VERIFY & SAVE</span> <span class="font-sans">→</span>';
+        otpError.textContent = 'Connection error. Please try again.';
+        otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
+        otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      });
+  });
+</script>
+{% endblock %}

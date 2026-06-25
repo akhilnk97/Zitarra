@@ -1,0 +1,182 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Zitarra — Engineered for Precision{% endblock %}
+
+{% block content %}
+
+<!-- HERO -->
+<section class="grid grid-cols-2 h-[780px] overflow-hidden items-stretch opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv">
+  <div class="flex flex-col justify-center px-12 bg-[#FFF8F6] h-[780px]">
+    <h1 class="text-[60px] font-bold uppercase leading-none text-brand-dark mb-5">Engineered<br>For<br>Precision</h1>
+    <p class="text-[18px] text-[#5A4136] leading-[1.65] max-w-[340px] mb-8">High-fidelity instruments designed for the modern professional, uncompromising technical specifications.</p>
+    <a href="#shop" class="inline-block bg-brand-orange text-white text-[0.68rem] font-bold tracking-[0.18em] uppercase px-7 py-[13px] no-underline border-none cursor-pointer rounded-full relative overflow-hidden transition-all duration-200 hover:bg-[#c94008] hover:-translate-y-[1px] active:translate-y-0 active:scale-95 self-start before:content-[''] before:absolute before:top-0 before:left-[-80%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/18 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-500 hover:before:left-[130%]">Shop Now</a>
+  </div>
+  <div class="relative overflow-hidden bg-[#9B6840] h-[780px]">
+    <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=900&q=90" alt="Electric Guitarist" class="w-full h-[780px] object-cover object-top block" />
+    <div class="absolute inset-0 bg-[#64370a]/18 pointer-events-none"></div>
+  </div>
+</section>
+
+<!-- BRANDS -->
+<div class="flex items-center justify-around h-[93.8px] px-8 border-t border-b border-gray-200 bg-white max-w-[1280px] w-full mx-auto">
+  <span class="text-2xl font-bold tracking-[0.3em] uppercase text-gray-300 cursor-pointer transition-colors duration-200 hover:text-gray-500">Casio</span>
+  <span class="text-2xl font-bold tracking-[0.3em] uppercase text-gray-300 cursor-pointer transition-colors duration-200 hover:text-gray-500">Kadence</span>
+  <span class="text-2xl font-bold tracking-[0.3em] uppercase text-gray-300 cursor-pointer transition-colors duration-200 hover:text-gray-500">Fender</span>
+  <span class="text-2xl font-bold tracking-[0.3em] uppercase text-gray-300 cursor-pointer transition-colors duration-200 hover:text-gray-500">Yamaha</span>
+</div>
+
+<!-- TECHNICAL CLASSIFICATIONS -->
+<section class="bg-white pt-7 pb-0 px-0" id="shop">
+  <div class="pl-6 pb-4">
+    <h2 class="text-3xl font-black tracking-[0.12em] uppercase text-brand-dark mb-0 opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv">Technical Classifications</h2>
+  </div>
+  <div class="grid grid-cols-5 gap-0 opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv" style="transition-delay:.08s">
+    <div class="relative overflow-hidden h-[400px] cursor-pointer border-r border-[#d0d0d0] last:border-none group/titem">
+      <img src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=500&q=80" alt="Guitar" class="w-full h-full object-cover grayscale transition-all duration-400 block group-hover/titem:grayscale-0 group-hover/titem:scale-[1.03]"/>
+      <div class="absolute inset-0 bg-[#505064]/35 transition-colors duration-300 group-hover/titem:bg-[#505064]/10"></div>
+    </div>
+    <div class="relative overflow-hidden h-[400px] cursor-pointer border-r border-[#d0d0d0] last:border-none group/titem">
+      <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=500&q=80" alt="Piano" class="w-full h-full object-cover grayscale transition-all duration-400 block group-hover/titem:grayscale-0 group-hover/titem:scale-[1.03]"/>
+      <div class="absolute inset-0 bg-[#505064]/35 transition-colors duration-300 group-hover/titem:bg-[#505064]/10"></div>
+    </div>
+    <div class="relative overflow-hidden h-[400px] cursor-pointer border-r border-[#d0d0d0] last:border-none group/titem">
+      <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=500&q=80" alt="Drums" class="w-full h-full object-cover grayscale transition-all duration-400 block group-hover/titem:grayscale-0 group-hover/titem:scale-[1.03]"/>
+      <div class="absolute inset-0 bg-[#505064]/35 transition-colors duration-300 group-hover/titem:bg-[#505064]/10"></div>
+    </div>
+    <div class="relative overflow-hidden h-[400px] cursor-pointer border-r border-[#d0d0d0] last:border-none group/titem">
+      <img src="https://images.pexels.com/photos/210764/pexels-photo-210764.jpeg?w=500&h=400&fit=crop" alt="Flute" class="w-full h-full object-cover grayscale transition-all duration-400 block group-hover/titem:grayscale-0 group-hover/titem:scale-[1.03]"/>
+      <div class="absolute inset-0 bg-[#505064]/35 transition-colors duration-300 group-hover/titem:bg-[#505064]/10"></div>
+    </div>
+    <div class="relative overflow-hidden h-[400px] cursor-pointer border-r border-[#d0d0d0] last:border-none group/titem">
+      <img src="https://images.unsplash.com/photo-1564186763535-ebb21ef5277f?w=500&q=80" alt="Ukulele" class="w-full h-full object-cover grayscale transition-all duration-400 block group-hover/titem:grayscale-0 group-hover/titem:scale-[1.03]"/>
+      <div class="absolute inset-0 bg-[#505064]/35 transition-colors duration-300 group-hover/titem:bg-[#505064]/10"></div>
+    </div>
+  </div>
+  <div class="grid grid-cols-5 border-t border-b border-[#e0e0e0] bg-white">
+    <button class="flex items-center justify-between px-[18px] py-4 border-r border-[#e0e0e0] last:border-none text-[0.68rem] font-bold tracking-[0.15em] uppercase text-brand-dark cursor-pointer bg-white transition-all duration-200 hover:text-brand-orange group/fpill [&.active]:bg-brand-orange [&.active]:text-white fpill" onclick="sp(this)">Guitars <span class="text-xs text-gray-400 font-normal transition-colors duration-200 group-hover/fpill:text-brand-orange group-[.active]/fpill:text-white/80 arr">→</span></button>
+    <button class="flex items-center justify-between px-[18px] py-4 border-r border-[#e0e0e0] last:border-none text-[0.68rem] font-bold tracking-[0.15em] uppercase text-brand-dark cursor-pointer bg-white transition-all duration-200 hover:text-brand-orange group/fpill [&.active]:bg-brand-orange [&.active]:text-white fpill" onclick="sp(this)">Pianos <span class="text-xs text-gray-400 font-normal transition-colors duration-200 group-hover/fpill:text-brand-orange group-[.active]/fpill:text-white/80 arr">→</span></button>
+    <button class="flex items-center justify-between px-[18px] py-4 border-r border-[#e0e0e0] last:border-none text-[0.68rem] font-bold tracking-[0.15em] uppercase text-brand-dark cursor-pointer bg-white transition-all duration-200 hover:text-brand-orange group/fpill [&.active]:bg-brand-orange [&.active]:text-white active fpill" onclick="sp(this)">Drums <span class="text-xs text-gray-400 font-normal transition-colors duration-200 group-hover/fpill:text-brand-orange group-[.active]/fpill:text-white/80 arr">→</span></button>
+    <button class="flex items-center justify-between px-[18px] py-4 border-r border-[#e0e0e0] last:border-none text-[0.68rem] font-bold tracking-[0.15em] uppercase text-brand-dark cursor-pointer bg-white transition-all duration-200 hover:text-brand-orange group/fpill [&.active]:bg-brand-orange [&.active]:text-white fpill" onclick="sp(this)">Flutes <span class="text-xs text-gray-400 font-normal transition-colors duration-200 group-hover/fpill:text-brand-orange group-[.active]/fpill:text-white/80 arr">→</span></button>
+    <button class="flex items-center justify-between px-[18px] py-4 border-r border-[#e0e0e0] last:border-none text-[0.68rem] font-bold tracking-[0.15em] uppercase text-brand-dark cursor-pointer bg-white transition-all duration-200 hover:text-brand-orange group/fpill [&.active]:bg-brand-orange [&.active]:text-white fpill" onclick="sp(this)">Ukuleles <span class="text-xs text-gray-400 font-normal transition-colors duration-200 group-hover/fpill:text-brand-orange group-[.active]/fpill:text-white/80 arr">→</span></button>
+  </div>
+</section>
+
+<!-- NEW ACQUISITIONS -->
+<section class="bg-[#f5f5f0] px-6 py-8 pb-10">
+  <div class="flex items-center justify-between mb-5 opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv">
+    <h2 class="text-[2.6rem] font-black tracking-[0.08em] uppercase text-brand-dark m-0 leading-none">New Acquisitions</h2>
+    <a href="#" class="text-[0.62rem] font-bold tracking-[0.14em] uppercase text-brand-orange no-underline hover:underline">View All Inventory</a>
+  </div>
+  <div class="grid grid-cols-4 gap-0 border-t border-l border-gray-300 opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv" style="transition-delay:.08s">
+
+    <div class="border-r border-b border-gray-300 cursor-pointer transition-shadow duration-200 bg-white flex flex-col hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:z-10 hover:relative group/pcard">
+      <div class="w-full aspect-square overflow-hidden shrink-0 p-4 box-border flex items-center justify-center bg-white">
+        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=85" alt="Guitar" class="w-full h-full object-contain block grayscale transition-all duration-400 group-hover/pcard:grayscale-0"/>
+      </div>
+      <div class="p-4 pb-[18px] border-t border-gray-100 flex-1">
+        <p class="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">Fender</p>
+        <p class="text-[0.8rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-[1.4] mb-3">American Professional II<br>Stratocaster</p>
+        <p class="text-[0.8rem] font-normal text-brand-dark">$1,799.99</p>
+      </div>
+    </div>
+
+    <div class="border-r border-b border-gray-300 cursor-pointer transition-shadow duration-200 bg-white flex flex-col hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:z-10 hover:relative group/pcard">
+      <div class="w-full aspect-square overflow-hidden shrink-0 p-4 box-border flex items-center justify-center bg-white">
+        <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=600&q=85" alt="Piano" class="w-full h-full object-contain block grayscale transition-all duration-400 group-hover/pcard:grayscale-0"/>
+      </div>
+      <div class="p-4 pb-[18px] border-t border-gray-100 flex-1">
+        <p class="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">Yamaha</p>
+        <p class="text-[0.8rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-[1.4] mb-3">C3X Empire Grand Piano</p>
+        <p class="text-[0.8rem] font-normal text-brand-dark">$39,500.00</p>
+      </div>
+    </div>
+
+    <div class="border-r border-b border-gray-300 cursor-pointer transition-shadow duration-200 bg-white flex flex-col hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:z-10 hover:relative group/pcard">
+      <div class="w-full aspect-square overflow-hidden shrink-0 p-4 box-border flex items-center justify-center bg-white">
+        <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=600&q=85" alt="Drums" class="w-full h-full object-contain block grayscale transition-all duration-400 group-hover/pcard:grayscale-0"/>
+      </div>
+      <div class="p-4 pb-[18px] border-t border-gray-100 flex-1">
+        <p class="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">Pearl</p>
+        <p class="text-[0.8rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-[1.4] mb-3">Masters Maple Complete</p>
+        <p class="text-[0.8rem] font-normal text-brand-dark">$2,450.00</p>
+      </div>
+    </div>
+
+    <div class="border-r border-b border-gray-300 cursor-pointer transition-shadow duration-200 bg-white flex flex-col hover:shadow-[0_6px_24px_rgba(0,0,0,0.12)] hover:z-10 hover:relative group/pcard">
+      <div class="w-full aspect-square overflow-hidden shrink-0 p-4 box-border flex items-center justify-center bg-white">
+        <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=600&q=85" alt="Keyboard" class="w-full h-full object-contain block grayscale transition-all duration-400 group-hover/pcard:grayscale-0"/>
+      </div>
+      <div class="p-4 pb-[18px] border-t border-gray-100 flex-1">
+        <p class="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">Casio</p>
+        <p class="text-[0.8rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-[1.4] mb-3">Privia PX-S3100</p>
+        <p class="text-[0.8rem] font-normal text-brand-dark">$849.00</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- EXPERT CONSULTATION -->
+<section class="grid grid-cols-2 h-[545px] overflow-hidden" id="about">
+  <div class="bg-[#FFF8F6] flex flex-col justify-center px-12 py-14 opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv">
+    <h2 class="text-[3.2rem] font-black uppercase leading-none text-brand-dark mb-6">Expert<br>Consultat<br>ion</h2>
+    <p class="text-[0.85rem] text-[#5A4136] leading-[1.75] max-w-[340px]">Schedule a private session with our sonic architects to find the instrument engineered exactly for your specific frequency and playing style.</p>
+  </div>
+  <div class="relative overflow-hidden h-[545px]">
+    <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=900&q=85" alt="Guitar Consultant" class="w-full h-full object-cover object-top grayscale block"/>
+  </div>
+</section>
+
+<!-- STAY TUNED -->
+<section class="bg-[#2C1A10] h-[536px] flex items-center justify-center text-center" id="contact">
+  <div class="w-full max-w-[560px] px-6 py-0 opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv">
+    <h2 class="text-[3.8rem] font-black tracking-[0.12em] uppercase text-white mb-5 leading-none">Stay Tuned</h2>
+    <p class="text-[0.85rem] text-[#b8a090] leading-[1.75] mb-8">Subscribe to receive technical specifications, early access to new arrivals, and architectural sound design insights.</p>
+    <form class="w-full max-w-[380px] mx-auto my-0" id="nlf" novalidate>
+      <label class="text-[0.55rem] font-bold tracking-[0.18em] uppercase text-[#7a6050] mb-2 block text-left">Email Address</label>
+      <input type="email" id="nle" class="w-full bg-transparent border-none border-b border-[#6a5040] outline-none text-white text-[0.9rem] py-2.5 px-0 mb-7 transition-colors duration-200 tracking-[0.08em] uppercase focus:border-brand-orange placeholder:text-[#5a4030] placeholder:text-[0.82rem] placeholder:tracking-[0.1em] placeholder:uppercase" placeholder="Enter Your Email" autocomplete="email"/>
+      <div><button type="submit" class="w-full text-white text-[0.72rem] font-bold tracking-[0.2em] uppercase py-4 rounded-full relative overflow-hidden bg-brand-orange transition-all duration-200 hover:bg-[#c94008] hover:-translate-y-[1px] active:translate-y-0 active:scale-95 before:content-[''] before:absolute before:top-0 before:left-[-80%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/18 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-550 hover:before:left-[130%] cursor-pointer border-none">Subscribe</button></div>
+    </form>
+  </div>
+</section>
+
+<!-- FOOTER -->
+{% include 'user/partials/footer.html' %}
+
+<script>
+function sp(el){document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
+document.getElementById('nlf').addEventListener('submit',function(e){e.preventDefault();const v=document.getElementById('nle').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){document.getElementById('nle').style.borderColor='#ef4444';return;}const b=this.querySelector('button');b.textContent='✓ Subscribed';b.style.background='#16a34a';b.disabled=true;});
+const ob=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});},{threshold:0.1});
+document.querySelectorAll('.rv').forEach(el=>ob.observe(el));
+/* Nav active on click + scroll-spy */
+const navLinks = document.querySelectorAll('.n-links a');
+navLinks.forEach(link => {
+  link.addEventListener('click', () => {
+    navLinks.forEach(l => l.classList.remove('act'));
+    link.classList.add('act');
+  });
+});
+const sections = [
+  { id:'shop',    el: document.getElementById('nav-shop') },
+  { id:'about',   el: document.getElementById('nav-about') },
+  { id:'contact', el: document.getElementById('nav-contact') },
+];
+const homeLink = document.getElementById('nav-home');
+
+window.addEventListener('scroll',()=>{
+  const scrolled = window.scrollY > 10;
+  document.getElementById('nav').classList.toggle('scrolled', scrolled);
+  document.getElementById('nav').style.boxShadow = scrolled ? '' : 'none';
+
+  /* scroll-spy */
+  const y = window.scrollY + 80;
+  let active = homeLink;
+  sections.forEach(s => {
+    const sec = document.getElementById(s.id);
+    if (sec && sec.offsetTop <= y) active = s.el;
+  });
+  navLinks.forEach(l => l.classList.remove('act'));
+  if (active) active.classList.add('act');
+}, { passive: true });
+</script>
+
+{% endblock %}

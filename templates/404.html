@@ -1,0 +1,96 @@
+{% extends 'user/base/base.html' %}
+{% block title %}404 — Page Out of Tune — Zitarra{% endblock %}
+
+{% block navbar %}
+  {% if request.user.is_authenticated %}
+    {% include 'user/partials/navbar_home.html' %}
+  {% else %}
+    {% include 'user/partials/navbar.html' %}
+  {% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full flex flex-col items-center justify-center min-h-[calc(100vh-60px)] bg-[#F5F0EB] text-[#1A1A1A] font-sans px-6 py-12 relative overflow-hidden select-none">
+  
+  <!-- Subtle Background Grid/Aesthetic -->
+  <div class="absolute inset-0 bg-[radial-gradient(#E8500A_0.6px,transparent_0.6px)] [background-size:24px_24px] opacity-[0.04] pointer-events-none"></div>
+
+  <!-- Main Container -->
+  <div class="w-full max-w-lg text-center flex flex-col items-center z-10">
+    
+    <!-- Equalizer Animation / Visual -->
+    <div class="flex items-end justify-center gap-1.5 h-24 mb-10 group cursor-pointer" title="Hover to make the waves dance">
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-12 animate-[bounce_1.2s_infinite_ease-in-out]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-18 animate-[bounce_0.8s_infinite_ease-in-out_delay-150]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-8 animate-[bounce_1.4s_infinite_ease-in-out_delay-300]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-22 animate-[bounce_0.9s_infinite_ease-in-out_delay-100]"></div>
+      <div class="w-2.5 bg-[#E8500A] rounded-full h-14 animate-[bounce_1.1s_infinite_ease-in-out_delay-400]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-20 animate-[bounce_0.75s_infinite_ease-in-out_delay-200]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-10 animate-[bounce_1.3s_infinite_ease-in-out_delay-150]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-16 animate-[bounce_1.0s_infinite_ease-in-out_delay-350]"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-6 animate-[bounce_1.5s_infinite_ease-in-out_delay-250]"></div>
+    </div>
+
+    <!-- 404 Large Label -->
+    <h1 class="text-[7.5rem] font-black tracking-widest text-[#1A1A1A] leading-none mb-2 select-none select-none drop-shadow-sm select-none select-none">
+      404
+    </h1>
+    
+    <!-- Title & Subtitle -->
+    <h2 class="text-sm font-black tracking-[0.25em] uppercase text-[#E8500A] mb-4">
+      Discordant Path / Out of Tune
+    </h2>
+    
+    <!-- Description -->
+    <p class="text-[0.82rem] font-medium text-[#5A4136] leading-[1.8] max-w-sm mb-12">
+      Even the most precisely engineered sonic hardware can encounter a misaligned frequency. The page you are looking for has drifted out of tune or doesn't exist.
+    </p>
+
+    <!-- Action Buttons -->
+    <div class="flex flex-col sm:flex-row items-center justify-center gap-4 w-full px-6">
+      
+      <!-- Home Button -->
+      {% if request.user.is_authenticated %}
+        <a href="/home/" class="w-full sm:w-auto min-w-[170px] bg-[#1A1A1A] text-white text-[0.68rem] font-bold tracking-[0.2em] uppercase px-7 py-4 no-underline border-none cursor-pointer rounded-full relative overflow-hidden transition-all duration-200 hover:bg-[#E8500A] hover:-translate-y-[1px] active:translate-y-0 active:scale-95 text-center before:content-[''] before:absolute before:top-0 before:left-[-80%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/18 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-500 hover:before:left-[130%]">
+          TUNE BACK IN
+        </a>
+      {% else %}
+        <a href="/" class="w-full sm:w-auto min-w-[170px] bg-[#1A1A1A] text-white text-[0.68rem] font-bold tracking-[0.2em] uppercase px-7 py-4 no-underline border-none cursor-pointer rounded-full relative overflow-hidden transition-all duration-200 hover:bg-[#E8500A] hover:-translate-y-[1px] active:translate-y-0 active:scale-95 text-center before:content-[''] before:absolute before:top-0 before:left-[-80%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/18 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-500 hover:before:left-[130%]">
+          TUNE BACK IN
+        </a>
+      {% endif %}
+
+      <!-- Back Button -->
+      <button onclick="window.history.back()" class="w-full sm:w-auto min-w-[170px] border border-[#d2c9c2] hover:border-[#1A1A1A] text-[#1A1A1A] text-[0.68rem] font-bold tracking-[0.2em] uppercase px-7 py-4 rounded-full transition-all duration-200 hover:-translate-y-[1px] active:translate-y-0 active:scale-95 bg-transparent cursor-pointer outline-none">
+        PREVIOUS TRACK
+      </button>
+
+    </div>
+
+  </div>
+
+  <!-- Custom animations styles -->
+  <style>
+    @keyframes bounce {
+      0%, 100% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-20px);
+      }
+    }
+    .delay-100 { animation-delay: 0.1s; }
+    .delay-150 { animation-delay: 0.15s; }
+    .delay-200 { animation-delay: 0.2s; }
+    .delay-250 { animation-delay: 0.25s; }
+    .delay-300 { animation-delay: 0.3s; }
+    .delay-350 { animation-delay: 0.35s; }
+    .delay-400 { animation-delay: 0.4s; }
+
+    /* Equalizer hover enhancement */
+    .group:hover div {
+      animation-duration: 0.4s !important;
+    }
+  </style>
+</div>
+{% endblock %}

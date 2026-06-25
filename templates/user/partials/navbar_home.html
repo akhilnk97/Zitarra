@@ -1,0 +1,44 @@
+<header id="nav" class="sticky top-0 z-[200] bg-white border-b border-gray-200 flex items-center px-8 h-[60px] transition-all duration-400 group [&.scrolled]:bg-[#0a0a0a]/65 [&.scrolled]:border-transparent [&.scrolled]:shadow-[0_4px_32px_rgba(0,0,0,0.35)] [&.scrolled]:backdrop-blur-[18px]">
+  <div class="flex-1 flex justify-start items-center">
+    <a href="/home/" class="text-2xl font-black tracking-[0.22em] uppercase text-brand-dark no-underline transition-colors duration-400 relative inline-block group-[.scrolled]:text-white after:content-[''] after:block after:h-[2px] after:w-0 after:bg-brand-orange after:transition-all after:duration-400 after:mx-auto after:mt-[2px] group-[.scrolled]:after:w-full">Zitarra</a>
+  </div>
+  <nav class="flex gap-7 list-none n-links">
+    <a href="/home/" id="nav-home" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Home</a>
+    <a href="/home/#shop" id="nav-shop" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Shop</a>
+    <a href="/home/#about" id="nav-about" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">About Us</a>
+    <a href="/home/#contact" id="nav-contact" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Contact Us</a>
+  </nav>
+  <div class="flex-1 flex justify-end items-center gap-6">
+    <!-- Search Icon -->
+    <button type="button" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange outline-none flex items-center cursor-pointer" aria-label="Search">
+      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+    
+    <!-- Cart Icon -->
+    <a href="#cart" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Cart">
+      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <circle cx="9" cy="21" r="1"></circle>
+        <circle cx="20" cy="21" r="1"></circle>
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+      </svg>
+    </a>
+
+    <!-- Wishlist Icon -->
+    <a href="#wishlist" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Wishlist">
+      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+      </svg>
+    </a>
+
+    <!-- Profile Icon -->
+    <a href="{% url 'profiles:profile' %}" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange outline-none flex items-center cursor-pointer" aria-label="Profile">
+      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+        <circle cx="12" cy="7" r="4"></circle>
+      </svg>
+    </a>
+  </div>
+</header>

@@ -1,0 +1,441 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Verify OTP — Zitarra{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-brand-cream flex flex-col">
+  <main class="flex-1 flex items-center justify-center px-4 py-16">
+    <div class="w-full max-w-lg">
+
+      <!-- ── OTP Section ── -->
+      <div id="otp-section" class="transition-all duration-350">
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if 'success' in message.tags %}
+                    <div class="mb-6 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                        <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ message }}</span>
+                    </div>
+                {% else %}
+                    <div class="mb-6 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+                        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <h1 class="text-5xl font-black uppercase text-brand-orange leading-none tracking-widest mb-8" id="otp-heading">VERIFY YOUR<br>ACCOUNT</h1>
+        <p class="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-8">ENTER THE 6-DIGIT CODE SENT TO YOUR EMAIL.</p>
+
+        <form method="POST" id="otp-form">
+            {% csrf_token %}
+            <input type="hidden" name="otp" id="otp-hidden">
+          <div class="flex gap-3 mb-2" id="otp-container">
+            <input type="text" maxlength="1" class="flex-1 min-w-0 max-w-[72px] h-16 border-[1.5px] border-gray-300 text-center text-2xl font-extrabold outline-none transition-all duration-200 bg-white focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.2)] focus:-translate-y-0.5" inputmode="numeric" autocomplete="off" />
+            <input type="text" maxlength="1" class="flex-1 min-w-0 max-w-[72px] h-16 border-[1.5px] border-gray-300 text-center text-2xl font-extrabold outline-none transition-all duration-200 bg-white focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.2)] focus:-translate-y-0.5" inputmode="numeric" autocomplete="off" />
+            <input type="text" maxlength="1" class="flex-1 min-w-0 max-w-[72px] h-16 border-[1.5px] border-gray-300 text-center text-2xl font-extrabold outline-none transition-all duration-200 bg-white focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.2)] focus:-translate-y-0.5" inputmode="numeric" autocomplete="off" />
+            <input type="text" maxlength="1" class="flex-1 min-w-0 max-w-[72px] h-16 border-[1.5px] border-gray-300 text-center text-2xl font-extrabold outline-none transition-all duration-200 bg-white focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.2)] focus:-translate-y-0.5" inputmode="numeric" autocomplete="off" />
+            <input type="text" maxlength="1" class="flex-1 min-w-0 max-w-[72px] h-16 border-[1.5px] border-gray-300 text-center text-2xl font-extrabold outline-none transition-all duration-200 bg-white focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.2)] focus:-translate-y-0.5" inputmode="numeric" autocomplete="off" />
+            <input type="text" maxlength="1" class="flex-1 min-w-0 max-w-[72px] h-16 border-[1.5px] border-gray-300 text-center text-2xl font-extrabold outline-none transition-all duration-200 bg-white focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.2)] focus:-translate-y-0.5" inputmode="numeric" autocomplete="off" />
+          </div>
+          <p class="text-center mt-2.5 text-[0.7rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="otp-error">Please enter the complete 6-digit code.</p>
+          <div class="text-center mt-6 mb-8" id="timer-wrap"><p class="text-[0.65rem] font-semibold tracking-[0.08em] uppercase text-gray-500">RESEND CODE IN <span id="timer">1:00</span> MINUTE</p></div>
+          <div class="text-center mt-6 mb-8 hidden" id="resend-wrap-placeholder"></div>
+          <button type="submit" id="verify-btn" class="w-full text-white text-xs font-bold tracking-[0.3em] uppercase py-4 flex items-center justify-center gap-3 relative overflow-hidden bg-brand-orange transition-all duration-250 hover:bg-[#c94008] hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(232,80,10,0.45)] active:translate-y-0 active:scale-[0.98] active:shadow-none before:content-[''] before:absolute before:top-0 before:left-[-75%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/22 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-550 hover:before:left-[130%] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+            VERIFY AND CONTINUE
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </form>
+
+      <!-- Resend form OUTSIDE the OTP form -->
+      <div class="text-center mt-4 mb-4 hidden" id="resend-wrap">
+        <p class="text-xs text-gray-500">Didn't receive the code?</p>
+        <form method="POST" action="{% url 'resend_otp' %}">
+          {% csrf_token %}
+          <button type="submit" class="text-brand-orange underline font-bold text-xs transition-colors duration-200 hover:text-[#c94008] bg-transparent border-none cursor-pointer p-0 mt-1">
+            Resend Code
+          </button>
+        </form>
+      </div>
+
+      <div class="mt-6">
+        <a href="/login/" class="inline-flex items-center gap-1.5 text-[0.7rem] font-bold tracking-[0.1em] uppercase text-gray-400 no-underline transition-all duration-250 hover:text-brand-orange hover:gap-[8px] group/back">
+          <span class="inline-block transition-transform duration-250 group-hover/back:-translate-x-[3px]">←</span>
+          <span>BACK TO LOGIN</span>
+        </a>
+      </div>
+      </div>
+
+      <!-- ── Reset Password Section (shown after OTP for reset flow) ── -->
+      <div id="reset-section" class="hidden opacity-0 translate-y-3 transition-all duration-350">
+        <h1 class="text-5xl font-black uppercase text-brand-orange leading-none tracking-widest mb-1">RESET<br>PASSWORD</h1>
+        <div class="w-12 h-[3px] bg-brand-orange mt-3 mb-3"></div>
+        <p class="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-10">SET A NEW STRONG PASSWORD FOR YOUR ACCOUNT.</p>
+        <form id="reset-form" novalidate>
+          <!-- New Password -->
+          <div class="mb-6">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">New Password</label>
+            <div class="relative border-b border-gray-300 pb-2 pr-8 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="pwd-wrap">
+              <input type="password" id="new-pwd" placeholder="••••••••" class="w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-400" autocomplete="new-password" />
+              <button type="button" class="absolute right-0 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-gray-400 p-0 transition-colors duration-200 hover:text-brand-orange" id="toggle-pwd" aria-label="Toggle password">
+                <svg id="eye-open" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg id="eye-closed" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18"/></svg>
+              </button>
+            <p class="flex items-center gap-1.5 mt-[7px] text-[0.7rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="pwd-error"><svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="pwd-error-text"></span></p>
+          </div>
+          <!-- Confirm Password -->
+          <div class="mb-10">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Confirm New Password</label>
+            <div class="relative border-b border-gray-300 pb-2 pr-8 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="cpwd-wrap">
+              <input type="password" id="confirm-pwd" placeholder="••••••••" class="w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-400" autocomplete="new-password" />
+              <button type="button" class="absolute right-0 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-gray-400 p-0 transition-colors duration-200 hover:text-brand-orange" id="toggle-cpwd" aria-label="Toggle confirm password">
+                <svg id="ceye-open" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg id="ceye-closed" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18"/></svg>
+              </button>
+            </div>
+            <p class="flex items-center gap-1.5 mt-[7px] text-[0.7rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="cpwd-error"><svg class="w-3 h-3 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="cpwd-error-text"></span></p>
+          </div>
+          <button type="submit" id="reset-btn" class="w-full text-white text-xs font-bold tracking-[0.3em] uppercase py-4 flex items-center justify-center gap-3 relative overflow-hidden bg-brand-orange transition-all duration-250 hover:bg-[#c94008] hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(232,80,10,0.45)] active:translate-y-0 active:scale-[0.98] active:shadow-none before:content-[''] before:absolute before:top-0 before:left-[-75%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/22 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-550 hover:before:left-[130%] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
+            RESET AND CONTINUE
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </main>
+  {% include 'user/partials/footer.html' %}
+</div>
+
+<!-- ── Signup Success Modal ── -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-[9999] opacity-0 transition-opacity duration-300 pointer-events-none" id="signup-modal">
+  <div class="bg-white px-10 py-12 max-w-[420px] w-[90%] text-center scale-[0.85] opacity-0 transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+    <div class="w-16 h-16 mx-auto mb-6 bg-brand-orange rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+    <h2 class="text-xl font-extrabold uppercase tracking-[0.05em] text-brand-dark mb-3">Account Created<br>Successfully</h2>
+    <div class="w-12 h-[2px] bg-brand-orange mx-auto mb-4"></div>
+    <p class="text-[0.85rem] text-gray-500 mb-6 leading-relaxed">Your Zitarra account has been verified successfully. You can now continue to login and start shopping our premium audio hardware collection.</p>
+    <button class="relative overflow-hidden bg-brand-orange text-white px-8 py-[0.9rem] text-[0.7rem] font-bold tracking-[0.15em] uppercase border-none cursor-pointer w-full transition-colors duration-200 hover:bg-[#c94008]" id="signup-continue-btn">Continue to Login →</button>
+  </div>
+</div>
+
+<!-- ── Password Reset Success Modal ── -->
+<div class="fixed inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-[9999] opacity-0 transition-opacity duration-300 pointer-events-none" id="reset-modal">
+  <div class="bg-white px-10 py-12 max-w-[420px] w-[90%] text-center scale-[0.85] opacity-0 transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)]">
+    <div class="w-16 h-16 mx-auto mb-6 bg-brand-orange rounded-full flex items-center justify-center"><svg class="w-8 h-8 text-white" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3.5"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div>
+    <h2 class="text-xl font-extrabold uppercase tracking-[0.05em] text-brand-dark mb-3">Password Reset<br>Successfully</h2>
+    <div class="w-12 h-[2px] bg-brand-orange mx-auto mb-4"></div>
+    <p class="text-[0.85rem] text-gray-500 mb-6 leading-relaxed">Your Zitarra account password has been updated. You can now login with your new password.</p>
+    <button class="relative overflow-hidden bg-brand-orange text-white px-8 py-[0.9rem] text-[0.7rem] font-bold tracking-[0.15em] uppercase border-none cursor-pointer w-full transition-colors duration-200 hover:bg-[#c94008]" id="reset-continue-btn">Continue to Login →</button>
+  </div>
+</div>
+
+<script>
+  /* ── Detect flow ── */
+  const isResetFlow = new URLSearchParams(window.location.search).get('flow') === 'reset';
+
+  /* ── Update heading for reset flow ── */
+  if (isResetFlow) {
+    document.getElementById('otp-heading').innerHTML = 'VERIFY YOUR<br>EMAIL';
+  }
+
+  /* ── OTP logic ── */
+  const boxes = Array.from(document.querySelectorAll('#otp-container input'));
+  const container = document.getElementById('otp-container');
+  const otpError = document.getElementById('otp-error');
+  const verifyBtn = document.getElementById('verify-btn');
+  const timerWrap = document.getElementById('timer-wrap');
+  const resendWrap = document.getElementById('resend-wrap');
+  const timerEl = document.getElementById('timer');
+  let interval;
+  const COOLDOWN_TIME = 60; // 1 minute
+  const STORAGE_KEY = window.location.pathname + '_otp_timer_end';
+
+  // Check if there are any error messages on page load
+  const hasErrors = document.querySelector('.msg-alert.border-red-500');
+  // Detect if the error is specifically an OTP expiry error
+  const isExpiredError = hasErrors && hasErrors.querySelector('span') &&
+    hasErrors.querySelector('span').textContent.toLowerCase().includes('expired');
+
+  if (hasErrors) {
+    const originalBg = verifyBtn.style.background || '';
+    const originalText = verifyBtn.innerHTML;
+    
+    verifyBtn.style.transition = 'background 0.4s ease';
+    verifyBtn.style.background = '#dc2626'; // red-600
+    verifyBtn.innerHTML = `
+      <svg class="w-4 h-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+      VERIFICATION FAILED
+    `;
+    
+    setTimeout(() => {
+      verifyBtn.style.background = originalBg;
+      verifyBtn.innerHTML = originalText;
+    }, 2500);
+  }
+
+  // If the OTP has expired, immediately clear the timer and show resend
+  if (isExpiredError) {
+    localStorage.removeItem(STORAGE_KEY);
+  }
+
+  // Always clear any stale error states on page load
+  otpError.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+  boxes.forEach(b => b.classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]'));
+
+  function startTimer() {
+    clearInterval(interval);
+    let timerEnd = localStorage.getItem(STORAGE_KEY);
+    const now = Math.floor(Date.now() / 1000);
+    
+    if (!timerEnd || parseInt(timerEnd) <= now) {
+      // Only start a fresh timer if we are NOT showing an expired-OTP error
+      if (isExpiredError) {
+        // OTP already expired on backend — show resend immediately, don't restart timer
+        timerWrap.classList.add('hidden');
+        resendWrap.classList.remove('hidden');
+        return;
+      }
+      timerEnd = now + COOLDOWN_TIME;
+      localStorage.setItem(STORAGE_KEY, timerEnd);
+    } else {
+      timerEnd = parseInt(timerEnd);
+    }
+
+    function update() {
+      const currentNow = Math.floor(Date.now() / 1000);
+      const remaining = timerEnd - currentNow;
+      
+      if (remaining <= 0) {
+        clearInterval(interval);
+        localStorage.removeItem(STORAGE_KEY);
+        timerWrap.classList.add('hidden');
+        resendWrap.classList.remove('hidden');
+      } else {
+        timerWrap.classList.remove('hidden');
+        resendWrap.classList.add('hidden');
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
+      }
+    }
+
+    update();
+    interval = setInterval(update, 1000);
+  }
+  startTimer();
+
+  boxes.forEach((box, i) => {
+    box.addEventListener('keydown', (e) => {
+      if (e.key === 'Backspace') { if (!box.value && i > 0) { boxes[i-1].focus(); boxes[i-1].select(); } }
+      else if (!/^\d$/.test(e.key) && !['Tab','ArrowLeft','ArrowRight'].includes(e.key)) { e.preventDefault(); }
+    });
+    box.addEventListener('input', () => {
+      box.value = box.value.replace(/\D/g, '').slice(0, 1);
+      if (box.value) {
+        box.classList.add('border-brand-dark');
+        box.classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+        if (i < 5) boxes[i+1].focus();
+      }
+      else {
+        box.classList.remove('border-brand-dark');
+      }
+      otpError.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      if (container.dataset.errTimeout) {
+        clearTimeout(parseInt(container.dataset.errTimeout));
+        delete container.dataset.errTimeout;
+      }
+    });
+    box.addEventListener('focus', () => box.select());
+  });
+
+  container.addEventListener('paste', (e) => {
+    e.preventDefault();
+    const p = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    p.split('').forEach((c, i) => {
+      if (boxes[i]) {
+        boxes[i].value = c;
+        boxes[i].classList.add('border-brand-dark');
+        boxes[i].classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+      }
+    });
+    if (p.length === 6) boxes[5].focus(); else if (p.length < 6) boxes[p.length].focus();
+    otpError.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    if (container.dataset.errTimeout) {
+      clearTimeout(parseInt(container.dataset.errTimeout));
+      delete container.dataset.errTimeout;
+    }
+  });
+
+  verifyBtn.addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect(); const size = Math.max(rect.width, rect.height);
+    const r = document.createElement('span'); r.className = 'absolute rounded-full bg-white/35 scale-0 pointer-events-none animate-ripple';
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r); r.addEventListener('animationend', () => r.remove());
+  });
+
+  document.getElementById('otp-form').addEventListener('submit', function(e) {
+    const code = boxes.map(box => box.value).join('');
+    if (code.length !== 6) {
+        e.preventDefault();
+        boxes.forEach(box => {
+            if (!box.value) {
+                box.classList.add(
+                    'border-red-500',
+                    'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]'
+                );
+            }
+        });
+
+        container.classList.remove('animate-shake');
+        void container.offsetWidth;
+        container.classList.add('animate-shake');
+
+        otpError.classList.add(
+            'opacity-100',
+            'translate-y-0',
+            'pointer-events-auto'
+        );
+
+        if (container.dataset.errTimeout) {
+            clearTimeout(parseInt(container.dataset.errTimeout));
+        }
+        const tid = setTimeout(() => {
+            otpError.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+            boxes.forEach(box => {
+                box.classList.remove('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
+            });
+        }, 3000);
+        container.dataset.errTimeout = tid;
+
+        return;
+    }
+
+    document.getElementById('otp-hidden').value = code;
+
+    setTimeout(() => { verifyBtn.disabled = true; }, 0);
+    verifyBtn.innerHTML = `
+      <svg class="animate-spin w-4 h-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="3"></circle>
+        <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+      VERIFYING...
+    `;
+});
+
+
+
+  /* ── Signup modal button ── */
+  document.getElementById('signup-continue-btn').addEventListener('click', function(e) {
+    localStorage.removeItem(window.location.pathname + '_otp_timer_end');
+    const rect = this.getBoundingClientRect(); const size = Math.max(rect.width, rect.height);
+    const r = document.createElement('span'); r.className = 'absolute rounded-full bg-white/35 scale-0 pointer-events-none animate-ripple';
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r); r.addEventListener('animationend', () => r.remove());
+    // Submit the OTP form to Django — verifies OTP in DB and redirects to login
+    setTimeout(() => { document.getElementById('otp-form').submit(); }, 250);
+  });
+
+  /* ── Reset password form logic ── */
+  const newPwdInput = document.getElementById('new-pwd');
+  const confirmPwdInput = document.getElementById('confirm-pwd');
+  const pwdWrap = document.getElementById('pwd-wrap');
+  const cpwdWrap = document.getElementById('cpwd-wrap');
+  const pwdErr = document.getElementById('pwd-error');
+  const cpwdErr = document.getElementById('cpwd-error');
+  const pwdErrTxt = document.getElementById('pwd-error-text');
+  const resetBtn = document.getElementById('reset-btn');
+
+  function showErrR(wrap, errEl, errTxt, msg) {
+    errTxt.textContent = msg; wrap.classList.add('after:w-full','after:bg-red-500','border-red-500'); errEl.classList.add('opacity-100','translate-y-0','pointer-events-auto');
+    wrap.classList.remove('animate-shake'); void wrap.offsetWidth; wrap.classList.add('animate-shake');
+    if (wrap.dataset.errTimeout) {
+      clearTimeout(parseInt(wrap.dataset.errTimeout));
+    }
+    const tid = setTimeout(() => {
+      clearErrR(wrap, errEl);
+    }, 3000);
+    wrap.dataset.errTimeout = tid;
+  }
+  function clearErrR(wrap, errEl) {
+    wrap.classList.remove('after:w-full','after:bg-red-500','border-red-500','animate-shake');
+    errEl.classList.remove('opacity-100','translate-y-0','pointer-events-auto');
+    if (wrap.dataset.errTimeout) {
+      clearTimeout(parseInt(wrap.dataset.errTimeout));
+      delete wrap.dataset.errTimeout;
+    }
+  }
+
+  newPwdInput.addEventListener('input', () => clearErrR(pwdWrap, pwdErr));
+  confirmPwdInput.addEventListener('input', () => clearErrR(cpwdWrap, cpwdErr));
+
+  /* Eye toggle helpers */
+  function setupEye(btnId, inp, openId, closedId) {
+    document.getElementById(btnId).addEventListener('click', () => {
+      const h = inp.type === 'password'; inp.type = h ? 'text' : 'password';
+      document.getElementById(openId).classList.toggle('hidden', h);
+      document.getElementById(closedId).classList.toggle('hidden', !h);
+    });
+  }
+  setupEye('toggle-pwd', newPwdInput, 'eye-open', 'eye-closed');
+  setupEye('toggle-cpwd', confirmPwdInput, 'ceye-open', 'ceye-closed');
+
+  document.getElementById('reset-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    const pwd = newPwdInput.value, cpwd = confirmPwdInput.value;
+    let valid = true;
+    clearErrR(pwdWrap, pwdErr); clearErrR(cpwdWrap, cpwdErr);
+    if (!pwd) { showErrR(pwdWrap, pwdErr, pwdErrTxt, 'Please enter a new password.'); valid = false; }
+    else if (pwd.length < 8) { showErrR(pwdWrap, pwdErr, pwdErrTxt, 'Password must be at least 8 characters.'); valid = false; }
+    else if (/\s/.test(pwd)) { showErrR(pwdWrap, pwdErr, pwdErrTxt, 'Password must not contain spaces or whitespace.'); valid = false; }
+    if (!cpwd) { showErrR(cpwdWrap, cpwdErr, cpwdErrTxt, 'Please confirm your password.'); valid = false; }
+    else if (pwd && cpwd !== pwd) { showErrR(cpwdWrap, cpwdErr, cpwdErrTxt, 'Passwords do not match.'); valid = false; }
+    if (!valid) return;
+    resetBtn.disabled = true; resetBtn.innerHTML = 'Updating…';
+    setTimeout(() => {
+      resetBtn.innerHTML = '✓ Password Updated'; resetBtn.style.background = '#16a34a';
+      setTimeout(() => {
+        const rModal = document.getElementById('reset-modal');
+        rModal.classList.add('opacity-100', 'pointer-events-auto');
+        rModal.querySelector('div').classList.add('scale-100', 'opacity-100');
+        rModal.querySelector('div').classList.remove('scale-[0.85]', 'opacity-0');
+        rModal.querySelector('.w-16').classList.add('animate-iconBounce');
+      }, 300);
+    }, 700);
+  });
+
+  resetBtn.addEventListener('click', function(e) {
+    if (this.disabled) return;
+    const rect = this.getBoundingClientRect(); const size = Math.max(rect.width, rect.height);
+    const r = document.createElement('span'); r.className = 'absolute rounded-full bg-white/35 scale-0 pointer-events-none animate-ripple';
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r); r.addEventListener('animationend', () => r.remove());
+  });
+
+  /* ── Reset success modal button ── */
+  document.getElementById('reset-continue-btn').addEventListener('click', function(e) {
+    const rect = this.getBoundingClientRect(); const size = Math.max(rect.width, rect.height);
+    const r = document.createElement('span'); r.className = 'absolute rounded-full bg-white/35 scale-0 pointer-events-none animate-ripple';
+    r.style.cssText = `width:${size}px;height:${size}px;left:${e.clientX-rect.left-size/2}px;top:${e.clientY-rect.top-size/2}px`;
+    this.appendChild(r); r.addEventListener('animationend', () => r.remove());
+    setTimeout(() => { window.location.href = '/login/'; }, 250);
+  });
+
+  // Auto-hide top alert messages after 3 seconds
+  setTimeout(() => {
+    document.querySelectorAll('.msg-alert').forEach(el => {
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-10px)';
+      setTimeout(() => {
+        el.style.maxHeight = '0';
+        el.style.padding = '0';
+        el.style.margin = '0';
+        el.style.border = 'none';
+        setTimeout(() => el.remove(), 500);
+      }, 300);
+    });
+  }, 3000);
+</script>
+{% endblock %}

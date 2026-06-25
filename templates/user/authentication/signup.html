@@ -1,0 +1,328 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Create Account — Zitarra{% endblock %}
+{% block content %}
+<div class="min-h-screen bg-brand-dark flex flex-col">
+
+  <main class="flex flex-1 min-h-[calc(100vh-66px)]">
+
+    <!-- Left — Form -->
+    <div class="w-1/2 bg-brand-cream flex items-center justify-center px-10 py-10 xl:px-16">
+      <div class="w-full max-w-md">
+        <h1 class="text-4xl font-black uppercase leading-tight text-brand-dark mb-1">Create<br>Account</h1>
+        <div class="w-10 h-[3px] bg-brand-orange mb-3"></div>
+        <p class="text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-7">Join the Technical Equipment Collective.</p>
+
+		{% if messages %}
+    		{% for message in messages %}
+                {% if 'success' in message.tags %}
+                    <div class="mb-6 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                        <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                        <span>{{ message }}</span>
+                    </div>
+                {% else %}
+                    <div class="mb-6 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+                        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endif %}
+    		{% endfor %}
+		{% endif %}
+
+        <form id="register-form" method="POST">
+    		{% csrf_token %}
+
+          <!-- Full Name -->
+          <div class="mb-5">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Full Name</label>
+            <div class="relative border-b border-gray-300 pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="name-wrap">
+              <input type="text" id="reg-name" name="fullname" placeholder="ENTER NAME" value="{{ fullname|default:'' }}" class="w-full bg-transparent outline-none text-sm text-brand-dark placeholder-gray-400 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:text-brand-dark" autocomplete="name" />
+            </div>
+            <p class="flex items-center gap-1.5 mt-[6px] text-[0.68rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="name-error"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="name-error-text"></span></p>
+          </div>
+
+          <!-- Email -->
+          <div class="mb-5">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Email Address</label>
+            <div class="relative border-b border-gray-300 pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="email-wrap">
+              <input type="email" id="reg-email" name="email" placeholder="EMAIL@DOMAIN.COM" value="{{ email|default:'' }}" class="w-full bg-transparent outline-none text-sm text-brand-orange placeholder-brand-orange/50 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:[-webkit-text-fill-color:#E8500A]" autocomplete="email" />
+            </div>
+            <p class="flex items-center gap-1.5 mt-[6px] text-[0.68rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="email-error"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="email-error-text"></span></p>
+          </div>
+
+          <!-- Mobile -->
+          <div class="mb-5">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Mobile Number</label>
+            <div class="relative border-b border-gray-300 pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="mobile-wrap">
+              <input type="tel" id="reg-mobile" name="mobile_number" placeholder="7836486971" value="{{ mobile_number|default:'' }}" class="w-full bg-transparent outline-none text-sm text-brand-dark placeholder-gray-400 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:text-brand-dark" autocomplete="tel" />
+            </div>
+            <p class="flex items-center gap-1.5 mt-[6px] text-[0.68rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="mobile-error"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="mobile-error-text"></span></p>
+          </div>
+
+          <!-- Referral -->
+          <div class="mb-5">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Referral Code <span class="normal-case font-normal text-gray-400">(Optional)</span></label>
+            <div class="relative border-b border-gray-300 pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full">
+              <input type="text" id="reg-referral" name="referral_code" placeholder="ENTER CODE" value="{{ referral_code|default:'' }}" class="w-full bg-transparent outline-none text-sm text-brand-dark placeholder-gray-400 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:text-brand-dark" />
+            </div>
+          </div>
+
+          <!-- Password -->
+          <div class="mb-5">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Password</label>
+            <div class="relative border-b border-gray-300 pb-2 pr-8 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="pwd-wrap">
+              <input type="password" id="reg-password" name="password" placeholder="••••••••" class="w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-400 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:text-brand-dark" autocomplete="new-password" />
+              <button type="button" class="absolute right-0 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-gray-400 p-0 transition-colors duration-200 hover:text-brand-orange" id="toggle-pwd" aria-label="Toggle password">
+                <svg id="eye-pwd-open" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg id="eye-pwd-closed" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18"/></svg>
+              </button>
+            </div>
+            <p class="flex items-center gap-1.5 mt-[6px] text-[0.68rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="pwd-error"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="pwd-error-text"></span></p>
+          </div>
+
+          <!-- Confirm Password -->
+          <div class="mb-7">
+            <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Confirm Password</label>
+            <div class="relative border-b border-gray-300 pb-2 pr-8 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="cpwd-wrap">
+              <input type="password" id="reg-cpwd" name="confirm_password" placeholder="••••••••" class="w-full bg-transparent outline-none text-sm text-gray-600 placeholder-gray-400 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:text-brand-dark" autocomplete="new-password" />
+              <button type="button" class="absolute right-0 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-gray-400 p-0 transition-colors duration-200 hover:text-brand-orange" id="toggle-cpwd" aria-label="Toggle confirm password">
+                <svg id="eye-cpwd-open" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                <svg id="eye-cpwd-closed" class="w-4 h-4 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M3 3l18 18"/></svg>
+              </button>
+            </div>
+            <p class="flex items-center gap-1.5 mt-[6px] text-[0.68rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="cpwd-error"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="cpwd-error-text"></span></p>
+          </div>
+
+          <button type="submit" id="register-btn" class="w-full text-white text-xs font-bold tracking-[0.3em] uppercase py-4 relative overflow-hidden bg-brand-orange transition-all duration-250 hover:bg-[#c94008] hover:-translate-y-[2px] hover:shadow-[0_6px_28px_rgba(232,80,10,0.45)] active:translate-y-0 active:scale-[0.98] active:shadow-none before:content-[''] before:absolute before:top-0 before:left-[-75%] before:w-[50%] before:h-full before:bg-gradient-to-r before:from-transparent before:via-white/22 before:to-transparent before:skew-x-[-20deg] before:transition-all before:duration-550 hover:before:left-[130%] disabled:opacity-60 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">Create Account</button>
+        </form>
+
+        <div class="mt-4">
+          <a href="/accounts/google/login/?next=/home/" class="w-full flex items-center justify-center gap-3 border border-gray-300 text-xs font-bold tracking-[0.2em] uppercase text-brand-dark py-4 transition-all duration-250 hover:border-brand-orange hover:bg-[#fff8f5] hover:-translate-y-[2px] hover:shadow-[0_4px_18px_rgba(232,80,10,0.15)] active:translate-y-0 active:scale-[0.98]">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/></svg>
+            Sign Up with Google
+          </a>
+        </div>
+
+        <p class="text-center text-xs text-gray-500 mt-6">Already have an account? <a href="/login/" class="font-bold text-brand-dark hover:text-brand-orange transition-colors duration-200 ml-1 uppercase tracking-wider text-[10px]">Login</a></p>
+      </div>
+    </div>
+
+    <!-- Right — Hero -->
+    <div class="w-1/2 relative overflow-hidden">
+      <div class="absolute inset-0 bg-gradient-to-br from-black/40 via-transparent to-black/50 z-10"></div>
+      <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=1400&q=85" alt="Drum Kit" class="w-full h-full object-cover object-center" />
+    </div>
+  </main>
+
+  {% include 'user/partials/footer.html' %}
+</div>
+
+<script>
+  function showErr(wrap,errEl,errTxt,msg){
+    errTxt.textContent=msg;
+    wrap.classList.add('after:w-full','after:bg-red-500','border-red-500');
+    errEl.classList.add('opacity-100','translate-y-0','pointer-events-auto');
+    wrap.classList.remove('animate-shake');
+    void wrap.offsetWidth;
+    wrap.classList.add('animate-shake');
+    if (wrap.dataset.errTimeout) {
+      clearTimeout(parseInt(wrap.dataset.errTimeout));
+    }
+    const tid = setTimeout(() => {
+      clearErr(wrap, errEl);
+    }, 3000);
+    wrap.dataset.errTimeout = tid;
+  }
+  function clearErr(wrap,errEl){
+    wrap.classList.remove('after:w-full','after:bg-red-500','border-red-500','animate-shake');
+    errEl.classList.remove('opacity-100','translate-y-0','pointer-events-auto');
+    if (wrap.dataset.errTimeout) {
+      clearTimeout(parseInt(wrap.dataset.errTimeout));
+      delete wrap.dataset.errTimeout;
+    }
+  }
+  const nameInput=document.getElementById('reg-name'),emailInput=document.getElementById('reg-email'),mobInput=document.getElementById('reg-mobile'),pwdInput=document.getElementById('reg-password'),cpwdInput=document.getElementById('reg-cpwd');
+  const nameWrap=document.getElementById('name-wrap'),emailWrap=document.getElementById('email-wrap'),mobWrap=document.getElementById('mobile-wrap'),pwdWrap=document.getElementById('pwd-wrap'),cpwdWrap=document.getElementById('cpwd-wrap');
+  const nameErr=document.getElementById('name-error'),emailErr=document.getElementById('email-error'),mobErr=document.getElementById('mobile-error'),pwdErr=document.getElementById('pwd-error'),cpwdErr=document.getElementById('cpwd-error');
+  const nameErrTxt=document.getElementById('name-error-text'),emailErrTxt=document.getElementById('email-error-text'),mobErrTxt=document.getElementById('mobile-error-text'),pwdErrTxt=document.getElementById('pwd-error-text'),cpwdErrTxt=document.getElementById('cpwd-error-text');
+  const regBtn=document.getElementById('register-btn');
+
+  // Check if there are any error messages on page load
+  const hasErrors = document.querySelector('.msg-alert.border-red-500');
+  if (hasErrors) {
+    const originalBg = regBtn.style.background || '';
+    const originalText = regBtn.innerHTML;
+    
+    regBtn.style.transition = 'background 0.4s ease';
+    regBtn.style.background = '#dc2626'; // red-600
+    regBtn.innerHTML = `
+      <svg class="w-4 h-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="3">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+      </svg>
+      REGISTER FAILED
+    `;
+    
+    setTimeout(() => {
+      regBtn.style.background = originalBg;
+      regBtn.innerHTML = originalText;
+    }, 2500);
+  }
+
+
+  function validateName() {
+    const rawVal = nameInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name is required.');
+      return false;
+    }
+    if (val.length < 3) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name must be at least 3 characters.');
+      return false;
+    }
+    if (/[0-9]/.test(val)) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot contain numbers.');
+      return false;
+    }
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot contain special characters.');
+      return false;
+    }
+    const nameRe = /^[a-zA-Z]+( [a-zA-Z]+)*$/;
+    if (!nameRe.test(val)) {
+      if (/\s{2,}/.test(rawVal)) {
+        showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot contain consecutive spaces.');
+      } else {
+        showErr(nameWrap, nameErr, nameErrTxt, 'Please enter a valid full name.');
+      }
+      return false;
+    }
+    clearErr(nameWrap, nameErr);
+    return true;
+  }
+
+  function validateEmail() {
+    const rawVal = emailInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(emailWrap, emailErr, emailErrTxt, 'Email address cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(emailWrap, emailErr, emailErrTxt, 'Email address is required.');
+      return false;
+    }
+    const emailRe = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRe.test(val)) {
+      showErr(emailWrap, emailErr, emailErrTxt, 'Enter a valid email address.');
+      return false;
+    }
+    clearErr(emailWrap, emailErr);
+    return true;
+  }
+
+  function validateMobile() {
+    const rawVal = mobInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(mobWrap, mobErr, mobErrTxt, 'Mobile number cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(mobWrap, mobErr, mobErrTxt, 'Mobile number is required.');
+      return false;
+    }
+    if (!/^\d+$/.test(val)) {
+      showErr(mobWrap, mobErr, mobErrTxt, 'Mobile number must contain only digits.');
+      return false;
+    }
+    if (val.length !== 10) {
+      showErr(mobWrap, mobErr, mobErrTxt, 'Mobile number must be exactly 10 digits.');
+      return false;
+    }
+    clearErr(mobWrap, mobErr);
+    return true;
+  }
+  function validatePassword() {
+    const pwd = pwdInput.value;
+    if (!pwd) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password is required.'); return false; }
+    if (pwd.length < 8) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must be at least 8 characters.'); return false; }
+    if (/\s/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must not contain spaces or whitespace.'); return false; }
+    if (!/[A-Z]/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one uppercase letter.'); return false; }
+    if (!/[a-z]/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one lowercase letter.'); return false; }
+    const specialRe = /[!@#$%^&*()\-_=+\[\]{}|;':",./<>?]/;
+    if (!specialRe.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one special character.'); return false; }
+    clearErr(pwdWrap, pwdErr);
+    return true;
+  }
+  function validateConfirmPassword() {
+    const pwd = pwdInput.value;
+    const cpwd = cpwdInput.value;
+    if (!cpwd) { showErr(cpwdWrap, cpwdErr, cpwdErrTxt, 'Please confirm your password.'); return false; }
+    if (pwd !== cpwd) { showErr(cpwdWrap, cpwdErr, cpwdErrTxt, 'Passwords do not match.'); return false; }
+    clearErr(cpwdWrap, cpwdErr);
+    return true;
+  }
+
+  function handleInput(input, wrap, errEl) {
+    clearErr(wrap, errEl);
+    input.dataset.dirty = 'true';
+  }
+
+  nameInput.addEventListener('input', () => handleInput(nameInput, nameWrap, nameErr));
+  emailInput.addEventListener('input', () => handleInput(emailInput, emailWrap, emailErr));
+  mobInput.addEventListener('input', () => handleInput(mobInput, mobWrap, mobErr));
+  pwdInput.addEventListener('input', () => handleInput(pwdInput, pwdWrap, pwdErr));
+  cpwdInput.addEventListener('input', () => handleInput(cpwdInput, cpwdWrap, cpwdErr));
+
+  nameInput.addEventListener('blur', () => { if (nameInput.dataset.dirty === 'true') validateName(); });
+  emailInput.addEventListener('blur', () => { if (emailInput.dataset.dirty === 'true') validateEmail(); });
+  mobInput.addEventListener('blur', () => { if (mobInput.dataset.dirty === 'true') validateMobile(); });
+  pwdInput.addEventListener('blur', () => { if (pwdInput.dataset.dirty === 'true') validatePassword(); });
+  cpwdInput.addEventListener('blur', () => { if (cpwdInput.dataset.dirty === 'true') validateConfirmPassword(); });
+
+  function setupEye(btnId,inp,openId,closedId){document.getElementById(btnId).addEventListener('click',()=>{const h=inp.type==='password';inp.type=h?'text':'password';document.getElementById(openId).classList.toggle('hidden',h);document.getElementById(closedId).classList.toggle('hidden',!h);});}
+  setupEye('toggle-pwd',pwdInput,'eye-pwd-open','eye-pwd-closed');setupEye('toggle-cpwd',cpwdInput,'eye-cpwd-open','eye-cpwd-closed');
+
+  // Signup button loading animation
+  document.getElementById('register-form').addEventListener('submit', function(e) {
+    const isNameValid = validateName();
+    const isEmailValid = validateEmail();
+    const isMobileValid = validateMobile();
+    const isPwdValid = validatePassword();
+    const isCpwdValid = validateConfirmPassword();
+
+    if (!isNameValid || !isEmailValid || !isMobileValid || !isPwdValid || !isCpwdValid) {
+      e.preventDefault();
+      return;
+    }
+    setTimeout(() => { regBtn.disabled = true; }, 0);
+    regBtn.innerHTML = `
+      <svg class="animate-spin w-4 h-4 mr-2 inline-block" fill="none" viewBox="0 0 24 24">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="white" stroke-width="3"></circle>
+        <path class="opacity-75" fill="white" d="M4 12a8 8 0 018-8v8z"></path>
+      </svg>
+      SENDING OTP...
+    `;
+  });
+
+  // Auto-hide top alert messages after 3 seconds
+  setTimeout(() => {
+    document.querySelectorAll('.msg-alert').forEach(el => {
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-10px)';
+      setTimeout(() => {
+        el.style.maxHeight = '0';
+        el.style.padding = '0';
+        el.style.margin = '0';
+        el.style.border = 'none';
+        setTimeout(() => el.remove(), 500);
+      }, 300);
+    });
+  }, 3000);
+</script>
+{% endblock %}
