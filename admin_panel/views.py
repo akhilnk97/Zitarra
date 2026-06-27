@@ -320,4 +320,3 @@ from user_panel.views import custom_404_view
 
 def admin_unimplemented_view(request):
     return custom_404_view(request)
-
