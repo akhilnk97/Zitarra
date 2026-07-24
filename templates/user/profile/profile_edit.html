@@ -126,6 +126,36 @@
       <!-- Dynamic Alert Container -->
       <div id="alert-container" class="px-9 pt-6 hidden"></div>
 
+<<<<<<< HEAD
+=======
+      {% if messages %}
+      <div class="px-9 pt-6">
+        {% for message in messages %}
+        {% if 'success' in message.tags %}
+        <div
+          class="mb-4 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+          <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        {% else %}
+        <div
+          class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+          <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+>>>>>>> 8e77622 (Refactored the user input validation)
       <!-- Personal Information Section Header -->
       <div class="flex items-center justify-between px-9 py-5 pb-3.5 border-b border-[#ebebeb]">
         <div class="flex items-center gap-2.5">
@@ -142,7 +172,12 @@
       </div>
 
       <!-- Inputs Form -->
+<<<<<<< HEAD
       <form id="edit-profile-form" class="grid grid-cols-2 gap-x-16 gap-y-12 px-9 pb-12 pt-8 flex-1 content-start"
+=======
+      <form id="edit-profile-form" action="{% url 'profiles:profile_edit' %}" method="POST"
+        enctype="multipart/form-data" class="grid grid-cols-2 gap-x-16 gap-y-12 px-9 pb-12 pt-8 flex-1 content-start"
+>>>>>>> 8e77622 (Refactored the user input validation)
         novalidate>
         {% csrf_token %}
         <input type="file" id="profile-image-input" name="profile_image" class="hidden" accept="image/*" />
@@ -220,10 +255,17 @@
 
 <!-- ── OTP Verification Modal ── -->
 <div
+<<<<<<< HEAD
   class="fixed inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-[9999] opacity-0 transition-opacity duration-300 pointer-events-none"
   id="otp-modal">
   <div
     class="bg-white px-10 py-12 max-w-[440px] w-[90%] text-center scale-[0.85] opacity-0 transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)] relative border border-[#e8e8e8]">
+=======
+  class="fixed inset-0 bg-black/60 backdrop-blur-[4px] flex items-center justify-center z-[9999] {% if not show_otp_modal %}opacity-0 pointer-events-none{% endif %} transition-opacity duration-300"
+  id="otp-modal">
+  <div
+    class="bg-white px-10 py-12 max-w-[440px] w-[90%] text-center {% if not show_otp_modal %}scale-[0.85] opacity-0{% endif %} transition-all duration-350 ease-[cubic-bezier(0.34,1.56,0.64,1)] relative border border-[#e8e8e8]">
+>>>>>>> 8e77622 (Refactored the user input validation)
     <!-- Close Button -->
     <button type="button"
       class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark transition-colors duration-200 cursor-pointer bg-none border-none p-1 outline-none"
@@ -242,11 +284,21 @@
     <div class="w-12 h-[2px] bg-brand-orange mx-auto mb-4"></div>
     <p class="text-[0.62rem] font-bold tracking-widest text-gray-500 mb-6 leading-relaxed" id="otp-instructions">
       <span class="uppercase">ENTER THE 6-DIGIT CODE SENT TO</span> <span id="otp-email-display"
+<<<<<<< HEAD
         class="lowercase font-extrabold text-brand-dark tracking-normal" style="text-transform: lowercase;">your
         email</span>.
     </p>
 
     <form id="otp-verification-form" class="relative" novalidate>
+=======
+        class="lowercase font-extrabold text-brand-dark tracking-normal" style="text-transform: lowercase;">{% if request.session.pending_profile_update.email %}{{ request.session.pending_profile_update.email }}{% else %}your email{% endif %}</span>.
+    </p>
+
+    <form id="otp-verification-form" action="{% url 'profiles:profile_edit' %}" method="POST" class="relative"
+      novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="otp" id="hidden-otp-input" />
+>>>>>>> 8e77622 (Refactored the user input validation)
       <div class="flex gap-2.5 mb-2 justify-center" id="otp-input-container">
         <input type="text" maxlength="1"
           class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
@@ -268,16 +320,39 @@
           required />
       </div>
 
+<<<<<<< HEAD
       <span
         class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-2 mb-4 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
         id="otp-error-msg">Invalid OTP code.</span>
+=======
+      {% if otp_error %}
+      <span
+        class="text-[0.58rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-2 mb-4 block text-center animate-shake"
+        id="otp-error-msg">{{ otp_error }}</span>
+      {% else %}
+      <span
+        class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-2 mb-4 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
+        id="otp-error-msg">Invalid OTP code.</span>
+      {% endif %}
+
+      {% if otp_success %}
+      <span
+        class="text-[0.58rem] font-extrabold tracking-widest text-[#10b981] uppercase mt-2 mb-4 block text-center animate-fade-in"
+        id="otp-success-msg">{{ otp_success }}</span>
+      {% endif %}
+>>>>>>> 8e77622 (Refactored the user input validation)
 
       <!-- Timer & Resend code links -->
       <div class="mb-8 text-[0.58rem] font-extrabold tracking-widest uppercase" id="timer-wrap-modal">
         Verification Code Expires in <span class="text-brand-orange font-black" id="timer-modal">01:00</span>
       </div>
       <div class="mb-8 hidden text-[0.58rem] font-extrabold tracking-widest uppercase" id="resend-wrap-modal">
+<<<<<<< HEAD
         Didn't receive code? <button type="button"
+=======
+        Didn't receive code?
+        <button type="submit" form="resend-otp-form"
+>>>>>>> 8e77622 (Refactored the user input validation)
           class="text-brand-orange font-black underline cursor-pointer bg-none border-none p-0 outline-none uppercase hover:text-[#c94008]"
           id="resend-btn-modal">Resend Code</button>
       </div>
@@ -289,6 +364,12 @@
         <span class="font-sans">→</span>
       </button>
     </form>
+<<<<<<< HEAD
+=======
+    <form method="POST" action="{% url 'profiles:profile_resend_otp' %}" id="resend-otp-form" class="hidden">
+      {% csrf_token %}
+    </form>
+>>>>>>> 8e77622 (Refactored the user input validation)
   </div>
 </div>
 
@@ -336,9 +417,31 @@
     saveBtn.style.background = '';
   }
 
+<<<<<<< HEAD
   function handleInput(input, wrap, errEl) {
     clearErr(wrap, errEl);
     input.dataset.dirty = 'true';
+=======
+  function checkChanges() {
+    const currentName = nameInput.value.trim();
+    const currentEmail = emailInput.value.trim().toLowerCase();
+    const currentPhone = phoneInput.value.trim();
+    const currentImageSelected = profileImageInput && profileImageInput.files.length > 0;
+
+    const hasChanged = 
+      currentName !== originalName ||
+      currentEmail !== originalEmail ||
+      currentPhone !== originalPhone ||
+      currentImageSelected;
+
+    saveBtn.disabled = !hasChanged;
+  }
+
+  function handleInput(input, wrap, errEl) {
+    clearErr(wrap, errEl);
+    input.dataset.dirty = 'true';
+    checkChanges();
+>>>>>>> 8e77622 (Refactored the user input validation)
   }
 
   nameInput.addEventListener('input', () => handleInput(nameInput, nameWrap, nameErr));
@@ -368,6 +471,13 @@
     });
   }
 
+<<<<<<< HEAD
+=======
+  // Initial call on page load to hide existing messages
+  autoHideAlerts();
+  checkChanges();
+
+>>>>>>> 8e77622 (Refactored the user input validation)
   // File preview logic
   if (profileImageInput) {
     profileImageInput.addEventListener('change', function () {
@@ -376,6 +486,10 @@
         if (!file.type.startsWith('image/')) {
           showGlobalError('Please select a valid image file.');
           this.value = '';
+<<<<<<< HEAD
+=======
+          checkChanges();
+>>>>>>> 8e77622 (Refactored the user input validation)
           return;
         }
 
@@ -400,6 +514,10 @@
         };
         reader.readAsDataURL(file);
       }
+<<<<<<< HEAD
+=======
+      checkChanges();
+>>>>>>> 8e77622 (Refactored the user input validation)
     });
   }
 
@@ -467,17 +585,65 @@
     });
   });
 
+<<<<<<< HEAD
+=======
+  // OTP Countdown Timer (Persisted via localStorage timestamp)
+  function startTimer(isNewOTP = false) {
+    clearInterval(interval);
+
+    let expiry = localStorage.getItem('profile_otp_expiry');
+    if (isNewOTP || !expiry) {
+      expiry = Date.now() + 60000;
+      localStorage.setItem('profile_otp_expiry', expiry);
+    } else {
+      expiry = parseInt(expiry);
+    }
+
+    function updateTimer() {
+      const remaining = Math.max(0, Math.floor((expiry - Date.now()) / 1000));
+
+      if (remaining <= 0) {
+        clearInterval(interval);
+        timerWrap.classList.add('hidden');
+        resendWrap.classList.remove('hidden');
+        timerEl.textContent = '00:00';
+        return;
+      }
+
+      timerWrap.classList.remove('hidden');
+      resendWrap.classList.add('hidden');
+      const m = Math.floor(remaining / 60).toString().padStart(2, '0');
+      const s = (remaining % 60).toString().padStart(2, '0');
+      timerEl.textContent = `${m}:${s}`;
+    }
+
+    updateTimer();
+    interval = setInterval(updateTimer, 1000);
+  }
+
+  {% if otp_success %}
+  startTimer(true);
+  {% elif show_otp_modal %}
+  startTimer();
+  {% endif %}
+
+>>>>>>> 8e77622 (Refactored the user input validation)
   // Modal open/close actions
   function openOtpModal(email) {
     document.getElementById('otp-email-display').textContent = email.toLowerCase();
     otpModal.classList.add('opacity-100', 'pointer-events-auto');
     otpModalContent.classList.add('scale-100', 'opacity-100');
     otpModalContent.classList.remove('scale-[0.85]', 'opacity-0');
+<<<<<<< HEAD
     startTimer();
+=======
+    startTimer(true);
+>>>>>>> 8e77622 (Refactored the user input validation)
     setTimeout(() => boxes[0].focus(), 150);
   }
 
   function closeOtpModalFunc() {
+<<<<<<< HEAD
     otpModal.classList.remove('opacity-100', 'pointer-events-auto');
     otpModalContent.classList.remove('scale-100', 'opacity-100');
     otpModalContent.classList.add('scale-[0.85]', 'opacity-0');
@@ -489,6 +655,11 @@
     });
     otpError.classList.add('opacity-0', '-translate-y-1', 'pointer-events-none');
     otpError.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+=======
+    localStorage.removeItem('profile_otp_expiry');
+    otpModal.classList.add('hidden', 'opacity-0', 'pointer-events-none');
+    window.location.href = "{% url 'profiles:profile_edit' %}";
+>>>>>>> 8e77622 (Refactored the user input validation)
   }
 
   closeOtpBtn.addEventListener('click', closeOtpModalFunc);
@@ -593,14 +764,20 @@
     return true;
   }
 
+<<<<<<< HEAD
   // Submit main form (saves changes directly or initiates OTP code request)
   form.addEventListener('submit', function (e) {
     e.preventDefault();
 
+=======
+  // Submit main form natively (Django handles redirect and OTP modal trigger)
+  form.addEventListener('submit', function (e) {
+>>>>>>> 8e77622 (Refactored the user input validation)
     const isNameValid = validateName();
     const isEmailValid = validateEmail();
     const isMobileValid = validateMobile();
 
+<<<<<<< HEAD
     if (!isNameValid || !isEmailValid || !isMobileValid) return;
 
     const nameVal = nameInput.value.trim();
@@ -724,6 +901,30 @@
     const otpCode = boxes.map(b => b.value).join('');
 
     if (otpCode.length < 6) {
+=======
+    if (!isNameValid || !isEmailValid || !isMobileValid) {
+      e.preventDefault();
+      return;
+    }
+
+    // Reset OTP expiry timestamp for new requests
+    const emailVal = emailInput.value.trim().toLowerCase();
+    const phoneVal = phoneInput.value.trim();
+    if (emailVal !== originalEmail || phoneVal !== originalPhone) {
+      localStorage.removeItem('profile_otp_expiry');
+    }
+
+    saveBtn.disabled = true;
+    saveBtn.textContent = 'SAVING...';
+  });
+
+  // Submit OTP Verification natively
+  otpForm.addEventListener('submit', function (e) {
+    const otpCode = boxes.map(b => b.value).join('');
+
+    if (otpCode.length < 6) {
+      e.preventDefault();
+>>>>>>> 8e77622 (Refactored the user input validation)
       boxes.forEach(b => {
         if (!b.value) b.classList.add('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
       });
@@ -737,6 +938,7 @@
       return;
     }
 
+<<<<<<< HEAD
     verifyBtn.disabled = true;
     verifyBtn.innerHTML = '<span>Verifying...</span>';
 
@@ -784,6 +986,11 @@
         otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
         otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
       });
+=======
+    document.getElementById('hidden-otp-input').value = otpCode;
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML = '<span>VERIFYING...</span>';
+>>>>>>> 8e77622 (Refactored the user input validation)
   });
 </script>
 {% endblock %}

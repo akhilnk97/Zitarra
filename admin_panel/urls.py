@@ -2,8 +2,13 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
+<<<<<<< HEAD
     path("login/", views.admin_login_view, name="admin_login"),
     path("logout/", views.admin_logout_view, name="admin_logout"),
+=======
+    path("login/",     views.admin_login_view,     name="admin_login"),
+    path("logout/",    views.admin_logout_view,    name="admin_logout"),
+>>>>>>> 8e77622 (Refactored the user input validation)
     path("dashboard/", views.admin_dashboard_view, name="admin_dashboard"),
     path("forgot-password/", views.admin_forgot_password_view, name="admin_forgot_password"),
     path("forgot-password/otp/", views.admin_forgot_password_otp_view, name="admin_forgot_password_otp"),

@@ -216,6 +216,7 @@
               <div class="relative">
                 <select id="filterSelect" onchange="applyFiltersAndSort()"
                   class="appearance-none bg-[#fcfbfa] border border-[#dcdcdc] px-5 py-2 pr-10 text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all duration-200 cursor-pointer rounded-none focus:outline-none">
+<<<<<<< HEAD
                   <option value="All Users" {% if filter_all or not filter_val %}selected{% endif %}>Filter
                   </option>
                   <option value="All Users" {% if filter_all %}selected{% endif %}>All Users</option>
@@ -223,6 +224,12 @@
                     Accounts</option>
                   <option value="Blocked Accounts" {% if filter_blocked %}selected{% endif %}>Blocked
                     Accounts</option>
+=======
+                  <option value="All Users" {% if filter_val == "All Users" or not filter_val %}selected{% endif %}>Filter</option>
+                  <option value="All Users" {% if filter_val == "All Users" %}selected{% endif %}>All Users</option>
+                  <option value="Active Accounts" {% if filter_val == "Active Accounts" %}selected{% endif %}>Active Accounts</option>
+                  <option value="Blocked Accounts" {% if filter_val == "Blocked Accounts" %}selected{% endif %}>Blocked Accounts</option>
+>>>>>>> 8e77622 (Refactored the user input validation)
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
                   <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -236,6 +243,7 @@
               <div class="relative">
                 <select id="sortSelect" onchange="applyFiltersAndSort()"
                   class="appearance-none bg-[#fcfbfa] border border-[#dcdcdc] px-5 py-2 pr-10 text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all duration-200 cursor-pointer rounded-none focus:outline-none">
+<<<<<<< HEAD
                   <option value="Latest First" {% if sort_latest or not sort_val %}selected{% endif %}>Sort
                     By</option>
                   <option value="Latest First" {% if sort_latest %}selected{% endif %}>Latest First
@@ -244,6 +252,13 @@
                   </option>
                   <option value="Name (A-Z)" {% if sort_name_az %}selected{% endif %}>Name (A-Z)</option>
                   <option value="Name (Z-A)" {% if sort_name_za %}selected{% endif %}>Name (Z-A)</option>
+=======
+                  <option value="Latest First" {% if sort_val == "Latest First" or not sort_val %}selected{% endif %}>Sort By</option>
+                  <option value="Latest First" {% if sort_val == "Latest First" %}selected{% endif %}>Latest First</option>
+                  <option value="Oldest First" {% if sort_val == "Oldest First" %}selected{% endif %}>Oldest First</option>
+                  <option value="Name (A-Z)" {% if sort_val == "Name (A-Z)" %}selected{% endif %}>Name (A-Z)</option>
+                  <option value="Name (Z-A)" {% if sort_val == "Name (Z-A)" %}selected{% endif %}>Name (Z-A)</option>
+>>>>>>> 8e77622 (Refactored the user input validation)
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
                   <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
@@ -356,9 +371,14 @@
                 <div class="flex items-center justify-center gap-4.5">
 
                   <!-- Block/Unblock Action -->
+<<<<<<< HEAD
                   <button
                     onclick="confirmBlockToggle('{{ user.id }}', '{{ user.name }}', '{{ user.blocked }}' === 'True')"
                     class="lock-toggle-btn text-gray-400 hover:text-brand-dark transition-colors focus:outline-none"
+=======
+                  <button type="button" onclick="confirmBlockToggle('{{ user.id }}', '{{ user.name|escapejs }}', {% if user.blocked %}true{% else %}false{% endif %})"
+                    class="lock-toggle-btn text-gray-400 hover:text-brand-dark transition-colors focus:outline-none cursor-pointer bg-none border-none p-0"
+>>>>>>> 8e77622 (Refactored the user input validation)
                     title="{% if user.blocked %}Unblock User{% else %}Block User{% endif %}">
                     {% if user.blocked %}
                     <!-- Closed Red Lock Icon -->
@@ -409,9 +429,15 @@
           <div class="relative">
             <select id="perPageSelect" onchange="applyFiltersAndSort()"
               class="appearance-none bg-white border border-[#1a1a1a] px-4 py-1.5 pr-8 text-[0.62rem] font-bold text-brand-dark rounded-none focus:outline-none cursor-pointer">
+<<<<<<< HEAD
               <option value="10" {% if per_page_10 %}selected{% endif %}>10</option>
               <option value="25" {% if per_page_25 %}selected{% endif %}>25</option>
               <option value="50" {% if per_page_50 %}selected{% endif %}>50</option>
+=======
+              <option value="10" {% if per_page == 10 %}selected{% endif %}>10</option>
+              <option value="25" {% if per_page == 25 %}selected{% endif %}>25</option>
+              <option value="50" {% if per_page == 50 %}selected{% endif %}>50</option>
+>>>>>>> 8e77622 (Refactored the user input validation)
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-600">
               <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -481,6 +507,7 @@
   <div id="confirmModalContent"
     class="bg-white border border-[#e8e8e8] w-[420px] p-8 relative flex flex-col justify-between transform scale-95 duration-250 ease-out">
 
+<<<<<<< HEAD
     <div>
       <!-- Modal Accent & Title -->
       <div class="flex items-center gap-3 mb-4">
@@ -506,6 +533,35 @@
         CONFIRM
       </button>
     </div>
+=======
+    <form id="confirm-action-form" method="POST" action="">
+      {% csrf_token %}
+      <div>
+        <!-- Modal Accent & Title -->
+        <div class="flex items-center gap-3 mb-4">
+          <span class="w-2.5 h-2.5 bg-[#A33C08] inline-block"></span>
+          <h3 class="text-[0.8rem] font-bold tracking-[0.18em] uppercase text-brand-dark leading-none">CONFIRM USER STATUS UPDATE</h3>
+        </div>
+
+        <!-- Modal Text -->
+        <p id="modalMessage" class="text-[0.7rem] text-gray-500 leading-relaxed mb-6 font-medium">
+          Are you sure you want to perform this action?
+        </p>
+      </div>
+
+      <!-- Modal Cancel/Confirm Buttons -->
+      <div class="flex justify-end gap-3">
+        <button type="button" id="modalCancel" onclick="closeModal();"
+          class="border border-[#dcdcdc] px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all duration-200 bg-white cursor-pointer rounded-none focus:outline-none">
+          CANCEL
+        </button>
+        <button type="submit" id="modalConfirm"
+          class="bg-[#A33C08] hover:bg-[#c94008] text-white px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase border-none cursor-pointer transition-colors rounded-none focus:outline-none">
+          CONFIRM
+        </button>
+      </div>
+    </form>
+>>>>>>> 8e77622 (Refactored the user input validation)
 
   </div>
 </div>
@@ -559,6 +615,14 @@
     pendingAction = 'block';
     pendingBlockedState = isBlocked;
 
+<<<<<<< HEAD
+=======
+    const form = document.getElementById('confirm-action-form');
+    if (form) {
+      form.action = `/admin-panel/users/toggle-block/${userId}/`;
+    }
+
+>>>>>>> 8e77622 (Refactored the user input validation)
     const modal = document.getElementById('confirmModal');
     const content = document.getElementById('confirmModalContent');
     const title = modal.querySelector('h3');
@@ -581,6 +645,7 @@
   }
 
   document.getElementById('modalCancel').addEventListener('click', closeModal);
+<<<<<<< HEAD
   document.getElementById('modalConfirm').addEventListener('click', function () {
     if (pendingUserId && pendingAction) {
       const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
@@ -663,6 +728,8 @@
       }
     }
   });
+=======
+>>>>>>> 8e77622 (Refactored the user input validation)
 
   function closeModal() {
     const modal = document.getElementById('confirmModal');

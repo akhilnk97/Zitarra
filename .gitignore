@@ -1,4 +1,5 @@
 .env
+<<<<<<< HEAD
 
 # Python cache
 __pycache__/
@@ -7,3 +8,5 @@ __pycache__/
 # Virtual environments
 venv/
 .env/
+=======
+>>>>>>> 8e77622 (Refactored the user input validation)
