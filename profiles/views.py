@@ -74,6 +74,11 @@ def profile_send_otp_view(request):
         messages.error(request, "This phone number is already in use")
         return render(request, "user/profile/profile_edit.html")
 
+    # Save the profile image immediately since it doesn't require OTP verification
+    if request.FILES.get("profile_image"):
+        request.user.profile_image = request.FILES["profile_image"]
+        request.user.save()
+
     request.session["pending_profile_update"] = {
         "fullname": fullname,
         "email": email,
@@ -99,8 +104,8 @@ def profile_edit_view(request):
         if entered_otp:
             pending_data = request.session.get("pending_profile_update")
             if not pending_data:
-                messages.error(request, "Session expired or invalid update request. Please try again.")
-                return render(request, "user/profile/profile_edit.html")
+                messages.error(request, "Session expired or invalid update request. Please try again.", extra_tags="otp_error")
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             try:
                 otp_record = OTPVerification.objects.filter(
@@ -109,20 +114,20 @@ def profile_edit_view(request):
                     verified=False
                 ).latest('created_at')
             except OTPVerification.DoesNotExist:
-                messages.error(request, "OTP not found. Please request a new code.")
+                messages.error(request, "OTP not found. Please request a new code.", extra_tags="otp_error")
                 return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             if otp_record.expires_at < timezone.now():
-                messages.error(request, "OTP has expired. Please request a new code.")
+                messages.error(request, "OTP has expired. Please request a new code.", extra_tags="otp_error")
                 return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             if entered_otp != otp_record.otp_code:
-                messages.error(request, "Invalid OTP. Please try again.")
+                messages.error(request, "Invalid OTP. Please try again.", extra_tags="otp_error")
                 return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             if request.user.socialaccount_set.exists() and pending_data["email"] != request.user.email.lower():
-                messages.error(request, "Google authenticated users cannot change their email address.")
-                return render(request, "user/profile/profile_edit.html")
+                messages.error(request, "Google authenticated users cannot change their email address.", extra_tags="otp_error")
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             request.user.fullname = pending_data["fullname"]
             request.user.email = pending_data["email"]
@@ -139,7 +144,7 @@ def profile_edit_view(request):
             request.session.pop("pending_profile_update", None)
 
             messages.success(request, "Profile updated successfully!")
-            return redirect("profiles:profile")
+            return redirect("/profile/edit/")
 
         # 2. Standard Update (Name & Profile Picture only)
         fullname = request.POST.get("fullname", "").strip()
@@ -153,7 +158,7 @@ def profile_edit_view(request):
         request.user.save()
 
         messages.success(request, "Profile updated successfully!")
-        return redirect("profiles:profile")
+        return redirect("/profile/edit/")
 
     return render(request, "user/profile/profile_edit.html")
 
@@ -277,28 +282,42 @@ def profile_password_send_otp_view(request):
     new_pwd     = request.POST.get("new_pwd", "").strip()
     confirm_pwd = request.POST.get("confirm_pwd", "").strip()
 
+    context = {
+        "current_pwd": current_pwd,
+        "new_pwd": new_pwd,
+        "confirm_pwd": confirm_pwd,
+    }
+
     # 1. Validate Password Inputs
     if not current_pwd or not request.user.check_password(current_pwd):
         messages.error(request, "Incorrect current password.")
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
 
     if not new_pwd or new_pwd != confirm_pwd:
         messages.error(request, "New passwords do not match or are empty.")
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
 
     strength_error = validate_password_strength(new_pwd)
     if strength_error:
         messages.error(request, strength_error)
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
 
     # 2. Send OTP via services.py helper
     if not send_password_change_otp(request.user):
         messages.error(request, "Failed to send OTP email. Please try again.")
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
+
+    # Store password data in session
+    request.session["pending_password_change"] = {
+        "current_pwd": current_pwd,
+        "new_pwd": new_pwd,
+        "confirm_pwd": confirm_pwd,
+    }
 
     # 3. Show OTP Modal
     messages.info(request, "An OTP verification code has been sent to your email.")
-    return render(request, "user/profile/password.html", {"show_otp_modal": True})
+    context["show_otp_modal"] = True
+    return render(request, "user/profile/password.html", context)
 
 
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -317,45 +336,66 @@ def profile_password_view(request):
         new_pwd     = request.POST.get("new_pwd", "").strip()
         confirm_pwd = request.POST.get("confirm_pwd", "").strip()
 
+        # Fallback to session if post data is empty
+        pending_pwd = request.session.get("pending_password_change", {})
+        if not current_pwd:
+            current_pwd = pending_pwd.get("current_pwd", "").strip()
+        if not new_pwd:
+            new_pwd = pending_pwd.get("new_pwd", "").strip()
+        if not confirm_pwd:
+            confirm_pwd = pending_pwd.get("confirm_pwd", "").strip()
+
+        context = {
+            "current_pwd": current_pwd,
+            "new_pwd": new_pwd,
+            "confirm_pwd": confirm_pwd,
+        }
+
         # 2. Verify OTP Record
         try:
             otp_record = OTPVerification.objects.filter(
                 user=request.user, purpose="password_change", verified=False
             ).latest('created_at')
         except OTPVerification.DoesNotExist:
-            messages.error(request, "OTP not found. Please request a new code.")
-            return render(request, "user/profile/password.html")
+            messages.error(request, "OTP not found. Please request a new code.", extra_tags="otp_error")
+            context["show_otp_modal"] = True
+            return render(request, "user/profile/password.html", context)
 
         if otp_record.expires_at < timezone.now():
-            messages.error(request, "OTP has expired. Please request a new code.")
-            return render(request, "user/profile/password.html")
+            messages.error(request, "OTP has expired. Please request a new code.", extra_tags="otp_error")
+            context["show_otp_modal"] = True
+            return render(request, "user/profile/password.html", context)
 
         if not entered_otp or entered_otp != otp_record.otp_code:
-            messages.error(request, "Invalid OTP code. Please try again.")
-            return render(request, "user/profile/password.html", {"show_otp_modal": True})
+            messages.error(request, "Invalid OTP code. Please try again.", extra_tags="otp_error")
+            context["show_otp_modal"] = True
+            return render(request, "user/profile/password.html", context)
 
         # 3. Validate Password Inputs
         if not current_pwd or not request.user.check_password(current_pwd):
             messages.error(request, "Incorrect current password.")
-            return render(request, "user/profile/password.html")
+            return render(request, "user/profile/password.html", context)
 
         if not new_pwd or new_pwd != confirm_pwd:
             messages.error(request, "New passwords do not match or are empty.")
-            return render(request, "user/profile/password.html")
+            return render(request, "user/profile/password.html", context)
 
         strength_error = validate_password_strength(new_pwd)
         if strength_error:
             messages.error(request, strength_error)
-            return render(request, "user/profile/password.html")
+            return render(request, "user/profile/password.html", context)
 
         # 4. Save New Password & Keep User Logged In
         request.user.set_password(new_pwd)
         request.user.save()
 
+        # Clean up session
+        request.session.pop("pending_password_change", None)
+
         OTPVerification.objects.filter(user=request.user, purpose="password_change").delete()
         update_session_auth_hash(request, request.user)
 
         messages.success(request, "Password updated successfully!")
-        return redirect("profiles:profile")
+        return redirect("/profile/password/")
 
     return render(request, "user/profile/password.html")

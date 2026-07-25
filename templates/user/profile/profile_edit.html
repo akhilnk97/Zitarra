@@ -160,7 +160,7 @@
       </div>
 
       <!-- Inputs Form -->
-      <form id="edit-profile-form" class="grid grid-cols-2 gap-x-16 gap-y-12 px-9 pb-12 pt-8 flex-1 content-start"
+      <form id="edit-profile-form" enctype="multipart/form-data" class="grid grid-cols-2 gap-x-16 gap-y-12 px-9 pb-12 pt-8 flex-1 content-start"
         novalidate>
         {% csrf_token %}
         <input type="file" id="profile-image-input" name="profile_image" class="hidden" accept="image/*" />
@@ -264,7 +264,9 @@
         email</span>.
     </p>
 
-    <form id="otp-verification-form" class="relative" novalidate>
+    <form id="otp-verification-form" method="POST" action="/profile/edit/" class="relative" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="otp" id="hidden-otp" />
       <div class="flex gap-2.5 mb-2 justify-center" id="otp-input-container">
         <input type="text" maxlength="1"
           class="w-11 h-13 border border-[#e8e8e8] text-center text-lg font-bold outline-none focus:border-brand-orange focus:shadow-[0_0_0_3px_rgba(232,80,10,0.15)] transition-all uppercase"
@@ -309,6 +311,14 @@
     </form>
   </div>
 </div>
+
+<!-- Hidden form for native resend OTP -->
+<form id="resend-otp-form" method="POST" action="/profile/edit/send-otp/" style="display:none;">
+  {% csrf_token %}
+  <input type="hidden" name="fullname" id="resend-fullname" />
+  <input type="hidden" name="email" id="resend-email" />
+  <input type="hidden" name="mobile_number" id="resend-phone" />
+</form>
 
 <script>
   let countdown = 60, interval;
@@ -613,13 +623,14 @@
 
   // Submit main form (saves changes directly or initiates OTP code request)
   form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
     const isNameValid = validateName();
     const isEmailValid = validateEmail();
     const isMobileValid = validateMobile();
 
-    if (!isNameValid || !isEmailValid || !isMobileValid) return;
+    if (!isNameValid || !isEmailValid || !isMobileValid) {
+      e.preventDefault();
+      return;
+    }
 
     const nameVal = nameInput.value.trim();
     const emailVal = emailInput.value.trim().toLowerCase();
@@ -630,118 +641,37 @@
 
     if (emailChanged || phoneChanged) {
       // Sensitive changes require OTP
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'sending otp';
-
-      const formData = new FormData();
-      formData.append('fullname', nameVal);
-      formData.append('email', emailVal);
-      formData.append('mobile_number', phoneVal);
-
-      fetch('{% url "profiles:profile_send_otp" %}', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: formData
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'success') {
-            saveBtn.disabled = false;
-            saveBtn.textContent = 'sending otp';
-            openOtpModal(emailVal);
-          } else {
-            saveBtn.disabled = false;
-            updateButtonLabel();
-            showGlobalError(data.message || 'Verification code delivery failed.');
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          saveBtn.disabled = false;
-          updateButtonLabel();
-          showGlobalError('Connection error. Please try again.');
-        });
+      form.action = '/profile/edit/send-otp/';
+      form.method = 'POST';
+      setTimeout(() => {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'sending otp';
+      }, 0);
     } else {
       // Direct save
-      saveBtn.disabled = true;
-      saveBtn.textContent = 'saving';
-
-      const formData = new FormData(form);
-
-      fetch('{% url "profiles:profile_edit" %}', {
-        method: 'POST',
-        headers: {
-          'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: formData
-      })
-        .then(res => res.json())
-        .then(data => {
-          if (data.status === 'success') {
-            saveBtn.textContent = '✓ Saved';
-            saveBtn.style.background = '#16a34a';
-            setTimeout(() => {
-              window.location.href = "{% url 'profiles:profile' %}?success=1";
-            }, 800);
-          } else {
-            saveBtn.disabled = false;
-            updateButtonLabel();
-            showGlobalError(data.message || 'Failed to save changes.');
-          }
-        })
-        .catch(err => {
-          console.error(err);
-          saveBtn.disabled = false;
-          updateButtonLabel();
-          showGlobalError('Connection error. Please try again.');
-        });
+      form.action = '/profile/edit/';
+      form.method = 'POST';
+      setTimeout(() => {
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'saving';
+      }, 0);
     }
   });
 
-  // Resend OTP code action
+  // Resend OTP code action natively
   resendBtn.addEventListener('click', () => {
-    resendWrap.style.display = 'none';
-    timerWrap.style.display = 'block';
-    timerEl.textContent = 'Sending...';
-
-    const formData = new FormData();
-    formData.append('fullname', nameInput.value.trim());
-    formData.append('email', emailInput.value.trim().toLowerCase());
-    formData.append('mobile_number', phoneInput.value.trim());
-
-    fetch('{% url "profiles:profile_send_otp" %}', {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: formData
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          startTimer();
-        } else {
-          showGlobalError(data.message || 'Resending code failed.');
-          timerWrap.style.display = 'none';
-          resendWrap.style.display = 'block';
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        showGlobalError('Connection error. Please try again.');
-        timerWrap.style.display = 'none';
-        resendWrap.style.display = 'block';
-      });
+    document.getElementById('resend-fullname').value = nameInput.value.trim();
+    document.getElementById('resend-email').value = emailInput.value.trim().toLowerCase();
+    document.getElementById('resend-phone').value = phoneInput.value.trim();
+    document.getElementById('resend-otp-form').submit();
   });
 
-  // Submit OTP Verification
+  // Submit OTP Verification natively
   otpForm.addEventListener('submit', function (e) {
-    e.preventDefault();
     const otpCode = boxes.map(b => b.value).join('');
 
     if (otpCode.length < 6) {
+      e.preventDefault();
       boxes.forEach(b => {
         if (!b.value) b.classList.add('border-red-500', 'shadow-[0_0_0_3px_rgba(239,68,68,0.2)]');
       });
@@ -755,53 +685,24 @@
       return;
     }
 
-    verifyBtn.disabled = true;
-    verifyBtn.innerHTML = '<span>Verifying...</span>';
+    document.getElementById('hidden-otp').value = otpCode;
+  });
 
-    const formData = new FormData();
-    formData.append('otp', otpCode);
-    if (profileImageInput.files[0]) {
-      formData.append('profile_image', profileImageInput.files[0]);
-    }
-
-    fetch('{% url "profiles:profile_edit" %}', {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: formData
-    })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === 'success') {
-          verifyBtn.innerHTML = '<span>✓ Verified</span>';
-          verifyBtn.style.background = '#16a34a';
-
-          setTimeout(() => {
-            closeOtpModalFunc();
-            window.location.href = "{% url 'profiles:profile' %}?success=1";
-          }, 1000);
-        } else {
-          verifyBtn.disabled = false;
-          verifyBtn.innerHTML = '<span>VERIFY & SAVE</span> <span class="font-sans">→</span>';
-
-          container.classList.remove('animate-shake');
-          void container.offsetWidth;
-          container.classList.add('animate-shake');
-
-          otpError.textContent = data.message || 'Incorrect verification code.';
+  // Handle modals on page load based on backend variables
+  {% if show_otp_modal %}
+  openOtpModal(emailInput.value.trim());
+    {% if messages %}
+      {% for message in messages %}
+        {% if 'otp_error' in message.tags %}
+          otpError.textContent = '{{ message|escapejs }}';
           otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
           otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        verifyBtn.disabled = false;
-        verifyBtn.innerHTML = '<span>VERIFY & SAVE</span> <span class="font-sans">→</span>';
-        otpError.textContent = 'Connection error. Please try again.';
-        otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
-        otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-      });
-  });
+        {% endif %}
+      {% endfor %}
+    {% endif %}
+  {% endif %}
+
+  // Auto-run alert hiding on page load
+  autoHideAlerts();
 </script>
 {% endblock %}

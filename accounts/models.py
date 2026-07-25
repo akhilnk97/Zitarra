@@ -1,6 +1,8 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
-from django.utils import timezone
+from allauth.socialaccount.signals import pre_social_login
+from django.dispatch import receiver
+
 
 class UserManager(BaseUserManager):
     """
@@ -69,9 +71,6 @@ class OTPVerification(models.Model):
         return self.email
 
 
-from allauth.socialaccount.signals import pre_social_login
-from django.dispatch import receiver
-
 @receiver(pre_social_login)
 def handle_google_login(sender, request, sociallogin, **kwargs):
     """
@@ -118,4 +117,3 @@ def handle_google_login(sender, request, sociallogin, **kwargs):
         if not user.fullname:
             user.fullname = extra.get('name', '') or extra.get('given_name', 'Google User')
         user.is_verified = True
-        request.session["google_signup_success"] = True

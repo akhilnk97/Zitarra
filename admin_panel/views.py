@@ -1,10 +1,12 @@
-import time as time_module
 from django.shortcuts import render, redirect
 from django.contrib import messages
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.views.decorators.cache import cache_control
 from django.utils import timezone
+from django.db.models import Q
+from django.core.paginator import Paginator
+from django.db.models.functions import Lower
 
 from .decorators import admin_required
 from accounts.models import User, OTPVerification
@@ -228,11 +230,7 @@ def admin_logout_view(request):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_users_view(request):
-    from django.db.models import Q
-    from django.core.paginator import Paginator
-    from django.db.models.functions import Lower
-
-
+    
     search_query = request.GET.get("search", "").strip()
     filter_val   = request.GET.get("filter", "All Users").strip()
     sort_val     = request.GET.get("sort", "Latest First").strip()
@@ -292,7 +290,7 @@ def admin_users_view(request):
             "mobile":  u.mobile_number or "N/A",
             "avatar":  u.profile_image.url if u.profile_image else "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&q=80",
             "blocked": u.is_blocked,
-            "s_no":    f"{serial_number:03d}",
+            "s_no":    serial_number,
         })
 
     context = {
@@ -320,7 +318,8 @@ def admin_users_view(request):
 @admin_required
 def admin_toggle_block_view(request, user_id):
     if request.method != "POST":
-        return JsonResponse({"status": "error", "message": "Method not allowed"}, status=405)
+        messages.error(request, "Method not allowed")
+        return redirect("admin_users")
 
     try:
         user = User.objects.get(id=user_id, is_staff=False)
@@ -328,16 +327,15 @@ def admin_toggle_block_view(request, user_id):
         user.is_active = not user.is_blocked
         user.save()
 
-        return JsonResponse({
-            "status": "success",
-            "is_blocked": user.is_blocked,
-        })
+        if user.is_blocked:
+            messages.success(request, f"User {user.fullname} has been blocked successfully.")
+        else:
+            messages.success(request, f"User {user.fullname} has been unblocked successfully.")
 
     except User.DoesNotExist:
-        return JsonResponse({
-            "status": "error",
-            "message": "User not found",
-        }, status=404)
+        messages.error(request, "User not found")
+
+    return redirect("admin_users")
 
 
 from user_panel.views import custom_404_view

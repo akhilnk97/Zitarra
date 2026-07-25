@@ -12,10 +12,7 @@ def landing_view(request):
 @login_required(login_url='/login/')
 @user_not_blocked
 def home_view(request):
-    google_signup = request.session.pop("google_signup_success", False)
-    return render(request, "user/panel/home.html", {
-        "google_signup": google_signup,
-    })
+    return render(request, "user/panel/home.html")
 
 
 def custom_404_view(request, exception=None):
