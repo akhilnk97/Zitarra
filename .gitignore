@@ -1,12 +1,17 @@
-.env
-<<<<<<< HEAD
-
-# Python cache
+# Python
 __pycache__/
 *.py[cod]
 
 # Virtual environments
 venv/
-.env/
-=======
->>>>>>> 8e77622 (Refactored the user input validation)
+.venv/
+
+# VS Code
+.vscode/
+
+# Django
+db.sqlite3
+media/
+
+# Environment
+.env
