@@ -13,6 +13,7 @@ from django.utils import timezone
 from .models import User, OTPVerification
 from .services import (
     validate_password_strength,
+    validate_full_name,
     create_otp,
     send_signup_otp,
     send_reset_otp,
@@ -25,47 +26,31 @@ def signup_view(request):
         return redirect("home")
 
     if request.method == "POST":
-        raw_fullname     = request.POST.get("fullname", "")
-        raw_email        = request.POST.get("email", "")
-        raw_mobile       = request.POST.get("mobile_number", "")
-        fullname         = raw_fullname.strip()
-        email            = raw_email.strip().lower()
-        mobile_number    = raw_mobile.strip()
+
+        fullname         = request.POST.get("fullname", "").strip()
+        email            = request.POST.get("email", "").strip().lower()
+        mobile_number    = request.POST.get("mobile_number", "").strip()
         referral_code    = request.POST.get("referral_code", "").strip()
         password         = request.POST.get("password", "")
         confirm_password = request.POST.get("confirm_password", "")
 
         error = None
 
-        if raw_fullname.startswith(" "):
-            error = "Full name cannot start with a space."
-        elif not fullname:
+        if not fullname:
             error = "Full name is required."
-        elif len(fullname) < 3:
-            error = "Full name must be at least 3 characters."
-        elif not re.match(r'^[a-zA-Z]+( [a-zA-Z]+)*$', fullname):
-            if any(char.isdigit() for char in fullname):
-                error = "Full name cannot contain numbers."
-            elif any(not char.isalnum() and not char.isspace() for char in fullname):
-                error = "Full name cannot contain special characters."
-            elif "  " in raw_fullname:
-                error = "Full name cannot contain consecutive spaces."
-            else:
-                error = "Please enter a valid full name."
-        elif raw_email.startswith(" "):
-            error = "Email address cannot start with a space."
-        elif not email:
-            error = "Email is required."
         else:
+            error = validate_full_name(fullname)
+
+        if not error and not email:
+            error = "Email is required."
+        elif not error:
             try:
                 validate_email(email)
             except ValidationError:
                 error = "Enter a valid email address."
 
         if not error:
-            if raw_mobile.startswith(" "):
-                error = "Mobile number cannot start with a space."
-            elif not mobile_number:
+            if not mobile_number:
                 error = "Mobile number is required."
             elif not mobile_number.isdigit():
                 error = "Mobile number must contain only digits."
@@ -84,18 +69,13 @@ def signup_view(request):
 
         if error:
             messages.error(request, error)
-            
-            clear_name = "name" in error.lower()
-            clear_email = "email" in error.lower()
-            clear_mobile = "mobile" in error.lower() or "phone" in error.lower()
-
             context = {
-                "fullname": "" if clear_name else fullname,
-                "email": "" if clear_email else email,
-                "mobile_number": "" if clear_mobile else mobile_number,
+                "fullname": fullname,
+                "email": email,
+                "mobile_number": mobile_number,
                 "referral_code": referral_code,
             }
-            return render(request, "user/authentication/signup.html", context, status=400)
+            return render(request, "user/authentication/signup.html", context)
 
         user = User.objects.create_user(
             fullname=fullname,
@@ -116,7 +96,7 @@ def signup_view(request):
                 "email": email,
                 "mobile_number": mobile_number,
                 "referral_code": referral_code,
-            }, status=500)
+            })
 
         request.session["pending_user_id"] = user.id
         return redirect("otp_verify")
@@ -201,14 +181,10 @@ def login_view(request):
         return redirect("home")
 
     if request.method == "POST":
-        raw_email = request.POST.get("email", "")
-        email    = raw_email.strip().lower()
+        email    = request.POST.get("email", "").strip().lower()
         password = request.POST.get("password", "")
 
-        if raw_email.startswith(" "):
-            messages.error(request, "Email address cannot start with a space.")
-            return render(request, "user/authentication/login.html", status=400)
-        elif not email or not password:
+        if not email or not password:
             messages.error(request, "Email and password are required.")
             return render(request, "user/authentication/login.html", status=400)
 

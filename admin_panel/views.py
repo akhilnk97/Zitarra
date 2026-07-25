@@ -6,18 +6,9 @@ from django.http import JsonResponse
 from django.views.decorators.cache import cache_control
 from django.utils import timezone
 
-from django.db.models import Q
-from django.core.paginator import Paginator
-from django.db.models.functions import Lower
-
 from .decorators import admin_required
 from accounts.models import User, OTPVerification
-from accounts.services import (
-    create_otp,
-    send_mail_safe,
-    send_admin_reset_otp,
-    validate_password_strength,
-)
+from accounts.services import create_otp, send_mail_safe, validate_password_strength
 
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def admin_login_view(request):
@@ -69,7 +60,26 @@ def admin_forgot_password_view(request):
             messages.error(request, "This email address is not registered as an administrator.")
             return render(request, "admin_panel/authentication/forgot_password.html", status=400)
 
-        if not send_admin_reset_otp(user):
+        otp_code, _ = create_otp(user, "admin_reset")
+        subject = "Zitarra Admin — Password Reset Code"
+        context = {
+            "subject": subject,
+            "heading": "Admin Password Reset",
+            "user_name": user.fullname,
+            "lead_text": "A request was received to reset your Zitarra administrator account password. Use the verification code below to proceed.",
+            "otp_code": otp_code,
+            "expiry_time": "1 minute",
+            "security_warning": True,
+        }
+        sent = send_mail_safe(
+            subject=subject,
+            message=None,
+            recipient=email,
+            html_template="emails/otp_email.html",
+            context=context,
+        )
+
+        if not sent:
             messages.error(request, "Failed to send email. Please try again.")
             return render(request, "admin_panel/authentication/forgot_password.html", status=500)
 
@@ -86,7 +96,7 @@ def admin_forgot_password_otp_view(request):
         return redirect("admin_forgot_password")
 
     if request.method == "POST":
-        entered_otp = request.POST.get("otp", "").strip()
+        entered_otp = request.POST.get("otp")
 
         try:
             otp_record = OTPVerification.objects.filter(
@@ -102,8 +112,8 @@ def admin_forgot_password_otp_view(request):
             messages.error(request, "The OTP has expired. Please request a new one.")
             return redirect("admin_forgot_password_otp")
 
-        if not entered_otp or entered_otp != otp_record.otp_code:
-            messages.error(request, "Invalid OTP code. Please try again.")
+        if entered_otp != otp_record.otp_code:
+            messages.error(request, "Invalid OTP. Please try again.")
             return redirect("admin_forgot_password_otp")
 
         otp_record.verified = True
@@ -128,10 +138,26 @@ def admin_forgot_password_resend_otp_view(request):
         except User.DoesNotExist:
             return redirect("admin_forgot_password")
 
-        if send_admin_reset_otp(user):
-            messages.success(request, "A new code has been sent.")
-        else:
-            messages.error(request, "Failed to send OTP email. Please try again.")
+        otp_code, _ = create_otp(user, "admin_reset")
+        subject = "Zitarra Admin — New Reset Code"
+        context = {
+            "subject": subject,
+            "heading": "New Admin Reset Code",
+            "user_name": user.fullname,
+            "lead_text": "Here is your requested new verification code for your Zitarra administrator account password reset.",
+            "otp_code": otp_code,
+            "expiry_time": "1 minute",
+            "security_warning": True,
+        }
+        send_mail_safe(
+            subject=subject,
+            message=None,
+            recipient=user.email,
+            html_template="emails/otp_email.html",
+            context=context,
+        )
+        messages.success(request, "A new code has been sent.")
+
     return redirect("admin_forgot_password_otp")
 
 
@@ -202,6 +228,11 @@ def admin_logout_view(request):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_users_view(request):
+    from django.db.models import Q
+    from django.core.paginator import Paginator
+    from django.db.models.functions import Lower
+
+
     search_query = request.GET.get("search", "").strip()
     filter_val   = request.GET.get("filter", "All Users").strip()
     sort_val     = request.GET.get("sort", "Latest First").strip()
@@ -223,6 +254,7 @@ def admin_users_view(request):
         page = 1
 
     queryset = User.objects.filter(is_staff=False)
+
     if search_query:
         queryset = queryset.filter(
             Q(fullname__icontains=search_query) |
@@ -230,12 +262,10 @@ def admin_users_view(request):
             Q(mobile_number__icontains=search_query)
         )
 
-
     if filter_val == "Active Accounts":
         queryset = queryset.filter(is_blocked=False)
     elif filter_val == "Blocked Accounts":
         queryset = queryset.filter(is_blocked=True)
-
 
     if sort_val == "Oldest First":
         queryset = queryset.order_by("id")
@@ -264,6 +294,7 @@ def admin_users_view(request):
             "blocked": u.is_blocked,
             "s_no":    f"{serial_number:03d}",
         })
+
     context = {
         "users":        mapped_users,
         "page_obj":     page_obj,

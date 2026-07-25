@@ -16,5 +16,4 @@ class NoMessageAccountAdapter(DefaultAccountAdapter):
     """
 
     def add_message(self, request, level, message_template, message_context=None, extra_tags=''):
-        # Do nothing — we intentionally suppress allauth's built-in messages
         pass

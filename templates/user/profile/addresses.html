@@ -108,18 +108,16 @@
       {% if messages %}
       <div class="px-9 pt-6">
         {% for message in messages %}
-          {% if "Successfully signed in" not in message.message %}
-            {% if 'success' in message.tags %}
-              <div class="mb-4 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-                <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-                <span>{{ message }}</span>
-              </div>
-            {% else %}
-              <div class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-                <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-                <span>{{ message }}</span>
-              </div>
-            {% endif %}
+          {% if 'success' in message.tags %}
+            <div class="mb-4 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>{{ message }}</span>
+            </div>
+          {% else %}
+            <div class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span>{{ message }}</span>
+            </div>
           {% endif %}
         {% endfor %}
       </div>
@@ -224,7 +222,7 @@
       <!-- Full Name -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Full Name</p>
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
           id="fullname-wrap">
           <input type="text" id="address-fullname" name="full_name"
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
@@ -238,7 +236,7 @@
       <!-- Phone Number -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Phone Number</p>
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
           id="phone-wrap">
           <input type="text" id="address-phone" name="phone_number"
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300"
@@ -252,7 +250,7 @@
       <!-- Address Line 1 -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Address Line 1</p>
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
           id="line1-wrap">
           <input type="text" id="address-line1" name="address_line_1"
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
@@ -266,7 +264,7 @@
       <!-- Address Line 2 -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Address Line 2</p>
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
           id="line2-wrap">
           <input type="text" id="address-line2" name="address_line_2"
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
@@ -281,7 +279,7 @@
       <div class="grid grid-cols-2 gap-6">
         <div>
           <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">City</p>
-          <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+          <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
             id="city-wrap">
             <input type="text" id="address-city" name="city"
               class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
@@ -293,7 +291,7 @@
         </div>
         <div>
           <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">State</p>
-          <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+          <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
             id="state-wrap">
             <input type="text" id="address-state" name="state"
               class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
@@ -308,7 +306,7 @@
       <!-- Pincode -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Pincode</p>
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
+        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
           id="pincode-wrap">
           <input type="text" id="address-pincode" name="pincode"
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
@@ -422,12 +420,12 @@
 </div>
 
 <script>
->>>>>>> 8e77622 (Refactored the user input validation)
   const modal = document.getElementById('address-modal');
   const modalInner = document.getElementById('address-modal-inner');
   const modalTitle = document.getElementById('modal-title');
   const form = document.getElementById('address-form');
-const nameInput = document.getElementById('address-fullname');
+
+  const nameInput = document.getElementById('address-fullname');
   const phoneInput = document.getElementById('address-phone');
   const line1Input = document.getElementById('address-line1');
   const line2Input = document.getElementById('address-line2');
@@ -454,34 +452,6 @@ const nameInput = document.getElementById('address-fullname');
   const deleteModal = document.getElementById('delete-confirm-modal');
   const deleteModalInner = document.getElementById('delete-confirm-modal-inner');
 
-  const submitBtn = document.getElementById('submit-btn');
-  let initialAddressValues = {};
-
-  function checkAddressChanges() {
-    const currentName = nameInput.value.trim();
-    const currentPhone = phoneInput.value.trim();
-    const currentLine1 = line1Input.value.trim();
-    const currentLine2 = line2Input.value.trim();
-    const currentCity = cityInput.value.trim();
-    const currentState = stateInput.value.trim();
-    const currentPincode = pincodeInput.value.trim();
-    const currentLabel = document.getElementById('address-label').value;
-    const currentDefault = document.getElementById('address-default') ? document.getElementById('address-default').checked : false;
-
-    const hasChanged = 
-      currentName !== (initialAddressValues.name || '') ||
-      currentPhone !== (initialAddressValues.phone || '') ||
-      currentLine1 !== (initialAddressValues.line1 || '') ||
-      currentLine2 !== (initialAddressValues.line2 || '') ||
-      currentCity !== (initialAddressValues.city || '') ||
-      currentState !== (initialAddressValues.state || '') ||
-      currentPincode !== (initialAddressValues.pincode || '') ||
-      currentLabel !== (initialAddressValues.label || 'HOME') ||
-      currentDefault !== (initialAddressValues.isDefault || false);
-
-    submitBtn.disabled = !hasChanged;
-  }
-
   function setLabel(label) {
     document.getElementById('address-label').value = label;
     ['home', 'office'].forEach(l => {
@@ -494,9 +464,6 @@ const nameInput = document.getElementById('address-fullname');
         }
       }
     });
-    if (typeof checkAddressChanges === 'function') {
-      checkAddressChanges();
-    }
   }
 
   function openAddressModal(title = 'ADD NEW ADDRESS') {
@@ -530,19 +497,6 @@ const nameInput = document.getElementById('address-fullname');
       delete inp.dataset.dirty;
     });
     clearAllErrors();
-
-    initialAddressValues = {
-      name: '',
-      phone: '',
-      line1: '',
-      line2: '',
-      city: '',
-      state: '',
-      pincode: '',
-      label: 'HOME',
-      isDefault: false
-    };
-    checkAddressChanges();
   }
 
   function openEditModal(id, fullname, phone, line1, line2, city, state, pincode, label, isDefault) {
@@ -559,19 +513,6 @@ const nameInput = document.getElementById('address-fullname');
     if (document.getElementById('address-default')) {
       document.getElementById('address-default').checked = isDefault;
     }
-    
-    initialAddressValues = {
-      name: fullname,
-      phone: phone,
-      line1: line1,
-      line2: line2,
-      city: city,
-      state: state,
-      pincode: pincode,
-      label: label || 'HOME',
-      isDefault: isDefault
-    };
-    checkAddressChanges();
     openAddressModal('EDIT ADDRESS RECORD');
   }
 
@@ -592,21 +533,16 @@ const nameInput = document.getElementById('address-fullname');
   }
 
   function showErr(wrap, errEl, msg) {
-    wrap.classList.remove('after:bg-brand-orange');
-    wrap.classList.add('after:w-full', 'after:bg-red-500', 'border-red-500', 'animate-shake');
+    wrap.classList.add('border-red-500');
+    wrap.classList.remove('focus-within:border-brand-orange');
     errEl.textContent = msg;
     errEl.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
     errEl.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-
-    // Trigger shake animation
-    wrap.classList.remove('animate-shake');
-    void wrap.offsetWidth; // trigger reflow
-    wrap.classList.add('animate-shake');
   }
 
   function clearErr(wrap, errEl) {
-    wrap.classList.remove('after:w-full', 'after:bg-red-500', 'border-red-500', 'animate-shake');
-    wrap.classList.add('after:bg-brand-orange');
+    wrap.classList.remove('border-red-500');
+    wrap.classList.add('focus-within:border-brand-orange');
     errEl.classList.add('opacity-0', '-translate-y-1', 'pointer-events-none');
     errEl.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
   }
@@ -623,6 +559,29 @@ const nameInput = document.getElementById('address-fullname');
 
   function validateName() {
     const rawVal = nameInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(nameWrap, nameErr, 'Recipient name cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(nameWrap, nameErr, 'Full Name is required.');
+      return false;
+    }
+    if (val.length < 3) {
+      showErr(nameWrap, nameErr, 'Recipient name must be at least 3 characters.');
+      return false;
+    }
+    if (/[0-9]/.test(val)) {
+      showErr(nameWrap, nameErr, 'Recipient name cannot contain numbers.');
+      return false;
+    }
+    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
+      showErr(nameWrap, nameErr, 'Recipient name cannot contain special characters.');
+      return false;
+    }
+    const nameRe = /^[a-zA-Z]+( [a-zA-Z]+)*$/;
+    if (!nameRe.test(val)) {
       showErr(nameWrap, nameErr, 'Please enter a valid recipient name.');
       return false;
     }
@@ -655,10 +614,21 @@ const nameInput = document.getElementById('address-fullname');
 
   function validateLine1() {
     const rawVal = line1Input.value;
-    if (rawVal && !/^[a-zA-Z]/.test(rawVal)) {
-      showErr(cityWrap, cityErr, 'City must start with a letter.');
+    if (rawVal.startsWith(' ')) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 cannot start with a space.');
       return false;
     }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 is required.');
+      return false;
+    }
+    clearErr(line1Wrap, line1Err);
+    return true;
+  }
+
+  function validateCity() {
+    const rawVal = cityInput.value;
     if (rawVal.startsWith(' ')) {
       showErr(cityWrap, cityErr, 'City cannot start with a space.');
       return false;
@@ -678,7 +648,49 @@ const nameInput = document.getElementById('address-fullname');
 
   function validateState() {
     const rawVal = stateInput.value;
-    checkAddressChanges();
+    if (rawVal.startsWith(' ')) {
+      showErr(stateWrap, stateErr, 'State cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(stateWrap, stateErr, 'State is required.');
+      return false;
+    }
+    if (!/^[a-zA-Z\s.-]+$/.test(val)) {
+      showErr(stateWrap, stateErr, 'State must contain only letters.');
+      return false;
+    }
+    clearErr(stateWrap, stateErr);
+    return true;
+  }
+
+  function validatePincode() {
+    const rawVal = pincodeInput.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(pincodeWrap, pincodeErr, 'Pincode cannot start with a space.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (!val) {
+      showErr(pincodeWrap, pincodeErr, 'Pincode is required.');
+      return false;
+    }
+    if (!/^\d+$/.test(val)) {
+      showErr(pincodeWrap, pincodeErr, 'Pincode must contain only digits.');
+      return false;
+    }
+    if (val.length !== 6) {
+      showErr(pincodeWrap, pincodeErr, 'Pincode must be exactly 6 digits.');
+      return false;
+    }
+    clearErr(pincodeWrap, pincodeErr);
+    return true;
+  }
+
+  function handleInput(inp, wrap, errEl) {
+    clearErr(wrap, errEl);
+    inp.dataset.dirty = 'true';
   }
 
   nameInput.addEventListener('input', () => handleInput(nameInput, nameWrap, nameErr));
@@ -702,27 +714,19 @@ const nameInput = document.getElementById('address-fullname');
             stateInput.value = info.State.toUpperCase();
             clearErr(cityWrap, cityErr);
             clearErr(stateWrap, stateErr);
-            checkAddressChanges();
           } else {
             cityInput.value = '';
             stateInput.value = '';
             showErr(pincodeWrap, pincodeErr, 'Invalid or unregistered pincode.');
-            checkAddressChanges();
           }
         })
         .catch(() => {
           cityInput.value = '';
           stateInput.value = '';
-          checkAddressChanges();
         });
     }
   });
-  nameInput.addEventListener('blur', () => { if (nameInput.dataset.dirty === 'true') validateName(); });
-  phoneInput.addEventListener('blur', () => { if (phoneInput.dataset.dirty === 'true') validatePhone(); });
-  line1Input.addEventListener('blur', () => { if (line1Input.dataset.dirty === 'true') validateLine1(); });
-  cityInput.addEventListener('blur', () => { if (cityInput.dataset.dirty === 'true') validateCity(); });
-  stateInput.addEventListener('blur', () => { if (stateInput.dataset.dirty === 'true') validateState(); });
-  pincodeInput.addEventListener('blur', () => { if (pincodeInput.dataset.dirty === 'true') validatePincode(); });
+
   form.addEventListener('submit', function (e) {
     let valid = true;
     if (!validateName()) valid = false;
@@ -744,28 +748,6 @@ const nameInput = document.getElementById('address-fullname');
         openAddressModal('ADD NEW ADDRESS');
       });
     }
-
-    const defaultCheck = document.getElementById('address-default');
-    if (defaultCheck) {
-      defaultCheck.addEventListener('change', checkAddressChanges);
-    }
-
-    // Auto-hide alert messages
-    const alerts = document.querySelectorAll('.msg-alert');
-    alerts.forEach(alert => {
-      setTimeout(() => {
-        alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
-        alert.style.opacity = '0';
-        alert.style.transform = 'translateY(-10px)';
-        setTimeout(() => {
-          alert.style.maxHeight = '0';
-          alert.style.padding = '0';
-          alert.style.margin = '0';
-          alert.style.border = 'none';
-          setTimeout(() => alert.remove(), 500);
-        }, 300);
-      }, 3000);
-    });
   });
 </script>
 {% endblock %}

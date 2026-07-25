@@ -84,32 +84,8 @@ def profile_send_otp_view(request):
         messages.error(request, "Failed to send OTP email. Please try again.")
         return render(request, "user/profile/profile_edit.html")
 
+    messages.info(request, "An OTP verification code has been sent to your email.")
     return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
-
-
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
-def profile_resend_otp_view(request):
-    if request.method != "POST":
-        return redirect("profiles:profile_edit")
-
-    pending_data = request.session.get("pending_profile_update")
-    if not pending_data:
-        messages.error(request, "Session expired. Please update your profile again.")
-        return redirect("profiles:profile_edit")
-
-    email = pending_data["email"]
-    if not send_profile_edit_otp(request.user, email):
-        return render(request, "user/profile/profile_edit.html", {
-            "show_otp_modal": True,
-            "otp_error": "Failed to resend OTP. Please try again."
-        })
-
-    return render(request, "user/profile/profile_edit.html", {
-        "show_otp_modal": True,
-        "otp_success": "A new OTP verification code has been sent to your email."
-    })
 
 
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -133,22 +109,16 @@ def profile_edit_view(request):
                     verified=False
                 ).latest('created_at')
             except OTPVerification.DoesNotExist:
-                return render(request, "user/profile/profile_edit.html", {
-                    "show_otp_modal": True,
-                    "otp_error": "OTP not found. Please request a new code."
-                })
-
-            if entered_otp != otp_record.otp_code:
-                return render(request, "user/profile/profile_edit.html", {
-                    "show_otp_modal": True,
-                    "otp_error": "Invalid OTP code. Please try again."
-                })
+                messages.error(request, "OTP not found. Please request a new code.")
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             if otp_record.expires_at < timezone.now():
-                return render(request, "user/profile/profile_edit.html", {
-                    "show_otp_modal": True,
-                    "otp_error": "The OTP code has expired. Please request a new code."
-                })
+                messages.error(request, "OTP has expired. Please request a new code.")
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
+
+            if entered_otp != otp_record.otp_code:
+                messages.error(request, "Invalid OTP. Please try again.")
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
 
             if request.user.socialaccount_set.exists() and pending_data["email"] != request.user.email.lower():
                 messages.error(request, "Google authenticated users cannot change their email address.")
@@ -171,33 +141,18 @@ def profile_edit_view(request):
             messages.success(request, "Profile updated successfully!")
             return redirect("profiles:profile")
 
-        # 2. Standard Update or Email/Mobile change detection
-        email = request.POST.get("email", "").strip().lower()
-        mobile_number = request.POST.get("mobile_number", "").strip() or None
-
-        email_changed = email and email != request.user.email.lower()
-        mobile_changed = mobile_number != (request.user.mobile_number or None)
-
-        if email_changed or mobile_changed:
-            return profile_send_otp_view(request)
-
+        # 2. Standard Update (Name & Profile Picture only)
         fullname = request.POST.get("fullname", "").strip()
         if not fullname:
             messages.error(request, "Full name is required.")
             return render(request, "user/profile/profile_edit.html")
 
-        has_changed = (
-            fullname != request.user.fullname or
-            request.FILES.get("profile_image") is not None
-        )
+        request.user.fullname = fullname
+        if request.FILES.get("profile_image"):
+            request.user.profile_image = request.FILES["profile_image"]
+        request.user.save()
 
-        if has_changed:
-            request.user.fullname = fullname
-            if request.FILES.get("profile_image"):
-                request.user.profile_image = request.FILES["profile_image"]
-            request.user.save()
-            messages.success(request, "Profile updated successfully!")
-
+        messages.success(request, "Profile updated successfully!")
         return redirect("profiles:profile")
 
     return render(request, "user/profile/profile_edit.html")
@@ -247,30 +202,18 @@ def address_save_view(request):
     if address_id:
         try:
             addr = Address.objects.get(id=address_id, user=request.user)
-            has_changed = (
-                addr.full_name != full_name or
-                addr.phone_number != phone_number or
-                addr.address_line_1 != address_line_1 or
-                (addr.address_line_2 or "") != (address_line_2 or "") or
-                addr.city != city or
-                addr.state != state or
-                addr.pincode != pincode or
-                addr.is_default != is_default or
-                addr.label != label
-            )
-            if has_changed:
-                addr.full_name      = full_name
-                addr.phone_number   = phone_number
-                addr.address_line_1 = address_line_1
-                addr.address_line_2 = address_line_2 or None
-                addr.city           = city
-                addr.state          = state
-                addr.pincode        = pincode
-                addr.is_default     = is_default
-                addr.badge          = badge_val
-                addr.label          = label
-                addr.save()
-                messages.success(request, "Address updated successfully!")
+            addr.full_name      = full_name
+            addr.phone_number   = phone_number
+            addr.address_line_1 = address_line_1
+            addr.address_line_2 = address_line_2 or None
+            addr.city           = city
+            addr.state          = state
+            addr.pincode        = pincode
+            addr.is_default     = is_default
+            addr.badge          = badge_val
+            addr.label          = label
+            addr.save()
+            messages.success(request, "Address updated successfully!")
         except Address.DoesNotExist:
             messages.error(request, "Address record not found.")
     else:
@@ -354,12 +297,8 @@ def profile_password_send_otp_view(request):
         return render(request, "user/profile/password.html")
 
     # 3. Show OTP Modal
-    return render(request, "user/profile/password.html", {
-        "show_otp_modal": True,
-        "temp_current_pwd": current_pwd,
-        "temp_new_pwd": new_pwd,
-        "temp_confirm_pwd": confirm_pwd,
-    })
+    messages.info(request, "An OTP verification code has been sent to your email.")
+    return render(request, "user/profile/password.html", {"show_otp_modal": True})
 
 
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
@@ -387,23 +326,13 @@ def profile_password_view(request):
             messages.error(request, "OTP not found. Please request a new code.")
             return render(request, "user/profile/password.html")
 
-        if entered_otp != otp_record.otp_code:
-            return render(request, "user/profile/password.html", {
-                "show_otp_modal": True,
-                "otp_error": "Invalid OTP code. Please try again.",
-                "temp_current_pwd": current_pwd,
-                "temp_new_pwd": new_pwd,
-                "temp_confirm_pwd": confirm_pwd,
-            })
-
         if otp_record.expires_at < timezone.now():
-            return render(request, "user/profile/password.html", {
-                "show_otp_modal": True,
-                "otp_error": "The OTP code has expired. Please request a new code.",
-                "temp_current_pwd": current_pwd,
-                "temp_new_pwd": new_pwd,
-                "temp_confirm_pwd": confirm_pwd,
-            })
+            messages.error(request, "OTP has expired. Please request a new code.")
+            return render(request, "user/profile/password.html")
+
+        if not entered_otp or entered_otp != otp_record.otp_code:
+            messages.error(request, "Invalid OTP code. Please try again.")
+            return render(request, "user/profile/password.html", {"show_otp_modal": True})
 
         # 3. Validate Password Inputs
         if not current_pwd or not request.user.check_password(current_pwd):
