@@ -105,12 +105,6 @@
       <!-- Alert Container -->
       <div id="alert-container" class="px-9 pt-6 hidden"></div>
 
-<<<<<<< HEAD
-      <!-- Address Cards Grid — 2 columns, flush border layout -->
-      <div class="flex-1">
-        <div id="address-grid" class="grid grid-cols-2 border-t border-[#ebebeb]">
-          <!-- Dynamic Content Rendered by JS -->
-=======
       {% if messages %}
       <div class="px-9 pt-6">
         {% for message in messages %}
@@ -193,7 +187,6 @@
             No stored addresses found. Click "Add New Address" above to create one.
           </div>
           {% endfor %}
->>>>>>> 8e77622 (Refactored the user input validation)
         </div>
       </div>
 
@@ -222,32 +215,18 @@
     <h2 class="text-xl font-extrabold uppercase tracking-[0.05em] text-brand-dark mb-6" id="modal-title">ADD NEW ADDRESS
     </h2>
 
-<<<<<<< HEAD
-    <form id="address-form" class="flex flex-col gap-6" novalidate>
-      {% csrf_token %}
-      <input type="hidden" id="address-id" />
-      <input type="hidden" id="address-label" value="HOME" />
-      <input type="hidden" id="address-badge" value="" />
-=======
     <form id="address-form" method="POST" action="{% url 'profiles:address_save' %}" class="flex flex-col gap-6" novalidate>
       {% csrf_token %}
       <input type="hidden" id="address-id" name="id" />
       <input type="hidden" id="address-label" name="label" value="HOME" />
       <input type="hidden" id="address-badge" name="badge" value="" />
->>>>>>> 8e77622 (Refactored the user input validation)
 
       <!-- Full Name -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Full Name</p>
-<<<<<<< HEAD
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-          id="fullname-wrap">
-          <input type="text" id="address-fullname"
-=======
         <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
           id="fullname-wrap">
           <input type="text" id="address-fullname" name="full_name"
->>>>>>> 8e77622 (Refactored the user input validation)
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
             placeholder="ENTER NAME" required />
         </div>
@@ -259,15 +238,9 @@
       <!-- Phone Number -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Phone Number</p>
-<<<<<<< HEAD
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-          id="phone-wrap">
-          <input type="text" id="address-phone"
-=======
         <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
           id="phone-wrap">
           <input type="text" id="address-phone" name="phone_number"
->>>>>>> 8e77622 (Refactored the user input validation)
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300"
             placeholder="9754682549" required />
         </div>
@@ -279,15 +252,9 @@
       <!-- Address Line 1 -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Address Line 1</p>
-<<<<<<< HEAD
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-          id="line1-wrap">
-          <input type="text" id="address-line1"
-=======
         <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
           id="line1-wrap">
           <input type="text" id="address-line1" name="address_line_1"
->>>>>>> 8e77622 (Refactored the user input validation)
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
             placeholder="STREET / BUILDING" required />
         </div>
@@ -299,15 +266,9 @@
       <!-- Address Line 2 -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Address Line 2</p>
-<<<<<<< HEAD
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-          id="line2-wrap">
-          <input type="text" id="address-line2"
-=======
         <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
           id="line2-wrap">
           <input type="text" id="address-line2" name="address_line_2"
->>>>>>> 8e77622 (Refactored the user input validation)
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
             placeholder="APARTMENT / SUITE / UNIT" />
         </div>
@@ -320,15 +281,9 @@
       <div class="grid grid-cols-2 gap-6">
         <div>
           <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">City</p>
-<<<<<<< HEAD
-          <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-            id="city-wrap">
-            <input type="text" id="address-city"
-=======
           <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
             id="city-wrap">
             <input type="text" id="address-city" name="city"
->>>>>>> 8e77622 (Refactored the user input validation)
               class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
               placeholder="LOCATION" required />
           </div>
@@ -338,15 +293,9 @@
         </div>
         <div>
           <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">State</p>
-<<<<<<< HEAD
-          <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-            id="state-wrap">
-            <input type="text" id="address-state"
-=======
           <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
             id="state-wrap">
             <input type="text" id="address-state" name="state"
->>>>>>> 8e77622 (Refactored the user input validation)
               class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
               placeholder="HARIYANA" required />
           </div>
@@ -359,15 +308,9 @@
       <!-- Pincode -->
       <div class="w-full">
         <p class="text-[0.48rem] font-bold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1.5">Pincode</p>
-<<<<<<< HEAD
-        <div class="relative border-b border-[#e8e8e8] pb-1.5 focus-within:border-brand-orange transition-colors"
-          id="pincode-wrap">
-          <input type="text" id="address-pincode"
-=======
         <div class="relative border-b border-[#e8e8e8] pb-1.5 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full"
           id="pincode-wrap">
           <input type="text" id="address-pincode" name="pincode"
->>>>>>> 8e77622 (Refactored the user input validation)
             class="w-full bg-transparent border-none outline-none text-[0.85rem] font-semibold text-[#1a1a1a] placeholder:text-gray-300 uppercase"
             placeholder="POSTAL CODE" required />
         </div>
@@ -403,11 +346,7 @@
 
       <!-- Default Checkbox -->
       <div class="flex items-center gap-2">
-<<<<<<< HEAD
-        <input type="checkbox" id="address-default" class="w-4 h-4 accent-brand-orange cursor-pointer" />
-=======
         <input type="checkbox" id="address-default" name="is_default" class="w-4 h-4 accent-brand-orange cursor-pointer" />
->>>>>>> 8e77622 (Refactored the user input validation)
         <label for="address-default"
           class="text-[0.58rem] font-bold tracking-[0.14em] uppercase text-[#1a1a1a] select-none cursor-pointer">Set as
           default address record</label>
@@ -456,18 +395,6 @@
     </p>
 
     <!-- Actions -->
-<<<<<<< HEAD
-    <div class="grid grid-cols-2 gap-4">
-      <button type="button" onclick="closeDeleteModal();"
-        class="border border-[#e8e8e8] text-gray-500 hover:text-brand-dark hover:border-brand-dark py-3 text-[0.62rem] font-bold tracking-[0.15em] uppercase bg-transparent cursor-pointer transition-colors duration-200 text-center">
-        Cancel
-      </button>
-      <button type="button" id="confirm-delete-btn"
-        class="bg-red-600 hover:bg-red-700 text-white py-3 text-[0.62rem] font-bold tracking-[0.15em] uppercase border-none cursor-pointer transition-colors duration-200 text-center">
-        Delete Record
-      </button>
-    </div>
-=======
     <form id="delete-address-form" method="POST" action="">
       {% csrf_token %}
       <div class="grid grid-cols-2 gap-4">
@@ -481,7 +408,6 @@
         </button>
       </div>
     </form>
->>>>>>> 8e77622 (Refactored the user input validation)
   </div>
 </div>
 
@@ -496,28 +422,12 @@
 </div>
 
 <script>
-<<<<<<< HEAD
-  // Load initial addresses from context
-  let userAddresses = [];
-  try {
-    userAddresses = JSON.parse('{{ addresses_json|escapejs }}');
-  } catch (e) {
-    console.error("Failed to parse initial user addresses:", e);
-  }
-
-=======
 >>>>>>> 8e77622 (Refactored the user input validation)
   const modal = document.getElementById('address-modal');
   const modalInner = document.getElementById('address-modal-inner');
   const modalTitle = document.getElementById('modal-title');
   const form = document.getElementById('address-form');
-<<<<<<< HEAD
-  const toast = document.getElementById('toast');
-  const toastText = document.getElementById('toast-text');
-=======
->>>>>>> 8e77622 (Refactored the user input validation)
-
-  const nameInput = document.getElementById('address-fullname');
+const nameInput = document.getElementById('address-fullname');
   const phoneInput = document.getElementById('address-phone');
   const line1Input = document.getElementById('address-line1');
   const line2Input = document.getElementById('address-line2');
@@ -543,161 +453,6 @@
 
   const deleteModal = document.getElementById('delete-confirm-modal');
   const deleteModalInner = document.getElementById('delete-confirm-modal-inner');
-<<<<<<< HEAD
-  let addressIdToDelete = null;
-
-  function openDeleteModal(id) {
-    addressIdToDelete = id;
-    deleteModal.classList.add('opacity-100', 'pointer-events-auto');
-    deleteModalInner.classList.add('scale-100', 'opacity-100');
-    deleteModalInner.classList.remove('scale-[0.85]', 'opacity-0');
-  }
-
-  function closeDeleteModal() {
-    deleteModal.classList.remove('opacity-100', 'pointer-events-auto');
-    deleteModalInner.classList.remove('scale-100', 'opacity-100');
-    deleteModalInner.classList.add('scale-[0.85]', 'opacity-0');
-    addressIdToDelete = null;
-  }
-
-  document.getElementById('confirm-delete-btn').addEventListener('click', () => {
-    if (!addressIdToDelete) return;
-
-    const confirmBtn = document.getElementById('confirm-delete-btn');
-    confirmBtn.disabled = true;
-    const originalText = confirmBtn.innerHTML;
-    confirmBtn.innerHTML = '<span>DELETING...</span>';
-
-    fetch(`/profile/addresses/api/delete/${addressIdToDelete}/`, {
-      method: 'POST',
-      headers: {
-        'X-CSRFToken': '{{ csrf_token }}'
-      }
-    })
-      .then(res => res.json())
-      .then(data => {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = originalText;
-        closeDeleteModal();
-        if (data.status === 'success') {
-          showToast(data.message || 'Address deleted successfully.');
-          reloadAddresses();
-        } else {
-          showGlobalError(data.message || 'Failed to delete address.');
-        }
-      })
-      .catch(err => {
-        confirmBtn.disabled = false;
-        confirmBtn.innerHTML = originalText;
-        closeDeleteModal();
-        console.error(err);
-        showGlobalError('Connection error. Please try again.');
-      });
-  });
-
-
-
-  const SVGs = {
-    HOME: `<svg class="w-4 h-4 stroke-current fill-none -rotate-45" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v7a3 3 0 0 0 6 0V4" /><path d="M12 14v6" /></svg>`,
-    OFFICE: `<svg class="w-4 h-4 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v12m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`,
-    OTHER: `<svg class="w-4 h-4 stroke-current fill-none" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 4v7a3 3 0 0 0 6 0V4" /><path d="M12 14v6" /></svg>`
-  };
-
-  // Render cards
-  function renderGrid() {
-    const grid = document.getElementById('address-grid');
-    grid.innerHTML = '';
-
-    userAddresses.forEach(item => {
-      const isDefault = item.is_default;
-      const displayBadge = item.badge || '';
-      const badgeHTML = isDefault
-        ? `<span class="bg-[#1a1a1a] text-white px-3 py-1 text-[0.42rem] font-black tracking-[0.15em] uppercase">DEFAULT</span>`
-        : (displayBadge
-          ? `<span class="border border-[#bbb] text-[#777] px-2.5 py-1 text-[0.42rem] font-black tracking-[0.15em] uppercase">${displayBadge}</span>`
-          : `<span></span>`);
-
-      const typeIcon = item.label === 'OFFICE'
-        ? `<svg class="w-3.5 h-3.5 stroke-brand-orange shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v12m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>`
-        : `<svg class="w-3.5 h-3.5 stroke-brand-orange shrink-0" fill="none" viewBox="0 0 24 24" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6"/></svg>`;
-
-      grid.insertAdjacentHTML('beforeend', `
-        <div class="border-b border-r border-[#ebebeb] p-8 flex flex-col justify-between min-h-[320px] bg-white">
-          <!-- Top: badge + action buttons -->
-          <div class="flex items-start justify-between mb-7">
-            ${badgeHTML}
-            <div class="flex items-center gap-1.5">
-              <button onclick="editAddress('${item.id}');" aria-label="Edit" class="w-8 h-8 bg-brand-orange text-white hover:bg-[#c94008] flex items-center justify-center transition-all duration-200 border-none cursor-pointer shadow-[0_2px_8px_rgba(232,80,10,0.2)] hover:-translate-y-[1px] active:translate-y-[0px]">
-                <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v12a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
-              </button>
-              <button onclick="deleteAddress('${item.id}');" aria-label="Delete" class="w-8 h-8 border border-[#e8e8e8] hover:border-red-500 hover:text-red-500 text-gray-400 flex items-center justify-center transition-all duration-200 bg-transparent cursor-pointer">
-                <svg class="w-3.5 h-3.5 stroke-current fill-none" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              </button>
-            </div>
-          </div>
-
-          <!-- Address details -->
-          <div class="flex-1">
-            <p class="text-[0.42rem] font-extrabold tracking-[0.18em] uppercase text-brand-orange mb-1">Recipient Name</p>
-            <h3 class="text-[1.05rem] font-black tracking-[0.04em] uppercase text-[#1a1a1a] leading-none mb-5">${item.full_name}</h3>
-
-            <p class="text-[0.42rem] font-extrabold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1">Street Address</p>
-            <p class="text-[0.78rem] font-medium text-[#1a1a1a] uppercase mb-5">${item.address_line_1}${item.address_line_2 ? ', ' + item.address_line_2 : ''}</p>
-
-            <div class="grid grid-cols-2 gap-4 mb-5">
-              <div>
-                <p class="text-[0.42rem] font-extrabold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1">City and State</p>
-                <p class="text-[0.78rem] font-bold uppercase text-[#1a1a1a]">${item.city}, ${item.state}<br><span class="font-medium text-[#777]">${item.pincode}</span></p>
-              </div>
-              <div>
-                <p class="text-[0.42rem] font-extrabold tracking-[0.18em] uppercase text-[#c0c0c0] mb-1">Country</p>
-                <p class="text-[0.78rem] font-medium uppercase text-[#aaa]">India</p>
-              </div>
-            </div>
-          </div>
-
-          <!-- Bottom: type indicator -->
-          <div class="border-t border-[#ebebeb] pt-4 flex items-center gap-2">
-            ${typeIcon}
-            <span class="text-[0.52rem] font-extrabold tracking-[0.15em] uppercase text-[#777]">${item.label}</span>
-          </div>
-        </div>
-      `);
-    });
-
-    // Add "Initialize New Record" empty slot if even number of addresses (to fill 2nd column)
-    grid.insertAdjacentHTML('beforeend', `
-      <div class="border-b border-[#ebebeb] flex flex-col items-center justify-center min-h-[320px] bg-white transition-colors duration-200">
-        <div class="w-16 h-16 border border-[#e0e0e0] flex items-center justify-center mb-4 cursor-pointer hover:border-brand-orange hover:bg-[#fafaf9] transition-all duration-200 group/icon" onclick="document.getElementById('add-address-btn').click()">
-          <svg class="w-6 h-6 stroke-[#ccc] group-hover/icon:stroke-brand-orange transition-colors duration-200" fill="none" viewBox="0 0 24 24" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/>
-            <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/>
-          </svg>
-        </div>
-        <p class="text-[0.55rem] font-black tracking-[0.18em] uppercase text-[#1a1a1a] mb-1">Initialize New Address</p>
-      </div>
-    `);
-  }
-
-
-
-  // Reload addresses from API
-  function reloadAddresses() {
-    fetch('{% url "profiles:addresses_api_list" %}')
-      .then(res => res.json())
-      .then(data => {
-        userAddresses = data;
-        renderGrid();
-      })
-      .catch(err => console.error("API reload failed:", err));
-  }
-
-  // Label configuration in modal
-  function setLabel(label) {
-    document.getElementById('address-label').value = label;
-
-    // Toggle active styles on buttons
-=======
 
   const submitBtn = document.getElementById('submit-btn');
   let initialAddressValues = {};
@@ -729,7 +484,6 @@
 
   function setLabel(label) {
     document.getElementById('address-label').value = label;
->>>>>>> 8e77622 (Refactored the user input validation)
     ['home', 'office'].forEach(l => {
       const btn = document.getElementById(`btn-label-${l}`);
       if (btn) {
@@ -740,22 +494,6 @@
         }
       }
     });
-<<<<<<< HEAD
-  }
-
-  // Field validation helper styling
-  function showErr(wrap, errEl, msg) {
-    wrap.classList.add('border-red-500');
-    wrap.classList.remove('focus-within:border-brand-orange');
-    errEl.textContent = msg;
-    errEl.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
-    errEl.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
-  }
-
-  function clearErr(wrap, errEl) {
-    wrap.classList.remove('border-red-500');
-    wrap.classList.add('focus-within:border-brand-orange');
-=======
     if (typeof checkAddressChanges === 'function') {
       checkAddressChanges();
     }
@@ -869,7 +607,6 @@
   function clearErr(wrap, errEl) {
     wrap.classList.remove('after:w-full', 'after:bg-red-500', 'border-red-500', 'animate-shake');
     wrap.classList.add('after:bg-brand-orange');
->>>>>>> 8e77622 (Refactored the user input validation)
     errEl.classList.add('opacity-0', '-translate-y-1', 'pointer-events-none');
     errEl.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
   }
@@ -886,45 +623,7 @@
 
   function validateName() {
     const rawVal = nameInput.value;
-<<<<<<< HEAD
-=======
-    if (rawVal && !/^[a-zA-Z]/.test(rawVal)) {
-      showErr(nameWrap, nameErr, 'Recipient name must start with a letter.');
-      return false;
-    }
->>>>>>> 8e77622 (Refactored the user input validation)
-    if (rawVal.startsWith(' ')) {
-      showErr(nameWrap, nameErr, 'Recipient name cannot start with a space.');
-      return false;
-    }
-    const val = rawVal.trim();
-    if (!val) {
-      showErr(nameWrap, nameErr, 'Full Name is required.');
-      return false;
-    }
-    if (val.length < 3) {
-      showErr(nameWrap, nameErr, 'Recipient name must be at least 3 characters.');
-      return false;
-    }
-    if (/[0-9]/.test(val)) {
-      showErr(nameWrap, nameErr, 'Recipient name cannot contain numbers.');
-      return false;
-    }
-    if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
-      showErr(nameWrap, nameErr, 'Recipient name cannot contain special characters.');
-      return false;
-    }
-    const nameRe = /^[a-zA-Z]+( [a-zA-Z]+)*$/;
-    if (!nameRe.test(val)) {
-<<<<<<< HEAD
-      if (/\s{2,}/.test(rawVal)) {
-        showErr(nameWrap, nameErr, 'Recipient name cannot contain consecutive spaces.');
-      } else {
-        showErr(nameWrap, nameErr, 'Please enter a valid recipient name.');
-      }
-=======
       showErr(nameWrap, nameErr, 'Please enter a valid recipient name.');
->>>>>>> 8e77622 (Refactored the user input validation)
       return false;
     }
     clearErr(nameWrap, nameErr);
@@ -956,35 +655,10 @@
 
   function validateLine1() {
     const rawVal = line1Input.value;
-<<<<<<< HEAD
-=======
-    if (rawVal && !/^[a-zA-Z0-9]/.test(rawVal)) {
-      showErr(line1Wrap, line1Err, 'Address Line 1 must start with a letter or number.');
-      return false;
-    }
->>>>>>> 8e77622 (Refactored the user input validation)
-    if (rawVal.startsWith(' ')) {
-      showErr(line1Wrap, line1Err, 'Address Line 1 cannot start with a space.');
-      return false;
-    }
-    const val = rawVal.trim();
-    if (!val) {
-      showErr(line1Wrap, line1Err, 'Address Line 1 is required.');
-      return false;
-    }
-    clearErr(line1Wrap, line1Err);
-    return true;
-  }
-
-  function validateCity() {
-    const rawVal = cityInput.value;
-<<<<<<< HEAD
-=======
     if (rawVal && !/^[a-zA-Z]/.test(rawVal)) {
       showErr(cityWrap, cityErr, 'City must start with a letter.');
       return false;
     }
->>>>>>> 8e77622 (Refactored the user input validation)
     if (rawVal.startsWith(' ')) {
       showErr(cityWrap, cityErr, 'City cannot start with a space.');
       return false;
@@ -1004,60 +678,7 @@
 
   function validateState() {
     const rawVal = stateInput.value;
-<<<<<<< HEAD
-=======
-    if (rawVal && !/^[a-zA-Z]/.test(rawVal)) {
-      showErr(stateWrap, stateErr, 'State must start with a letter.');
-      return false;
-    }
->>>>>>> 8e77622 (Refactored the user input validation)
-    if (rawVal.startsWith(' ')) {
-      showErr(stateWrap, stateErr, 'State cannot start with a space.');
-      return false;
-    }
-    const val = rawVal.trim();
-    if (!val) {
-      showErr(stateWrap, stateErr, 'State is required.');
-      return false;
-    }
-    if (!/^[a-zA-Z\s.-]+$/.test(val)) {
-      showErr(stateWrap, stateErr, 'State must contain only letters.');
-      return false;
-    }
-    clearErr(stateWrap, stateErr);
-    return true;
-  }
-
-  function validatePincode() {
-    const rawVal = pincodeInput.value;
-    if (rawVal.startsWith(' ')) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode cannot start with a space.');
-      return false;
-    }
-    const val = rawVal.trim();
-    if (!val) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode is required.');
-      return false;
-    }
-    if (!/^\d+$/.test(val)) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode must contain only digits.');
-      return false;
-    }
-    if (val.length !== 6) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode must be exactly 6 digits.');
-      return false;
-    }
-    clearErr(pincodeWrap, pincodeErr);
-    return true;
-  }
-
-  function handleInput(inp, wrap, errEl) {
-    clearErr(wrap, errEl);
-    inp.dataset.dirty = 'true';
-<<<<<<< HEAD
-=======
     checkAddressChanges();
->>>>>>> 8e77622 (Refactored the user input validation)
   }
 
   nameInput.addEventListener('input', () => handleInput(nameInput, nameWrap, nameErr));
@@ -1067,38 +688,14 @@
   stateInput.addEventListener('input', () => handleInput(stateInput, stateWrap, stateErr));
   pincodeInput.addEventListener('input', () => {
     handleInput(pincodeInput, pincodeWrap, pincodeErr);
-<<<<<<< HEAD
-
-=======
->>>>>>> 8e77622 (Refactored the user input validation)
     const val = pincodeInput.value.trim();
     if (/^\d{6}$/.test(val)) {
       cityInput.value = 'LOADING...';
       stateInput.value = 'LOADING...';
-<<<<<<< HEAD
-
-=======
->>>>>>> 8e77622 (Refactored the user input validation)
       fetch(`https://api.postalpincode.in/pincode/${val}`)
         .then(res => res.json())
         .then(data => {
           if (pincodeInput.value.trim() !== val) return;
-<<<<<<< HEAD
-
-          if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
-            const info = data[0].PostOffice[0];
-            const city = info.District.toUpperCase();
-            const state = info.State.toUpperCase();
-
-            cityInput.value = city;
-            stateInput.value = state;
-
-            cityInput.dataset.dirty = 'true';
-            stateInput.dataset.dirty = 'true';
-
-            clearErr(cityWrap, cityErr);
-            clearErr(stateWrap, stateErr);
-=======
           if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
             const info = data[0].PostOffice[0];
             cityInput.value = info.District.toUpperCase();
@@ -1106,25 +703,10 @@
             clearErr(cityWrap, cityErr);
             clearErr(stateWrap, stateErr);
             checkAddressChanges();
->>>>>>> 8e77622 (Refactored the user input validation)
           } else {
             cityInput.value = '';
             stateInput.value = '';
             showErr(pincodeWrap, pincodeErr, 'Invalid or unregistered pincode.');
-<<<<<<< HEAD
-          }
-        })
-        .catch(err => {
-          console.error('Pincode lookup error:', err);
-          if (pincodeInput.value.trim() === val) {
-            cityInput.value = '';
-            stateInput.value = '';
-          }
-        });
-    }
-  });
-
-=======
             checkAddressChanges();
           }
         })
@@ -1135,200 +717,12 @@
         });
     }
   });
->>>>>>> 8e77622 (Refactored the user input validation)
   nameInput.addEventListener('blur', () => { if (nameInput.dataset.dirty === 'true') validateName(); });
   phoneInput.addEventListener('blur', () => { if (phoneInput.dataset.dirty === 'true') validatePhone(); });
   line1Input.addEventListener('blur', () => { if (line1Input.dataset.dirty === 'true') validateLine1(); });
   cityInput.addEventListener('blur', () => { if (cityInput.dataset.dirty === 'true') validateCity(); });
   stateInput.addEventListener('blur', () => { if (stateInput.dataset.dirty === 'true') validateState(); });
   pincodeInput.addEventListener('blur', () => { if (pincodeInput.dataset.dirty === 'true') validatePincode(); });
-<<<<<<< HEAD
-
-  // Open/Close modal functions
-  function openAddressModal(title) {
-    modalTitle.textContent = title.toUpperCase();
-    modal.classList.add('opacity-100', 'pointer-events-auto');
-    modalInner.classList.add('scale-100', 'opacity-100');
-    modalInner.classList.remove('scale-[0.85]', 'opacity-0');
-  }
-
-  function closeAddressModal() {
-    modal.classList.remove('opacity-100', 'pointer-events-auto');
-    modalInner.classList.remove('scale-100', 'opacity-100');
-    modalInner.classList.add('scale-[0.85]', 'opacity-0');
-    clearAllErrors();
-  }
-
-  function resetForm() {
-    document.getElementById('address-id').value = '';
-    document.getElementById('address-fullname').value = '';
-    document.getElementById('address-phone').value = '';
-    document.getElementById('address-line1').value = '';
-    document.getElementById('address-line2').value = '';
-    document.getElementById('address-city').value = '';
-    document.getElementById('address-state').value = '';
-    document.getElementById('address-pincode').value = '';
-    document.getElementById('address-default').checked = false;
-    setLabel('HOME');
-    [nameInput, phoneInput, line1Input, line2Input, cityInput, stateInput, pincodeInput].forEach(inp => {
-      delete inp.dataset.dirty;
-    });
-    clearAllErrors();
-  }
-
-  // Populate form for editing
-  function editAddress(id) {
-    resetForm();
-    const addr = userAddresses.find(a => a.id === id);
-    if (!addr) return;
-
-    document.getElementById('address-id').value = addr.id;
-    document.getElementById('address-fullname').value = addr.full_name;
-    document.getElementById('address-phone').value = addr.phone_number;
-    document.getElementById('address-line1').value = addr.address_line_1;
-    document.getElementById('address-line2').value = addr.address_line_2 || '';
-    document.getElementById('address-city').value = addr.city;
-    document.getElementById('address-state').value = addr.state;
-    document.getElementById('address-pincode').value = addr.pincode;
-    document.getElementById('address-default').checked = addr.is_default;
-
-    if (addr.label === 'HOME' || addr.label === 'OFFICE') {
-      setLabel(addr.label);
-    } else {
-      setLabel('HOME');
-    }
-
-    openAddressModal('Edit Address');
-  }
-
-  // Toast notification alert helper
-  function showToast(msg) {
-    toastText.textContent = msg;
-    toast.classList.add('show');
-    setTimeout(() => {
-      toast.classList.remove('show');
-    }, 3000);
-  }
-
-  function showGlobalError(msg) {
-    const alertBox = document.getElementById('alert-container');
-    alertBox.className = 'px-9 pt-6 block';
-    alertBox.innerHTML = `
-      <div class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-        <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
-        </svg>
-        <span>${msg}</span>
-      </div>
-    `;
-    setTimeout(() => {
-      alertBox.classList.add('hidden');
-    }, 4000);
-  }
-
-  // Delete address action
-  function deleteAddress(id) {
-    openDeleteModal(id);
-  }
-
-  // Submit modal form (save)
-  form.addEventListener('submit', function (e) {
-    e.preventDefault();
-
-    const id = document.getElementById('address-id').value;
-    const name = document.getElementById('address-fullname').value.trim();
-    const phone = document.getElementById('address-phone').value.trim();
-    const line1 = document.getElementById('address-line1').value.trim();
-    const line2 = document.getElementById('address-line2').value.trim();
-    const city = document.getElementById('address-city').value.trim();
-    const state = document.getElementById('address-state').value.trim();
-    const pincode = document.getElementById('address-pincode').value.trim();
-    const isDefault = document.getElementById('address-default').checked;
-
-    let label = document.getElementById('address-label').value || 'HOME';
-
-    clearAllErrors();
-
-    let clientValid = true;
-    if (!name) { showErr(nameWrap, nameErr, 'Full Name is required.'); clientValid = false; }
-    if (!phone) { showErr(phoneWrap, phoneErr, 'Phone Number is required.'); clientValid = false; }
-    if (!line1) { showErr(line1Wrap, line1Err, 'Address Line 1 is required.'); clientValid = false; }
-    if (!city) { showErr(cityWrap, cityErr, 'City is required.'); clientValid = false; }
-    if (!state) { showErr(stateWrap, stateErr, 'State is required.'); clientValid = false; }
-    if (!pincode) { showErr(pincodeWrap, pincodeErr, 'Pincode is required.'); clientValid = false; }
-
-    if (!clientValid) return;
-
-    const submitBtn = document.getElementById('submit-btn');
-    submitBtn.disabled = true;
-    submitBtn.innerHTML = '<span>SAVING...</span>';
-
-    const params = new URLSearchParams();
-    if (id) params.append('id', id);
-    params.append('full_name', name);
-    params.append('phone_number', phone);
-    params.append('address_line_1', line1);
-    if (line2) params.append('address_line_2', line2);
-    params.append('city', city);
-    params.append('state', state);
-    params.append('pincode', pincode);
-    params.append('label', label);
-    params.append('is_default', isDefault ? 'true' : 'false');
-    params.append('badge', isDefault ? 'DEFAULT' : '');
-
-    fetch('{% url "profiles:address_save" %}', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'X-CSRFToken': '{{ csrf_token }}'
-      },
-      body: params.toString()
-    })
-      .then(res => res.json())
-      .then(data => {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>SAVE ADDRESS RECORD</span> <span class="font-sans">→</span>';
-
-        if (data.status === 'success') {
-          closeAddressModal();
-          showToast(data.message || 'Address saved successfully.');
-          reloadAddresses();
-        } else {
-          const msg = data.message || '';
-          if (msg.toLowerCase().includes('name') || msg.toLowerCase().includes('recipient')) {
-            showErr(nameWrap, nameErr, msg);
-          } else if (msg.toLowerCase().includes('phone') || msg.toLowerCase().includes('mobile')) {
-            showErr(phoneWrap, phoneErr, msg);
-          } else if (msg.toLowerCase().includes('pincode') || msg.toLowerCase().includes('postal')) {
-            showErr(pincodeWrap, pincodeErr, msg);
-          } else if (msg.toLowerCase().includes('city')) {
-            showErr(cityWrap, cityErr, msg);
-          } else if (msg.toLowerCase().includes('state')) {
-            showErr(stateWrap, stateErr, msg);
-          } else if (msg.toLowerCase().includes('address line 1')) {
-            showErr(line1Wrap, line1Err, msg);
-          } else {
-            showGlobalError(msg);
-          }
-        }
-      })
-      .catch(err => {
-        console.error(err);
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<span>SAVE ADDRESS RECORD</span> <span class="font-sans">→</span>';
-        showGlobalError('Connection error. Please try again.');
-      });
-  });
-
-  // Render initial items on load
-  document.addEventListener('DOMContentLoaded', () => {
-    renderGrid();
-
-    // Add New Address button — wired here to ensure DOM is ready
-    document.getElementById('add-address-btn').addEventListener('click', () => {
-      resetForm();
-      openAddressModal('Add New Address');
-=======
   form.addEventListener('submit', function (e) {
     let valid = true;
     if (!validateName()) valid = false;
@@ -1371,7 +765,6 @@
           setTimeout(() => alert.remove(), 500);
         }, 300);
       }, 3000);
->>>>>>> 8e77622 (Refactored the user input validation)
     });
   });
 </script>
