@@ -1,0 +1,375 @@
+{% extends 'admin_panel/base/base.html' %}
+{% block title %}Add Product — Zitarra Admin{% endblock %}
+
+{% block extra_head %}
+<!-- Include Cropper.js CSS & JS in head -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<style>
+  .form-input{width:100%;border:1px solid #e2e2e2;padding:11px 14px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#1A1A1A;outline:none;background:#fff;transition:border-color 0.2s;border-radius:0;}
+  .form-input:focus{border-color:#A33C08;}
+  .form-label{font-size:0.48rem;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:#9ca3af;display:block;margin-bottom:7px;}
+  .form-select{width:100%;border:1px solid #e2e2e2;padding:11px 14px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#1A1A1A;outline:none;background:#fff;appearance:none;cursor:pointer;transition:border-color 0.2s;border-radius:0;}
+  .form-select:focus{border-color:#A33C08;}
+  .toggle{position:relative;display:inline-block;width:44px;height:24px;}
+  .toggle input{opacity:0;width:0;height:0;}
+  .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#d1d5db;border-radius:24px;transition:0.3s;}
+  .slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
+  input:checked + .slider{background:#A33C08;}
+  input:checked + .slider:before{transform:translateX(20px);}
+  .image-slot{width:90px;height:90px;border:2px dashed #d1d5db;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#fafafa;transition:border-color 0.2s;flex-shrink:0;}
+  .image-slot:hover{border-color:#A33C08;}
+  .img-preview{width:90px;height:90px;border:1px solid #e2e2e2;overflow:hidden;position:relative;flex-shrink:0;}
+  .img-preview img{width:100%;height:100%;object-fit:cover;}
+  .img-preview .remove-btn{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;cursor:pointer;}
+  .img-preview:hover .remove-btn{opacity:1;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 z-10">
+    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    <div class="flex items-center gap-3.5">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name }}</p>
+      </div>
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar + Content -->
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-[260px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+      <nav class="flex flex-col overflow-y-auto flex-1">
+        <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>DASHBOARD</span>
+        </a>
+        <a href="{% url 'admin_products' %}" class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span>PRODUCTS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <span>ORDER LIST</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4"/></svg>
+          <span>RETURNS MANAGEMENT</span>
+        </a>
+        <a href="{% url 'admin_users' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>USERS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>BRANDS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>SALES REPORT</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          <span>COUPONS</span>
+        </a>
+        <a href="{% url 'admin_category' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          <span>CATEGORY</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span>REVIEWS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>BANNERS</span>
+        </a>
+      </nav>
+      <div class="p-6">
+        <a href="{% url 'admin_logout' %}" class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.62rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>LOGOUT</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content: full width form -->
+    <main class="flex-1 bg-white flex flex-col h-full overflow-hidden">
+      <form id="add_product_form" method="POST" enctype="multipart/form-data" class="flex flex-col h-full">
+        {% csrf_token %}
+
+        <!-- Page header -->
+        <div class="flex items-center justify-between px-10 py-5 border-b border-[#e8e8e8] shrink-0">
+          <p class="text-[0.78rem] font-black uppercase tracking-[0.12em] text-[#1A1A1A]">Add New Product</p>
+          <button type="submit" class="bg-[#A33C08] text-white text-[0.62rem] font-black tracking-[0.15em] uppercase px-10 py-3 hover:bg-[#c94008] transition-colors">
+            ADD PRODUCT
+          </button>
+        </div>
+
+        <!-- Scrollable form body -->
+        <div class="flex-1 overflow-y-auto px-10 py-8">
+
+          <!-- Messaging Alert -->
+          {% if messages %}
+            {% for message in messages %}
+              {% if 'success' in message.tags %}
+                <div class="mb-6 p-4 bg-white border-l-4 border-green-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                  <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>{{ message }}</span>
+                </div>
+              {% else %}
+                <div class="mb-6 p-4 bg-white border-l-4 border-red-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+                  <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  <span>{{ message }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          {% endif %}
+
+          <!-- Section heading -->
+          <div class="flex items-center gap-3 mb-8">
+            <span class="w-2.5 h-2.5 bg-[#A33C08] shrink-0"></span>
+            <h2 class="text-[0.65rem] font-black tracking-[0.18em] uppercase text-[#1A1A1A]">General Product Information</h2>
+          </div>
+
+          <!-- Row 1: Product Name -->
+          <div class="mb-6">
+            <label class="form-label">Product Name</label>
+            <input type="text" name="name" class="form-input" placeholder="VARANASI PRO SERIES TABALA" required/>
+          </div>
+
+          <!-- Row 2: Description -->
+          <div class="mb-6">
+            <label class="form-label">Description</label>
+            <textarea name="description" rows="5" class="form-input resize-none" placeholder="Handcrafted professional grade instrument description..." required></textarea>
+          </div>
+
+          <!-- Row 3: Category -->
+          <div class="mb-6">
+            <label class="form-label">Category</label>
+            <div class="relative">
+              <select name="category" class="form-select pr-10" required>
+                <option value="">Select Category</option>
+                {% for cat in categories %}
+                  <option value="{{ cat.id }}">{{ cat.name|upper }}</option>
+                {% endfor %}
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 4: Price + Stock -->
+          <div class="grid grid-cols-2 gap-6 mb-6">
+            <div>
+              <label class="form-label">Regular Price (USD)</label>
+              <div class="flex items-center border border-[#e2e2e2] bg-white focus-within:border-[#A33C08] transition-colors">
+                <span class="px-3 text-[0.7rem] font-bold text-gray-400 border-r border-[#e2e2e2] py-[11px]">$</span>
+                <input type="number" name="price" class="flex-1 px-3 py-[11px] text-[0.7rem] font-bold text-[#1A1A1A] outline-none bg-transparent" placeholder="0.00" step="0.01" min="0.01" required/>
+              </div>
+            </div>
+            <div>
+              <label class="form-label">Stock Quantity</label>
+              <input type="number" name="stock" class="form-input" placeholder="0" min="0" required/>
+            </div>
+          </div>
+
+          <!-- Row 5: Product Images -->
+          <div class="mb-6">
+            <label class="form-label">Product Images</label>
+            <div class="flex gap-3 flex-wrap mt-2" id="imageContainer">
+              <!-- Upload slot -->
+              <label class="image-slot" id="uploadSlot">
+                <input type="file" id="imageInput" class="hidden" accept="image/*" multiple onchange="previewImages(this)"/>
+                <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                <span class="text-[0.46rem] font-bold uppercase tracking-wider text-gray-400">Add Images</span>
+              </label>
+            </div>
+            <p class="text-[0.48rem] text-gray-400 mt-2 tracking-wide">Upload multiple product images. Minimum 3 images are required. First image will be the main thumbnail.</p>
+          </div>
+
+          <!-- Hidden inputs container for cropped Base64 data -->
+          <div id="hiddenInputs"></div>
+
+          <!-- Row 6: Active Status Toggle -->
+          <div class="mb-8">
+            <div class="bg-[#f3f3f3] flex items-center justify-between px-6 py-4">
+              <span class="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#1A1A1A]">Active Status</span>
+              <label class="toggle">
+                <input type="checkbox" name="is_active" checked/>
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+        </div>
+      </form>
+    </main>
+
+  </div>
+</div>
+
+<!-- Cropper Modal -->
+<div id="cropperModal" class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50">
+  <div class="bg-white border border-[#e8e8e8] w-[450px] p-6 flex flex-col">
+    <h3 class="text-[0.7rem] font-black uppercase tracking-wider mb-4 text-[#1a1a1a]">Crop Product Image</h3>
+    <div class="w-full h-[300px] bg-black overflow-hidden relative">
+      <img id="cropperImage" class="max-w-full max-h-full block mx-auto"/>
+    </div>
+    <div class="flex justify-end gap-3 mt-5">
+      <button type="button" onclick="cancelCrop()" class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white">Cancel</button>
+      <button type="button" onclick="saveCrop()" class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider">Apply Crop</button>
+    </div>
+  </div>
+</div>
+
+<script>
+  let cropper = null;
+  let fileQueue = [];
+  let croppedImages = []; // Stores base64 images
+
+  function previewImages(input) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+
+    fileQueue = fileQueue.concat(files);
+    input.value = ''; // Reset input selection
+
+    if (!cropper && fileQueue.length > 0) {
+      processNextFile();
+    }
+  }
+
+  function processNextFile() {
+    if (fileQueue.length === 0) return;
+    const file = fileQueue.shift();
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+      const modal = document.getElementById('cropperModal');
+      const img = document.getElementById('cropperImage');
+      img.src = e.target.result;
+      
+      modal.classList.remove('hidden');
+
+      if (cropper) {
+        cropper.destroy();
+      }
+
+      cropper = new Cropper(img, {
+        aspectRatio: 1, // square crops for e-commerce catalog consistency
+        viewMode: 1,
+        autoCropArea: 1,
+      });
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function saveCrop() {
+    if (!cropper) return;
+
+    // Get square cropped canvas resized to 800x800 for optimization
+    const canvas = cropper.getCroppedCanvas({
+      width: 800,
+      height: 800
+    });
+    const base64Data = canvas.toDataURL('image/jpeg', 0.85); // JPEG compression
+    
+    croppedImages.push(base64Data);
+    renderPreviews();
+
+    // Close Modal and check for queue
+    document.getElementById('cropperModal').classList.add('hidden');
+    cropper.destroy();
+    cropper = null;
+
+    if (fileQueue.length > 0) {
+      processNextFile();
+    }
+  }
+
+  function cancelCrop() {
+    document.getElementById('cropperModal').classList.add('hidden');
+    if (cropper) {
+      cropper.destroy();
+      cropper = null;
+    }
+    if (fileQueue.length > 0) {
+      processNextFile();
+    }
+  }
+
+  function renderPreviews() {
+    // Remove old previews
+    document.querySelectorAll('.img-preview').forEach(el => el.remove());
+
+    const container = document.getElementById('imageContainer');
+    const slot = document.getElementById('uploadSlot');
+
+    croppedImages.forEach((imgSrc, index) => {
+      const div = document.createElement('div');
+      div.className = 'img-preview';
+      div.innerHTML = `
+        <img src="${imgSrc}" alt="preview"/>
+        <div class="remove-btn" onclick="removeImage(${index})">
+          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </div>`;
+      container.insertBefore(div, slot);
+    });
+  }
+
+  function removeImage(index) {
+    croppedImages.splice(index, 1);
+    renderPreviews();
+  }
+
+  // Intercept submit to pack data
+  document.getElementById('add_product_form').addEventListener('submit', function(e) {
+    if (croppedImages.length < 3) {
+      alert("You must upload and crop at least 3 images.");
+      e.preventDefault();
+      return;
+    }
+
+    const hiddenContainer = document.getElementById('hiddenInputs');
+    hiddenContainer.innerHTML = '';
+
+    croppedImages.forEach(base64Data => {
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'cropped_images';
+      input.value = base64Data;
+      hiddenContainer.appendChild(input);
+    });
+  });
+
+  // Auto-hide alert messages after 3 seconds
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.msg-alert').forEach(el => {
+        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          el.style.maxHeight = '0';
+          el.style.padding = '0';
+          el.style.margin = '0';
+          el.style.border = 'none';
+          setTimeout(() => el.remove(), 500);
+        }, 300);
+      });
+    }, 3000);
+  });
+</script>
+{% endblock %}

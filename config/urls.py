@@ -16,6 +16,7 @@ urlpatterns = [
     path('admin-panel/', include('admin_panel.dashboard.urls')),
     path('admin-panel/', include('admin_panel.users.urls')),
     path('admin-panel/', include('admin_panel.category.urls')),
+    path('admin-panel/', include('admin_panel.products.urls')),
 ]
 
 if settings.DEBUG:

@@ -32,7 +32,7 @@
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
           <span>DASHBOARD</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+        <a href="{% url 'admin_products' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
           <span>PRODUCTS</span>
         </a>
@@ -83,7 +83,7 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 bg-white flex flex-col h-full overflow-y-auto px-10 py-8">
+    <main class="flex-1 bg-white flex flex-col h-full overflow-hidden px-10 py-8">
 
       <!-- Page Title -->
       <div class="mb-1">
@@ -151,8 +151,10 @@
         </div>
       </div>
 
-      <!-- Category Grid -->
-      <div class="grid grid-cols-4 gap-4" style="grid-auto-rows:auto;">
+      <!-- Scrollable Category Grid Wrapper -->
+      <div class="flex-1 overflow-y-auto min-h-0 pr-1 pb-4">
+        <!-- Category Grid -->
+        <div class="grid grid-cols-4 gap-4" style="grid-auto-rows:auto;">
 
         {% for category in categories %}
         <div class="group flex flex-col border border-[#e8e8e8] bg-white overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]" style="height:460px;">
@@ -165,12 +167,14 @@
             {% endif %}
             <img src="{% if category.image %}{{ category.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}" alt="{{ category.name }}" class="w-full h-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0"/>
             <div class="absolute bottom-0 left-0">
-              {% if category.discount > 0 and category.is_offer_active %}
-              <span class="bg-[#E8500A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">ACTIVE OFFER: {{ category.discount }}% OFF</span>
-              {% elif category.discount > 0 and not category.is_offer_active %}
-              <span class="bg-[#9ca3af] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">OFFER DISABLED</span>
+              {% if category.is_offer_active %}
+                {% if category.discount > 0 %}
+                <span class="bg-[#E8500A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">ACTIVE OFFER: {{ category.discount }}% OFF</span>
+                {% else %}
+                <span class="bg-[#E8500A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">OFFER ENABLED</span>
+                {% endif %}
               {% else %}
-              <span class="bg-[#1A1A1A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">NO ACTIVE OFFER</span>
+              <span class="bg-[#9ca3af] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">OFFER DISABLED</span>
               {% endif %}
             </div>
           </div>
@@ -214,6 +218,7 @@
         </a>
 
       </div>
+    </div>
 
       <!-- Footer Action Row (Pagination) -->
       <div class="flex justify-between items-center mt-8 pt-6 border-t border-[#e8e8e8] select-none shrink-0">
