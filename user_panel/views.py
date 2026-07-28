@@ -2,6 +2,8 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import cache_control
 from accounts.decorators import user_not_blocked
+from django.http import HttpResponse
+from accounts.models import User
 
 
 def landing_view(request):
@@ -22,4 +24,5 @@ def custom_404_view(request, exception=None):
             context["admin_name"] = request.user.fullname
         return render(request, "admin_panel/404.html", context, status=404)
     return render(request, "404.html", status=404)
+
 

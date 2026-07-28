@@ -1,0 +1,453 @@
+{% extends 'admin_panel/base/base.html' %}
+{% block title %}Categories — Zitarra Admin{% endblock %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full h-screen flex flex-col bg-white font-sans overflow-hidden">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 z-10">
+    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    <div class="flex items-center gap-3.5">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name }}</p>
+      </div>
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar + Content -->
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-[220px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+      <nav class="flex flex-col overflow-y-auto flex-1">
+        <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>DASHBOARD</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span>PRODUCTS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <span>ORDER LIST</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4"/></svg>
+          <span>RETURNS MANAGEMENT</span>
+        </a>
+        <a href="{% url 'admin_users' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>USERS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>BRANDS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>SALES REPORT</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          <span>COUPONS</span>
+        </a>
+        <!-- Category (Active) -->
+        <a href="{% url 'admin_category' %}" class="group flex items-center gap-3.5 px-6 py-[17px] bg-[#A33C08] text-white text-[0.6rem] font-bold tracking-[0.18em] uppercase no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          <span>CATEGORY</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span>REVIEWS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>BANNERS</span>
+        </a>
+      </nav>
+      <div class="p-6">
+        <a href="{% url 'admin_logout' %}" class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.6rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>LOGOUT</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-white flex flex-col h-full overflow-y-auto px-10 py-8">
+
+      <!-- Page Title -->
+      <div class="mb-1">
+        <h1 class="text-[2.8rem] font-black uppercase tracking-tight text-[#1A1A1A]">Categories</h1>
+      </div>
+      <div class="border-b border-[#e8e8e8] mb-8"></div>
+      
+      {% if messages %}
+      <div class="mb-6 shrink-0 flex flex-col gap-3">
+        {% for message in messages %}
+          {% if 'success' in message.tags %}
+            <div class="p-4 bg-white border-l-4 border-green-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>{{ message }}</span>
+            </div>
+          {% else %}
+            <div class="p-4 bg-white border-l-4 border-red-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+              <span>{{ message }}</span>
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <!-- Section Header with Search and Clear -->
+      <div class="flex items-center justify-between mb-8 pb-5 border-b border-[#e8e8e8]">
+        <form method="GET" class="flex items-center gap-3">
+          <div class="relative w-[300px]">
+            <input type="text" name="search" id="searchInput" placeholder="SEARCH CATEGORIES..." value="{{ search_query }}"
+                   class="w-full border border-[#dcdcdc] px-4 py-2 text-[0.68rem] font-bold uppercase tracking-wider text-[#1A1A1A] outline-none focus:border-[#A33C08] transition-colors rounded-none"/>
+            {% if search_query %}
+            <a href="{% url 'admin_category' %}" class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-[#1A1A1A] text-[0.6rem] font-bold tracking-widest uppercase no-underline">CLEAR</a>
+            {% endif %}
+          </div>
+          
+          <!-- Interactive Sorting Dropdown -->
+          <div class="relative">
+            <select name="sort" onchange="this.form.submit()"
+              class="appearance-none bg-white border border-gray-300 px-4 py-[9px] pr-8 text-[0.68rem] font-bold text-[#1A1A1A] rounded-none focus:outline-none focus:border-[#A33C08] cursor-pointer">
+              <option value="latest" {% if sort_val == 'latest' %}selected{% endif %}>LATEST FIRST</option>
+              <option value="oldest" {% if sort_val == 'oldest' %}selected{% endif %}>OLDEST FIRST</option>
+              <option value="name_az" {% if sort_val == 'name_az' %}selected{% endif %}>NAME (A-Z)</option>
+              <option value="name_za" {% if sort_val == 'name_za' %}selected{% endif %}>NAME (Z-A)</option>
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-600">
+              <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </div>
+
+          <button type="submit" class="bg-[#1A1A1A] text-white text-[0.6rem] font-black tracking-[0.15em] uppercase px-6 py-[11px] hover:bg-[#333] transition-colors">
+            SEARCH
+          </button>
+        </form>
+
+        <div class="flex items-center gap-2">
+          <span class="bg-[#1A1A1A] text-white text-[0.52rem] font-black tracking-[0.14em] uppercase px-4 py-2">
+            TOTAL: {{ total_categories|stringformat:"02d" }}
+          </span>
+          <span class="bg-[#E8500A] text-white text-[0.52rem] font-black tracking-[0.14em] uppercase px-4 py-2">
+            ACTIVE: {{ active_categories|stringformat:"02d" }}
+          </span>
+        </div>
+      </div>
+
+      <!-- Category Grid -->
+      <div class="grid grid-cols-4 gap-4" style="grid-auto-rows:auto;">
+
+        {% for category in categories %}
+        <div class="group flex flex-col border border-[#e8e8e8] bg-white overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]" style="height:460px;">
+          <!-- Image with badge — fixed height -->
+          <div class="relative overflow-hidden bg-[#111] shrink-0" style="height:260px;">
+            {% if not category.is_active %}
+            <div class="absolute top-3 right-3 z-10">
+              <span class="bg-red-600 text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">INACTIVE</span>
+            </div>
+            {% endif %}
+            <img src="{% if category.image %}{{ category.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}" alt="{{ category.name }}" class="w-full h-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0"/>
+            <div class="absolute bottom-0 left-0">
+              {% if category.discount > 0 and category.is_offer_active %}
+              <span class="bg-[#E8500A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">ACTIVE OFFER: {{ category.discount }}% OFF</span>
+              {% elif category.discount > 0 and not category.is_offer_active %}
+              <span class="bg-[#9ca3af] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">OFFER DISABLED</span>
+              {% else %}
+              <span class="bg-[#1A1A1A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">NO ACTIVE OFFER</span>
+              {% endif %}
+            </div>
+          </div>
+          <!-- Card body — fixed remaining height -->
+          <div class="px-5 pt-4 pb-4 flex flex-col" style="height:200px;">
+            <div class="flex items-start justify-between mb-2">
+              <h3 class="text-[0.82rem] font-black uppercase leading-tight text-[#1A1A1A] flex-1 pr-2">{{ category.name }}</h3>
+              <a href="{% url 'admin_edit_category' category.id %}" class="text-[#E8500A] hover:text-[#c94008] transition-colors shrink-0 mt-0.5" title="Edit">
+                <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+              </a>
+            </div>
+            <p class="text-[0.56rem] font-bold uppercase tracking-wide text-gray-500 leading-relaxed flex-1 overflow-hidden">{{ category.description }}</p>
+            <!-- Action buttons pinned to bottom with top border -->
+            <div class="flex items-center justify-center gap-2 pt-3 mt-auto shrink-0 border-t border-[#e8e8e8]">
+              <!-- Offer Toggle Button (Triggers Confirmation Modal) -->
+              <button type="button" onclick="openOfferToggleModal('{{ category.id }}', '{{ category.name }}', {{ category.is_offer_active|yesno:'true,false' }})" 
+                      class="w-[34px] h-[34px] border flex items-center justify-center cursor-pointer bg-white transition-all duration-150 {% if category.is_offer_active %}text-[#E8500A] border-[#E8500A] hover:bg-orange-50{% else %}text-gray-400 border-[#e8e8e8] hover:border-[#1A1A1A] hover:text-[#1A1A1A]{% endif %}" 
+                      title="{% if category.is_offer_active %}Disable Offer{% else %}Enable Offer{% endif %}">
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.5 1.5 0 002.122 0l4.319-4.319a1.5 1.5 0 000-2.122L11.16 3.659A1.5 1.5 0 009.568 3z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+                </svg>
+              </button>
+
+              <!-- Delete Button -->
+              <button class="w-[34px] h-[34px] border border-[#e8e8e8] flex items-center justify-center cursor-pointer bg-white transition-all duration-150 hover:border-red-500 hover:text-red-500" onclick="openDeleteModal('{{ category.id }}','{{ category.name }}')" title="Delete">
+                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endfor %}
+
+        <!-- Add New Category Card -->
+        <a href="{% url 'admin_add_category' %}" class="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-[#E8500A] hover:bg-orange-50/30 transition-all group no-underline" style="height:460px;">
+          <div class="w-12 h-12 rounded-full border-2 border-gray-300 group-hover:border-[#E8500A] flex items-center justify-center mb-4 transition-colors">
+            <svg class="w-5 h-5 text-gray-400 group-hover:text-[#E8500A] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </div>
+          <p class="text-[0.6rem] font-black uppercase tracking-[0.18em] text-gray-400 group-hover:text-[#E8500A] transition-colors mb-1">Add New Category</p>
+          <p class="text-[0.46rem] font-bold uppercase tracking-widest text-gray-300">Initialization_Protocol_Ready</p>
+        </a>
+
+      </div>
+
+      <!-- Footer Action Row (Pagination) -->
+      <div class="flex justify-between items-center mt-8 pt-6 border-t border-[#e8e8e8] select-none shrink-0">
+        <div class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase">
+          PAGE {{ categories.number }} OF {{ categories.paginator.num_pages }}
+        </div>
+        
+        <!-- Paginator -->
+        <div class="flex items-center gap-6">
+          {% if categories.has_previous %}
+          <a href="?page={{ categories.previous_page_number }}&search={{ search_query }}&sort={{ sort_val }}"
+            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">PREV</a>
+          {% else %}
+          <span class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">PREV</span>
+          {% endif %}
+
+          <div class="flex items-center gap-2">
+            {% for num in categories.paginator.page_range %}
+            {% if categories.number == num %}
+            <span class="w-7 h-7 bg-[#1A1A1A] text-white flex items-center justify-center text-[0.62rem] font-bold select-none cursor-default">
+              {{ num|stringformat:"02d" }}
+            </span>
+            {% elif num > categories.number|add:"-3" and num < categories.number|add:"3" %}
+            <a href="?page={{ num }}&search={{ search_query }}&sort={{ sort_val }}"
+              class="w-7 h-7 border border-transparent text-gray-500 hover:border-gray-200 flex items-center justify-center text-[0.62rem] font-bold no-underline transition-all duration-250">
+              {{ num|stringformat:"02d" }}</a>
+            {% endif %}
+            {% endfor %}
+          </div>
+
+          {% if categories.has_next %}
+          <a href="?page={{ categories.next_page_number }}&search={{ search_query }}&sort={{ sort_val }}"
+            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">NEXT</a>
+          {% else %}
+          <span class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">NEXT</span>
+          {% endif %}
+        </div>
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- Add Category Modal -->
+<div id="addCategoryModal" class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
+  <div id="addCategoryModalContent" class="bg-white border border-[#e8e8e8] w-[460px] p-8 transform scale-95 transition-transform duration-250">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="w-2.5 h-2.5 bg-[#A33C08] shrink-0"></span>
+      <h3 class="text-[0.72rem] font-black tracking-[0.14em] uppercase text-[#1A1A1A]">Add New Category</h3>
+    </div>
+    <div class="border-t border-[#e8e8e8] mb-6"></div>
+    <form method="POST" enctype="multipart/form-data">
+      {% csrf_token %}
+      <div class="mb-5">
+        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-2">Category Name</label>
+        <input type="text" name="name" placeholder="E.G. ACOUSTIC GUITARS" class="w-full border border-[#e2e2e2] px-4 py-[10px] text-[0.68rem] font-bold uppercase tracking-wide text-[#1A1A1A] outline-none focus:border-[#A33C08] transition-colors"/>
+      </div>
+      <div class="mb-5">
+        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-2">Description</label>
+        <textarea name="description" rows="3" placeholder="SHORT CATEGORY DESCRIPTION..." class="w-full border border-[#e2e2e2] px-4 py-[10px] text-[0.68rem] font-bold uppercase tracking-wide text-[#1A1A1A] outline-none focus:border-[#A33C08] transition-colors resize-none"></textarea>
+      </div>
+      <div class="mb-6">
+        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-2">Category Image</label>
+        <label class="flex items-center gap-3 border border-dashed border-gray-300 px-4 py-3 cursor-pointer hover:border-[#A33C08] transition-colors">
+          <svg class="w-5 h-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span class="text-[0.6rem] font-bold uppercase tracking-wider text-gray-400">Upload Image</span>
+          <input type="file" name="image" class="hidden" accept="image/*"/>
+        </label>
+      </div>
+      <div class="flex items-center justify-end gap-3">
+        <button type="button" onclick="closeAddModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">Cancel</button>
+        <button type="submit" class="bg-[#A33C08] text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#c94008] transition-colors cursor-pointer" style="border:none;">Add Category</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Category Modal -->
+<div id="deleteModal" class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
+  <div id="deleteModalContent" class="bg-white border border-[#e8e8e8] w-[440px] p-8 transform scale-95 transition-transform duration-250">
+    <form id="deleteCatForm" method="POST" action="">
+      {% csrf_token %}
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-red-50 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <h3 class="text-[0.75rem] font-black tracking-[0.12em] uppercase text-[#1A1A1A] leading-none">Delete Category</h3>
+      </div>
+
+      <div class="border-t border-[#e8e8e8] mb-5"></div>
+
+      <!-- Content -->
+      <p class="text-[0.65rem] text-gray-500 leading-relaxed mb-2">You are about to permanently delete:</p>
+      <p id="deleteCategoryName" class="text-[0.75rem] font-black uppercase tracking-wide text-[#1A1A1A] mb-3"></p>
+      <p class="text-[0.62rem] text-gray-400 leading-relaxed mb-6">This action <span class="font-bold text-red-500">cannot be undone</span>. All products linked to this category will be unassigned from it.</p>
+
+      <!-- Type to confirm -->
+      <div class="mb-6">
+        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-2">Type <span class="font-black text-[#1A1A1A]">DELETE</span> to confirm</label>
+        <input type="text" id="deleteCatConfirmInput" placeholder="DELETE" oninput="checkCatDeleteConfirm()"
+          class="w-full border border-[#e2e2e2] px-4 py-[10px] text-[0.68rem] font-bold uppercase tracking-widest text-[#1A1A1A] outline-none focus:border-red-400 transition-colors"/>
+      </div>
+
+      <!-- Buttons -->
+      <div class="flex items-center justify-end gap-3">
+        <button type="button" onclick="closeDeleteModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
+          Cancel
+        </button>
+        <button type="submit" id="deleteCatConfirmBtn" disabled
+          class="bg-red-500 text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase transition-colors cursor-not-allowed opacity-40"
+          style="border:none;">
+          Delete Category
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Toggle Offer Confirmation Modal -->
+<div id="toggleOfferModal" class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
+  <div id="toggleOfferModalContent" class="bg-white border border-[#e8e8e8] w-[440px] p-8 transform scale-95 transition-transform duration-250">
+    <form id="toggleOfferForm" method="POST" action="">
+      {% csrf_token %}
+      <!-- Header -->
+      <div class="flex items-center gap-3 mb-5">
+        <div class="w-8 h-8 bg-orange-50 flex items-center justify-center shrink-0">
+          <svg class="w-4 h-4 text-[#E8500A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.5 1.5 0 002.122 0l4.319-4.319a1.5 1.5 0 000-2.122L11.16 3.659A1.5 1.5 0 009.568 3z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
+          </svg>
+        </div>
+        <h3 class="text-[0.75rem] font-black tracking-[0.12em] uppercase text-[#1A1A1A] leading-none">Confirm Offer Toggle</h3>
+      </div>
+
+      <div class="border-t border-[#e8e8e8] mb-5"></div>
+
+      <!-- Content -->
+      <p class="text-[0.65rem] text-gray-500 leading-relaxed mb-2">You are about to change the promotional status for:</p>
+      <p id="toggleOfferCategoryName" class="text-[0.75rem] font-black uppercase tracking-wide text-[#1A1A1A] mb-3"></p>
+      <p class="text-[0.62rem] text-gray-400 leading-relaxed mb-6">Are you sure you want to <span id="toggleOfferStatusText" class="font-bold text-[#E8500A]"></span> the offer for this category?</p>
+
+      <!-- Buttons -->
+      <div class="flex items-center justify-end gap-3">
+        <button type="button" onclick="closeOfferToggleModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
+          Cancel
+        </button>
+        <button type="submit" class="bg-[#1A1A1A] text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#333] transition-colors cursor-pointer" style="border:none;">
+          Confirm
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openAddModal(){
+    const m=document.getElementById('addCategoryModal'),c=document.getElementById('addCategoryModalContent');
+    m.classList.remove('hidden','pointer-events-none');
+    setTimeout(()=>{m.classList.remove('opacity-0');m.classList.add('opacity-100');c.classList.remove('scale-95');c.classList.add('scale-100');},10);
+  }
+  function closeAddModal(){
+    const m=document.getElementById('addCategoryModal'),c=document.getElementById('addCategoryModalContent');
+    m.classList.remove('opacity-100');m.classList.add('opacity-0');c.classList.remove('scale-100');c.classList.add('scale-95');
+    setTimeout(()=>{m.classList.add('hidden','pointer-events-none');},250);
+  }
+  function openDeleteModal(id,name){
+    document.getElementById('deleteCategoryName').textContent=name;
+    document.getElementById('deleteCatConfirmInput').value='';
+    document.getElementById('deleteCatForm').action = "/admin-panel/category/delete/" + id + "/";
+    const btn=document.getElementById('deleteCatConfirmBtn');
+    btn.disabled=true;btn.classList.add('opacity-40','cursor-not-allowed');btn.classList.remove('hover:bg-red-700','cursor-pointer');
+    const m=document.getElementById('deleteModal'),c=document.getElementById('deleteModalContent');
+    m.classList.remove('hidden','pointer-events-none');
+    setTimeout(()=>{m.classList.remove('opacity-0');m.classList.add('opacity-100');c.classList.remove('scale-95');c.classList.add('scale-100');},10);
+  }
+  function closeDeleteModal(){
+    const m=document.getElementById('deleteModal'),c=document.getElementById('deleteModalContent');
+    m.classList.remove('opacity-100');m.classList.add('opacity-0');c.classList.remove('scale-100');c.classList.add('scale-95');
+    setTimeout(()=>{m.classList.add('hidden','pointer-events-none');},250);
+  }
+  function checkCatDeleteConfirm(){
+    const val=document.getElementById('deleteCatConfirmInput').value.trim();
+    const btn=document.getElementById('deleteCatConfirmBtn');
+    if(val==='DELETE'){btn.disabled=false;btn.classList.remove('opacity-40','cursor-not-allowed');btn.classList.add('hover:bg-red-700','cursor-pointer');}
+    else{btn.disabled=true;btn.classList.add('opacity-40','cursor-not-allowed');btn.classList.remove('hover:bg-red-700','cursor-pointer');}
+  }
+
+  function openOfferToggleModal(id, name, isOfferActive) {
+    document.getElementById('toggleOfferCategoryName').textContent = name;
+    document.getElementById('toggleOfferStatusText').textContent = isOfferActive ? 'DISABLE' : 'ENABLE';
+    document.getElementById('toggleOfferForm').action = "/admin-panel/category/toggle-offer/" + id + "/";
+    const m = document.getElementById('toggleOfferModal'), c = document.getElementById('toggleOfferModalContent');
+    m.classList.remove('hidden', 'pointer-events-none');
+    setTimeout(() => {
+      m.classList.remove('opacity-0');
+      m.classList.add('opacity-100');
+      c.classList.remove('scale-95');
+      c.classList.add('scale-100');
+    }, 10);
+  }
+
+  function closeOfferToggleModal() {
+    const m = document.getElementById('toggleOfferModal'), c = document.getElementById('toggleOfferModalContent');
+    m.classList.remove('opacity-100');
+    m.classList.add('opacity-0');
+    c.classList.remove('scale-100');
+    c.classList.add('scale-95');
+    setTimeout(() => {
+      m.classList.add('hidden', 'pointer-events-none');
+    }, 250);
+  }
+
+  document.getElementById('addCategoryModal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
+  document.getElementById('deleteModal').addEventListener('click',function(e){if(e.target===this)closeDeleteModal();});
+  document.getElementById('toggleOfferModal').addEventListener('click',function(e){if(e.target===this)closeOfferToggleModal();});
+
+  // Auto-hide alert messages after 3 seconds
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.msg-alert').forEach(el => {
+        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          el.style.maxHeight = '0';
+          el.style.padding = '0';
+          el.style.margin = '0';
+          el.style.border = 'none';
+          setTimeout(() => el.remove(), 500);
+        }, 300);
+      });
+    }, 3000);
+  });
+</script>
+
+{% endblock %}

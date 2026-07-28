@@ -12,7 +12,10 @@ urlpatterns = [
     path('',             include('user_panel.urls')),
     path('profile/',     include('profiles.urls')),
     path('addresses/',   profiles_views.addresses_view, name='addresses'),
-    path('admin-panel/', include('admin_panel.urls')),
+    path('admin-panel/', include('admin_panel.authentication.urls')),
+    path('admin-panel/', include('admin_panel.dashboard.urls')),
+    path('admin-panel/', include('admin_panel.users.urls')),
+    path('admin-panel/', include('admin_panel.category.urls')),
 ]
 
 if settings.DEBUG:

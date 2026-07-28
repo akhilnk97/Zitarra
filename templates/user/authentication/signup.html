@@ -44,7 +44,7 @@
           <div class="mb-5">
             <label class="block text-[10px] font-bold tracking-widest uppercase text-gray-500 mb-2">Email Address</label>
             <div class="relative border-b border-gray-300 pb-2 after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-350 focus-within:after:w-full" id="email-wrap">
-              <input type="email" id="reg-email" name="email" placeholder="EMAIL@DOMAIN.COM" value="{{ email|default:'' }}" class="w-full bg-transparent outline-none text-sm text-brand-orange placeholder-brand-orange/50 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:[-webkit-text-fill-color:#E8500A]" autocomplete="email" />
+              <input type="email" id="reg-email" name="email" placeholder="EMAIL@DOMAIN.COM" value="{{ email|default:'' }}" class="w-full bg-transparent outline-none text-sm text-brand-dark placeholder-gray-400 autofill:shadow-[inset_0_0_0_1000px_#F5F0EB] autofill:text-brand-dark" autocomplete="email" />
             </div>
             <p class="flex items-center gap-1.5 mt-[6px] text-[0.68rem] font-semibold tracking-[0.04em] text-red-700 opacity-0 -translate-y-1 transition-all duration-250 pointer-events-none" id="email-error"><svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg><span id="email-error-text"></span></p>
           </div>

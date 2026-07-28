@@ -1,0 +1,255 @@
+{% extends 'admin_panel/base/base.html' %}
+{% block title %}Add Category — Zitarra Admin{% endblock %}
+
+{% block extra_head %}
+{% endblock %}
+
+{% block content %}
+<div class="w-full h-screen flex flex-col bg-white font-sans overflow-hidden">
+
+  <!-- Header -->
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 z-10">
+    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    <div class="flex items-center gap-3.5">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name }}</p>
+      </div>
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      </div>
+    </div>
+  </header>
+
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Sidebar -->
+    <aside class="w-[220px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+      <nav class="flex flex-col overflow-y-auto flex-1">
+        <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+          <span>DASHBOARD</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          <span>PRODUCTS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <span>ORDER LIST</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4"/></svg>
+          <span>RETURNS MANAGEMENT</span>
+        </a>
+        <a href="{% url 'admin_users' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          <span>USERS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          <span>BRANDS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          <span>SALES REPORT</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+          <span>COUPONS</span>
+        </a>
+        <a href="{% url 'admin_category' %}" class="group flex items-center gap-3.5 px-6 py-[17px] bg-[#A33C08] text-white text-[0.6rem] font-bold tracking-[0.18em] uppercase no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          <span>CATEGORY</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          <span>REVIEWS</span>
+        </a>
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <span>BANNERS</span>
+        </a>
+      </nav>
+      <div class="p-6">
+        <a href="{% url 'admin_logout' %}" class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.6rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+          <span>LOGOUT</span>
+        </a>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-1 bg-white flex flex-col h-full overflow-y-auto">
+      <form method="POST" enctype="multipart/form-data" id="addCatForm" class="flex flex-col h-full">
+        {% csrf_token %}
+
+        <!-- Page header row -->
+        <div class="px-10 pt-8 pb-6 shrink-0">
+          <div class="flex items-center justify-between mb-4">
+            <h1 id="pageTitleDisplay" class="text-[2.2rem] font-black uppercase tracking-tight text-[#1A1A1A] leading-none">Acoustic Guitars</h1>
+            <div class="flex items-center gap-3">
+              <a href="{% url 'admin_category' %}" class="border border-[#1A1A1A] text-[#1A1A1A] text-[0.62rem] font-black tracking-[0.15em] uppercase px-6 py-[10px] hover:bg-gray-100 transition-colors no-underline">DISCARD</a>
+              <button type="submit" class="bg-[#E8500A] text-white text-[0.62rem] font-black tracking-[0.15em] uppercase px-6 py-[10px] hover:bg-[#c94008] transition-colors flex items-center gap-2">
+                ADD CATEGORY
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+              </button>
+            </div>
+          </div>
+          <div class="border-b border-[#1A1A1A]"></div>
+        </div>
+
+        {% if messages %}
+        <div class="px-10 mb-4 shrink-0 flex flex-col gap-3">
+          {% for message in messages %}
+            {% if 'success' in message.tags %}
+              <div class="p-4 bg-white border-l-4 border-green-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% else %}
+              <div class="p-4 bg-white border-l-4 border-red-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+                <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- Form body -->
+        <div class="flex-1 px-10 pb-10 overflow-y-auto">
+          <div class="border border-[#e8e8e8] p-8">
+            <div class="flex gap-10">
+
+              <!-- LEFT: Basic Specification + Offer Management -->
+              <div class="flex-1">
+                <div class="flex items-center gap-2.5 mb-6">
+                  <div class="w-1 h-5 bg-[#A33C08]"></div>
+                  <h2 class="text-[0.72rem] font-black uppercase tracking-[0.18em] text-[#1A1A1A]">Basic Specification</h2>
+                </div>
+
+                <div class="mb-5">
+                  <label class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Category Name</label>
+                  <input type="text" name="name" id="categoryNameInput" class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none" placeholder="ACOUSTIC GUITARS" oninput="updateTitle(this.value)" required/>
+                </div>
+
+                <div class="mb-8">
+                  <label class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Description</label>
+                  <textarea name="description" rows="5" class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none resize-none" placeholder="Premium handcrafted acoustic instruments featuring solid wood construction and professional grade hardware..."></textarea>
+                </div>
+
+                <!-- Offer Management -->
+                <div class="flex items-center gap-2.5 mb-6">
+                  <div class="w-1 h-5 bg-[#1A1A1A]"></div>
+                  <h2 class="text-[0.72rem] font-black uppercase tracking-[0.18em] text-[#1A1A1A]">Offer Management</h2>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                  <div>
+                    <label class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Campaign Discount %</label>
+                    <div class="relative">
+                      <input type="number" name="discount" class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none pr-8" placeholder="15" min="0" max="100"/>
+                      <span class="absolute right-3 top-1/2 -translate-y-1/2 text-[0.65rem] font-bold text-gray-400">%</span>
+                    </div>
+                  </div>
+                  <div>
+                    <label class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Campaign Expiry Date</label>
+                    <input type="text" name="expiry_date" class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none" placeholder="DD-MM-YYYY"/>
+                  </div>
+                </div>
+
+                <!-- Visibility Status -->
+                <div class="border-l-4 border-[#E8500A] pl-4 py-3 bg-[#fafafa] flex items-center justify-between pr-4">
+                  <div>
+                    <p class="text-[0.6rem] font-black uppercase tracking-[0.14em] text-[#1A1A1A] mb-1">Visibility Status</p>
+                    <p class="text-[0.52rem] font-medium text-gray-500 uppercase tracking-wider">Determine if this category is live on the storefront</p>
+                  </div>
+                  <div class="flex items-center gap-3">
+                    <label class="relative inline-block w-12 h-[26px]">
+                      <input type="checkbox" name="is_active" id="visibilityToggle" checked onchange="updateStatusLabel()" class="peer opacity-0 w-0 h-0"/>
+                      <span class="absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-gray-300 rounded-full transition-all duration-300 before:absolute before:content-[''] before:h-5 before:w-5 before:left-[3px] before:bottom-[3px] before:bg-white before:rounded-full before:transition-all before:duration-300 peer-checked:bg-[#E8500A] peer-checked:before:translate-x-[22px]"></span>
+                    </label>
+                    <span id="statusLabel" class="text-[0.6rem] font-black uppercase tracking-widest text-[#E8500A]">Active</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- RIGHT: Identity Media -->
+              <div class="w-[280px] shrink-0">
+                <div class="flex items-center gap-2.5 mb-4">
+                  <div class="w-1 h-5 bg-[#1A1A1A]"></div>
+                  <h2 class="text-[0.72rem] font-black uppercase tracking-[0.18em] text-[#1A1A1A]">Identity Media</h2>
+                </div>
+
+                <!-- Image upload area -->
+                <div class="relative overflow-hidden bg-[#1a1a1a]" style="height:250px;" id="imagePreviewBox">
+                  <!-- Background image preview -->
+                  <img id="imagePreview" src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80" alt="Preview" class="w-full h-full object-cover opacity-60"/>
+                  <!-- Upload overlay -->
+                  <div class="absolute inset-0 flex flex-col items-center justify-center">
+                    <label class="w-full h-full cursor-pointer flex flex-col">
+                      <input type="file" name="image" accept="image/*" onchange="previewCatImage(this)" class="hidden"/>
+                      <div class="w-full h-full flex flex-col items-center justify-center bg-black/50">
+                        <div class="w-10 h-10 bg-white flex items-center justify-center mb-3">
+                          <svg class="w-5 h-5 text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                        </div>
+                        <p class="text-[0.52rem] font-black uppercase tracking-[0.16em] text-white">Drop New Master Image</p>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+                <p class="text-[0.48rem] font-bold uppercase tracking-wider text-gray-400 mt-2">Recommended: 800×600px. JPG or PNG.</p>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </form>
+    </main>
+  </div>
+</div>
+
+<script>
+  function updateTitle(val){
+    const display = document.getElementById('pageTitleDisplay');
+    display.textContent = val.trim() ? val.toUpperCase() : 'Acoustic Guitars';
+  }
+  function updateStatusLabel(){
+    const checked = document.getElementById('visibilityToggle').checked;
+    const label = document.getElementById('statusLabel');
+    label.textContent = checked ? 'Active' : 'Inactive';
+    label.style.color = checked ? '#E8500A' : '#9ca3af';
+  }
+  function previewCatImage(input){
+    if(input.files && input.files[0]){
+      const reader = new FileReader();
+      reader.onload = function(e){
+        document.getElementById('imagePreview').src = e.target.result;
+      };
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  // Auto-hide alert messages after 3 seconds
+  document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+      document.querySelectorAll('.msg-alert').forEach(el => {
+        el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          el.style.maxHeight = '0';
+          el.style.padding = '0';
+          el.style.margin = '0';
+          el.style.border = 'none';
+          setTimeout(() => el.remove(), 500);
+        }, 300);
+      });
+    }, 3000);
+  });
+</script>
+
+{% endblock %}
