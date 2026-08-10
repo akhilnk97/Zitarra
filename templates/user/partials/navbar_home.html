@@ -17,20 +17,27 @@
       </svg>
     </button>
     
+    {% if user.is_authenticated %}
     <!-- Cart Icon -->
-    <a href="#cart" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Cart">
+    <a href="{% url 'cart_view' %}" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Cart">
       <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
         <circle cx="9" cy="21" r="1"></circle>
         <circle cx="20" cy="21" r="1"></circle>
         <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
       </svg>
+      {% if cart_item_count and cart_item_count > 0 %}
+      <span class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ cart_item_count }}</span>
+      {% endif %}
     </a>
 
     <!-- Wishlist Icon -->
-    <a href="#wishlist" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Wishlist">
+    <a href="{% url 'wishlist:wishlist_view' %}" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Wishlist">
       <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
         <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
       </svg>
+      {% if wishlist_item_count and wishlist_item_count > 0 %}
+      <span class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ wishlist_item_count }}</span>
+      {% endif %}
     </a>
 
     <!-- Profile Icon -->
@@ -40,5 +47,9 @@
         <circle cx="12" cy="7" r="4"></circle>
       </svg>
     </a>
+    {% else %}
+    <!-- Login option for unauthenticated users -->
+    <a href="{% url 'login' %}" class="text-[0.62rem] font-bold tracking-[0.16em] uppercase text-brand-orange no-underline border-[1.5px] border-brand-orange px-[18px] py-[7px] transition-all duration-200 hover:bg-brand-orange hover:text-white group-[.scrolled]:border-brand-orange group-[.scrolled]:text-brand-orange group-[.scrolled]:hover:bg-brand-orange group-[.scrolled]:hover:text-white">Login</a>
+    {% endif %}
   </div>
 </header>

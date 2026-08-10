@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.views.decorators.cache import cache_control
 from django.db.models import Q
 from django.core.paginator import Paginator
 from django.db.models.functions import Lower
 
-from admin_panel.decorators import admin_required
-from accounts.models import User
+from common.decorators import admin_required
+from user_panel.authentication.models import User
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_users_view(request):
     search_query = request.GET.get("search", "").strip()

@@ -2,30 +2,25 @@
 {% block title %}User Database — Zitarra{% endblock %}
 
 {% block extra_head %}
-<style>
-  /* Custom Confirmation Modal Transitions */
-  #confirmModal {
-    transition: opacity 0.25s ease-in-out;
-  }
-
-  #confirmModalContent {
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-  }
-</style>
 {% endblock %}
 
 {% block content %}
 <div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
 
   <!-- CSRF Token Container for AJAX -->
-  <div style="display:none;">
+  <div class="hidden">
     {% csrf_token %}
   </div>
 
   <!-- Header Bar (Full Width) -->
   <header
-    class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 w-full z-10">
-    <div class="flex items-center">
+    class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 w-full z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
       <a href="{% url 'admin_dashboard' %}"
         class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
     </div>
@@ -52,8 +47,8 @@
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
     <!-- Sidebar Navigation (Sticky) -->
-    <aside
-      class="w-[260px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+    <aside id="admin-sidebar"
+      class="fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
 
       <nav class="flex flex-col overflow-y-auto flex-1">
 
@@ -304,7 +299,7 @@
       </div>
 
       <!-- Table Container -->
-      <div class="w-full flex-1 overflow-y-auto border border-[#e8e8e8] bg-white">
+      <div class="w-full flex-1 overflow-auto border border-[#e8e8e8] bg-white">
         <table class="w-full text-left border-collapse min-w-[700px]">
           <thead>
             <tr class="bg-[#fcfbfa] border-b border-[#e8e8e8]">
@@ -500,9 +495,9 @@
 
 <!-- Custom Confirmation Modal Overlay -->
 <div id="confirmModal"
-  class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[1px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none">
+  class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[1px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250 ease-in-out">
   <div id="confirmModalContent"
-    class="bg-white border border-[#e8e8e8] w-[420px] p-8 relative flex flex-col justify-between transform scale-95 duration-250 ease-out">
+    class="bg-white border border-[#e8e8e8] w-[420px] p-8 relative flex flex-col justify-between transform scale-95 transition-transform duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]">
 
     <div>
       <!-- Modal Accent & Title -->

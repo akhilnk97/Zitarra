@@ -11,7 +11,7 @@ from django.views.decorators.cache import cache_control
 from django.utils import timezone
 
 from .models import User, OTPVerification
-from .services import (
+from common.services import (
     validate_password_strength,
     validate_full_name,
     create_otp,
@@ -123,12 +123,12 @@ def otp_verification_view(request):
             messages.error(request, "OTP not found.")
             return redirect("signup")
 
-        if otp_record.expires_at < timezone.now():
-            messages.error(request, "The OTP has expired. Please request a new one.")
-            return redirect("otp_verify")
-
         if entered_otp != otp_record.otp_code:
             messages.error(request, "Invalid OTP. Please try again.")
+            return redirect("otp_verify")
+
+        if otp_record.expires_at < timezone.now():
+            messages.error(request, "The OTP has expired. Please request a new one.")
             return redirect("otp_verify")
 
         otp_record.verified = True
@@ -262,12 +262,12 @@ def forgot_password_otp_view(request):
             messages.error(request, "OTP not found. Please try again.")
             return redirect("forgot_password")
 
-        if otp_record.expires_at < timezone.now():
-            messages.error(request, "The OTP has expired. Please request a new one.")
-            return redirect("forgot_password_otp")
-
         if entered_otp != otp_record.otp_code:
             messages.error(request, "Invalid OTP. Please try again.")
+            return redirect("forgot_password_otp")
+
+        if otp_record.expires_at < timezone.now():
+            messages.error(request, "The OTP has expired. Please request a new one.")
             return redirect("forgot_password_otp")
 
         otp_record.verified = True

@@ -12,8 +12,7 @@
     <!-- ── Sidebar ── -->
     <aside class="bg-white border-r border-[#e8e8e8] flex flex-col self-stretch">
       <div class="p-6 pb-[18px] border-b border-[#f0f0f0]">
-        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange mb-[3px]">User Profile</p>
-        <p class="font-semibold text-[0.5rem] tracking-[0.12em] uppercase text-[#bbb]">Manage Your Account</p>
+        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange">User Account</p>
       </div>
       <nav class="flex-1 py-2">
         <a href="{% url 'profiles:profile' %}"
@@ -49,7 +48,7 @@
           </svg>
           Wallet
         </a>
-        <a href="#wishlist"
+        <a href="{% url 'wishlist:wishlist_view' %}"
           class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
           <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -129,16 +128,18 @@
       {% if messages %}
       <div class="px-9 pt-6">
         {% for message in messages %}
-          {% if 'success' in message.tags %}
-            <div class="mb-4 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>{{ message }}</span>
-            </div>
-          {% else %}
-            <div class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              <span>{{ message }}</span>
-            </div>
+          {% if 'otp_error' not in message.tags and 'otp_info' not in message.tags %}
+            {% if 'success' in message.tags %}
+              <div class="mb-4 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% else %}
+              <div class="mb-4 p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <span>{{ message }}</span>
+              </div>
+            {% endif %}
           {% endif %}
         {% endfor %}
       </div>
@@ -173,7 +174,7 @@
             id="name-wrap">
             <input type="text" id="edit-name" name="fullname"
               class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 placeholder:text-gray-300"
-              placeholder="FULL NAME" value="{{ request.user.fullname }}" required />
+              placeholder="FULL NAME" value="{% if pending_data %}{{ pending_data.fullname }}{% else %}{{ request.user.fullname }}{% endif %}" required />
           </div>
           <span
             class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-1.5 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
@@ -188,7 +189,7 @@
             id="email-wrap">
             <input type="email" id="edit-email" name="email"
               class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 placeholder:text-gray-300 {% if request.user.socialaccount_set.exists %}opacity-60 cursor-not-allowed{% endif %}"
-              placeholder="EMAIL" value="{{ request.user.email }}" {% if request.user.socialaccount_set.exists %}readonly{% endif %} required />
+              placeholder="EMAIL" value="{% if pending_data %}{{ pending_data.email }}{% else %}{{ request.user.email }}{% endif %}" {% if request.user.socialaccount_set.exists %}readonly{% endif %} required />
           </div>
           <span
             class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-1.5 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
@@ -203,7 +204,7 @@
             id="phone-wrap">
             <input type="text" id="edit-phone" name="mobile_number"
               class="w-full bg-transparent border-none outline-none text-[0.9rem] font-semibold text-[#1a1a1a] py-1 pb-1 placeholder:text-gray-300"
-              placeholder="PHONE NUMBER" value="{{ request.user.mobile_number|default:'' }}" />
+              placeholder="PHONE NUMBER" value="{% if pending_data %}{{ pending_data.mobile_number|default:'' }}{% else %}{{ request.user.mobile_number|default:'' }}{% endif %}" />
           </div>
           <span
             class="text-[0.52rem] font-extrabold tracking-widest text-[#ef4444] uppercase mt-1.5 block opacity-0 -translate-y-1 transition-all duration-200 pointer-events-none"
@@ -260,7 +261,7 @@
     <div class="w-12 h-[2px] bg-brand-orange mx-auto mb-4"></div>
     <p class="text-[0.62rem] font-bold tracking-widest text-gray-500 mb-6 leading-relaxed" id="otp-instructions">
       <span class="uppercase">ENTER THE 6-DIGIT CODE SENT TO</span> <span id="otp-email-display"
-        class="lowercase font-extrabold text-brand-dark tracking-normal" style="text-transform: lowercase;">your
+        class="lowercase font-extrabold text-brand-dark tracking-normal">your
         email</span>.
     </p>
 
@@ -313,11 +314,12 @@
 </div>
 
 <!-- Hidden form for native resend OTP -->
-<form id="resend-otp-form" method="POST" action="/profile/edit/send-otp/" style="display:none;">
+<form id="resend-otp-form" method="POST" action="/profile/edit/send-otp/" class="hidden">
   {% csrf_token %}
   <input type="hidden" name="fullname" id="resend-fullname" />
   <input type="hidden" name="email" id="resend-email" />
   <input type="hidden" name="mobile_number" id="resend-phone" />
+  <input type="hidden" name="is_resend" value="true" />
 </form>
 
 <script>
@@ -446,24 +448,57 @@
   }
 
   // Timer logic
-  function startTimer() {
-    countdown = 60;
-    timerEl.textContent = '01:00';
-    timerWrap.style.display = 'block';
-    resendWrap.style.display = 'none';
+  const STORAGE_KEY = 'profile_edit_otp_timer_end';
+  const COOLDOWN_TIME = 60; // 1 minute
 
+  function startTimer(forceReset = false) {
+    console.log("startTimer called. forceReset:", forceReset);
     clearInterval(interval);
-    interval = setInterval(() => {
-      countdown--;
-      const s = countdown < 10 ? '0' + countdown : countdown;
-      timerEl.textContent = `00:${s}`;
+    let timerEnd = localStorage.getItem(STORAGE_KEY);
+    console.log("Retrieved timerEnd from localStorage:", timerEnd);
+    const now = Math.floor(Date.now() / 1000);
+    console.log("Current epoch time (now):", now);
 
-      if (countdown <= 0) {
+    // If the error message is about expiry, immediately clear and show resend
+    const isExpiredError = otpError.textContent.toLowerCase().includes('expired') || {% if otp_expired %}true{% else %}false{% endif %};
+    console.log("isExpiredError:", isExpiredError);
+    if (isExpiredError && !forceReset) {
+      console.log("Expired error - clearing storage and showing resend");
+      localStorage.removeItem(STORAGE_KEY);
+      timerWrap.style.display = 'none';
+      resendWrap.style.display = 'block';
+      return;
+    }
+
+    if (forceReset || !timerEnd || parseInt(timerEnd) <= now) {
+      console.log("Setting/resetting timer. forceReset:", forceReset, "no timerEnd:", !timerEnd, "expired:", parseInt(timerEnd) <= now);
+      timerEnd = now + COOLDOWN_TIME;
+      localStorage.setItem(STORAGE_KEY, timerEnd);
+    } else {
+      console.log("Continuing timer. Remaining time in seconds:", parseInt(timerEnd) - now);
+      timerEnd = parseInt(timerEnd);
+    }
+
+    function update() {
+      const currentNow = Math.floor(Date.now() / 1000);
+      const remaining = timerEnd - currentNow;
+
+      if (remaining <= 0) {
         clearInterval(interval);
+        localStorage.removeItem(STORAGE_KEY);
         timerWrap.style.display = 'none';
         resendWrap.style.display = 'block';
+      } else {
+        timerWrap.style.display = 'block';
+        resendWrap.style.display = 'none';
+        const m = Math.floor(remaining / 60);
+        const s = remaining % 60;
+        timerEl.textContent = `${m}:${s.toString().padStart(2, '0')}`;
       }
-    }, 1000);
+    }
+
+    update();
+    interval = setInterval(update, 1000);
   }
 
   // 6-digit boxes navigation
@@ -496,12 +531,12 @@
   });
 
   // Modal open/close actions
-  function openOtpModal(email) {
+  function openOtpModal(email, forceReset = false) {
     document.getElementById('otp-email-display').textContent = email.toLowerCase();
     otpModal.classList.add('opacity-100', 'pointer-events-auto');
     otpModalContent.classList.add('scale-100', 'opacity-100');
     otpModalContent.classList.remove('scale-[0.85]', 'opacity-0');
-    startTimer();
+    startTimer(forceReset);
     setTimeout(() => boxes[0].focus(), 150);
   }
 
@@ -680,6 +715,7 @@
       container.classList.add('animate-shake');
 
       otpError.textContent = 'Please enter all 6 digits of the OTP code.';
+      otpError.style.color = '#ef4444'; // red
       otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
       otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
       return;
@@ -690,16 +726,21 @@
 
   // Handle modals on page load based on backend variables
   {% if show_otp_modal %}
-  openOtpModal(emailInput.value.trim());
     {% if messages %}
       {% for message in messages %}
-        {% if 'otp_error' in message.tags %}
+        {% if 'otp_error' in message.tags or 'otp_info' in message.tags %}
           otpError.textContent = '{{ message|escapejs }}';
+          {% if 'otp_info' in message.tags %}
+            otpError.style.color = '#16a34a'; // green
+          {% else %}
+            otpError.style.color = '#ef4444'; // red
+          {% endif %}
           otpError.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
           otpError.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
         {% endif %}
       {% endfor %}
     {% endif %}
+    openOtpModal(emailInput.value.trim(), {% if otp_sent %}true{% else %}false{% endif %});
   {% endif %}
 
   // Auto-run alert hiding on page load

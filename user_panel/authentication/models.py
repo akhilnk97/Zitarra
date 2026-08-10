@@ -80,6 +80,16 @@ def handle_google_login(sender, request, sociallogin, **kwargs):
     user  = sociallogin.user
     extra = sociallogin.account.extra_data
 
+    # Check if this Google user has logged in before using Google auth
+    from allauth.socialaccount.models import SocialAccount
+    uid = sociallogin.account.uid
+    provider = sociallogin.account.provider
+    if provider == 'google':
+        if SocialAccount.objects.filter(provider=provider, uid=uid).exists():
+            request.session['google_login_type'] = 'welcome_back'
+        else:
+            request.session['google_login_type'] = 'welcome'
+
     email = None
     if hasattr(sociallogin, 'email_addresses'):
         for email_address in sociallogin.email_addresses:

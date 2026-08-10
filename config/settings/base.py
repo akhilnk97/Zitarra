@@ -24,13 +24,17 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
 
-    'accounts',
-    'user_panel',
+    'user_panel.authentication',
+    'user_panel.home',
+    'user_panel.shop',
+    'user_panel.cart',
+    'user_panel.wishlist',
+
     'admin_panel.authentication',
     'admin_panel.dashboard',
     'admin_panel.users',
     'admin_panel.category',
-    'profiles',
+    'user_panel.profiles',
     'admin_panel.products',
 ]
 
@@ -57,6 +61,8 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'user_panel.cart.context_processors.cart_item_count',
+                'user_panel.wishlist.context_processors.wishlist_item_count',
             ],
         },
     },
@@ -125,10 +131,11 @@ SOCIALACCOUNT_PROVIDERS = {
 SOCIALACCOUNT_STORE_TOKENS = True
 
 ACCOUNT_EMAIL_VERIFICATION = "none"
-ACCOUNT_ADAPTER = 'accounts.adapters.NoMessageAccountAdapter'
+ACCOUNT_ADAPTER = 'common.adapters.NoMessageAccountAdapter'
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 
+LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/home/'
 ACCOUNT_LOGOUT_REDIRECT_URL = '/login/'
 SOCIALACCOUNT_LOGIN_ON_GET = True

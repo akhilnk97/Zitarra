@@ -12,8 +12,7 @@
     <!-- ── Sidebar ── -->
     <aside class="bg-white border-r border-[#e8e8e8] flex flex-col self-stretch">
       <div class="p-6 pb-[18px] border-b border-[#f0f0f0]">
-        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange mb-[3px]">User Profile</p>
-        <p class="font-semibold text-[0.5rem] tracking-[0.12em] uppercase text-[#bbb]">Manage Your Account</p>
+        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange">User Account</p>
       </div>
       <nav class="flex-1 py-2">
         <a href="{% url 'profiles:profile' %}"
@@ -49,7 +48,7 @@
           </svg>
           WALLET
         </a>
-        <a href="#wishlist"
+        <a href="{% url 'wishlist:wishlist_view' %}"
           class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
           <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -533,18 +532,33 @@
   }
 
   function showErr(wrap, errEl, msg) {
-    wrap.classList.add('border-red-500');
     wrap.classList.remove('focus-within:border-brand-orange');
+    wrap.classList.add('border-red-500');
     errEl.textContent = msg;
     errEl.classList.remove('opacity-0', '-translate-y-1', 'pointer-events-none');
     errEl.classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    wrap.classList.remove('animate-shake');
+    void wrap.offsetWidth; // trigger reflow
+    wrap.classList.add('animate-shake');
+
+    if (wrap.dataset.errTimeout) {
+      clearTimeout(parseInt(wrap.dataset.errTimeout));
+    }
+    const tid = setTimeout(() => {
+      clearErr(wrap, errEl);
+    }, 3000);
+    wrap.dataset.errTimeout = tid;
   }
 
   function clearErr(wrap, errEl) {
-    wrap.classList.remove('border-red-500');
+    wrap.classList.remove('border-red-500', 'animate-shake');
     wrap.classList.add('focus-within:border-brand-orange');
     errEl.classList.add('opacity-0', '-translate-y-1', 'pointer-events-none');
     errEl.classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    if (wrap.dataset.errTimeout) {
+      clearTimeout(parseInt(wrap.dataset.errTimeout));
+      delete wrap.dataset.errTimeout;
+    }
   }
 
   function clearAllErrors() {
@@ -727,6 +741,13 @@
     }
   });
 
+  nameInput.addEventListener('blur', () => { if (nameInput.dataset.dirty === 'true') validateName(); });
+  phoneInput.addEventListener('blur', () => { if (phoneInput.dataset.dirty === 'true') validatePhone(); });
+  line1Input.addEventListener('blur', () => { if (line1Input.dataset.dirty === 'true') validateLine1(); });
+  cityInput.addEventListener('blur', () => { if (cityInput.dataset.dirty === 'true') validateCity(); });
+  stateInput.addEventListener('blur', () => { if (stateInput.dataset.dirty === 'true') validateState(); });
+  pincodeInput.addEventListener('blur', () => { if (pincodeInput.dataset.dirty === 'true') validatePincode(); });
+
   form.addEventListener('submit', function (e) {
     let valid = true;
     if (!validateName()) valid = false;
@@ -740,6 +761,25 @@
     }
   });
 
+  // Auto-hide alert messages
+  function autoHideAlerts() {
+    const alerts = document.querySelectorAll('.msg-alert');
+    alerts.forEach(alert => {
+      setTimeout(() => {
+        alert.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+        alert.style.opacity = '0';
+        alert.style.transform = 'translateY(-10px)';
+        setTimeout(() => {
+          alert.style.maxHeight = '0';
+          alert.style.padding = '0';
+          alert.style.margin = '0';
+          alert.style.border = 'none';
+          setTimeout(() => alert.remove(), 500);
+        }, 300);
+      }, 3000);
+    });
+  }
+
   document.addEventListener('DOMContentLoaded', () => {
     const addBtn = document.getElementById('add-address-btn');
     if (addBtn) {
@@ -748,6 +788,7 @@
         openAddressModal('ADD NEW ADDRESS');
       });
     }
+    autoHideAlerts();
   });
 </script>
 {% endblock %}

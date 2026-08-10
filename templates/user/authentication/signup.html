@@ -253,6 +253,7 @@
     if (/\s/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must not contain spaces or whitespace.'); return false; }
     if (!/[A-Z]/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one uppercase letter.'); return false; }
     if (!/[a-z]/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one lowercase letter.'); return false; }
+    if (!/\d/.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one number.'); return false; }
     const specialRe = /[!@#$%^&*()\-_=+\[\]{}|;':",./<>?]/;
     if (!specialRe.test(pwd)) { showErr(pwdWrap, pwdErr, pwdErrTxt, 'Password must contain at least one special character.'); return false; }
     clearErr(pwdWrap, pwdErr);

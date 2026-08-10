@@ -5,15 +5,29 @@
 <div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
 
   <!-- Header Bar -->
-  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 w-full z-10">
-    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+  <header
+    class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 w-full z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <a href="{% url 'admin_dashboard' %}"
+        class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
     <div class="flex items-center gap-3.5">
       <div class="text-right select-none">
-        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN
+          ACCESS</p>
         <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name }}</p>
       </div>
-      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
-        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+      <div
+        class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
       </div>
     </div>
   </header>
@@ -22,56 +36,115 @@
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] w-full overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-[260px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+    <aside id="admin-sidebar"
+      class="fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
       <nav class="flex flex-col overflow-y-auto flex-1">
-        <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
+        <a href="{% url 'admin_dashboard' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
           <span>DASHBOARD</span>
         </a>
-        <a href="{% url 'admin_products' %}" class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        <a href="{% url 'admin_products' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
           <span>PRODUCTS</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+          </svg>
           <span>ORDER LIST</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4" />
+          </svg>
           <span>RETURNS MANAGEMENT</span>
         </a>
-        <a href="{% url 'admin_users' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+        <a href="{% url 'admin_users' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
           <span>USERS</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
           <span>BRANDS</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+          </svg>
           <span>SALES REPORT</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+          </svg>
           <span>COUPONS</span>
         </a>
-        <a href="{% url 'admin_category' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+        <a href="{% url 'admin_category' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+          </svg>
           <span>CATEGORY</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
           <span>REVIEWS</span>
         </a>
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+        <a href="{% url 'admin_unimplemented' %}"
+          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
           <span>BANNERS</span>
         </a>
       </nav>
       <div class="p-6">
-        <a href="{% url 'admin_logout' %}" class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.62rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        <a href="{% url 'admin_logout' %}"
+          class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.62rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+          </svg>
           <span>LOGOUT</span>
         </a>
       </div>
@@ -84,36 +157,52 @@
       <div class="flex border-b border-[#e8e8e8] shrink-0">
         <div class="flex-1 px-8 py-6">
           <p class="text-[0.62rem] font-black tracking-[0.18em] uppercase text-[#A33C08] mb-1">Master</p>
-          <p class="text-[0.62rem] font-black tracking-[0.18em] uppercase text-[#A33C08] mb-3">Master Inventory</p>
-          <p class="text-[0.65rem] text-gray-500 leading-relaxed max-w-sm">Global tracking for Zitarra luxury instruments. Real-time stock levels, MSRP synchronization, and logistical status across all regional warehouses.</p>
+          <p class="text-[0.62rem] font-black tracking-[0.18em] uppercase text-[#A33C08] mb-3">Inventory</p>
+          <p class="text-[0.65rem] text-gray-500 leading-relaxed max-w-sm">Global tracking for Zitarra luxury
+            instruments. Real-time stock levels, MSRP synchronization, and logistical status across all regional
+            warehouses.</p>
         </div>
         <div class="w-[280px] shrink-0"></div>
-      </div>      <!-- Alert Container -->
+      </div> <!-- Alert Container -->
       {% if messages %}
       <div class="px-8 pt-4 shrink-0 flex flex-col gap-3">
         {% for message in messages %}
-          {% if 'success' in message.tags %}
-            <div class="p-4 bg-white border-l-4 border-green-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>{{ message }}</span>
-            </div>
-          {% else %}
-            <div class="p-4 bg-white border-l-4 border-red-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
-              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              <span>{{ message }}</span>
-            </div>
-          {% endif %}
+        {% if 'success' in message.tags %}
+        <div
+          class="p-4 bg-white border-l-4 border-green-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+          <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        {% else %}
+        <div
+          class="p-4 bg-white border-l-4 border-red-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+          <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span>{{ message }}</span>
+        </div>
+        {% endif %}
         {% endfor %}
       </div>
       {% endif %}
 
       <!-- Toolbar / Filters Form -->
-      <form method="GET" action="{% url 'admin_products' %}" class="flex items-center gap-3 px-8 py-4 border-b border-[#e8e8e8] shrink-0 bg-[#fafafa]">
+      <form method="GET" action="{% url 'admin_products' %}"
+        class="flex flex-wrap items-center gap-3 px-4 md:px-8 py-4 border-b border-[#e8e8e8] shrink-0 bg-[#fafafa]">
         <!-- Unified Contiguous Filter Bar -->
-        <div class="flex items-center border border-[#dcdcdc] bg-white h-9 overflow-hidden shrink-0">
+        <div class="flex items-center border border-[#dcdcdc] bg-white h-9 shrink-0 flex-wrap sm:flex-nowrap">
           <!-- Funnel Icon segment -->
           <div class="flex items-center justify-center bg-gray-50 w-9 h-full border-r border-[#dcdcdc] select-none">
-            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 010 2H4a1 1 0 01-1-1zm3 6a1 1 0 011-1h10a1 1 0 010 2H7a1 1 0 01-1-1zm4 6a1 1 0 011-1h2a1 1 0 010 2h-2a1 1 0 01-1-1z"/></svg>
+            <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 4a1 1 0 011-1h16a1 1 0 010 2H4a1 1 0 01-1-1zm3 6a1 1 0 011-1h10a1 1 0 010 2H7a1 1 0 01-1-1zm4 6a1 1 0 011-1h2a1 1 0 010 2h-2a1 1 0 01-1-1z" />
+            </svg>
           </div>
 
           <!-- Label segment -->
@@ -123,27 +212,33 @@
 
           <!-- Sorting dropdown segment -->
           <div class="relative h-full border-r border-[#dcdcdc]">
-            <select name="sort" onchange="this.form.submit()" class="appearance-none bg-white h-full pl-4 pr-8 text-[0.58rem] font-bold uppercase tracking-wider text-gray-600 focus:outline-none cursor-pointer border-none outline-none">
+            <select name="sort" onchange="this.form.submit()"
+              class="appearance-none bg-white h-full pl-4 pr-8 text-[0.58rem] font-bold uppercase tracking-wider text-gray-600 focus:outline-none cursor-pointer border-none outline-none">
               <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Latest First</option>
               <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>Oldest First</option>
               <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>A to Z</option>
               <option value="name_desc" {% if sort_by == 'name_desc' %}selected{% endif %}>Z to A</option>
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-400">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
 
           <!-- Category dropdown segment -->
           <div class="relative h-full">
-            <select name="category" onchange="this.form.submit()" class="appearance-none bg-white h-full pl-4 pr-8 text-[0.58rem] font-bold uppercase tracking-wider text-gray-600 focus:outline-none cursor-pointer border-none outline-none">
+            <select name="category" onchange="this.form.submit()"
+              class="appearance-none bg-white h-full pl-4 pr-8 text-[0.58rem] font-bold uppercase tracking-wider text-gray-600 focus:outline-none cursor-pointer border-none outline-none">
               <option value="">Category</option>
               {% for cat in categories %}
-                <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name|upper }}</option>
+              <option value="{{ cat.id }}" {% if category_id == cat.id|stringformat:"s" %}selected{% endif %}>{{ cat.name|upper }}</option>
               {% endfor %}
             </select>
             <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-400">
-              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+              <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
         </div>
@@ -151,42 +246,70 @@
         <!-- Search -->
         <div class="relative h-9">
           <span class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-gray-400">
-            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
           </span>
-          <input type="text" name="search" value="{{ search }}" placeholder="Search" class="bg-white border border-[#dcdcdc] pl-9 pr-4 h-full text-[0.58rem] font-bold uppercase tracking-wider text-gray-600 focus:outline-none focus:border-[#1A1A1A] transition-colors rounded-none w-44" onchange="this.form.submit()"/>
+          <input type="text" name="search" value="{{ search }}" placeholder="Search"
+            class="bg-white border border-[#dcdcdc] pl-9 pr-9 h-full text-[0.58rem] font-bold uppercase tracking-wider text-gray-600 focus:outline-none focus:border-[#1A1A1A] transition-colors rounded-none w-44"
+            onchange="this.form.submit()" />
+          
+          {% if search or category_id or sort_by != 'newest' %}
+          <a href="{% url 'admin_products' %}"
+            class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-[#1A1A1A] transition-colors select-none no-underline active:scale-95"
+            title="Clear Filters">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </a>
+          {% endif %}
         </div>
-
-        {% if search or category_id or sort_by != 'newest' %}
-          <a href="{% url 'admin_products' %}" class="text-[0.58rem] font-bold uppercase tracking-wider text-red-500 hover:underline no-underline ml-2">Clear Filters</a>
-        {% endif %}
 
         <!-- Spacer -->
         <div class="flex-1"></div>
 
         <!-- Add New Product -->
-        <a href="{% url 'admin_product_add' %}" class="flex items-center gap-2 bg-[#1A1A1A] text-white px-5 py-2 text-[0.58rem] font-bold tracking-[0.12em] uppercase hover:bg-[#333] transition-colors no-underline">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <a href="{% url 'admin_product_add' %}"
+          class="flex items-center gap-2 bg-[#1A1A1A] text-white px-5 py-2 text-[0.58rem] font-bold tracking-[0.12em] uppercase hover:bg-[#333] transition-colors no-underline">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
           Add New Product
         </a>
 
-        <!-- Add New Variant (Placeholder Link) -->
-        <a href="{% url 'admin_unimplemented' %}" class="flex items-center gap-2 bg-[#1A1A1A] text-white px-5 py-2 text-[0.58rem] font-bold tracking-[0.12em] uppercase hover:bg-[#333] transition-colors no-underline">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+        <!-- Add New Variant -->
+        <a href="{% url 'admin_variant_add_select' %}"
+          class="flex items-center gap-2 bg-[#1A1A1A] text-white px-5 py-2 text-[0.58rem] font-bold tracking-[0.12em] uppercase hover:bg-[#333] transition-colors no-underline">
+          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+          </svg>
           Add New Variant
         </a>
       </form>
 
       <!-- Table -->
-      <div class="flex-1 overflow-y-auto">
+      <div class="flex-1 overflow-auto">
         <table class="w-full border-collapse">
           <thead>
             <tr class="border-b border-[#e8e8e8]">
-              <th class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[80px] sticky top-0 bg-[#fafafa] z-10">Image</th>
-              <th class="py-4 px-6 text-left text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase sticky top-0 bg-[#fafafa] z-10">Product Name</th>
-              <th class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[140px] sticky top-0 bg-[#fafafa] z-10">Category</th>
-              <th class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[130px] sticky top-0 bg-[#fafafa] z-10">Price</th>
-              <th class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[80px] sticky top-0 bg-[#fafafa] z-10">Stock</th>
-              <th class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[120px] sticky top-0 bg-[#fafafa] z-10">Action</th>
+              <th
+                class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[80px] sticky top-0 bg-[#fafafa] z-10">
+                Image</th>
+              <th
+                class="py-4 px-6 text-left text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase sticky top-0 bg-[#fafafa] z-10">
+                Product Name</th>
+              <th
+                class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[140px] sticky top-0 bg-[#fafafa] z-10">
+                Category</th>
+              <th
+                class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[130px] sticky top-0 bg-[#fafafa] z-10">
+                Price</th>
+              <th
+                class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[80px] sticky top-0 bg-[#fafafa] z-10">
+                Stock</th>
+              <th
+                class="py-4 px-6 text-center text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[120px] sticky top-0 bg-[#fafafa] z-10">
+                Action</th>
             </tr>
           </thead>
           <tbody class="divide-y divide-[#e8e8e8]">
@@ -194,19 +317,20 @@
             <tr class="hover:bg-[#fafafa] transition-colors">
               <!-- Image -->
               <td class="py-3 px-6 text-center align-middle">
-                <img src="{% if product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}" alt="{{ product.name }}" class="w-12 h-12 object-cover mx-auto border border-[#e8e8e8]"/>
+                <img
+                  src="{% if product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
+                  alt="{{ product.name }}" class="w-12 h-12 object-cover mx-auto border border-[#e8e8e8]" />
               </td>
               <!-- Product Name -->
               <td class="py-3 px-6 align-middle">
                 <span class="text-[0.68rem] font-bold text-[#1A1A1A] uppercase tracking-wide">{{ product.name }}</span>
               </td>
-              <!-- Category -->
               <td class="py-3 px-6 text-center align-middle">
                 <span class="text-[0.58rem] text-gray-500 font-bold uppercase tracking-wider">{{ product.category.name|upper }}</span>
               </td>
               <!-- Price -->
               <td class="py-3 px-6 text-center align-middle">
-                <span class="text-[0.68rem] font-bold text-[#1A1A1A]">${{ product.price|floatformat:2 }}</span>
+                <span class="text-[0.68rem] font-bold text-[#1A1A1A]">₹{{ product.price|floatformat:2 }}</span>
               </td>
               <!-- Stock -->
               <td class="py-3 px-6 text-center align-middle">
@@ -215,26 +339,40 @@
               <!-- Action -->
               <td class="py-3 px-6 text-center align-middle">
                 <div class="flex items-center justify-center gap-3">
+
                   <!-- Edit icon -->
-                  <a href="{% url 'admin_product_edit' product.id %}" class="text-gray-400 hover:text-[#1A1A1A] transition-colors" title="Edit">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  <a href="{% url 'admin_product_edit' product.id %}"
+                    class="text-gray-400 hover:text-[#1A1A1A] transition-colors" title="Edit">
+                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
                   </a>
-                  <!-- Delete icon -->
-                  <button onclick="openDeleteModal('{{ product.id }}', '{{ product.name|escapejs }}')" class="text-gray-400 hover:text-red-500 transition-colors" title="Delete">
-                    <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-                  </button>
+                  <!-- Delete button with custom modal popup -->
+                  <form id="delete-form-{{ product.id }}" method="POST" action="{% url 'admin_product_delete' product.id %}" class="inline-flex items-center">
+                    {% csrf_token %}
+                    <button type="button" onclick="confirmDeleteProduct({{ product.id }}, '{{ product.name|escapejs }}')" class="text-gray-400 hover:text-red-500 transition-colors flex items-center justify-center cursor-pointer border-none bg-transparent" title="Delete">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </form>
                   <!-- Status Badge -->
                   {% if product.is_active %}
-                  <span class="w-[62px] text-[0.52rem] font-black uppercase tracking-widest text-green-600 border border-green-400 py-[4px] bg-green-50 text-center">Active</span>
+                  <span
+                    class="w-[62px] text-[0.52rem] font-black uppercase tracking-widest text-green-600 border border-green-400 py-[4px] bg-green-50 text-center">Active</span>
                   {% else %}
-                  <span class="w-[62px] text-[0.52rem] font-black uppercase tracking-widest text-[#A33C08] border border-[#A33C08] py-[4px] bg-orange-50 text-center">Inactive</span>
+                  <span
+                    class="w-[62px] text-[0.52rem] font-black uppercase tracking-widest text-[#A33C08] border border-[#A33C08] py-[4px] bg-orange-50 text-center">Inactive</span>
                   {% endif %}
                 </div>
               </td>
             </tr>
             {% empty %}
             <tr>
-              <td colspan="6" class="py-16 text-center text-[0.7rem] font-bold text-gray-400 uppercase tracking-widest">No products found.</td>
+              <td colspan="6" class="py-16 text-center text-[0.7rem] font-bold text-gray-400 uppercase tracking-widest">
+                No products found.</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -243,33 +381,38 @@
 
       <!-- Pagination footer -->
       <div class="flex items-center justify-between px-8 py-4 border-t border-[#e8e8e8] shrink-0 bg-white">
-        <p class="text-[0.52rem] font-bold uppercase tracking-wider text-gray-400">Total: {{ products.paginator.count }} Products</p>
+        <p class="text-[0.52rem] font-bold uppercase tracking-wider text-gray-400">Total: {{ products.paginator.count }}
+          Products</p>
         <div class="flex items-center gap-1">
           <!-- Previous page -->
           {% if products.has_previous %}
-            <a href="?page={{ products.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
-               class="w-7 h-7 flex items-center justify-center border border-[#dcdcdc] text-gray-400 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors text-xs no-underline">&lsaquo;</a>
+          <a href="?page={{ products.previous_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+            class="w-7 h-7 flex items-center justify-center border border-[#dcdcdc] text-gray-400 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors text-xs no-underline">&lsaquo;</a>
           {% else %}
-            <span class="w-7 h-7 flex items-center justify-center border border-[#e8e8e8] text-gray-300 text-xs select-none">&lsaquo;</span>
+          <span
+            class="w-7 h-7 flex items-center justify-center border border-[#e8e8e8] text-gray-300 text-xs select-none">&lsaquo;</span>
           {% endif %}
 
           <!-- Page numbers -->
           {% for num in products.paginator.page_range %}
-            {% if num == products.number %}
-              <span class="w-7 h-7 flex items-center justify-center bg-[#1A1A1A] text-white text-[0.6rem] font-bold select-none">{{ num }}</span>
-            {% elif num > products.number|add:-3 and num < products.number|add:3 %}
-              <a href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
-                 class="w-7 h-7 flex items-center justify-center border border-[#dcdcdc] text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors text-[0.6rem] font-bold no-underline">{{ num }}</a>
+          {% if num == products.number %}
+          <span
+            class="w-7 h-7 flex items-center justify-center bg-[#1A1A1A] text-white text-[0.6rem] font-bold select-none">{{ num }}</span>
+          {% elif num > products.number|add:-3 and num < products.number|add:3 %} <a
+            href="?page={{ num }}{% if search %}&search={{ search }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+            class="w-7 h-7 flex items-center justify-center border border-[#dcdcdc] text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors text-[0.6rem] font-bold no-underline">
+            {{ num }}</a>
             {% endif %}
-          {% endfor %}
+            {% endfor %}
 
-          <!-- Next page -->
-          {% if products.has_next %}
-            <a href="?page={{ products.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}" 
-               class="w-7 h-7 flex items-center justify-center border border-[#dcdcdc] text-gray-400 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors text-xs no-underline">&rsaquo;</a>
-          {% else %}
-            <span class="w-7 h-7 flex items-center justify-center border border-[#e8e8e8] text-gray-300 text-xs select-none">&rsaquo;</span>
-          {% endif %}
+            <!-- Next page -->
+            {% if products.has_next %}
+            <a href="?page={{ products.next_page_number }}{% if search %}&search={{ search }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+              class="w-7 h-7 flex items-center justify-center border border-[#dcdcdc] text-gray-400 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-colors text-xs no-underline">&rsaquo;</a>
+            {% else %}
+            <span
+              class="w-7 h-7 flex items-center justify-center border border-[#e8e8e8] text-gray-300 text-xs select-none">&rsaquo;</span>
+            {% endif %}
         </div>
       </div>
 
@@ -277,112 +420,73 @@
   </div>
 </div>
 
-<!-- Delete Confirmation Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
-  <div id="deleteModalContent" class="bg-white border border-[#e8e8e8] w-[420px] p-8 transform scale-95 transition-transform duration-250">
-
-    <!-- Modal Header -->
-    <div class="flex items-center gap-3 mb-5">
-      <div class="w-8 h-8 bg-red-50 flex items-center justify-center shrink-0">
-        <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+<!-- Custom Confirmation Modal -->
+<div id="confirmModal"
+  class="fixed inset-0 z-50 flex items-center justify-center bg-black/50 opacity-0 pointer-events-none transition-opacity duration-250 ease-in-out hidden">
+  <div id="confirmModalContent"
+    class="bg-white border border-[#e8e8e8] w-[420px] p-8 relative flex flex-col justify-between transform scale-95 transition-transform duration-250 ease-[cubic-bezier(0.4,0,0.2,1)] shadow-xl">
+    <div>
+      <div class="flex items-center gap-3 mb-4">
+        <span class="w-2.5 h-2.5 bg-[#A33C08] inline-block"></span>
+        <h3 class="text-[0.8rem] font-bold tracking-[0.18em] uppercase text-brand-dark leading-none">CONFIRM PRODUCT DELETION</h3>
       </div>
-      <div>
-        <h3 class="text-[0.75rem] font-black tracking-[0.12em] uppercase text-[#1A1A1A] leading-none">Delete Product</h3>
-      </div>
+      <p id="modalMessage" class="text-[0.7rem] text-gray-500 leading-relaxed mb-6 font-medium">
+        Are you sure you want to delete this product?
+      </p>
     </div>
-
-    <!-- Divider -->
-    <div class="border-t border-[#e8e8e8] mb-5"></div>
-
-    <!-- Message -->
-    <p class="text-[0.65rem] text-gray-500 leading-relaxed mb-2">
-      You are about to permanently delete:
-    </p>
-    <p id="deleteProductName" class="text-[0.72rem] font-black uppercase tracking-wide text-[#1A1A1A] mb-2"></p>
-    <p class="text-[0.62rem] text-gray-400 leading-relaxed mb-6">
-      This action <span class="font-bold text-red-500">cannot be undone</span>. All associated variants, images, and inventory records will be permanently removed.
-    </p>
-
-    <!-- Type to confirm -->
-    <div class="mb-6">
-      <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-2">Type <span class="text-[#1A1A1A] font-black">DELETE</span> to confirm</label>
-      <input type="text" id="deleteConfirmInput" placeholder="DELETE" oninput="checkDeleteConfirm()"
-        class="w-full border border-[#e2e2e2] px-4 py-[10px] text-[0.68rem] font-bold uppercase tracking-widest text-[#1A1A1A] outline-none focus:border-red-400 transition-colors"/>
-    </div>
-
-    <!-- Buttons -->
-    <div class="flex items-center justify-end gap-3">
-      <button onclick="closeDeleteModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
-        Cancel
+    <div class="flex justify-end gap-3">
+      <button id="modalCancel" type="button" onclick="closeModal()"
+        class="border border-[#dcdcdc] px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all duration-200 bg-white cursor-pointer rounded-none focus:outline-none">
+        CANCEL
       </button>
-      <form id="deleteForm" method="POST" action="" class="inline">
-        {% csrf_token %}
-        <button type="submit" id="deleteConfirmBtn" disabled
-          class="bg-red-500 text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase transition-colors cursor-not-allowed opacity-40"
-          style="border:none;">
-          Delete Product
-        </button>
-      </form>
+      <button id="modalConfirm" type="button"
+        class="bg-[#A33C08] hover:bg-[#c94008] text-white px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase border-none cursor-pointer transition-colors rounded-none focus:outline-none">
+        DELETE
+      </button>
     </div>
-
   </div>
 </div>
 
 <script>
-  let deleteTargetId = null;
+  let pendingProductId = null;
 
-  function openDeleteModal(productId, productName) {
-    deleteTargetId = productId;
-    document.getElementById('deleteProductName').textContent = productName;
-    document.getElementById('deleteConfirmInput').value = '';
-    document.getElementById('deleteConfirmBtn').disabled = true;
-    document.getElementById('deleteConfirmBtn').classList.add('opacity-40', 'cursor-not-allowed');
-    document.getElementById('deleteConfirmBtn').classList.remove('hover:bg-red-700', 'cursor-pointer');
+  function confirmDeleteProduct(productId, productName) {
+    pendingProductId = productId;
+    const modal = document.getElementById('confirmModal');
+    const content = document.getElementById('confirmModalContent');
+    const message = document.getElementById('modalMessage');
 
-    // Dynamically inject the action url
-    document.getElementById('deleteForm').action = `/admin-panel/products/delete/${productId}/`;
+    message.innerText = `Are you sure you want to delete product "${productName}"? This action will mark the product as deleted in the catalog.`;
 
-    const modal = document.getElementById('deleteModal');
-    const content = document.getElementById('deleteModalContent');
-    modal.classList.remove('hidden', 'pointer-events-none');
+    modal.classList.remove('hidden');
+    modal.classList.remove('pointer-events-none');
     setTimeout(() => {
       modal.classList.remove('opacity-0');
-      modal.classList.add('opacity-100');
       content.classList.remove('scale-95');
-      content.classList.add('scale-100');
     }, 10);
   }
 
-  function closeDeleteModal() {
-    const modal = document.getElementById('deleteModal');
-    const content = document.getElementById('deleteModalContent');
-    modal.classList.remove('opacity-100');
+  function closeModal() {
+    const modal = document.getElementById('confirmModal');
+    const content = document.getElementById('confirmModalContent');
+
     modal.classList.add('opacity-0');
-    content.classList.remove('scale-100');
     content.classList.add('scale-95');
+
     setTimeout(() => {
-      modal.classList.add('hidden', 'pointer-events-none');
+      modal.classList.add('hidden');
+      modal.classList.add('pointer-events-none');
     }, 250);
-    deleteTargetId = null;
+    pendingProductId = null;
   }
 
-  function checkDeleteConfirm() {
-    const val = document.getElementById('deleteConfirmInput').value.trim();
-    const btn = document.getElementById('deleteConfirmBtn');
-    if (val === 'DELETE') {
-      btn.disabled = false;
-      btn.classList.remove('opacity-40', 'cursor-not-allowed');
-      btn.classList.add('hover:bg-red-700', 'cursor-pointer');
-    } else {
-      btn.disabled = true;
-      btn.classList.add('opacity-40', 'cursor-not-allowed');
-      btn.classList.remove('hover:bg-red-700', 'cursor-pointer');
+  document.getElementById('modalConfirm').addEventListener('click', function () {
+    if (pendingProductId) {
+      const form = document.getElementById(`delete-form-${pendingProductId}`);
+      if (form) {
+        form.submit();
+      }
     }
-  }
-
-  // Close modal on backdrop click
-  document.getElementById('deleteModal').addEventListener('click', function(e) {
-    if (e.target === this) closeDeleteModal();
   });
 
   // Auto-hide alert messages after 3 seconds

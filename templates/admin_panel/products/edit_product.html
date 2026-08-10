@@ -6,33 +6,21 @@
 <link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
 
-<style>
-  .form-input{width:100%;border:1px solid #e2e2e2;padding:11px 14px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#1A1A1A;outline:none;background:#fff;transition:border-color 0.2s;border-radius:0;}
-  .form-input:focus{border-color:#A33C08;}
-  .form-label{font-size:0.48rem;font-weight:700;text-transform:uppercase;letter-spacing:0.18em;color:#9ca3af;display:block;margin-bottom:7px;}
-  .form-select{width:100%;border:1px solid #e2e2e2;padding:11px 14px;font-size:0.7rem;font-weight:600;text-transform:uppercase;letter-spacing:0.06em;color:#1A1A1A;outline:none;background:#fff;appearance:none;cursor:pointer;transition:border-color 0.2s;border-radius:0;}
-  .form-select:focus{border-color:#A33C08;}
-  .toggle{position:relative;display:inline-block;width:44px;height:24px;}
-  .toggle input{opacity:0;width:0;height:0;}
-  .slider{position:absolute;cursor:pointer;top:0;left:0;right:0;bottom:0;background:#d1d5db;border-radius:24px;transition:0.3s;}
-  .slider:before{position:absolute;content:"";height:18px;width:18px;left:3px;bottom:3px;background:white;border-radius:50%;transition:0.3s;}
-  input:checked + .slider{background:#A33C08;}
-  input:checked + .slider:before{transform:translateX(20px);}
-  .image-slot{width:90px;height:90px;border:2px dashed #d1d5db;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;background:#fafafa;transition:border-color 0.2s;flex-shrink:0;}
-  .image-slot:hover{border-color:#A33C08;}
-  .img-preview{width:90px;height:90px;border:1px solid #e2e2e2;overflow:hidden;position:relative;flex-shrink:0;}
-  .img-preview img{width:100%;height:100%;object-fit:cover;}
-  .img-preview .remove-btn{position:absolute;inset:0;background:rgba(0,0,0,0.45);display:flex;align-items:center;justify-content:center;opacity:0;transition:opacity 0.2s;cursor:pointer;}
-  .img-preview:hover .remove-btn{opacity:1;}
-</style>
 {% endblock %}
 
 {% block content %}
 <div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
 
   <!-- Header -->
-  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 z-10">
-    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
     <div class="flex items-center gap-3.5">
       <div class="text-right select-none">
         <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
@@ -48,7 +36,8 @@
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-[260px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+    <aside id="admin-sidebar"
+      class="fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
       <nav class="flex flex-col overflow-y-auto flex-1">
         <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
@@ -111,9 +100,15 @@
         <!-- Page header -->
         <div class="flex items-center justify-between px-10 py-5 border-b border-[#e8e8e8] shrink-0">
           <p class="text-[0.78rem] font-black uppercase tracking-[0.12em] text-[#1A1A1A]">Edit Product</p>
-          <button type="submit" class="bg-[#A33C08] text-white text-[0.62rem] font-black tracking-[0.15em] uppercase px-10 py-3 hover:bg-[#c94008] transition-colors">
-            SAVE CHANGES
-          </button>
+          <div class="flex items-center gap-3">
+            <a href="{% url 'admin_product_variants' product.id %}"
+              class="bg-white border border-[#A33C08] text-[#A33C08] text-[0.62rem] font-black tracking-[0.15em] uppercase px-6 py-[11px] hover:bg-[#A33C08] hover:text-white transition-all no-underline inline-block border-solid">
+              Manage Variants
+            </a>
+            <button type="submit" class="bg-[#A33C08] text-white text-[0.62rem] font-black tracking-[0.15em] uppercase px-10 py-[11px] hover:bg-[#c94008] transition-colors">
+              SAVE CHANGES
+            </button>
+          </div>
         </div>
 
         <!-- Scrollable form body -->
@@ -144,59 +139,111 @@
 
           <!-- Row 1: Product Name -->
           <div class="mb-6">
-            <label class="form-label">Product Name</label>
-            <input type="text" name="name" class="form-input" value="{{ product.name }}" placeholder="VARANASI PRO SERIES TABALA" required/>
+            <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Product Name</label>
+            <input type="text" name="name" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white transition-colors duration-200 rounded-none focus:border-brand-rust" value="{{ product.name }}" placeholder="VARANASI PRO SERIES TABALA" required/>
           </div>
 
           <!-- Row 2: Description -->
           <div class="mb-6">
-            <label class="form-label">Description</label>
-            <textarea name="description" rows="5" class="form-input resize-none" placeholder="Handcrafted professional grade instrument description..." required>{{ product.description }}</textarea>
+            <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Description</label>
+            <textarea name="description" rows="5" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white transition-colors duration-200 rounded-none focus:border-brand-rust resize-none" placeholder="Handcrafted professional grade instrument description..." required>{{ product.description }}</textarea>
           </div>
 
-          <!-- Row 3: Category -->
+          <!-- Row 2.5: Product Highlights -->
           <div class="mb-6">
-            <label class="form-label">Category</label>
+            <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Product Highlights</label>
+            <textarea name="highlights" rows="4" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white transition-colors duration-200 rounded-none focus:border-brand-rust resize-none" placeholder="Enter product highlights, one per line...">{{ product.highlights|default_if_none:"" }}</textarea>
+          </div>
+
+          <!-- Row 3: Category & Brand -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <!-- Category Selection -->
+            <div>
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Category</label>
+              <div class="relative">
+                <select name="category" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white appearance-none cursor-pointer transition-colors duration-200 rounded-none focus:border-brand-rust pr-10" required>
+                  {% for cat in categories %}
+                    <option value="{{ cat.id }}" {% if cat.id == product.category.id %}selected{% endif %}>{{ cat.name|upper }}</option>
+                  {% endfor %}
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                </div>
+              </div>
+            </div>
+
+            <!-- Brand Selection -->
+            <div>
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Brand</label>
+              <div class="relative">
+                <select name="brand" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white appearance-none cursor-pointer transition-colors duration-200 rounded-none focus:border-brand-rust pr-10" required>
+                  <option value="">Select Brand</option>
+                  <option value="Fender" {% if product.brand == "Fender" %}selected{% endif %}>FENDER</option>
+                  <option value="Casio" {% if product.brand == "Casio" %}selected{% endif %}>CASIO</option>
+                  <option value="Roland" {% if product.brand == "Roland" %}selected{% endif %}>ROLAND</option>
+                  <option value="Yamaha" {% if product.brand == "Yamaha" %}selected{% endif %}>YAMAHA</option>
+                  <option value="Kadence" {% if product.brand == "Kadence" %}selected{% endif %}>KADENCE</option>
+                  <option value="Zitarra" {% if product.brand == "Zitarra" %}selected{% endif %}>ZITARRA</option>
+                  <option value="Zitarra Exclusive" {% if product.brand == "Zitarra Exclusive" %}selected{% endif %}>ZITARRA EXCLUSIVE</option>
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
+                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Row 3.5: Product Offer -->
+          <div class="mb-6">
+            <div class="flex items-center justify-between mb-[7px]">
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Product Offer</label>
+              <a href="{% url 'admin_unimplemented' %}" class="text-[0.5rem] font-bold tracking-widest text-[#A33C08] hover:underline uppercase no-underline">Manage Offers ?</a>
+            </div>
             <div class="relative">
-              <select name="category" class="form-select pr-10" required>
-                {% for cat in categories %}
-                  <option value="{{ cat.id }}" {% if cat.id == product.category.id %}selected{% endif %}>{{ cat.name|upper }}</option>
-                {% endfor %}
+              <select name="offer" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white appearance-none cursor-pointer transition-colors duration-200 rounded-none focus:border-brand-rust pr-10">
+                <option value="">Select Offer</option>
+                <option value="NEWYEAR_SPECIAL_15" {% if product.offer == "NEWYEAR_SPECIAL_15" %}selected{% endif %}>NEWYEAR_SPECIAL_15 (15% OFF)</option>
+                <option value="WELCOME10" {% if product.offer == "WELCOME10" %}selected{% endif %}>WELCOME10 (10% OFF)</option>
+                <option value="ZITARRA10" {% if product.offer == "ZITARRA10" %}selected{% endif %}>ZITARRA10 (10% OFF)</option>
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
-                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
               </div>
             </div>
           </div>
 
           <!-- Row 4: Price + Stock -->
-          <div class="grid grid-cols-2 gap-6 mb-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
-              <label class="form-label">Regular Price (USD)</label>
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Regular Price</label>
               <div class="flex items-center border border-[#e2e2e2] bg-white focus-within:border-[#A33C08] transition-colors">
-                <span class="px-3 text-[0.7rem] font-bold text-gray-400 border-r border-[#e2e2e2] py-[11px]">$</span>
+                <span class="px-3 text-[0.7rem] font-bold text-gray-400 border-r border-[#e2e2e2] py-[11px]">₹</span>
                 <input type="number" name="price" class="flex-1 px-3 py-[11px] text-[0.7rem] font-bold text-[#1A1A1A] outline-none bg-transparent" value="{{ product.price }}" placeholder="0.00" step="0.01" min="0.01" required/>
               </div>
             </div>
             <div>
-              <label class="form-label">Stock Quantity</label>
-              <input type="number" name="stock" class="form-input" value="{{ product.stock }}" placeholder="0" min="0" required/>
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Stock Quantity</label>
+              <input type="number" name="stock" class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white transition-colors duration-200 rounded-none focus:border-brand-rust" value="{{ product.stock }}" placeholder="0" min="0" required/>
             </div>
           </div>
 
           <!-- Row 5: Product Images -->
           <div class="mb-6">
-            <label class="form-label">Product Images</label>
+            <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Product Images</label>
             <div class="flex gap-3 flex-wrap mt-2" id="imageContainer">
               <!-- Render current database images -->
               {% for img in product.images.all %}
-                <div class="img-preview current-image-preview">
-                  <img src="{{ img.image.url }}" alt="current image"/>
+                <div class="w-[90px] h-[90px] border border-[#e2e2e2] overflow-hidden relative shrink-0 current-image-preview">
+                  <img src="{{ img.image.url }}" alt="current image" class="w-full h-full object-cover"/>
                 </div>
               {% endfor %}
 
               <!-- Upload slot -->
-              <label class="image-slot" id="uploadSlot">
+              <label class="w-[90px] h-[90px] border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer bg-[#fafafa] transition-colors duration-200 shrink-0 hover:border-brand-rust" id="uploadSlot">
                 <input type="file" id="imageInput" class="hidden" accept="image/*" multiple onchange="previewImages(this)"/>
                 <svg class="w-6 h-6 text-gray-400 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"/><path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
                 <span class="text-[0.46rem] font-bold uppercase tracking-wider text-gray-400">Replace Images</span>
@@ -212,9 +259,9 @@
           <div class="mb-8">
             <div class="bg-[#f3f3f3] flex items-center justify-between px-6 py-4">
               <span class="text-[0.62rem] font-bold uppercase tracking-[0.14em] text-[#1A1A1A]">Active Status</span>
-              <label class="toggle">
-                <input type="checkbox" name="is_active" {% if product.is_active %}checked{% endif %}/>
-                <span class="slider"></span>
+              <label class="relative inline-block w-11 h-6">
+                <input type="checkbox" name="is_active" class="peer opacity-0 w-0 h-0" {% if product.is_active %}checked{% endif %}/>
+                <span class="absolute cursor-pointer inset-0 bg-gray-300 rounded-full transition-all duration-300 peer-checked:bg-[#A33C08] before:absolute before:content-[''] before:h-[18px] before:w-[18px] before:left-[3px] before:bottom-[3px] before:bg-white before:rounded-full before:transition-all before:duration-300 peer-checked:before:translate-x-[20px]"></span>
               </label>
             </div>
           </div>
@@ -228,14 +275,26 @@
 
 <!-- Cropper Modal -->
 <div id="cropperModal" class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50">
-  <div class="bg-white border border-[#e8e8e8] w-[450px] p-6 flex flex-col">
+  <div class="bg-white border border-[#e8e8e8] w-[450px] p-6 flex flex-col shadow-2xl rounded-sm">
     <h3 class="text-[0.7rem] font-black uppercase tracking-wider mb-4 text-[#1a1a1a]">Crop Product Image</h3>
     <div class="w-full h-[300px] bg-black overflow-hidden relative">
       <img id="cropperImage" class="max-w-full max-h-full block mx-auto"/>
     </div>
-    <div class="flex justify-end gap-3 mt-5">
-      <button type="button" onclick="cancelCrop()" class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white">Cancel</button>
-      <button type="button" onclick="saveCrop()" class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider">Apply Crop</button>
+    
+    <!-- Aspect Ratio Selectors -->
+    <div class="flex justify-between items-center mt-4 border-b border-gray-100 pb-3">
+      <span class="text-[0.55rem] font-bold text-gray-400 uppercase tracking-widest">Aspect Ratio</span>
+      <div class="flex gap-1.5" id="ratioSelectorContainer">
+        <button type="button" onclick="setAspectRatio(1)" class="ratio-btn border border-[#A33C08] bg-[#A33C08] text-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">1:1</button>
+        <button type="button" onclick="setAspectRatio(4/3)" class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">4:3</button>
+        <button type="button" onclick="setAspectRatio(16/9)" class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">16:9</button>
+        <button type="button" onclick="setAspectRatio(NaN)" class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">Free</button>
+      </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-4">
+      <button type="button" onclick="cancelCrop()" class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors">Cancel</button>
+      <button type="button" onclick="saveCrop()" class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-[#863005] transition-colors">Apply Crop</button>
     </div>
   </div>
 </div>
@@ -244,15 +303,125 @@
   let cropper = null;
   let fileQueue = [];
   let croppedImages = []; // Stores base64 images
+  let currentAspectRatio = 1; // Default is square crop
+  let replaceIndex = null; // Stores index of image being replaced
+
+  // List of existing image URLs from Django database
+  const existingImageUrls = [
+    {% for img in product.images.all %}
+      "{{ img.image.url }}",
+    {% endfor %}
+  ];
+
+  // Convert URL to Base64 data URL
+  async function urlToBase64(url) {
+    const response = await fetch(url);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  // Load existing images on startup
+  document.addEventListener('DOMContentLoaded', () => {
+    // Show a loading text or state in place of previews while fetching
+    const container = document.getElementById('imageContainer');
+    const loadingText = document.createElement('span');
+    loadingText.id = 'imagesLoadingText';
+    loadingText.className = 'text-[0.52rem] font-bold text-gray-400 uppercase tracking-widest self-center animate-pulse';
+    loadingText.textContent = 'Loading existing images...';
+    container.insertBefore(loadingText, document.getElementById('uploadSlot'));
+
+    Promise.all(existingImageUrls.map(url => urlToBase64(url)))
+      .then(base64s => {
+        croppedImages = base64s;
+        loadingText.remove();
+        // Clear static database previews once dynamic base64s are ready
+        document.querySelectorAll('.current-image-preview').forEach(el => el.remove());
+        renderPreviews();
+      })
+      .catch(err => {
+        console.error("Error converting existing images:", err);
+        loadingText.remove();
+      });
+  });
+
+  function showCustomAlert(message) {
+    const existing = document.getElementById('custom-toast-alert');
+    if (existing) existing.remove();
+
+    const toast = document.createElement('div');
+    toast.id = 'custom-toast-alert';
+    toast.className = 'fixed top-6 left-1/2 -translate-x-1/2 z-[100] bg-[#FFECEF] border border-[#FF3B30] text-[#FF3B30] px-6 py-4 rounded shadow-2xl flex items-center gap-3 transition-all duration-300 transform -translate-y-4 opacity-0 max-w-[90%] w-[450px]';
+    toast.innerHTML = `
+      <svg class="w-5 h-5 shrink-0 text-[#FF3B30]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd"></path></svg>
+      <div class="flex-1 text-[0.6rem] font-black uppercase tracking-wider leading-relaxed">${message}</div>
+      <button type="button" onclick="this.parentElement.remove()" class="text-[#FF3B30] hover:opacity-70 transition-opacity font-bold text-[0.8rem]">&times;</button>
+    `;
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+      toast.classList.remove('-translate-y-4', 'opacity-0');
+    }, 10);
+
+    setTimeout(() => {
+      if (toast.parentElement) {
+        toast.classList.add('-translate-y-4', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }
+    }, 4500);
+  }
+
+  function setAspectRatio(ratio) {
+    currentAspectRatio = ratio;
+    if (cropper) {
+      cropper.setAspectRatio(ratio);
+    }
+    
+    // Style active/inactive buttons
+    const container = document.getElementById('ratioSelectorContainer');
+    const buttons = container.querySelectorAll('.ratio-btn');
+    buttons.forEach(btn => {
+      btn.classList.remove('bg-[#A33C08]', 'text-white', 'border-[#A33C08]');
+      btn.classList.add('border-[#dcdcdc]', 'text-gray-500', 'bg-white');
+    });
+
+    const labelText = isNaN(ratio) ? 'Free' : (ratio === 1 ? '1:1' : (ratio === 4/3 ? '4:3' : '16:9'));
+    buttons.forEach(btn => {
+      if (btn.textContent.trim() === labelText) {
+        btn.classList.remove('border-[#dcdcdc]', 'text-gray-500', 'bg-white');
+        btn.classList.add('bg-[#A33C08]', 'text-white', 'border-[#A33C08]');
+      }
+    });
+  }
 
   function previewImages(input) {
     const files = Array.from(input.files);
     if (files.length === 0) return;
 
-    // Clear old database rendering since we are replacing
-    document.querySelectorAll('.current-image-preview').forEach(el => el.remove());
+    if (croppedImages.length + files.length > 5) {
+      showCustomAlert("You can upload a maximum of 5 images. Please select fewer files.");
+      input.value = '';
+      return;
+    }
 
     fileQueue = fileQueue.concat(files);
+    input.value = ''; // Reset input selection
+
+    if (!cropper && fileQueue.length > 0) {
+      processNextFile();
+    }
+  }
+
+  function replaceImage(input, index) {
+    const files = Array.from(input.files);
+    if (files.length === 0) return;
+
+    replaceIndex = index;
+    fileQueue.unshift(files[0]); // Push selected replacement file to front of queue
     input.value = ''; // Reset input selection
 
     if (!cropper && fileQueue.length > 0) {
@@ -277,7 +446,7 @@
       }
 
       cropper = new Cropper(img, {
-        aspectRatio: 1, // square crops
+        aspectRatio: currentAspectRatio,
         viewMode: 1,
         autoCropArea: 1,
       });
@@ -289,12 +458,22 @@
     if (!cropper) return;
 
     const canvas = cropper.getCroppedCanvas({
-      width: 800,
-      height: 800
+      maxWidth: 1200,
+      maxHeight: 1200
     });
     const base64Data = canvas.toDataURL('image/jpeg', 0.85); // JPEG compression
     
-    croppedImages.push(base64Data);
+    if (replaceIndex !== null) {
+      croppedImages[replaceIndex] = base64Data;
+      replaceIndex = null;
+    } else {
+      if (croppedImages.length >= 5) {
+        showCustomAlert("Maximum 5 images allowed for the product.");
+        fileQueue = []; // Clear queue
+      } else {
+        croppedImages.push(base64Data);
+      }
+    }
     renderPreviews();
 
     // Close Modal and check for queue
@@ -309,6 +488,7 @@
 
   function cancelCrop() {
     document.getElementById('cropperModal').classList.add('hidden');
+    replaceIndex = null;
     if (cropper) {
       cropper.destroy();
       cropper = null;
@@ -319,7 +499,7 @@
   }
 
   function renderPreviews() {
-    // Remove old previews
+    // Remove old previews (keep current-image-preview static templates until base64 loader removes them)
     document.querySelectorAll('.img-preview:not(.current-image-preview)').forEach(el => el.remove());
 
     const container = document.getElementById('imageContainer');
@@ -327,14 +507,28 @@
 
     croppedImages.forEach((imgSrc, index) => {
       const div = document.createElement('div');
-      div.className = 'img-preview';
+      div.className = 'img-preview group w-[90px] h-[90px] border border-[#e2e2e2] overflow-hidden relative shrink-0';
       div.innerHTML = `
-        <img src="${imgSrc}" alt="preview"/>
-        <div class="remove-btn" onclick="removeImage(${index})">
-          <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        <img src="${imgSrc}" alt="preview" class="w-full h-full object-cover"/>
+        <div class="overlay-controls absolute inset-0 bg-black/60 flex items-center justify-center gap-1.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer">
+          <!-- Replace Button -->
+          <label class="p-1.5 bg-[#A33C08] rounded-full text-white cursor-pointer hover:bg-[#863005] transition-colors shadow flex items-center justify-center" title="Replace Image">
+            <input type="file" accept="image/*" class="hidden" onchange="replaceImage(this, ${index})"/>
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+          </label>
+          <!-- Delete Button -->
+          <div onclick="removeImage(${index})" class="p-1.5 bg-red-600 rounded-full text-white cursor-pointer hover:bg-red-700 transition-colors shadow flex items-center justify-center" title="Remove Image">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </div>
         </div>`;
       container.insertBefore(div, slot);
     });
+
+    if (croppedImages.length >= 5) {
+      slot.classList.add('hidden');
+    } else {
+      slot.classList.remove('hidden');
+    }
   }
 
   function removeImage(index) {
@@ -345,8 +539,14 @@
   // Intercept submit to pack data
   document.getElementById('edit_product_form').addEventListener('submit', function(e) {
     // If they decided to replace current images, check that they uploaded at least 3
-    if (croppedImages.length > 0 && croppedImages.length < 3) {
-      alert("You must upload and crop at least 3 images if you want to replace the current set.");
+    if (croppedImages.length < 3) {
+      showCustomAlert("You must upload and crop at least 3 images.");
+      e.preventDefault();
+      return;
+    }
+
+    if (croppedImages.length > 5) {
+      showCustomAlert("You can upload a maximum of 5 images.");
       e.preventDefault();
       return;
     }

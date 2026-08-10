@@ -4,7 +4,9 @@ from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import OTPVerification
+from user_panel.authentication.models import OTPVerification
+import base64
+from django.core.files.base import ContentFile
 
 
 def validate_full_name(name):
@@ -46,6 +48,7 @@ def validate_pincode(pincode):
 
 SPECIAL_CHARS = r"!@#$%^&*()_+-=[]{}|;':\",./<>?"
 
+
 def validate_password_strength(password):
     """
     Validates a password strength.
@@ -62,10 +65,15 @@ def validate_password_strength(password):
 
     if not any(c.islower() for c in password):
         return "Password must contain at least one lowercase letter."
+
+    if not any(c.isdigit() for c in password):
+        return "Password must contain at least one number."
+
     if not any(c in SPECIAL_CHARS for c in password):
         return "Password must contain at least one special character."
 
     return None
+
 
 def send_mail_safe(subject, message, recipient, html_template=None, context=None):
     """
@@ -109,30 +117,6 @@ def send_mail_safe(subject, message, recipient, html_template=None, context=None
         return False
 
 
-SPECIAL_CHARS = r"!@#$%^&*()_+-=[]{}|;':\",./<>?"
-
-def validate_password_strength(password):
-    """
-    Validates a password strength.
-    Returns validation error message string if invalid, None if valid.
-    """
-    if len(password) < 8:
-        return "Password must be at least 8 characters."
-
-    if any(c.isspace() for c in password):
-        return "Password must not contain spaces or whitespace."
-
-    if not any(c.isupper() for c in password):
-        return "Password must contain at least one uppercase letter."
-
-    if not any(c.islower() for c in password):
-        return "Password must contain at least one lowercase letter."
-    if not any(c in SPECIAL_CHARS for c in password):
-        return "Password must contain at least one special character."
-
-    return None
-
-
 def generate_otp():
     """Generates a random 6-digit numeric string."""
     return str(random.randint(100000, 999999))
@@ -161,8 +145,6 @@ def create_otp(user, purpose):
     )
 
     print(f" OTP CODE: {otp_code} ")
-    
-
     return otp_code, record
 
 
@@ -245,3 +227,17 @@ def invalidate_user_sessions(user):
         session_data = session.get_decoded()
         if session_data.get('_auth_user_id') == str(user.id):
             session.delete()
+
+
+def save_base64_image(base64_string, filename):
+    """
+    Converts a base64 image string (e.g. from Cropper.js) into a Django ContentFile object.
+    Returns None if the base64_str is empty or invalid.
+    """
+    if base64_string and base64_string.startswith("data:image"):
+        format_part, data_part = base64_string.split(";base64,")
+        extension = format_part.split('/')[-1]
+        decoded_bytes = base64.b64decode(data_part)
+        return ContentFile(decoded_bytes, name=f"{filename}.{extension}")
+    return None
+    

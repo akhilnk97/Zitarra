@@ -8,9 +8,15 @@
 <div class="w-full h-screen flex flex-col bg-white font-sans overflow-hidden">
 
   <!-- Header -->
-  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-8 h-[70px] shrink-0 z-10">
-    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
-    <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
     <div class="flex items-center gap-3.5">
       <div class="text-right select-none">
         <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
@@ -26,7 +32,7 @@
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
     <!-- Sidebar -->
-    <aside class="w-[220px] border-r border-[#e8e8e8] bg-white flex flex-col justify-between shrink-0 h-full overflow-hidden">
+    <aside id="admin-sidebar" class="fixed inset-y-0 left-0 z-50 w-[220px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
       <nav class="flex flex-col overflow-y-auto flex-1">
         <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-6 py-[17px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.6rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
@@ -83,10 +89,10 @@
     </aside>
 
     <!-- Main Content -->
-    <main class="flex-1 bg-white flex flex-col h-full overflow-hidden px-10 py-8">
+    <main class="flex-1 bg-white overflow-y-auto scroll-smooth px-10 pb-8 relative">
 
       <!-- Page Title -->
-      <div class="mb-1">
+      <div class="pt-8 mb-1">
         <h1 class="text-[2.8rem] font-black uppercase tracking-tight text-[#1A1A1A]">Categories</h1>
       </div>
       <div class="border-b border-[#e8e8e8] mb-8"></div>
@@ -110,9 +116,9 @@
       {% endif %}
 
       <!-- Section Header with Search and Clear -->
-      <div class="flex items-center justify-between mb-8 pb-5 border-b border-[#e8e8e8]">
-        <form method="GET" class="flex items-center gap-3">
-          <div class="relative w-[300px]">
+      <div class="sticky top-0 bg-white z-10 flex flex-wrap items-center justify-between gap-3 mb-8 py-5 border-b border-[#e8e8e8]">
+        <form method="GET" class="flex flex-wrap items-center gap-3">
+          <div class="relative w-full sm:w-[300px]">
             <input type="text" name="search" id="searchInput" placeholder="SEARCH CATEGORIES..." value="{{ search_query }}"
                    class="w-full border border-[#dcdcdc] px-4 py-2 text-[0.68rem] font-bold uppercase tracking-wider text-[#1A1A1A] outline-none focus:border-[#A33C08] transition-colors rounded-none"/>
             {% if search_query %}
@@ -142,6 +148,13 @@
         </form>
 
         <div class="flex items-center gap-2">
+          <a href="{% url 'admin_add_category' %}"
+            class="flex items-center gap-1.5 bg-[#E8500A] hover:bg-[#d04505] text-white px-4 py-2 text-[0.52rem] font-black tracking-[0.14em] uppercase transition-colors no-underline">
+            <svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            <span>Add Category</span>
+          </a>
           <span class="bg-[#1A1A1A] text-white text-[0.52rem] font-black tracking-[0.14em] uppercase px-4 py-2">
             TOTAL: {{ total_categories|stringformat:"02d" }}
           </span>
@@ -152,14 +165,14 @@
       </div>
 
       <!-- Scrollable Category Grid Wrapper -->
-      <div class="flex-1 overflow-y-auto min-h-0 pr-1 pb-4">
+      <div class="pr-1 pb-4">
         <!-- Category Grid -->
-        <div class="grid grid-cols-4 gap-4" style="grid-auto-rows:auto;">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
 
         {% for category in categories %}
-        <div class="group flex flex-col border border-[#e8e8e8] bg-white overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)]" style="height:460px;">
+        <div class="group flex flex-col border border-[#e8e8e8] bg-white overflow-hidden transition-shadow duration-200 hover:shadow-[0_4px_20px_rgba(0,0,0,0.08)] h-[340px]">
           <!-- Image with badge — fixed height -->
-          <div class="relative overflow-hidden bg-[#111] shrink-0" style="height:260px;">
+          <div class="relative overflow-hidden bg-[#111] shrink-0 h-[180px]">
             {% if not category.is_active %}
             <div class="absolute top-3 right-3 z-10">
               <span class="bg-red-600 text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">INACTIVE</span>
@@ -179,7 +192,7 @@
             </div>
           </div>
           <!-- Card body — fixed remaining height -->
-          <div class="px-5 pt-4 pb-4 flex flex-col" style="height:200px;">
+          <div class="px-5 pt-4 pb-4 flex flex-col h-[160px]">
             <div class="flex items-start justify-between mb-2">
               <h3 class="text-[0.82rem] font-black uppercase leading-tight text-[#1A1A1A] flex-1 pr-2">{{ category.name }}</h3>
               <a href="{% url 'admin_edit_category' category.id %}" class="text-[#E8500A] hover:text-[#c94008] transition-colors shrink-0 mt-0.5" title="Edit">
@@ -199,17 +212,20 @@
                 </svg>
               </button>
 
-              <!-- Delete Button -->
-              <button class="w-[34px] h-[34px] border border-[#e8e8e8] flex items-center justify-center cursor-pointer bg-white transition-all duration-150 hover:border-red-500 hover:text-red-500" onclick="openDeleteModal('{{ category.id }}','{{ category.name }}')" title="Delete">
-                <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-              </button>
+              <!-- Delete button with native confirm popup -->
+              <form method="POST" action="{% url 'admin_delete_category' category.id %}" onsubmit="return confirm('Are you sure you want to delete category \'{{ category.name|escapejs }}\'?')" class="inline">
+                {% csrf_token %}
+                <button type="submit" class="w-[34px] h-[34px] border border-[#e8e8e8] flex items-center justify-center cursor-pointer bg-white transition-all duration-150 hover:border-red-500 hover:text-red-500" title="Delete">
+                  <svg class="w-3.5 h-3.5 text-gray-500 hover:text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </form>
             </div>
           </div>
         </div>
         {% endfor %}
 
         <!-- Add New Category Card -->
-        <a href="{% url 'admin_add_category' %}" class="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-[#E8500A] hover:bg-orange-50/30 transition-all group no-underline" style="height:460px;">
+        <a href="{% url 'admin_add_category' %}" class="border-2 border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer hover:border-[#E8500A] hover:bg-orange-50/30 transition-all group no-underline h-[340px]">
           <div class="w-12 h-12 rounded-full border-2 border-gray-300 group-hover:border-[#E8500A] flex items-center justify-center mb-4 transition-colors">
             <svg class="w-5 h-5 text-gray-400 group-hover:text-[#E8500A] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </div>
@@ -290,53 +306,14 @@
       </div>
       <div class="flex items-center justify-end gap-3">
         <button type="button" onclick="closeAddModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">Cancel</button>
-        <button type="submit" class="bg-[#A33C08] text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#c94008] transition-colors cursor-pointer" style="border:none;">Add Category</button>
+        <button type="submit" class="bg-[#A33C08] text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#c94008] transition-colors cursor-pointer border-none">Add Category</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- Delete Category Modal -->
-<div id="deleteModal" class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
-  <div id="deleteModalContent" class="bg-white border border-[#e8e8e8] w-[440px] p-8 transform scale-95 transition-transform duration-250">
-    <form id="deleteCatForm" method="POST" action="">
-      {% csrf_token %}
-      <!-- Header -->
-      <div class="flex items-center gap-3 mb-5">
-        <div class="w-8 h-8 bg-red-50 flex items-center justify-center shrink-0">
-          <svg class="w-4 h-4 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-        </div>
-        <h3 class="text-[0.75rem] font-black tracking-[0.12em] uppercase text-[#1A1A1A] leading-none">Delete Category</h3>
-      </div>
 
-      <div class="border-t border-[#e8e8e8] mb-5"></div>
-
-      <!-- Content -->
-      <p class="text-[0.65rem] text-gray-500 leading-relaxed mb-2">You are about to permanently delete:</p>
-      <p id="deleteCategoryName" class="text-[0.75rem] font-black uppercase tracking-wide text-[#1A1A1A] mb-3"></p>
-      <p class="text-[0.62rem] text-gray-400 leading-relaxed mb-6">This action <span class="font-bold text-red-500">cannot be undone</span>. All products linked to this category will be unassigned from it.</p>
-
-      <!-- Type to confirm -->
-      <div class="mb-6">
-        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-2">Type <span class="font-black text-[#1A1A1A]">DELETE</span> to confirm</label>
-        <input type="text" id="deleteCatConfirmInput" placeholder="DELETE" oninput="checkCatDeleteConfirm()"
-          class="w-full border border-[#e2e2e2] px-4 py-[10px] text-[0.68rem] font-bold uppercase tracking-widest text-[#1A1A1A] outline-none focus:border-red-400 transition-colors"/>
-      </div>
-
-      <!-- Buttons -->
-      <div class="flex items-center justify-end gap-3">
-        <button type="button" onclick="closeDeleteModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
-          Cancel
-        </button>
-        <button type="submit" id="deleteCatConfirmBtn" disabled
-          class="bg-red-500 text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase transition-colors cursor-not-allowed opacity-40"
-          style="border:none;">
-          Delete Category
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
 
 <!-- Toggle Offer Confirmation Modal -->
 <div id="toggleOfferModal" class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
@@ -366,7 +343,7 @@
         <button type="button" onclick="closeOfferToggleModal()" class="border border-[#dcdcdc] px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
           Cancel
         </button>
-        <button type="submit" class="bg-[#1A1A1A] text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#333] transition-colors cursor-pointer" style="border:none;">
+        <button type="submit" class="bg-[#1A1A1A] text-white px-6 py-2.5 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#333] transition-colors cursor-pointer border-none">
           Confirm
         </button>
       </div>
@@ -385,27 +362,7 @@
     m.classList.remove('opacity-100');m.classList.add('opacity-0');c.classList.remove('scale-100');c.classList.add('scale-95');
     setTimeout(()=>{m.classList.add('hidden','pointer-events-none');},250);
   }
-  function openDeleteModal(id,name){
-    document.getElementById('deleteCategoryName').textContent=name;
-    document.getElementById('deleteCatConfirmInput').value='';
-    document.getElementById('deleteCatForm').action = "/admin-panel/category/delete/" + id + "/";
-    const btn=document.getElementById('deleteCatConfirmBtn');
-    btn.disabled=true;btn.classList.add('opacity-40','cursor-not-allowed');btn.classList.remove('hover:bg-red-700','cursor-pointer');
-    const m=document.getElementById('deleteModal'),c=document.getElementById('deleteModalContent');
-    m.classList.remove('hidden','pointer-events-none');
-    setTimeout(()=>{m.classList.remove('opacity-0');m.classList.add('opacity-100');c.classList.remove('scale-95');c.classList.add('scale-100');},10);
-  }
-  function closeDeleteModal(){
-    const m=document.getElementById('deleteModal'),c=document.getElementById('deleteModalContent');
-    m.classList.remove('opacity-100');m.classList.add('opacity-0');c.classList.remove('scale-100');c.classList.add('scale-95');
-    setTimeout(()=>{m.classList.add('hidden','pointer-events-none');},250);
-  }
-  function checkCatDeleteConfirm(){
-    const val=document.getElementById('deleteCatConfirmInput').value.trim();
-    const btn=document.getElementById('deleteCatConfirmBtn');
-    if(val==='DELETE'){btn.disabled=false;btn.classList.remove('opacity-40','cursor-not-allowed');btn.classList.add('hover:bg-red-700','cursor-pointer');}
-    else{btn.disabled=true;btn.classList.add('opacity-40','cursor-not-allowed');btn.classList.remove('hover:bg-red-700','cursor-pointer');}
-  }
+
 
   function openOfferToggleModal(id, name, isOfferActive) {
     document.getElementById('toggleOfferCategoryName').textContent = name;
@@ -433,7 +390,6 @@
   }
 
   document.getElementById('addCategoryModal').addEventListener('click',function(e){if(e.target===this)closeAddModal();});
-  document.getElementById('deleteModal').addEventListener('click',function(e){if(e.target===this)closeDeleteModal();});
   document.getElementById('toggleOfferModal').addEventListener('click',function(e){if(e.target===this)closeOfferToggleModal();});
 
   // Auto-hide alert messages after 3 seconds

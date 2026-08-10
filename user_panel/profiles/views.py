@@ -1,11 +1,9 @@
 from django.shortcuts import render, redirect
 from django.contrib import messages
-from django.contrib.auth.decorators import login_required
-from django.views.decorators.cache import cache_control
-from accounts.decorators import user_not_blocked
+from common.decorators import user_member_required
 from django.http import JsonResponse
-from accounts.models import User, OTPVerification
-from accounts.services import (
+from user_panel.authentication.models import User, OTPVerification
+from common.services import (
     create_otp,
     send_mail_safe,
     send_password_change_otp,
@@ -20,16 +18,12 @@ from django.utils import timezone
 from .models import Address
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def profile_view(request):
     return render(request, "user/profile/profile.html")
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def profile_send_otp_view(request):
     if request.method != "POST":
         return redirect("profiles:profile_edit")
@@ -87,13 +81,14 @@ def profile_send_otp_view(request):
         messages.error(request, "Failed to send OTP email. Please try again.")
         return render(request, "user/profile/profile_edit.html")
 
-    messages.info(request, "An OTP verification code has been sent to your email.")
-    return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
+    is_resend = request.POST.get("is_resend") == "true"
+    if is_resend:
+        messages.info(request, "An OTP verification code has been sent to your email.", extra_tags='otp_info')
+    pending = request.session.get("pending_profile_update")
+    return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True, "otp_sent": True, "pending_data": pending})
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def profile_edit_view(request):
     if request.method == "POST":
         entered_otp = request.POST.get("otp", "").strip()
@@ -110,17 +105,18 @@ def profile_edit_view(request):
                     purpose="profile_edit",
                     verified=False
                 ).latest('created_at')
+                is_expired = otp_record.expires_at < timezone.now()
             except OTPVerification.DoesNotExist:
-                messages.error(request, "OTP not found. Please request a new code.")
-                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
-
-            if otp_record.expires_at < timezone.now():
-                messages.error(request, "OTP has expired. Please request a new code.")
-                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
+                messages.error(request, "OTP not found. Please request a new code.", extra_tags='otp_error')
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True, "otp_expired": True, "pending_data": pending_data})
 
             if entered_otp != otp_record.otp_code:
-                messages.error(request, "Invalid OTP. Please try again.")
-                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True})
+                messages.error(request, "Invalid OTP. Please try again.", extra_tags='otp_error')
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True, "otp_expired": is_expired, "pending_data": pending_data})
+
+            if otp_record.expires_at < timezone.now():
+                messages.error(request, "OTP has expired. Please request a new code.", extra_tags='otp_error')
+                return render(request, "user/profile/profile_edit.html", {"show_otp_modal": True, "otp_expired": True, "pending_data": pending_data})
 
             if request.user.socialaccount_set.exists() and pending_data["email"] != request.user.email.lower():
                 messages.error(request, "Google authenticated users cannot change their email address.")
@@ -140,8 +136,7 @@ def profile_edit_view(request):
             OTPVerification.objects.filter(user=request.user, purpose="profile_edit").delete()
             request.session.pop("pending_profile_update", None)
 
-            messages.success(request, "Profile updated successfully!")
-            return redirect("profiles:profile")
+            return redirect("/profile/?success=1")
 
         fullname = request.POST.get("fullname", "").strip()
         if not fullname:
@@ -153,23 +148,18 @@ def profile_edit_view(request):
             request.user.profile_image = request.FILES["profile_image"]
         request.user.save()
 
-        messages.success(request, "Profile updated successfully!")
-        return redirect("profiles:profile")
+        return redirect("/profile/?success=1")
 
     return render(request, "user/profile/profile_edit.html")
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def addresses_view(request):
     addresses = Address.objects.filter(user=request.user)
     return render(request, "user/profile/addresses.html", {"addresses": addresses})
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def address_save_view(request):
     if request.method != "POST":
         return redirect("addresses")
@@ -233,9 +223,7 @@ def address_save_view(request):
     return redirect("addresses")
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def address_delete_view(request, address_id):
     if request.method != "POST":
         return redirect("addresses")
@@ -260,9 +248,7 @@ def address_delete_view(request, address_id):
     return redirect("addresses")
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def profile_password_send_otp_view(request):
     if request.user.socialaccount_set.exists():
         messages.error(request, "Social authenticated users cannot change their password.")
@@ -275,30 +261,42 @@ def profile_password_send_otp_view(request):
     new_pwd     = request.POST.get("new_pwd", "").strip()
     confirm_pwd = request.POST.get("confirm_pwd", "").strip()
 
+    context = {
+        "current_pwd": current_pwd,
+        "new_pwd": new_pwd,
+        "confirm_pwd": confirm_pwd
+    }
+
     if not current_pwd or not request.user.check_password(current_pwd):
         messages.error(request, "Incorrect current password.")
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
+
+    if current_pwd == new_pwd:
+        messages.error(request, "New password cannot be the same as current password.")
+        return render(request, "user/profile/password.html", context)
 
     if not new_pwd or new_pwd != confirm_pwd:
         messages.error(request, "New passwords do not match or are empty.")
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
 
     strength_error = validate_password_strength(new_pwd)
     if strength_error:
         messages.error(request, strength_error)
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
 
     if not send_password_change_otp(request.user):
         messages.error(request, "Failed to send OTP email. Please try again.")
-        return render(request, "user/profile/password.html")
+        return render(request, "user/profile/password.html", context)
 
-    messages.info(request, "An OTP verification code has been sent to your email.")
-    return render(request, "user/profile/password.html", {"show_otp_modal": True})
+    is_resend = request.POST.get("is_resend") == "true"
+    if is_resend:
+        messages.info(request, "An OTP verification code has been sent to your email.", extra_tags='otp_info')
+    
+    context.update({"show_otp_modal": True, "otp_sent": True})
+    return render(request, "user/profile/password.html", context)
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
-@login_required(login_url='/login/')
-@user_not_blocked
+@user_member_required
 def profile_password_view(request):
 
     if request.user.socialaccount_set.exists():
@@ -312,34 +310,48 @@ def profile_password_view(request):
         new_pwd     = request.POST.get("new_pwd", "").strip()
         confirm_pwd = request.POST.get("confirm_pwd", "").strip()
 
+        context = {
+            "current_pwd": current_pwd,
+            "new_pwd": new_pwd,
+            "confirm_pwd": confirm_pwd
+        }
+
         try:
             otp_record = OTPVerification.objects.filter(
                 user=request.user, purpose="password_change", verified=False
             ).latest('created_at')
+            is_expired = otp_record.expires_at < timezone.now()
         except OTPVerification.DoesNotExist:
-            messages.error(request, "OTP not found. Please request a new code.")
-            return render(request, "user/profile/password.html")
-
-        if otp_record.expires_at < timezone.now():
-            messages.error(request, "OTP has expired. Please request a new code.")
-            return render(request, "user/profile/password.html")
+            messages.error(request, "OTP not found. Please request a new code.", extra_tags='otp_error')
+            context.update({"show_otp_modal": True, "otp_expired": True})
+            return render(request, "user/profile/password.html", context)
 
         if not entered_otp or entered_otp != otp_record.otp_code:
-            messages.error(request, "Invalid OTP code. Please try again.")
-            return render(request, "user/profile/password.html", {"show_otp_modal": True})
+            messages.error(request, "Invalid OTP code. Please try again.", extra_tags='otp_error')
+            context.update({"show_otp_modal": True, "otp_expired": is_expired})
+            return render(request, "user/profile/password.html", context)
+
+        if otp_record.expires_at < timezone.now():
+            messages.error(request, "OTP has expired. Please request a new code.", extra_tags='otp_error')
+            context.update({"show_otp_modal": True, "otp_expired": True})
+            return render(request, "user/profile/password.html", context)
 
         if not current_pwd or not request.user.check_password(current_pwd):
             messages.error(request, "Incorrect current password.")
-            return render(request, "user/profile/password.html")
+            return render(request, "user/profile/password.html", context)
+
+        if current_pwd == new_pwd:
+            messages.error(request, "New password cannot be the same as current password.")
+            return render(request, "user/profile/password.html", context)
 
         if not new_pwd or new_pwd != confirm_pwd:
             messages.error(request, "New passwords do not match or are empty.")
-            return render(request, "user/profile/password.html")
+            return render(request, "user/profile/password.html", context)
 
         strength_error = validate_password_strength(new_pwd)
         if strength_error:
             messages.error(request, strength_error)
-            return render(request, "user/profile/password.html")
+            return render(request, "user/profile/password.html", context)
 
         request.user.set_password(new_pwd)
         request.user.save()
@@ -348,6 +360,6 @@ def profile_password_view(request):
         update_session_auth_hash(request, request.user)
 
         messages.success(request, "Password updated successfully!")
-        return redirect("profiles:profile")
+        return redirect("profiles:profile_password")
 
     return render(request, "user/profile/password.html")

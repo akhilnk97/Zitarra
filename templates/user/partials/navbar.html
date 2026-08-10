@@ -1,16 +1,66 @@
-<header id="nav" class="sticky top-0 z-[200] bg-white border-b border-gray-200 flex items-center px-8 h-[60px] transition-all duration-400 group [&.scrolled]:bg-[#0a0a0a]/65 [&.scrolled]:border-transparent [&.scrolled]:shadow-[0_4px_32px_rgba(0,0,0,0.35)] [&.scrolled]:backdrop-blur-[18px]">
+<!-- Mobile menu backdrop -->
+<div id="mobile-nav-backdrop" class="fixed inset-0 bg-black/40 z-[190] hidden md:hidden transition-opacity duration-300"></div>
+
+<!-- Mobile Drawer (slides from right) -->
+<div id="mobile-nav-drawer"
+  class="fixed top-0 right-0 h-full w-[270px] bg-white z-[195] transform translate-x-full transition-transform duration-300 ease-in-out md:hidden flex flex-col pt-20 px-8 shadow-2xl">
+  <nav class="flex flex-col gap-6">
+    <a href="/" class="text-[0.75rem] font-bold tracking-[0.18em] uppercase text-brand-dark no-underline hover:text-brand-orange transition-colors">Home</a>
+    <a href="/shop/" class="text-[0.75rem] font-bold tracking-[0.18em] uppercase text-brand-dark no-underline hover:text-brand-orange transition-colors">Shop</a>
+    <a href="/#about" class="text-[0.75rem] font-bold tracking-[0.18em] uppercase text-brand-dark no-underline hover:text-brand-orange transition-colors">About Us</a>
+    <a href="/#contact" class="text-[0.75rem] font-bold tracking-[0.18em] uppercase text-brand-dark no-underline hover:text-brand-orange transition-colors">Contact Us</a>
+  </nav>
+  <div class="mt-8 border-t border-gray-100 pt-6">
+    {% if request.path != '/login/' and request.path != '/signup/' %}
+      <a href="/login/" class="block text-center text-[0.62rem] font-bold tracking-[0.16em] uppercase text-brand-orange no-underline border-[1.5px] border-brand-orange px-[18px] py-[9px] hover:bg-brand-orange hover:text-white transition-all duration-200">Login</a>
+    {% endif %}
+  </div>
+</div>
+
+<header id="nav" class="sticky top-0 z-[200] bg-white border-b border-gray-200 flex items-center px-4 md:px-8 h-[60px] transition-all duration-400 group [&.scrolled]:bg-[#0a0a0a]/65 [&.scrolled]:border-transparent [&.scrolled]:shadow-[0_4px_32px_rgba(0,0,0,0.35)] [&.scrolled]:backdrop-blur-[18px]">
+
+  <!-- Logo -->
   <div class="flex-1 flex justify-start items-center">
     <a href="/" class="text-2xl font-black tracking-[0.22em] uppercase text-brand-dark no-underline transition-colors duration-400 relative inline-block group-[.scrolled]:text-white after:content-[''] after:block after:h-[2px] after:w-0 after:bg-brand-orange after:transition-all after:duration-400 after:mx-auto after:mt-[2px] group-[.scrolled]:after:w-full">Zitarra</a>
   </div>
-  <nav class="flex gap-7 list-none n-links">
+
+  <!-- Desktop Nav Links (hidden on mobile) -->
+  <nav class="hidden md:flex gap-7 list-none n-links">
     <a href="/" id="nav-home" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Home</a>
     <a href="/shop/" id="nav-shop" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Shop</a>
     <a href="/#about" id="nav-about" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">About Us</a>
     <a href="/#contact" id="nav-contact" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Contact Us</a>
   </nav>
+
+  <!-- Right: Login + Hamburger -->
   <div class="flex-1 flex justify-end items-center gap-4">
     {% if request.path != '/login/' and request.path != '/signup/' %}
-      <a href="/login/" class="text-[0.62rem] font-bold tracking-[0.16em] uppercase text-brand-orange no-underline border-[1.5px] border-brand-orange px-[18px] py-[7px] transition-all duration-200 hover:bg-brand-orange hover:text-white group-[.scrolled]:border-brand-orange group-[.scrolled]:text-brand-orange group-[.scrolled]:hover:bg-brand-orange group-[.scrolled]:hover:text-white">Login</a>
+      <a href="/login/" class="hidden md:inline-flex text-[0.62rem] font-bold tracking-[0.16em] uppercase text-brand-orange no-underline border-[1.5px] border-brand-orange px-[18px] py-[7px] transition-all duration-200 hover:bg-brand-orange hover:text-white group-[.scrolled]:border-brand-orange group-[.scrolled]:text-brand-orange group-[.scrolled]:hover:bg-brand-orange group-[.scrolled]:hover:text-white">Login</a>
     {% endif %}
+    <!-- Hamburger toggle (mobile only) -->
+    <button id="mobile-nav-toggle" class="md:hidden text-brand-dark group-[.scrolled]:text-white focus:outline-none cursor-pointer" title="Menu">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
   </div>
 </header>
+
+<script>
+  (function(){
+    const toggle = document.getElementById('mobile-nav-toggle');
+    const drawer = document.getElementById('mobile-nav-drawer');
+    const backdrop = document.getElementById('mobile-nav-backdrop');
+    if (toggle && drawer && backdrop) {
+      toggle.addEventListener('click', function(e) {
+        e.stopPropagation();
+        drawer.classList.toggle('translate-x-full');
+        backdrop.classList.toggle('hidden');
+      });
+      backdrop.addEventListener('click', function() {
+        drawer.classList.add('translate-x-full');
+        backdrop.classList.add('hidden');
+      });
+    }
+  })();
+</script>

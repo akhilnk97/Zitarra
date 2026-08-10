@@ -4,9 +4,9 @@ from django.contrib.auth import authenticate, login, logout
 from django.views.decorators.cache import cache_control
 from django.utils import timezone
 
-from admin_panel.decorators import admin_required
-from accounts.models import User, OTPVerification
-from accounts.services import create_otp, send_mail_safe, validate_password_strength
+from common.decorators import admin_required
+from user_panel.authentication.models import User, OTPVerification
+from common.services import create_otp, send_mail_safe, validate_password_strength
 
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def admin_login_view(request):
@@ -106,12 +106,12 @@ def admin_forgot_password_otp_view(request):
             messages.error(request, "OTP not found. Please request a new one.")
             return redirect("admin_forgot_password")
 
-        if otp_record.expires_at < timezone.now():
-            messages.error(request, "The OTP has expired. Please request a new one.")
-            return redirect("admin_forgot_password_otp")
-
         if entered_otp != otp_record.otp_code:
             messages.error(request, "Invalid OTP. Please try again.")
+            return redirect("admin_forgot_password_otp")
+
+        if otp_record.expires_at < timezone.now():
+            messages.error(request, "The OTP has expired. Please request a new one.")
             return redirect("admin_forgot_password_otp")
 
         otp_record.verified = True

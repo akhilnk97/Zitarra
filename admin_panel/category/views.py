@@ -1,14 +1,12 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.views.decorators.cache import cache_control
 from django.core.paginator import Paginator
 from datetime import datetime
 
-from admin_panel.decorators import admin_required
+from common.decorators import admin_required
 from .models import Category
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_category_view(request):
     search_query = request.GET.get("search", "").strip()
@@ -45,7 +43,6 @@ def admin_category_view(request):
     return render(request, "admin_panel/category/category.html", context)
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_add_category_view(request):
 
@@ -91,7 +88,6 @@ def admin_add_category_view(request):
     return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_edit_category_view(request, category_id):
 
@@ -148,7 +144,6 @@ def admin_edit_category_view(request, category_id):
     return render(request, "admin_panel/category/edit_category.html", context)
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_delete_category_view(request, category_id):
 
@@ -162,7 +157,6 @@ def admin_delete_category_view(request, category_id):
     return redirect("admin_category")
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_toggle_offer_view(request, category_id):
     if request.method == "POST":

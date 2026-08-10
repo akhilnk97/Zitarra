@@ -1,9 +1,7 @@
 from django.shortcuts import render
-from django.views.decorators.cache import cache_control
-from admin_panel.decorators import admin_required
-from accounts.models import User
+from common.decorators import admin_required
+from user_panel.authentication.models import User
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_dashboard_view(request):
     context = {
@@ -18,7 +16,6 @@ def admin_dashboard_view(request):
     return render(request, "admin_panel/dashboard/dashboard.html", context)
 
 
-@cache_control(no_cache=True, no_store=True, must_revalidate=True)
 @admin_required
 def admin_unimplemented_view(request):
     return render(request, "admin_panel/404.html", {"admin_name": request.user.fullname})

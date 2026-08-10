@@ -19,16 +19,16 @@
   <div class="w-full max-w-lg text-center flex flex-col items-center z-10">
     
     <!-- Equalizer Animation / Visual -->
-    <div class="flex items-end justify-center gap-1.5 h-24 mb-10 group cursor-pointer" title="Hover to make the waves dance">
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-12 animate-[bounce_1.2s_infinite_ease-in-out]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-18 animate-[bounce_0.8s_infinite_ease-in-out_delay-150]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-8 animate-[bounce_1.4s_infinite_ease-in-out_delay-300]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-22 animate-[bounce_0.9s_infinite_ease-in-out_delay-100]"></div>
-      <div class="w-2.5 bg-[#E8500A] rounded-full h-14 animate-[bounce_1.1s_infinite_ease-in-out_delay-400]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-20 animate-[bounce_0.75s_infinite_ease-in-out_delay-200]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-10 animate-[bounce_1.3s_infinite_ease-in-out_delay-150]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-16 animate-[bounce_1.0s_infinite_ease-in-out_delay-350]"></div>
-      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-6 animate-[bounce_1.5s_infinite_ease-in-out_delay-250]"></div>
+    <div class="flex items-end justify-center gap-1.5 h-24 mb-10 eq-group cursor-pointer" title="Hover to make the waves dance">
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-12 animate-eq-bounce-1"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-18 animate-eq-bounce-2"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-8 animate-eq-bounce-3"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-22 animate-eq-bounce-4"></div>
+      <div class="w-2.5 bg-[#E8500A] rounded-full h-14 animate-eq-bounce-5"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-20 animate-eq-bounce-6"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-10 animate-eq-bounce-7"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-16 animate-eq-bounce-8"></div>
+      <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#E8500A] h-6 animate-eq-bounce-9"></div>
     </div>
 
     <!-- 404 Large Label -->
@@ -69,28 +69,5 @@
 
   </div>
 
-  <!-- Custom animations styles -->
-  <style>
-    @keyframes bounce {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-20px);
-      }
-    }
-    .delay-100 { animation-delay: 0.1s; }
-    .delay-150 { animation-delay: 0.15s; }
-    .delay-200 { animation-delay: 0.2s; }
-    .delay-250 { animation-delay: 0.25s; }
-    .delay-300 { animation-delay: 0.3s; }
-    .delay-350 { animation-delay: 0.35s; }
-    .delay-400 { animation-delay: 0.4s; }
-
-    /* Equalizer hover enhancement */
-    .group:hover div {
-      animation-duration: 0.4s !important;
-    }
-  </style>
 </div>
 {% endblock %}

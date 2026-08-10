@@ -1,0 +1,297 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Cart — Zitarra{% endblock %}
+
+{% block navbar %}{% include 'user/partials/navbar_shop.html' %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .qty-btn{width:30px;height:30px;display:flex;align-items:center;justify-content:center;border:1px solid #d1d5db;background:#fff;cursor:pointer;font-size:0.85rem;font-weight:700;color:#1f2937;transition:all 0.15s;}
+  .qty-btn:hover{background:#1f2937;color:#fff;border-color:#1f2937;}
+  .qty-input{width:38px;height:30px;border-top:1px solid #d1d5db;border-bottom:1px solid #d1d5db;border-left:none;border-right:none;text-align:center;font-size:0.7rem;font-weight:700;color:#1f2937;outline:none;}
+  input[type=number]::-webkit-inner-spin-button,input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="bg-white min-h-screen">
+
+  <!-- TOP BANNER + MAIN CONTENT -->
+  <div class="flex w-full flex-col lg:flex-row">
+
+    <!-- LEFT: CART ITEMS -->
+    <div class="flex-1 border-r border-gray-200">
+
+      <!-- Header -->
+      <div class="px-8 py-6 border-b border-gray-200 bg-[#fafafa]">
+        <div class="flex items-center justify-between">
+          <div class="text-left">
+            <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-[#E8500A] mb-2">Logistics / Cart</p>
+            <h2 class="text-[1.4rem] font-black uppercase tracking-tight text-brand-dark leading-none">Your Selection</h2>
+          </div>
+          <div class="flex flex-col items-end gap-2">
+            <div class="bg-brand-dark text-white text-[0.6rem] font-black tracking-[0.15em] uppercase px-4 py-2">{{ cart.get_total_items }} Items</div>
+            <a href="{% url 'shop' %}" class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 hover:text-[#E8500A] transition-colors no-underline">← Continue Shopping</a>
+          </div>
+        </div>
+
+        {% if messages %}
+          <div class="mt-4 space-y-3">
+            {% for message in messages %}
+              {% if 'success' in message.tags %}
+                <div class="p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+                  <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                  <span>{{ message }}</span>
+                </div>
+              {% else %}
+                <div class="p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
+                  <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                  <span>{{ message }}</span>
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        {% endif %}
+
+        <!-- Summary bar -->
+        <div class="flex flex-wrap items-center gap-6 mt-5 pt-5 border-t border-gray-200">
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-500">Free Shipping Eligible</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+            <span class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-500">Secure Checkout</span>
+          </div>
+          <div class="flex items-center gap-2">
+            <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><path d="M16 10h.01"/></svg>
+            <span class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-500">Easy Returns</span>
+          </div>
+          <div class="ml-auto text-right">
+            <span class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-400">Subtotal: </span>
+            <span class="text-[0.75rem] font-black text-brand-dark">₹{{ cart.get_subtotal }}</span>
+          </div>
+        </div>
+      </div>
+
+      {% if items %}
+        <!-- Cart Items Loop -->
+        {% for item in items %}
+          <div class="flex border-b border-gray-200 flex-col sm:flex-row">
+            <div class="w-full sm:w-[170px] shrink-0 bg-[#f7f7f7]" style="min-height:160px;">
+              <img src="{% if item.product.images.all %}{{ item.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}" alt="{{ item.product.name }}" class="w-full h-full object-cover" style="min-height:160px; max-height:160px;"/>
+            </div>
+            <div class="flex-1 px-6 py-4 flex flex-col justify-between">
+              <div class="flex justify-between items-start">
+                <div class="text-left">
+                  <p class="text-[0.78rem] font-black uppercase tracking-[0.06em] text-brand-dark mb-1">{{ item.product.name }}</p>
+                  <p class="text-[0.55rem] font-bold uppercase tracking-widest text-gray-400">Seller: Zitarra Official / {{ item.product.brand|default:"Zitarra" }}</p>
+                  {% if item.product.stock == 0 %}
+                    <span class="inline-block mt-1 px-1.5 py-0.5 text-[0.5rem] font-bold uppercase bg-red-100 text-red-700">Out of Stock</span>
+                  {% elif item.product.stock <= 3 %}
+                    <span class="inline-block mt-1 px-1.5 py-0.5 text-[0.5rem] font-bold uppercase bg-amber-100 text-amber-700">Only {{ item.product.stock }} Left</span>
+                  {% endif %}
+                </div>
+                <p class="text-[0.88rem] font-black text-brand-dark whitespace-nowrap">₹{{ item.product.price }}</p>
+              </div>
+              
+              <div class="flex items-center justify-between mt-4">
+                
+                <!-- Qty Adjustment Form -->
+                <div class="flex items-center">
+                  <form action="{% url 'update_quantity' item.id 'decrement' %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="qty-btn">−</button>
+                  </form>
+                  <input type="number" readonly class="qty-input" value="{% if item.quantity < 10 %}0{% endif %}{{ item.quantity }}" min="1"/>
+                  <form action="{% url 'update_quantity' item.id 'increment' %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="qty-btn">+</button>
+                  </form>
+                </div>
+
+                <div class="flex items-center gap-5">
+                  <button class="flex items-center gap-1.5 text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 hover:text-brand-dark transition-colors border-none bg-transparent cursor-pointer">
+                    <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+                    Move to Wishlist
+                  </button>
+                  
+                  <form action="{% url 'remove_from_cart' item.id %}" method="POST" class="inline">
+                    {% csrf_token %}
+                    <button type="submit" class="flex items-center gap-1.5 text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 hover:text-red-500 transition-colors border-none bg-transparent cursor-pointer">
+                      <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
+                      Remove
+                    </button>
+                  </form>
+                </div>
+              </div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-20">
+          <p class="text-sm font-bold text-gray-400 uppercase tracking-widest mb-6">Your cart is currently empty</p>
+          <a href="{% url 'shop' %}" class="inline-block bg-brand-orange text-white text-[0.65rem] font-bold tracking-[0.18em] uppercase px-8 py-3.5 hover:bg-[#c94008] transition-colors rounded-full no-underline">
+            Continue Shopping
+          </a>
+        </div>
+      {% endif %}
+
+    </div>
+    <!-- END CART ITEMS -->
+
+    <!-- RIGHT: ORDER SUMMARY -->
+    <div class="w-full lg:w-[420px] shrink-0 flex flex-col bg-[#FAF6F2]">
+
+      <!-- Orange banner at top of right sidebar -->
+      <div class="bg-[#E8500A] px-8 py-3.5 text-left">
+        <p class="text-white text-[0.58rem] font-bold leading-relaxed tracking-wide">Premium delivery global network. Guaranteed safe transit for precision instruments.</p>
+      </div>
+
+      <div class="px-8 py-6 border-b border-gray-200">
+        <h3 class="text-[0.6rem] font-black tracking-[0.18em] uppercase text-brand-dark mb-4 text-left">Order Summary</h3>
+        <div class="border-t border-gray-200 pt-4 space-y-4">
+          <div class="flex justify-between items-center">
+            <p class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-500">Subtotal</p>
+            <p class="text-[0.7rem] font-black text-brand-dark">₹{{ cart.get_subtotal }}</p>
+          </div>
+          <div class="flex justify-between items-center">
+            <p class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-500">Shipping &amp; Handling</p>
+            <p class="text-[0.7rem] font-black text-green-600 uppercase tracking-widest text-[9px]">FREE</p>
+          </div>
+          <div class="flex justify-between items-center pb-4 border-b border-gray-200">
+            <p class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-500">Estimated Tax</p>
+            <p class="text-[0.7rem] font-black text-brand-dark">₹0.00</p>
+          </div>
+          <div class="flex justify-between items-center pt-1">
+            <p class="text-[0.6rem] font-black uppercase tracking-wider text-brand-dark">Total</p>
+            <p class="text-[0.95rem] font-black text-[#E8500A]">₹{{ cart.get_subtotal }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Promo Code -->
+      <div class="px-8 py-6 border-b border-gray-200 text-left">
+        <p class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Promo Code</p>
+        <div class="flex items-center border-b border-gray-300 pb-2.5">
+          <input type="text" placeholder="Enter Code" class="flex-1 text-[0.58rem] font-bold uppercase tracking-wider text-brand-dark outline-none placeholder-gray-300 bg-transparent border-none"/>
+          <button class="text-[0.52rem] font-black uppercase tracking-widest text-[#E8500A] hover:text-[#c94008] transition-colors ml-3 border-none bg-transparent cursor-pointer">Apply</button>
+        </div>
+      </div>
+
+      <!-- Checkout Button -->
+      <div class="px-8 py-6">
+        {% if items and not has_out_of_stock %}
+          <button class="w-full bg-[#E8500A] text-white text-[0.58rem] font-black tracking-[0.15em] uppercase py-3 hover:bg-[#c94008] transition-colors flex items-center justify-center gap-3 mb-4 border-none cursor-pointer">
+            Proceed to Checkout
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+        {% else %}
+          <button disabled class="w-full bg-gray-300 text-gray-500 text-[0.58rem] font-black tracking-[0.15em] uppercase py-3 flex items-center justify-center gap-3 mb-4 border-none cursor-not-allowed">
+            {% if has_out_of_stock %}Items Out of Stock{% else %}Proceed to Checkout{% endif %}
+          </button>
+        {% endif %}
+        <p class="text-center text-[0.5rem] text-gray-400 tracking-wide mb-4">Flexible payments available via ZITARRA Credit.</p>
+        <!-- Payment icons -->
+        <div class="flex items-center justify-center gap-4">
+          <div class="border border-gray-200 px-3.5 py-1.5 rounded">
+            <svg class="w-7 h-4 text-gray-400" fill="currentColor" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#f3f4f6"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="9" font-weight="700" fill="#6b7280">VISA</text></svg>
+          </div>
+          <div class="border border-gray-200 px-3.5 py-1.5 rounded">
+            <svg class="w-7 h-4" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#f3f4f6"/><circle cx="19" cy="16" r="8" fill="#eb001b" opacity="0.85"/><circle cx="29" cy="16" r="8" fill="#f79e1b" opacity="0.85"/></svg>
+          </div>
+          <div class="border border-gray-200 px-3.5 py-1.5 rounded">
+            <svg class="w-7 h-4 text-gray-400" fill="currentColor" viewBox="0 0 48 32"><rect width="48" height="32" rx="4" fill="#f3f4f6"/><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="7" font-weight="700" fill="#6b7280">AMEX</text></svg>
+          </div>
+        </div>
+      </div>
+
+    </div>
+    <!-- END ORDER SUMMARY -->
+
+  </div>
+
+  <!-- COMPLETING THE SOUND -->
+  <div class="border-t border-gray-200 px-8 py-6">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-[0.72rem] font-black uppercase tracking-[0.1em] text-brand-dark m-0">Completing the Sound</h2>
+      <a href="{% url 'shop' %}" class="text-[0.52rem] font-black uppercase tracking-widest text-brand-dark hover:text-[#E8500A] transition-colors no-underline">View All Accessories →</a>
+    </div>
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-0 border border-gray-200">
+
+      <!-- Accessory 1 -->
+      <div class="border-r border-gray-200 group cursor-pointer hover:shadow-md transition-shadow bg-white">
+        <div class="bg-[#111] aspect-square flex items-center justify-center overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?w=400&q=80" alt="Headphones" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"/>
+        </div>
+        <div class="p-4 text-left">
+          <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400 mb-1">Z-Series</p>
+          <p class="text-[0.62rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">Z-Series Studio Headphones</p>
+          <p class="text-[0.72rem] font-black text-brand-dark">₹28,900.00</p>
+        </div>
+      </div>
+
+      <!-- Accessory 2 -->
+      <div class="border-r border-gray-200 group cursor-pointer hover:shadow-md transition-shadow bg-white">
+        <div class="bg-[#0d0d0d] aspect-square flex items-center justify-center overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=80" alt="Cable" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"/>
+        </div>
+        <div class="p-4 text-left">
+          <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400 mb-1">Cables</p>
+          <p class="text-[0.62rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">Gold-Plated XLR 5M</p>
+          <p class="text-[0.72rem] font-black text-brand-dark">₹7,000.00</p>
+        </div>
+      </div>
+
+      <!-- Accessory 3 -->
+      <div class="border-r border-gray-200 group cursor-pointer hover:shadow-md transition-shadow bg-white">
+        <div class="bg-[#f0f0ee] aspect-square flex items-center justify-center overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=400&q=80" alt="Metronome" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"/>
+        </div>
+        <div class="p-4 text-left">
+          <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400 mb-1">Timing</p>
+          <p class="text-[0.62rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">Architectural Metronome</p>
+          <p class="text-[0.72rem] font-black text-brand-dark">₹9,900.00</p>
+        </div>
+      </div>
+
+      <!-- Accessory 4 -->
+      <div class="group cursor-pointer hover:shadow-md transition-shadow bg-white">
+        <div class="bg-[#1a1a1a] aspect-square flex items-center justify-center overflow-hidden">
+          <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=400&q=80" alt="Microphone" class="w-full h-full object-cover grayscale group-hover:grayscale-0 transition-all duration-300"/>
+        </div>
+        <div class="p-4 text-left">
+          <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400 mb-1">Recording</p>
+          <p class="text-[0.62rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">Studio Condenser Mic</p>
+          <p class="text-[0.72rem] font-black text-brand-dark">₹74,900.00</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+  <!-- END COMPLETING THE SOUND -->
+
+</div>
+
+{% include 'user/partials/footer.html' %}
+
+<script>
+  // Auto-hide top alert messages after 3 seconds
+  setTimeout(() => {
+    document.querySelectorAll('.msg-alert').forEach(el => {
+      el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-10px)';
+      setTimeout(() => {
+        el.style.maxHeight = '0';
+        el.style.padding = '0';
+        el.style.margin = '0';
+        el.style.border = 'none';
+        setTimeout(() => el.remove(), 500);
+      }, 300);
+    });
+  }, 3000);
+</script>
+
+{% endblock %}

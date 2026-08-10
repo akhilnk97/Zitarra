@@ -36,3 +36,27 @@ def user_member_required(view_func):
         )
     )
     return decorator
+
+
+def admin_required(view_func):
+    """
+    Composite decorator that protects admin-only pages:
+    1. Cache control (no cache / revalidate)
+    2. Authentication (is_authenticated)
+    3. Staff privileges (is_staff = True)
+    """
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
+        # If user is not logged in at all
+        if not request.user.is_authenticated:
+            return redirect("admin_login")
+
+        # If user is logged in but is not an admin (is_staff = False)
+        if not request.user.is_staff:
+            return redirect("home")
+
+        # User is a valid admin — run the actual view
+        return view_func(request, *args, **kwargs)
+
+    return cache_control(no_cache=True, no_store=True, must_revalidate=True)(wrapper)
+

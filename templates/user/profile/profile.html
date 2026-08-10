@@ -12,8 +12,7 @@
     <!-- ── Sidebar ── -->
     <aside class="bg-white border-r border-[#e8e8e8] flex flex-col self-stretch">
       <div class="p-6 pb-[18px] border-b border-[#f0f0f0]">
-        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange mb-[3px]">User Profile</p>
-        <p class="font-semibold text-[0.5rem] tracking-[0.12em] uppercase text-[#bbb]">Manage Your Account</p>
+        <p class="font-bold text-[0.55rem] tracking-[0.18em] uppercase text-brand-orange">User Account</p>
       </div>
       <nav class="flex-1 py-2">
         <a href="{% url 'profiles:profile' %}"
@@ -49,7 +48,7 @@
           </svg>
           Wallet
         </a>
-        <a href="#wishlist"
+        <a href="{% url 'wishlist:wishlist_view' %}"
           class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
           <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
@@ -112,6 +111,14 @@
         </div>
       </div>
 
+      <!-- Alert Container -->
+      <div id="alert-container" class="px-9 pt-6 hidden">
+        <div class="mb-4 p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
+          <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span id="alert-text">Profile updated successfully</span>
+        </div>
+      </div>
+
       <!-- User Details Card Grid -->
       <div class="flex-1 px-9 py-10">
         <div class="flex items-center justify-between border-b border-[#ebebeb] pb-3 mb-8">
@@ -158,32 +165,30 @@
 
 {% include 'user/partials/footer.html' %}
 
-<!-- ── Toast ── -->
-<div
-  class="fixed bottom-8 right-8 bg-[#1a1a1a] text-white px-5 py-3 text-[0.65rem] font-bold tracking-[0.12em] uppercase flex items-center gap-2.5 z-[99999] translate-y-4 opacity-0 transition-all duration-300 pointer-events-none [&.show]:opacity-100 [&.show]:translate-y-0"
-  id="toast">
-  <svg class="w-3.5 h-3.5 stroke-brand-orange" fill="none" viewBox="0 0 24 24">
-    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M5 13l4 4L19 7" />
-  </svg>
-  <span id="toast-text">Profile updated successfully</span>
-</div>
-
 <script>
   document.addEventListener('DOMContentLoaded', () => {
-    // Check for success URL param to show toast
+    // Check for success URL param to show alert
     const urlParams = new URLSearchParams(window.location.search);
     const successVal = urlParams.get('success');
     if (successVal) {
-      const toast = document.getElementById('toast');
-      const toastText = document.getElementById('toast-text');
+      const alertContainer = document.getElementById('alert-container');
+      const alertText = document.getElementById('alert-text');
+      
       if (successVal === '2') {
-        toastText.textContent = 'Password updated successfully';
+        alertText.textContent = 'Password updated successfully';
       } else if (successVal === '1') {
-        toastText.textContent = 'Profile updated successfully';
+        alertText.textContent = 'Profile updated successfully';
       }
-      toast.classList.add('show');
+      
+      alertContainer.classList.remove('hidden');
+      
       setTimeout(() => {
-        toast.classList.remove('show');
+        alertContainer.style.transition = 'opacity 0.5s ease, max-height 0.5s ease, padding 0.5s ease, margin 0.5s ease';
+        alertContainer.style.opacity = '0';
+        setTimeout(() => {
+          alertContainer.classList.add('hidden');
+          alertContainer.style.opacity = '';
+        }, 500);
         // Clean parameter from URL without page reload
         window.history.replaceState({}, document.title, window.location.pathname);
       }, 3000);
