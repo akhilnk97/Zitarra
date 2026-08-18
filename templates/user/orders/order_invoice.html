@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice #{{ order.order_id }} — Zitarra</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'brand-dark': '#111111',
+            'brand-orange': '#E8500A',
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @media print {
+      .no-print {
+        display: none !important;
+      }
+      body {
+        background: #ffffff !important;
+        color: #000000 !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+      .invoice-page {
+        border: none !important;
+        box-shadow: none !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      @page {
+        size: A4 portrait;
+        margin: 12mm;
+      }
+    }
+  </style>
+</head>
+<body class="bg-[#F4F4F2] min-h-screen font-sans text-brand-dark antialiased p-4 md:p-8">
+
+  <!-- TOP ACTION TOOLBAR (HIDDEN ON PRINT) -->
+  <div class="no-print max-w-4xl mx-auto mb-6 flex flex-wrap items-center justify-between gap-4">
+    <a href="{% url 'order_detail' order.order_id %}" 
+       class="inline-flex items-center gap-2 bg-white border border-gray-300 text-brand-dark px-4 py-2 text-xs font-bold uppercase tracking-wider hover:border-brand-dark transition-colors no-underline shadow-xs">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+      <span>BACK TO ORDER DETAILS</span>
+    </a>
+
+    <button type="button" onclick="window.print()" 
+            class="inline-flex items-center gap-2 bg-[#E8500A] text-white px-6 py-2.5 text-xs font-black uppercase tracking-widest hover:bg-[#c94008] transition-colors cursor-pointer border-none shadow-md">
+      <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+      <span>PRINT / SAVE AS PDF INVOICE</span>
+    </button>
+  </div>
+
+  <!-- A4 TAX INVOICE DOCUMENT CONTAINER -->
+  <div class="invoice-page max-w-4xl mx-auto bg-white p-8 md:p-12 border border-gray-300 shadow-xl text-left">
+    
+    <!-- INVOICE HEADER SECTION -->
+    <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-6 pb-6 border-b-2 border-brand-dark">
+      <!-- BRAND INFO -->
+      <div>
+        <h1 class="text-3xl font-black uppercase tracking-[0.22em] text-brand-dark m-0 leading-none">ZITARRA</h1>
+        <p class="text-[0.52rem] font-bold tracking-[0.2em] uppercase text-[#E8500A] mt-1 mb-3">LUXURY ARCHITECTURAL INSTRUMENTS</p>
+
+        <div class="text-[0.62rem] text-gray-600 font-mono space-y-0.5 leading-snug">
+          <p class="m-0 font-bold text-gray-800">ZITARRA PRIVATE LIMITED</p>
+          <p class="m-0">Tower B, Zitarra HQ, MG Road, Kochi, Kerala — 682016</p>
+          <p class="m-0">GSTIN: <strong class="text-brand-dark">32AAACZ9841C1Z8</strong> &bull; CIN: U36999KL2026PTC081234</p>
+          <p class="m-0">Email: billing@zitarra.com &bull; Support: +91 9072253248</p>
+        </div>
+      </div>
+
+      <!-- INVOICE META DATA -->
+      <div class="text-left sm:text-right bg-gray-50 border border-gray-200 p-4 shrink-0 min-w-[240px]">
+        <h2 class="text-lg font-black uppercase tracking-widest text-[#E8500A] m-0 mb-2">INVOICE</h2>
+        <div class="space-y-1 text-xs font-mono text-gray-700">
+          <p class="m-0"><span class="text-gray-400">INVOICE NO:</span> <strong class="text-brand-dark">INV-{{ order.order_id }}</strong></p>
+          <p class="m-0"><span class="text-gray-400">INVOICE DATE:</span> <strong class="text-brand-dark">{{ order.created_at|date:"d/m/Y" }}</strong></p>
+          <p class="m-0"><span class="text-gray-400">ORDER ID:</span> <strong class="text-brand-dark">#{{ order.order_id }}</strong></p>
+          <p class="m-0"><span class="text-gray-400">ORDER DATE:</span> <strong class="text-brand-dark">{{ order.created_at|date:"d/m/Y H:i" }}</strong></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BILLED TO & PAYMENT DETAILS GRID -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 border-b border-gray-200 text-xs">
+      
+      <!-- BILLED TO / SHIPPED TO -->
+      <div>
+        <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-2">BILLED TO &amp; SHIPPING DESTINATION</p>
+        <h3 class="text-sm font-black uppercase text-brand-dark m-0 mb-1">{{ order.shipping_full_name }}</h3>
+        <p class="text-gray-600 font-medium uppercase m-0 leading-relaxed">{{ order.shipping_address_line_1 }}</p>
+        {% if order.shipping_address_line_2 %}
+        <p class="text-gray-600 font-medium uppercase m-0 leading-relaxed">{{ order.shipping_address_line_2 }}</p>
+        {% endif %}
+        <p class="text-gray-600 font-medium uppercase m-0 leading-relaxed">{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_pincode }}</p>
+        <p class="text-gray-500 font-mono m-0 mt-1">CONTACT: +91 {{ order.shipping_phone }}</p>
+      </div>
+
+      <!-- LOGISTICS & PAYMENT META -->
+      <div class="md:text-right font-mono text-xs">
+        <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-2">PAYMENT &amp; LOGISTICS SUMMARY</p>
+        <div class="space-y-1 text-gray-700">
+          <p class="m-0"><span class="text-gray-400">PAYMENT METHOD:</span> <strong class="text-brand-dark">
+            {% if order.payment_method == 'CASH_ON_DELIVERY' or order.payment_method == 'COD' %}
+              CASH ON DELIVERY (COD)
+            {% else %}
+              {{ order.get_payment_method_display|default:order.payment_method|upper }}
+            {% endif %}
+          </strong></p>
+          <p class="m-0"><span class="text-gray-400">PAYMENT STATUS:</span> <strong class="text-green-600">{{ order.payment_status|upper }}</strong></p>
+          <p class="m-0"><span class="text-gray-400">PLACE OF SUPPLY:</span> <strong class="text-brand-dark">{{ order.shipping_state|upper }}</strong></p>
+          <p class="m-0"><span class="text-gray-400">REVERSE CHARGE:</span> <strong class="text-brand-dark">NO</strong></p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ITEMIZED BILLING TABLE -->
+    <div class="my-6 overflow-x-auto">
+      <table class="w-full text-left border-collapse text-xs">
+        <thead>
+          <tr class="bg-gray-100 border-y border-gray-300 text-[0.55rem] font-bold uppercase tracking-wider text-gray-600">
+            <th class="py-3 px-3 w-10 text-center">#</th>
+            <th class="py-3 px-3">DESCRIPTION OF GOODS</th>
+            <th class="py-3 px-3 text-center">HSN CODE</th>
+            <th class="py-3 px-3 text-center">QTY</th>
+            <th class="py-3 px-3 text-right">UNIT PRICE</th>
+            <th class="py-3 px-3 text-right">GST (18%)</th>
+            <th class="py-3 px-3 text-right">AMOUNT (₹)</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-200 font-mono text-xs">
+          {% for item in order.items.all %}
+          <tr class="{% if item.item_status == 'CANCELLED' %}bg-red-50/50 text-gray-400{% endif %}">
+            <td class="py-3.5 px-3 text-center font-bold text-gray-400">0{{ forloop.counter }}</td>
+            <td class="py-3.5 px-3 font-sans">
+              <p class="font-bold text-brand-dark uppercase m-0 leading-tight">{{ item.product_name }}</p>
+              {% if item.variant_name %}
+              <p class="text-[0.58rem] font-bold text-gray-500 uppercase m-0 mt-0.5">FINISH: {{ item.variant_name }}</p>
+              {% endif %}
+              {% if item.item_status == 'CANCELLED' %}
+              <span class="inline-block bg-red-100 text-red-600 text-[0.5rem] font-bold px-1.5 py-0.5 uppercase mt-1">CANCELLED</span>
+              {% endif %}
+            </td>
+            <td class="py-3.5 px-3 text-center text-gray-500">9202.90.00</td>
+            <td class="py-3.5 px-3 text-center font-bold">0{{ item.quantity }}</td>
+            <td class="py-3.5 px-3 text-right">₹{{ item.price|floatformat:2 }}</td>
+            <td class="py-3.5 px-3 text-right text-gray-500">18%</td>
+            <td class="py-3.5 px-3 text-right font-bold text-brand-dark">₹{{ item.item_subtotal|floatformat:2 }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- CALCULATION & TOTALS BREAKDOWN -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t-2 border-brand-dark">
+      
+      <!-- TERMS & STAMP -->
+      <div class="text-[0.58rem] text-gray-500 space-y-2">
+        <p class="font-bold uppercase tracking-wider text-brand-dark m-0">DECLARATION &amp; TERMS:</p>
+        <ol class="list-decimal list-inside space-y-1 font-mono leading-relaxed m-0">
+          <li>We declare that this invoice shows the actual price of goods described.</li>
+          <li>All instruments include Zitarra Digital Certificate of Authenticity.</li>
+          <li>This is a computer-generated Tax Invoice under GST Act, 2017.</li>
+        </ol>
+      </div>
+
+      <!-- FINANCIAL TOTALS TABLE -->
+      <div class="space-y-2 text-xs font-mono">
+        <div class="flex justify-between text-gray-600">
+          <span>SUBTOTAL (EXCL. TAX):</span>
+          <span class="font-bold text-brand-dark">₹{{ order.subtotal|floatformat:2 }}</span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+          <span>DELIVERY &amp; HANDLING:</span>
+          <span class="font-bold text-green-600 uppercase">{% if order.shipping_cost == 0 %}FREE{% else %}₹{{ order.shipping_cost|floatformat:2 }}{% endif %}</span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+          <span>CGST (9%):</span>
+          <span class="font-bold text-brand-dark">₹{{ half_tax|floatformat:2 }}</span>
+        </div>
+        <div class="flex justify-between text-gray-600">
+          <span>SGST (9%):</span>
+          <span class="font-bold text-brand-dark">₹{{ half_tax|floatformat:2 }}</span>
+        </div>
+        {% if order.discount_amount > 0 %}
+        <div class="flex justify-between text-green-600 font-bold">
+          <span>DISCOUNT APPLIED:</span>
+          <span>-₹{{ order.discount_amount|floatformat:2 }}</span>
+        </div>
+        {% endif %}
+        
+        <div class="border-t-2 border-brand-dark pt-3 mt-2 flex justify-between items-baseline text-sm font-sans font-black uppercase">
+          <span class="text-brand-dark tracking-wider">TOTAL INVOICE AMOUNT:</span>
+          <span class="text-xl font-black text-[#E8500A]">₹{{ order.total_price|floatformat:2 }}</span>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- SIGNATURE STAMP FOOTER -->
+    <div class="mt-12 pt-6 border-t border-gray-200 flex flex-col sm:flex-row items-end justify-between gap-6">
+      <div class="text-[0.52rem] font-mono text-gray-400 uppercase">
+        <p class="m-0">SYSTEM GENERATED DOC &bull; STAMP CODE ZT-{{ order.order_id }}</p>
+        <p class="m-0">PAGE 01 OF 01</p>
+      </div>
+
+      <div class="text-center font-mono text-xs border border-dashed border-gray-300 p-4 min-w-[220px]">
+        <p class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 mb-6">FOR ZITARRA PRIVATE LIMITED</p>
+        <div class="border-t border-gray-400 pt-1 text-[0.55rem] font-bold uppercase text-brand-dark">
+          AUTHORIZED SIGNATORY
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+</body>
+</html>

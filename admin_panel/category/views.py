@@ -58,6 +58,14 @@ def admin_add_category_view(request):
             messages.error(request, "Category name is required.")
             return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
 
+        if Category.objects.filter(name__iexact=name, is_deleted=False).exists():
+            messages.error(request, f"A category named '{name}' already exists.")
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+
+        if len(description) > 500:
+            messages.error(request, "Category description cannot exceed 500 characters.")
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+
         try:
             discount = int(discount_str) if discount_str else 0
             if discount < 0 or discount > 100:
@@ -107,6 +115,10 @@ def admin_edit_category_view(request, category_id):
             
         if Category.objects.filter(name__iexact=name, is_deleted=False).exclude(id=category.id).exists():
             messages.error(request, f"A category named '{name}' already exists.")
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
+
+        if len(description) > 500:
+            messages.error(request, "Category description cannot exceed 500 characters.")
             return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
     
         try:

@@ -20,6 +20,31 @@ class Product(models.Model):
         return self.name
 
     @property
+    def is_available(self):
+        return (
+            self.is_active and
+            not self.is_deleted and
+            self.category is not None and
+            self.category.is_active and
+            not self.category.is_deleted
+        )
+
+    @property
+    def has_active_variants(self):
+        return self.variants.filter(is_active=True, is_deleted=False).exists()
+
+    @property
+    def total_stock(self):
+        active_vars = self.variants.filter(is_active=True, is_deleted=False)
+        if active_vars.exists():
+            return sum(v.stock for v in active_vars) + self.stock
+        return self.stock
+
+    @property
+    def is_completely_out_of_stock(self):
+        return self.total_stock == 0
+
+    @property
     def stock_info(self):
         if self.stock == 0:
             return {"status": "out_of_stock", "label": "Out of Stock", "is_out": True}

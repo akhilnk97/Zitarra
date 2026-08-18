@@ -67,7 +67,7 @@
         </a>
 
         <!-- Order List -->
-        <a href="{% url 'admin_unimplemented' %}"
+        <a href="{% url 'admin_orders' %}"
           class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
             height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -328,147 +328,184 @@
       <!-- Recent Activity Table -->
       <div class="border border-[#e8e8e8] bg-white p-6">
 
-        <!-- Table Header -->
-        <div class="flex justify-between items-center mb-6">
-          <h3 class="text-[0.72rem] font-bold tracking-[0.18em] text-brand-dark uppercase">RECENT ACTIVITY</h3>
+        <!-- Table Header with Functional Filter & Sort Forms -->
+        <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+          <h3 class="text-[0.72rem] font-bold tracking-[0.18em] text-brand-dark uppercase m-0">RECENT ACTIVITY</h3>
 
-          <div class="flex gap-2.5">
-            <button
-              class="border border-[#dcdcdc] px-3.5 py-1.5 text-[0.55rem] font-bold tracking-wider uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-colors duration-200 bg-white">
-              FILTER
-            </button>
-            <button
-              class="border border-[#dcdcdc] px-3.5 py-1.5 text-[0.55rem] font-bold tracking-wider uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-colors duration-200 bg-white">
-              SORT BY
-            </button>
+          <form method="GET" action="{% url 'admin_dashboard' %}" class="flex items-center gap-2.5 flex-wrap">
+            <!-- FILTER SELECT -->
+            <div class="relative">
+              <select name="status" onchange="this.form.submit()"
+                      class="border border-[#dcdcdc] px-3.5 py-1.5 text-[0.55rem] font-bold tracking-wider uppercase text-gray-700 hover:border-brand-dark transition-colors duration-200 bg-white cursor-pointer outline-none appearance-none pr-7">
+                <option value="all" {% if status_filter == 'all' %}selected{% endif %}>ALL STATUSES</option>
+                <option value="CONFIRMED" {% if status_filter == 'CONFIRMED' %}selected{% endif %}>CONFIRMED</option>
+                <option value="PROCESSING" {% if status_filter == 'PROCESSING' %}selected{% endif %}>PROCESSING</option>
+                <option value="SHIPPED" {% if status_filter == 'SHIPPED' %}selected{% endif %}>SHIPPED</option>
+                <option value="DELIVERED" {% if status_filter == 'DELIVERED' %}selected{% endif %}>DELIVERED</option>
+                <option value="RETURN_REQUESTED" {% if status_filter == 'RETURN_REQUESTED' %}selected{% endif %}>RETURN REQUESTED</option>
+                <option value="CANCELLED" {% if status_filter == 'CANCELLED' %}selected{% endif %}>CANCELLED</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+
+            <!-- SORT BY SELECT -->
+            <div class="relative">
+              <select name="sort" onchange="this.form.submit()"
+                      class="border border-[#dcdcdc] px-3.5 py-1.5 text-[0.55rem] font-bold tracking-wider uppercase text-gray-700 hover:border-brand-dark transition-colors duration-200 bg-white cursor-pointer outline-none appearance-none pr-7">
+                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>NEWEST FIRST</option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>OLDEST FIRST</option>
+                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>PRICE: HIGH TO LOW</option>
+                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>PRICE: LOW TO HIGH</option>
+              </select>
+              <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+              </div>
+            </div>
+
+            {% if status_filter != 'all' or sort_by != 'newest' %}
+            <a href="{% url 'admin_dashboard' %}" class="px-3 py-1.5 border border-red-300 text-red-600 bg-red-50 text-[0.55rem] font-bold uppercase tracking-wider no-underline hover:bg-red-600 hover:text-white transition-colors">
+              RESET
+            </a>
+            {% endif %}
+          </form>
+        </div>
+
+        <!-- Table Data Card Container -->
+        <div class="bg-white border border-[#EAE3DC] shadow-xs overflow-hidden flex flex-col flex-1 min-h-0">
+          <div class="overflow-x-auto overflow-y-auto flex-1 min-h-0">
+            <table class="w-full text-left border-collapse min-w-[700px]">
+              <thead class="sticky top-0 z-10 bg-[#F7EFE9] shadow-xs">
+                <tr class="border-b border-[#E8DDD5] text-xs font-bold uppercase tracking-wider text-[#4A3E37]">
+                  <th class="py-3.5 px-5 text-left w-[30%]" style="vertical-align: middle;">PRODUCT</th>
+                  <th class="py-3.5 px-5 text-center w-[14%]" style="vertical-align: middle;">ID</th>
+                  <th class="py-3.5 px-5 text-center w-[22%]" style="vertical-align: middle;">STATUS</th>
+                  <th class="py-3.5 px-5 text-left w-[20%]" style="vertical-align: middle;">ADDRESS</th>
+                  <th class="py-3.5 px-5 text-right w-[14%]" style="vertical-align: middle;">ORDER VALUE</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[#EFE8E1] text-xs font-sans text-[#2C241E]">
+
+                {% for order in recent_orders %}
+                {% with first_item=order.items.first %}
+                <tr class="hover:bg-[#FAF6F3] transition-colors">
+                  <!-- PRODUCT -->
+                  <td class="py-3.5 px-5 text-left" style="vertical-align: middle;">
+                    <a href="{% url 'admin_order_detail' order.order_id %}" class="flex items-center gap-3.5 no-underline group">
+                      <div class="w-11 h-11 border border-[#E0D5C9] overflow-hidden shrink-0 bg-gray-100 flex items-center justify-center rounded-xs">
+                        {% if first_item and first_item.variant and first_item.variant.images.first %}
+                          <img src="{{ first_item.variant.images.first.image.url }}" alt="{{ first_item.product_name }}" class="w-full h-full object-cover" />
+                        {% elif first_item and first_item.product and first_item.product.images.first %}
+                          <img src="{{ first_item.product.images.first.image.url }}" alt="{{ first_item.product_name }}" class="w-full h-full object-cover" />
+                        {% else %}
+                          <span class="text-xs font-bold text-gray-500">ZT</span>
+                        {% endif %}
+                      </div>
+                      <div class="min-w-0">
+                        <span class="block text-xs font-bold text-gray-900 group-hover:text-[#A33C08] uppercase tracking-wide transition-colors truncate max-w-[220px]">
+                          {{ first_item.product_name|default:"General Order" }}
+                        </span>
+                        {% if order.items.count > 1 %}
+                        <span class="block text-[0.58rem] font-bold text-[#A33C08] uppercase tracking-widest mt-0.5">+ {{ order.items.count|add:"-1" }} MORE ITEM(S)</span>
+                        {% endif %}
+                      </div>
+                    </a>
+                  </td>
+
+                  <!-- ORDER ID -->
+                  <td class="py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] uppercase whitespace-nowrap" style="vertical-align: middle;">
+                    <a href="{% url 'admin_order_detail' order.order_id %}" class="no-underline text-[#A33C08] hover:underline font-mono font-bold">
+                      #{{ order.order_id }}
+                    </a>
+                  </td>
+
+                  <!-- STATUS -->
+                  <td class="py-3.5 px-5 text-center whitespace-nowrap" style="vertical-align: middle;">
+                    <span class="w-[145px] py-1 text-[0.55rem] font-bold uppercase tracking-widest rounded-xs border inline-flex items-center justify-center mx-auto text-center leading-none
+                      {% if order.order_status == 'DELIVERED' %}bg-[#DEF7EC] text-[#03543F] border-green-300
+                      {% elif order.order_status == 'CANCELLED' %}bg-[#FDE8E8] text-[#C53030] border-[#F8B4B4]
+                      {% elif order.order_status == 'RETURN_REQUESTED' %}bg-purple-100 text-purple-800 border-purple-300
+                      {% elif order.order_status == 'SHIPPED' or order.order_status == 'OUT_FOR_DELIVERY' %}bg-[#DCEAFD] text-[#1E56A0] border-blue-300
+                      {% elif order.order_status == 'PROCESSING' %}bg-[#A33C08] text-white border-[#A33C08]
+                      {% else %}bg-[#FDEEE9] text-[#A33C08] border-[#F5D5C8]{% endif %}">
+                      {{ order.get_order_status_display|upper }}
+                    </span>
+                  </td>
+
+                  <!-- ADDRESS -->
+                  <td class="py-3.5 px-5 text-left text-xs font-mono font-bold text-[#A33C08] uppercase tracking-wider whitespace-nowrap" style="vertical-align: middle;">
+                    {{ order.shipping_city|default:"India" }}, {{ order.shipping_state|default:"IN" }}
+                  </td>
+
+                  <!-- ORDER VALUE -->
+                  <td class="py-3.5 px-5 text-right text-xs font-mono font-bold text-[#A33C08] uppercase tracking-wider whitespace-nowrap" style="vertical-align: middle;">
+                    ₹{{ order.total_price|floatformat:2 }}
+                  </td>
+                </tr>
+                {% endwith %}
+                {% empty %}
+                <tr>
+                  <td colspan="5" class="py-16 text-center text-gray-400">
+                    <svg class="w-10 h-10 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/>
+                    </svg>
+                    <p class="text-xs font-bold uppercase tracking-wider text-[#4A3E37] m-0">NO RECENT ORDERS FOUND</p>
+                  </td>
+                </tr>
+                {% endfor %}
+
+              </tbody>
+            </table>
           </div>
+
+          <!-- Table Pagination Controls -->
+          {% if recent_orders.has_other_pages %}
+          <div class="bg-[#FAF6F3] border-t-2 border-[#A33C08] px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 w-full shrink-0 mt-auto z-20">
+            <div class="text-xs font-bold uppercase tracking-wider text-[#1A1A1A] font-sans">
+              SHOWING PAGE {{ recent_orders.number }} OF {{ recent_orders.paginator.num_pages }} ({{ recent_orders.paginator.count }} TOTAL ORDERS)
+            </div>
+
+            <div class="flex items-center gap-1.5">
+              {% if recent_orders.has_previous %}
+              <a href="?page=1{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                 class="px-3 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                FIRST
+              </a>
+              <a href="?page={{ recent_orders.previous_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                 class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                PREV
+              </a>
+              {% endif %}
+
+              {% for num in recent_orders.paginator.page_range %}
+                {% if recent_orders.number == num %}
+                <span class="w-8 h-8 flex items-center justify-center bg-[#A33C08] border border-[#A33C08] text-white text-xs font-black shadow-xs">
+                  {{ num }}
+                </span>
+                {% elif num > recent_orders.number|add:'-3' and num < recent_orders.number|add:'3' %}
+                <a href="?page={{ num }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                   class="w-8 h-8 flex items-center justify-center bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                  {{ num }}
+                </a>
+                {% endif %}
+              {% endfor %}
+
+              {% if recent_orders.has_next %}
+              <a href="?page={{ recent_orders.next_page_number }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                 class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                NEXT
+              </a>
+              <a href="?page={{ recent_orders.paginator.num_pages }}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                 class="px-3 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                LAST
+              </a>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+
         </div>
-
-        <!-- Table Data -->
-        <div class="w-full overflow-x-auto">
-          <table class="w-full text-left border-collapse min-w-[600px]">
-            <thead>
-              <tr class="border-b border-[#e8e8e8] bg-[#fcfbfa]">
-                <th class="py-3 px-4 text-[0.55rem] font-bold tracking-[0.15em] text-gray-400 uppercase">PRODUCT</th>
-                <th class="py-3 px-4 text-[0.55rem] font-bold tracking-[0.15em] text-gray-400 uppercase">ID</th>
-                <th class="py-3 px-4 text-[0.55rem] font-bold tracking-[0.15em] text-gray-400 uppercase">STATUS</th>
-                <th class="py-3 px-4 text-[0.55rem] font-bold tracking-[0.15em] text-gray-400 uppercase">ADDRESS</th>
-                <th class="py-3 px-4 text-[0.55rem] font-bold tracking-[0.15em] text-gray-400 uppercase text-right">
-                  ORDER VALUE</th>
-              </tr>
-            </thead>
-            <tbody class="divide-y divide-gray-100">
-
-              <!-- Violin -->
-              <tr class="border-b border-gray-100">
-                <td class="py-4 px-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 border border-gray-200 overflow-hidden shrink-0">
-                      <img
-                        src="https://images.unsplash.com/photo-1612222869049-d8ec83637a3c?w=100&auto=format&fit=crop&q=60"
-                        alt="Violin" class="w-full h-full object-cover object-center" />
-                    </div>
-                    <span class="text-[0.68rem] font-bold text-brand-dark uppercase tracking-wider">VIOLIN</span>
-                  </div>
-                </td>
-                <td class="py-4 px-4 text-[0.62rem] font-bold tracking-wide text-[#a0aec0] uppercase">#STR-902-61</td>
-                <td class="py-4 px-4">
-                  <span
-                    class="text-[0.48rem] font-bold tracking-wider px-2.5 py-1 bg-[#E6F6ED] text-[#1E7E34] uppercase rounded-sm">IN_STOCK</span>
-                </td>
-                <td class="py-4 px-4 text-[0.68rem] font-medium text-gray-500">Milan, IT</td>
-                <td class="py-4 px-4 text-[0.68rem] font-bold text-brand-dark text-right">₹4,200.00</td>
-              </tr>
-
-              <!-- Tabla -->
-              <tr class="border-b border-gray-100">
-                <td class="py-4 px-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 border border-gray-200 overflow-hidden shrink-0">
-                      <img
-                        src="https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=100&auto=format&fit=crop&q=60"
-                        alt="Tabla" class="w-full h-full object-cover object-center" />
-                    </div>
-                    <span class="text-[0.68rem] font-bold text-brand-dark uppercase tracking-wider">TABLA</span>
-                  </div>
-                </td>
-                <td class="py-4 px-4 text-[0.62rem] font-bold tracking-wide text-[#a0aec0] uppercase">#PER-412-88</td>
-                <td class="py-4 px-4">
-                  <span
-                    class="text-[0.48rem] font-bold tracking-wider px-2.5 py-1 bg-[#FFF3E0] text-[#E65100] uppercase rounded-sm">PENDING</span>
-                </td>
-                <td class="py-4 px-4 text-[0.68rem] font-medium text-gray-500">Mumbai, IN</td>
-                <td class="py-4 px-4 text-[0.68rem] font-bold text-brand-dark text-right">₹850.00</td>
-              </tr>
-
-              <!-- Piano -->
-              <tr class="border-b border-gray-100">
-                <td class="py-4 px-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 border border-gray-200 overflow-hidden shrink-0">
-                      <img
-                        src="https://images.unsplash.com/photo-1552422535-c45813c61732?w=100&auto=format&fit=crop&q=60"
-                        alt="Piano" class="w-full h-full object-cover object-center" />
-                    </div>
-                    <span class="text-[0.68rem] font-bold text-brand-dark uppercase tracking-wider">PIANO</span>
-                  </div>
-                </td>
-                <td class="py-4 px-4 text-[0.62rem] font-bold tracking-wide text-[#a0aec0] uppercase">#KEY-002-FF</td>
-                <td class="py-4 px-4">
-                  <span
-                    class="text-[0.48rem] font-bold tracking-wider px-2.5 py-1 bg-[#F1F3F4] text-[#5F6368] uppercase rounded-sm">ARCHIVES</span>
-                </td>
-                <td class="py-4 px-4 text-[0.68rem] font-medium text-gray-500">Vienna, AT</td>
-                <td class="py-4 px-4 text-[0.68rem] font-bold text-brand-dark text-right">₹12,400.00</td>
-              </tr>
-
-              <!-- Violin 2 -->
-              <tr class="border-b border-gray-100">
-                <td class="py-4 px-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 border border-gray-200 overflow-hidden shrink-0">
-                      <img
-                        src="https://images.unsplash.com/photo-1612222869049-d8ec83637a3c?w=100&auto=format&fit=crop&q=60"
-                        alt="Violin" class="w-full h-full object-cover object-center" />
-                    </div>
-                    <span class="text-[0.68rem] font-bold text-brand-dark uppercase tracking-wider">VIOLIN</span>
-                  </div>
-                </td>
-                <td class="py-4 px-4 text-[0.62rem] font-bold tracking-wide text-[#a0aec0] uppercase">#STR-902-61</td>
-                <td class="py-4 px-4">
-                  <span
-                    class="text-[0.48rem] font-bold tracking-wider px-2.5 py-1 bg-[#E6F6ED] text-[#1E7E34] uppercase rounded-sm">IN_STOCK</span>
-                </td>
-                <td class="py-4 px-4 text-[0.68rem] font-medium text-gray-500">Milan, IT</td>
-                <td class="py-4 px-4 text-[0.68rem] font-bold text-brand-dark text-right">₹4,200.00</td>
-              </tr>
-
-              <!-- Tabla 2 -->
-              <tr class="border-b border-gray-100">
-                <td class="py-4 px-4 align-middle">
-                  <div class="flex items-center gap-3">
-                    <div class="w-12 h-12 border border-gray-200 overflow-hidden shrink-0">
-                      <img
-                        src="https://images.unsplash.com/photo-1599839575945-a9e5af0c3fa5?w=100&auto=format&fit=crop&q=60"
-                        alt="Tabla" class="w-full h-full object-cover object-center" />
-                    </div>
-                    <span class="text-[0.68rem] font-bold text-brand-dark uppercase tracking-wider">TABLA</span>
-                  </div>
-                </td>
-                <td class="py-4 px-4 text-[0.62rem] font-bold tracking-wide text-[#a0aec0] uppercase">#PER-412-88</td>
-                <td class="py-4 px-4">
-                  <span
-                    class="text-[0.48rem] font-bold tracking-wider px-2.5 py-1 bg-[#FFF3E0] text-[#E65100] uppercase rounded-sm">PENDING</span>
-                </td>
-                <td class="py-4 px-4 text-[0.68rem] font-medium text-gray-500">Mumbai, IN</td>
-                <td class="py-4 px-4 text-[0.68rem] font-bold text-brand-dark text-right">₹850.00</td>
-              </tr>
-
-            </tbody>
-          </table>
-        </div>
-
-      </div>
 
     </main>
 

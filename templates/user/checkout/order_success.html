@@ -1,0 +1,315 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Order Confirmed — Zitarra{% endblock %}
+
+{% block navbar %}{% include 'user/partials/navbar_shop.html' %}{% endblock %}
+
+{% block content %}
+
+<style>
+  /* Custom Animations for Order Success Page */
+  @keyframes drawCheckmark {
+    0% { stroke-dashoffset: 50; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes popScale {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.18); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .animated-check-circle {
+    animation: popScale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .animated-check-path {
+    stroke-dasharray: 50;
+    stroke-dashoffset: 50;
+    animation: drawCheckmark 0.5s ease-in-out 0.4s forwards;
+  }
+  .animate-stagger-1 { animation: fadeInUp 0.7s ease-out 0.1s both; }
+  .animate-stagger-2 { animation: fadeInUp 0.7s ease-out 0.3s both; }
+  .animate-stagger-3 { animation: fadeInUp 0.7s ease-out 0.5s both; }
+</style>
+
+<div class="bg-white min-h-screen text-brand-dark overflow-hidden">
+
+  <!-- TOP HERO: ANIMATED CHECKMARK & CONFIRMATION STATEMENT -->
+  <div class="max-w-4xl mx-auto text-center px-6 pt-12 pb-10 animate-stagger-1">
+    
+    <!-- Concentric Circles with Checkmark -->
+    <div class="flex justify-center mb-6 relative">
+      <div class="w-20 h-20 rounded-full border border-gray-200 flex items-center justify-center p-2 relative z-10 bg-white shadow-lg">
+        <div class="w-16 h-16 rounded-full border border-gray-300 flex items-center justify-center">
+          <div class="w-12 h-12 rounded-full bg-[#E8500A] flex items-center justify-center text-white shadow-md animated-check-circle">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3.5" viewBox="0 0 24 24">
+              <path class="animated-check-path" stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-2xl md:text-3xl font-black uppercase tracking-[0.25em] text-brand-dark mb-4">
+      O R D E R _ C O N F I R M E D
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-xs md:text-sm font-medium text-gray-600 max-w-xl mx-auto leading-relaxed mb-8">
+      Your transaction has been processed successfully. A confirmation email with the full receipt and digital certificate of authenticity is on its way to your inbox.
+    </p>
+
+    <!-- Customer Order Summary Bar -->
+    <div class="inline-flex flex-wrap items-center justify-center gap-6 border-t border-b border-gray-200 py-3 px-8 font-mono text-[0.58rem] font-bold tracking-widest text-gray-500 uppercase">
+      <div>ESTIMATED DELIVERY: <span class="text-green-600 font-extrabold">3–5 BUSINESS DAYS</span></div>
+      <div class="text-gray-300">|</div>
+      <div>PAYMENT METHOD: <span class="text-brand-dark font-extrabold">{{ order.get_payment_method_display|default:order.payment_method|upper }}</span></div>
+      <div class="text-gray-300">|</div>
+      <div>TOTAL AMOUNT: <span class="text-[#E8500A] font-extrabold">₹{{ order.total_price|floatformat:2 }}</span></div>
+    </div>
+
+  </div>
+
+  <!-- MAIN 2-COLUMN SECTION WRAPPER WITH FULL WIDTH & MINIMAL SIDE PADDING -->
+  <div class="w-full px-4 md:px-8 pb-12">
+
+    <!-- MIDDLE SECTION: 2 COLUMNS (IDENTIFICATION / SYSTEM LOG & TECH GRAPHIC) -->
+    <div class="border border-gray-200 grid grid-cols-1 md:grid-cols-2 animate-stagger-2">
+      
+      <!-- LEFT: IDENTIFICATION & SYSTEM LOG -->
+      <div class="p-5 md:p-6 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col justify-between">
+        
+        <div>
+          <p class="text-[0.52rem] font-mono font-bold tracking-[0.2em] uppercase text-gray-400 mb-1">ORDER ID</p>
+          <h2 class="text-2xl md:text-3xl font-mono font-black uppercase tracking-tight text-brand-dark mb-6">
+            #{{ order.order_id }}
+          </h2>
+
+          <div class="border-t border-gray-200 pt-6 grid grid-cols-2 gap-6 mb-8">
+            <div>
+              <p class="text-[0.52rem] font-mono font-bold tracking-[0.2em] uppercase text-gray-400 mb-1">ORDER DATE</p>
+              <p class="text-xs font-mono font-black uppercase text-brand-dark">{{ order.created_at|date:"M d, Y"|upper }}</p>
+            </div>
+            <div>
+              <p class="text-[0.52rem] font-mono font-bold tracking-[0.2em] uppercase text-gray-400 mb-1">PAYMENT STATUS</p>
+              <p class="text-xs font-mono font-black uppercase text-green-600 flex items-center gap-1.5">
+                <span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span>
+                {{ order.payment_status }}
+              </p>
+            </div>
+          </div>
+        </div>
+
+        <!-- SHIPPING & DISPATCH SUMMARY BOX -->
+        <div class="bg-[#FFF3ED] border border-[#FADCD0] p-5 font-mono text-[0.58rem]">
+          <p class="font-bold tracking-widest uppercase text-gray-500 mb-3">SHIPPING SUMMARY</p>
+          
+          <div class="space-y-2 text-gray-700">
+            <div class="flex justify-between">
+              <span class="uppercase text-gray-400">RECIPIENT:</span>
+              <span class="font-bold text-brand-dark">{{ order.shipping_full_name }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="uppercase text-gray-400">DESTINATION:</span>
+              <span class="font-bold text-brand-dark">{{ order.shipping_city }}, {{ order.shipping_state }} {{ order.shipping_pincode }}</span>
+            </div>
+            <div class="flex justify-between">
+              <span class="uppercase text-gray-400">CONTACT MOBILE:</span>
+              <span class="font-bold text-brand-dark">{{ order.shipping_phone }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: Purchased Product Main Showcase -->
+      {% with first_item=order.items.first %}
+      <div class="bg-[#0D0D0D] p-5 md:p-6 flex flex-col justify-between text-left relative overflow-hidden min-h-[340px]">
+        
+        <!-- Product Image Background / Container -->
+        <div class="absolute inset-0 bg-[#090909]">
+          {% if first_item.variant and first_item.variant.images.first %}
+            <img src="{{ first_item.variant.images.first.image.url }}" alt="{{ first_item.product_name }}" class="w-full h-full object-cover opacity-85" />
+          {% elif first_item.product.images.first %}
+            <img src="{{ first_item.product.images.first.image.url }}" alt="{{ first_item.product_name }}" class="w-full h-full object-cover opacity-85" />
+          {% else %}
+            <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800&q=80" alt="{{ first_item.product_name }}" class="w-full h-full object-cover opacity-60" />
+          {% endif %}
+          <!-- Gradient Overlay for Contrast -->
+          <div class="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-black/50 pointer-events-none"></div>
+        </div>
+
+        <div class="relative z-10 flex justify-between items-start">
+          <span class="bg-[#E8500A] text-white font-mono text-[0.55rem] font-bold tracking-widest px-3 py-1 uppercase shadow-sm">PURCHASED ITEM</span>
+          {% if order.items.count > 1 %}
+          <span class="bg-white/20 backdrop-blur-md text-white font-mono text-[0.52rem] font-bold tracking-wider px-2.5 py-1 uppercase border border-white/20">+{{ order.items.count|add:"-1" }} MORE ITEMS</span>
+          {% endif %}
+        </div>
+
+        <div class="relative z-10 mt-auto pt-16">
+          <h4 class="text-white font-black text-lg md:text-xl uppercase tracking-wider leading-tight mb-1">
+            {{ first_item.product_name }}{% if first_item.variant_name %} {{ first_item.variant_name }}{% endif %}
+          </h4>
+          <p class="font-mono text-[0.62rem] font-bold uppercase tracking-[0.18em] text-gray-400">
+          </p>
+        </div>
+
+      </div>
+      {% endwith %}
+
+    </div>
+
+    <!-- BOTTOM SECTION: 2 COLUMNS (NEXT STEPS & THANK YOU) -->
+    <div class="border-x border-b border-gray-200 grid grid-cols-1 md:grid-cols-2 animate-stagger-3">
+      
+      <!-- LEFT: NEXT STEPS -->
+      <div class="p-5 md:p-6 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col justify-center items-center">
+        <div class="space-y-4 max-w-md w-full mx-auto">
+          <!-- TRACK SHIPMENT / ORDER DETAILS -->
+          <a href="{% url 'order_detail' order.order_id %}"
+             class="w-full bg-[#E8500A] text-white text-[0.65rem] font-mono font-black tracking-[0.2em] uppercase py-4 px-6 hover:bg-[#c94008] transition-colors flex items-center justify-between no-underline shadow-sm">
+            <span>VIEW ORDER DETAILS</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" />
+            </svg>
+          </a>
+
+          <!-- CONTINUE SHOPPING -->
+          <a href="{% url 'shop' %}"
+             class="w-full bg-white border border-brand-dark text-brand-dark text-[0.65rem] font-mono font-black tracking-[0.2em] uppercase py-4 px-6 hover:bg-brand-dark hover:text-white transition-colors flex items-center justify-between no-underline">
+            <span>CONTINUE SHOPPING</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+            </svg>
+          </a>
+        </div>
+      </div>
+
+      <!-- RIGHT: THANK YOU BOX -->
+      <div class="p-5 md:p-6 bg-[#FDF0EA] flex flex-col justify-between text-left">
+        <div>
+          <div class="w-6 h-6 text-[#E8500A] mb-3">
+            <svg fill="currentColor" viewBox="0 0 24 24">
+              <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" />
+            </svg>
+          </div>
+
+          <h3 class="text-base font-mono font-black uppercase tracking-[0.2em] text-brand-dark mb-3">
+            THANK YOU
+          </h3>
+
+          <p class="text-xs text-gray-700 leading-relaxed font-sans font-medium mb-6">
+            We appreciate your trust in the ZITARRA ecosystem. Our logistics team is currently prioritizing your dispatch. You will receive a notification as soon as the archival package leaves our facility. Welcome to the collective.
+          </p>
+        </div>
+
+        <div class="pt-6 border-t border-[#FADCD0]">
+          <p class="font-mono text-[0.48rem] font-bold tracking-[0.22em] uppercase text-gray-400">
+            DESIGNED BY ZITARRA LABS | TOKYO-LONDON-NYC
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+
+{% include 'user/partials/footer.html' %}
+
+<!-- Confetti & Celebration Fireworks Script -->
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    // 1. Play Soft Audio Chime (Web Audio API)
+    try {
+      const AudioCtx = window.AudioContext || window.webkitAudioContext;
+      if (AudioCtx) {
+        const ctx = new AudioCtx();
+        const playTone = (freq, start, duration) => {
+          const osc = ctx.createOscillator();
+          const gain = ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(freq, ctx.currentTime + start);
+          gain.gain.setValueAtTime(0.12, ctx.currentTime + start);
+          gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + start + duration);
+          osc.connect(gain);
+          gain.connect(ctx.destination);
+          osc.start(ctx.currentTime + start);
+          osc.stop(ctx.currentTime + start + duration);
+        };
+        // C major chord chime: C5 -> E5 -> G5 -> C6
+        playTone(523.25, 0.1, 0.3);
+        playTone(659.25, 0.25, 0.3);
+        playTone(783.99, 0.4, 0.4);
+        playTone(1046.50, 0.55, 0.6);
+      }
+    } catch (e) {
+      console.log('Audio chime disabled or unsupported');
+    }
+
+    // 2. High-Impact Celebration Fireworks & Confetti Streams
+    if (typeof confetti === 'function') {
+      const colors = ['#E8500A', '#1A1A1A', '#FFB800', '#FFFFFF', '#D4A574'];
+
+      // Burst 1: Main Center Burst
+      confetti({
+        particleCount: 100,
+        spread: 90,
+        origin: { y: 0.5 },
+        colors: colors,
+        disableForReducedMotion: true
+      });
+
+      // Burst 2: Left Side Fireworks Cannon (300ms)
+      setTimeout(function () {
+        confetti({
+          particleCount: 65,
+          angle: 60,
+          spread: 70,
+          origin: { x: 0, y: 0.6 },
+          colors: colors
+        });
+      }, 300);
+
+      // Burst 3: Right Side Fireworks Cannon (500ms)
+      setTimeout(function () {
+        confetti({
+          particleCount: 65,
+          angle: 120,
+          spread: 70,
+          origin: { x: 1, y: 0.6 },
+          colors: colors
+        });
+      }, 500);
+
+      // Burst 4: Gold Star Shower (1000ms)
+      setTimeout(function () {
+        confetti({
+          particleCount: 40,
+          spread: 100,
+          origin: { y: 0.4 },
+          shapes: ['star'],
+          colors: ['#FFB800', '#E8500A', '#FFFFFF'],
+          scalar: 1.2
+        });
+      }, 1000);
+
+      // Burst 5: Grand Finale Stream (1800ms)
+      setTimeout(function () {
+        confetti({
+          particleCount: 80,
+          spread: 120,
+          origin: { y: 0.6 },
+          colors: colors
+        });
+      }, 1800);
+    }
+  });
+</script>
+
+{% endblock %}

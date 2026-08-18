@@ -17,11 +17,13 @@ urlpatterns = [
     path('shop/',        include('user_panel.shop.urls')),
     path('cart/',        include('user_panel.cart.urls')),
     path('wishlist/',    include('user_panel.wishlist.urls')),
+    path('',             include('user_panel.orders.urls')),
     path('admin-panel/', include('admin_panel.authentication.urls')),
     path('admin-panel/', include('admin_panel.dashboard.urls')),
     path('admin-panel/', include('admin_panel.users.urls')),
     path('admin-panel/', include('admin_panel.category.urls')),
     path('admin-panel/', include('admin_panel.products.urls')),
+    path('admin-panel/', include('admin_panel.orders.urls')),
 ]
 
 if settings.DEBUG:

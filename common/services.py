@@ -46,6 +46,30 @@ def validate_pincode(pincode):
     return None
 
 
+def validate_city(city):
+    if not city or len(city) < 2:
+        return "City must be at least 2 characters."
+    for char in city:
+        if not char.isalpha() and not char.isspace() and char not in "-'.":
+            return "City name can only contain letters and spaces."
+    return None
+
+
+def validate_state(state):
+    if not state or len(state) < 2:
+        return "State must be at least 2 characters."
+    for char in state:
+        if not char.isalpha() and not char.isspace() and char not in "-'.":
+            return "State name can only contain letters and spaces."
+    return None
+
+
+def validate_address_line(line):
+    if not line or len(line.strip()) < 3:
+        return "Address line must be at least 3 characters."
+    return None
+
+
 SPECIAL_CHARS = r"!@#$%^&*()_+-=[]{}|;':\",./<>?"
 
 
@@ -229,15 +253,63 @@ def invalidate_user_sessions(user):
             session.delete()
 
 
+ALLOWED_IMAGE_EXTENSIONS = ('.jpg', '.jpeg', '.png', '.webp', '.avif')
+
+
+def is_valid_image_file(file_obj):
+    """
+    Checks uploaded image files.
+    Returns True if file exists and has a valid image extension.
+    """
+    if file_obj and hasattr(file_obj, 'name'):
+        return file_obj.name.lower().endswith(ALLOWED_IMAGE_EXTENSIONS)
+    return False
+
+
 def save_base64_image(base64_string, filename):
     """
-    Converts a base64 image string (e.g. from Cropper.js) into a Django ContentFile object.
-    Returns None if the base64_str is empty or invalid.
+    Converts a base64 image string (from Cropper.js) into a Django ContentFile object.
+    Returns None if base64_string is empty or invalid.
     """
     if base64_string and base64_string.startswith("data:image"):
-        format_part, data_part = base64_string.split(";base64,")
-        extension = format_part.split('/')[-1]
-        decoded_bytes = base64.b64decode(data_part)
-        return ContentFile(decoded_bytes, name=f"{filename}.{extension}")
+        try:
+            format_part, data_part = base64_string.split(";base64,")
+            extension = format_part.split('/')[-1].lower()
+            decoded_bytes = base64.b64decode(data_part)
+            return ContentFile(decoded_bytes, name=f"{filename}.{extension}")
+        except Exception:
+            return None
     return None
-    
+
+
+from decimal import Decimal
+
+def calculate_order_totals(subtotal):
+    """
+    Calculates dynamic shipping cost, 18% GST tax, and total price.
+    Rules:
+    - Shipping: FREE (0.00) if subtotal >= 5000.00, else 150.00.
+    - Tax: 5% GST on subtotal.
+    - Total: subtotal + shipping_cost + tax_amount
+    """
+    subtotal = Decimal(str(subtotal))
+    if subtotal == Decimal('0.00'):
+        return Decimal('0.00'), Decimal('0.00'), Decimal('0.00')
+
+    if subtotal >= Decimal('5000.00'):
+        shipping_cost = Decimal('0.00')
+    else:
+        shipping_cost = Decimal('150.00')
+
+    tax_amount = (subtotal * Decimal('0.05')).quantize(Decimal('0.01'))
+    total_price = subtotal + shipping_cost + tax_amount
+    return shipping_cost, tax_amount, total_price
+
+
+def is_ajax(request):
+    """
+    Helper function to check if the incoming request is an asynchronous AJAX request.
+    """
+    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+
+

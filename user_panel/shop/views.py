@@ -82,7 +82,7 @@ def shop_view(request):
         .distinct()
     )
 
-    paginator = Paginator(products_list, 8)
+    paginator = Paginator(products_list, 12)
     page_number = request.GET.get('page', 1)
     try:
         page_obj = paginator.page(page_number)
@@ -101,6 +101,8 @@ def shop_view(request):
             .values_list('product_id', flat=True)
         )
 
+    filter_applied = bool(category_id or selected_brands or max_price)
+
     context = {
         "page_obj": page_obj,
         "categories": categories,
@@ -111,6 +113,7 @@ def shop_view(request):
         "selected_brands_list": selected_brands_list,
         "max_price": max_price or max_slider_val,
         "max_slider_val": max_slider_val,
+        "filter_applied": filter_applied,
         "sort_by": sort_by,
         "user_wishlist_product_ids": user_wishlist_product_ids,
     }
@@ -190,15 +193,25 @@ def product_detail_view(request, product_id):
     if request.user.is_authenticated:
         is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product).exists()
 
+    # Determine initial item to feature on page load (prefer in-stock item)
+    first_available = None
+    if product.stock > 0:
+        first_available = product
+    elif variants.filter(stock__gt=0).exists():
+        first_available = variants.filter(stock__gt=0).first()
+    else:
+        first_available = product
+
     context = {
-        "product":product,
-        "variants":variants,
-        "has_discount":has_discount,
-        "discount_pct":discount_pct,
-        "discounted_price":discount_price,
-        "related_products":related_products,
-        "highlights_list":highlights_list,
-        "is_in_wishlist":is_in_wishlist,
+        "product": product,
+        "variants": variants,
+        "first_available": first_available,
+        "has_discount": has_discount,
+        "discount_pct": discount_pct,
+        "discounted_price": discount_price,
+        "related_products": related_products,
+        "highlights_list": highlights_list,
+        "is_in_wishlist": is_in_wishlist,
     }
     
     return render(request, "user/shop/product_detail.html", context)

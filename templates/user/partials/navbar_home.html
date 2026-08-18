@@ -1,55 +1,166 @@
-<header id="nav" class="sticky top-0 z-[200] bg-white border-b border-gray-200 flex items-center px-8 h-[60px] transition-all duration-400 group [&.scrolled]:bg-[#0a0a0a]/65 [&.scrolled]:border-transparent [&.scrolled]:shadow-[0_4px_32px_rgba(0,0,0,0.35)] [&.scrolled]:backdrop-blur-[18px]">
-  <div class="flex-1 flex justify-start items-center">
-    <a href="/home/" class="text-2xl font-black tracking-[0.22em] uppercase text-brand-dark no-underline transition-colors duration-400 relative inline-block group-[.scrolled]:text-white after:content-[''] after:block after:h-[2px] after:w-0 after:bg-brand-orange after:transition-all after:duration-400 after:mx-auto after:mt-[2px] group-[.scrolled]:after:w-full">Zitarra</a>
+<header id="nav"
+  class="sticky top-0 z-[200] bg-white border-b border-gray-200 flex items-center justify-between px-8 h-[60px] transition-all duration-300 group [&.scrolled]:bg-[#0a0a0a]/70 [&.scrolled]:border-transparent [&.scrolled]:backdrop-blur-[18px]">
+
+  <!-- Logo (left) -->
+  <div class="flex-shrink-0">
+    <a href="/home/"
+      class="text-2xl font-black tracking-[0.22em] uppercase text-brand-dark no-underline group-[.scrolled]:text-white transition-colors duration-300">Zitarra</a>
   </div>
-  <nav class="flex gap-7 list-none n-links">
-    <a href="/home/" id="nav-home" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Home</a>
-    <a href="/shop/" id="nav-shop" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Shop</a>
-    <a href="/home/#about" id="nav-about" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">About Us</a>
-    <a href="/home/#contact" id="nav-contact" class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-brand-orange group-[.scrolled]:text-gray-400 group-[.scrolled]:hover:text-brand-orange after:content-[''] after:absolute after:bottom-0 after:left-0 after:w-0 after:h-[2px] after:bg-brand-orange after:transition-all after:duration-250 hover:after:w-full [&.act]:text-brand-orange [&.act]:after:w-full">Contact Us</a>
+
+  <!-- Nav links (center) -->
+  <nav id="nav-links"
+    class="absolute left-1/2 transform -translate-x-1/2 flex gap-7 n-links transition-all duration-200">
+    <a href="/home/" id="nav-home"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if request.path == '/home/' or request.path == '/' %}act{% endif %}">Home</a>
+    <a href="/shop/" id="nav-shop"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/shop/' in request.path %}act{% endif %}">Shop</a>
+    <a href="/home/#about" id="nav-about"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A]">About Us</a>
+    <a href="/home/#contact" id="nav-contact"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A]">Contact Us</a>
   </nav>
-  <div class="flex-1 flex justify-end items-center gap-6">
-    <!-- Search Icon -->
-    <button type="button" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange outline-none flex items-center cursor-pointer" aria-label="Search">
-      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <circle cx="11" cy="11" r="8"></circle>
-        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+
+  <!-- Right side: Search bar + Icons -->
+  <div class="flex items-center gap-5 flex-shrink-0">
+
+    <!-- Search bar (expands inline) -->
+    <div id="search-bar"
+      class="items-center gap-2 overflow-hidden transition-all duration-300 ease-in-out w-0 opacity-0">
+      <input id="search-input" type="text" placeholder="Search instruments…"
+        class="flex-1 text-[0.7rem] text-brand-dark placeholder-gray-400 border-b border-gray-300 bg-transparent outline-none pb-[2px] focus:border-[#E8500A] transition-colors tracking-wide whitespace-nowrap group-[.scrolled]:text-white group-[.scrolled]:placeholder-gray-300 group-[.scrolled]:border-gray-500 min-w-[280px]" />
+      <button onclick="closeSearch()"
+        class="text-gray-400 hover:text-brand-dark transition-colors shrink-0 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-white"
+        aria-label="Close search">
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+
+    <!-- Search icon (opens search bar or submits search) -->
+    <button id="btn-search" onclick="handleSearch()"
+      class="text-brand-dark hover:text-[#E8500A] transition-colors group-[.scrolled]:text-gray-300 outline-none cursor-pointer"
+      aria-label="Search">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <circle cx="11" cy="11" r="8" />
+        <line x1="21" y1="21" x2="16.65" y2="16.65" />
       </svg>
     </button>
-    
     {% if user.is_authenticated %}
-    <!-- Cart Icon -->
-    <a href="{% url 'cart_view' %}" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Cart">
-      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <circle cx="9" cy="21" r="1"></circle>
-        <circle cx="20" cy="21" r="1"></circle>
-        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-      </svg>
-      {% if cart_item_count and cart_item_count > 0 %}
-      <span class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ cart_item_count }}</span>
-      {% endif %}
-    </a>
-
-    <!-- Wishlist Icon -->
-    <a href="{% url 'wishlist:wishlist_view' %}" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange relative flex items-center" aria-label="Wishlist">
-      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+    <!-- Wishlist -->
+    <a href="{% url 'wishlist:wishlist_view' %}"
+      class="relative text-brand-dark hover:text-[#E8500A] transition-colors group-[.scrolled]:text-gray-300"
+      aria-label="Wishlist">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <path
+          d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
       {% if wishlist_item_count and wishlist_item_count > 0 %}
-      <span class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center">{{ wishlist_item_count }}</span>
+      <span
+        class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">{{ wishlist_item_count }}</span>
       {% endif %}
     </a>
-
-    <!-- Profile Icon -->
-    <a href="{% url 'profiles:profile' %}" class="text-brand-dark hover:text-brand-orange transition-colors duration-250 group-[.scrolled]:text-gray-300 group-[.scrolled]:hover:text-brand-orange outline-none flex items-center cursor-pointer" aria-label="Profile">
-      <svg class="w-[19px] h-[19px]" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-        <circle cx="12" cy="7" r="4"></circle>
+    <!-- Cart -->
+    <a href="{% url 'cart_view' %}"
+      class="relative text-brand-dark hover:text-[#E8500A] transition-colors group-[.scrolled]:text-gray-300"
+      aria-label="Cart">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <circle cx="9" cy="21" r="1" />
+        <circle cx="20" cy="21" r="1" />
+        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6" />
+      </svg>
+      <span id="nav-cart-badge"
+        class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center {% if not cart_item_count or cart_item_count == 0 %}hidden{% endif %}">{{ cart_item_count|default:0 }}</span>
+    </a>
+    <!-- Profile -->
+    <a href="{% url 'profiles:profile' %}"
+      class="text-brand-dark hover:text-[#E8500A] transition-colors group-[.scrolled]:text-gray-300"
+      aria-label="Profile">
+      <svg class="w-[18px] h-[18px]" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+        <circle cx="12" cy="7" r="4" />
       </svg>
     </a>
     {% else %}
-    <!-- Login option for unauthenticated users -->
-    <a href="{% url 'login' %}" class="text-[0.62rem] font-bold tracking-[0.16em] uppercase text-brand-orange no-underline border-[1.5px] border-brand-orange px-[18px] py-[7px] transition-all duration-200 hover:bg-brand-orange hover:text-white group-[.scrolled]:border-brand-orange group-[.scrolled]:text-brand-orange group-[.scrolled]:hover:bg-brand-orange group-[.scrolled]:hover:text-white">Login</a>
+    <!-- Login for unauthenticated users -->
+    <a href="{% url 'login' %}"
+      class="text-[0.62rem] font-bold tracking-[0.16em] uppercase text-[#E8500A] no-underline border-[1.5px] border-[#E8500A] px-[18px] py-[7px] transition-all duration-200 hover:bg-[#E8500A] hover:text-white group-[.scrolled]:border-[#E8500A] group-[.scrolled]:text-[#E8500A] group-[.scrolled]:hover:bg-[#E8500A] group-[.scrolled]:hover:text-white">Login</a>
     {% endif %}
   </div>
 </header>
+
+<script>
+  var searchOpen = false;
+
+  function handleSearch() {
+    if (!searchOpen) {
+      openSearch();
+    } else {
+      var query = document.getElementById('search-input').value.trim();
+      if (query) {
+        window.location.href = '/shop/?search=' + encodeURIComponent(query);
+      }
+    }
+  }
+
+  function openSearch() {
+    var bar = document.getElementById('search-bar');
+    if (!bar) return;
+    bar.classList.remove('w-0', 'opacity-0');
+    bar.classList.add('w-[320px]', 'opacity-100', 'flex');
+    searchOpen = true;
+    setTimeout(function () { 
+      var input = document.getElementById('search-input');
+      if (input) input.focus();
+    }, 100);
+  }
+
+  function closeSearch() {
+    var bar = document.getElementById('search-bar');
+    if (!bar) return;
+    bar.classList.add('w-0', 'opacity-0');
+    bar.classList.remove('w-[320px]', 'opacity-100', 'flex');
+    var input = document.getElementById('search-input');
+    if (input) input.value = '';
+    searchOpen = false;
+
+    if (window.location.search.includes('search=')) {
+      var params = new URLSearchParams(window.location.search);
+      params.delete('search');
+      var newUrl = '/shop/' + (params.toString() ? '?' + params.toString() : '');
+      window.location.href = newUrl;
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', function () {
+    var searchInput = document.getElementById('search-input');
+    if (searchInput) {
+      searchInput.addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+          handleSearch();
+        }
+      });
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var searchVal = params.get('search');
+    if (searchVal && searchInput) {
+      searchInput.value = searchVal;
+      openSearch();
+    }
+  });
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeSearch();
+  });
+
+  (function () {
+    var nav = document.getElementById('nav');
+    if (nav) {
+      window.addEventListener('scroll', function () {
+        nav.classList.toggle('scrolled', window.scrollY > 10);
+      }, { passive: true });
+    }
+  })();
+</script>

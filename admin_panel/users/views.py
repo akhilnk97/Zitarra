@@ -12,15 +12,7 @@ def admin_users_view(request):
     search_query = request.GET.get("search", "").strip()
     filter_val   = request.GET.get("filter", "All Users").strip()
     sort_val     = request.GET.get("sort", "Latest First").strip()
-    per_page_str = request.GET.get("per_page", "10").strip()
     page_str     = request.GET.get("page", "1").strip()
-
-    try:
-        per_page = int(per_page_str)
-        if per_page not in [10, 25, 50]:
-            per_page = 10
-    except ValueError:
-        per_page = 10
 
     try:
         page = int(page_str)
@@ -52,6 +44,7 @@ def admin_users_view(request):
     else:
         queryset = queryset.order_by("-id")
 
+    per_page = 10
     paginator = Paginator(queryset, per_page)
     page_obj  = paginator.get_page(page)
 
@@ -77,7 +70,6 @@ def admin_users_view(request):
         "search_query": search_query,
         "filter_val":   filter_val,
         "sort_val":     sort_val,
-        "per_page":     per_page,
         "admin_name":   request.user.fullname,
         "filter_all":     filter_val == "All Users",
         "filter_active":  filter_val == "Active Accounts",
@@ -86,9 +78,6 @@ def admin_users_view(request):
         "sort_oldest":    sort_val == "Oldest First",
         "sort_name_az":   sort_val == "Name (A-Z)",
         "sort_name_za":   sort_val == "Name (Z-A)",
-        "per_page_10":    per_page == 10,
-        "per_page_25":    per_page == 25,
-        "per_page_50":    per_page == 50,
     }
     return render(request, "admin_panel/users/users.html", context)
 

@@ -9,7 +9,8 @@
     <div class="w-full px-4 md:px-12 py-8">
 
         <!-- Breadcrumbs -->
-        <nav class="flex items-center gap-2 mb-6 text-[0.62rem] font-bold uppercase tracking-wider text-gray-400 select-none">
+        <nav
+            class="flex items-center gap-2 mb-6 text-[0.62rem] font-bold uppercase tracking-wider text-gray-400 select-none">
             <a href="/home/" class="hover:text-brand-orange transition-colors">Home</a>
             <span>/</span>
             <a href="/shop/" class="hover:text-brand-orange transition-colors">Shop</a>
@@ -20,33 +21,64 @@
         </nav>
 
         <!-- PRODUCT SECTION: left image, right info, side by side full width -->
-        <div class="flex flex-col md:flex-row mb-8 pb-8 border-b border-gray-300">
+        <div class="flex flex-col md:flex-row mb-8 pb-0 border-b border-gray-300">
 
             <!-- LEFT: IMAGES — takes up 50% width -->
             <div class="w-full md:w-1/2 md:pr-12 md:border-r border-gray-300">
-                <div id="main-image-container" class="bg-[#f7f7f5] border border-gray-200 mb-4 flex items-center justify-center h-[400px] overflow-hidden relative">
+                <div id="main-image-container"
+                    class="bg-[#f7f7f5] border border-gray-200 mb-4 flex items-center justify-center h-[400px] overflow-hidden relative">
                     <!-- Dynamically loads first product image or falls back to unsplash image if none exist -->
                     <img id="main-image"
                         src="{% if product.images.all %}{{ product.images.first.image.url }}{% elif variants and variants.0.images.all %}{{ variants.0.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85{% endif %}"
-                        alt="{{ product.name }}" class="max-h-[360px] max-w-[90%] w-auto h-auto object-contain cursor-zoom-in transition-opacity duration-200" />
+                        alt="{{ product.name }}"
+                        class="max-h-[360px] max-w-[90%] w-auto h-auto object-contain cursor-zoom-in transition-opacity duration-200" />
                 </div>
                 <!-- Thumbnails list -->
                 <div class="flex justify-center gap-3" id="thumbnails-container">
                     {% if product.images.all %}
-                        {% for img in product.images.all %}
-                        <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
-                            onclick="changeImage(this,'{{ img.image.url }}')">
-                            <img src="{{ img.image.url }}" class="w-full h-full object-contain" />
-                        </div>
-                        {% endfor %}
+                    {% for img in product.images.all %}
+                    <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
+                        onclick="changeImage(this,'{{ img.image.url }}')">
+                        <img src="{{ img.image.url }}" class="w-full h-full object-contain" />
+                    </div>
+                    {% endfor %}
                     {% elif variants and variants.0.images.all %}
-                        {% for img_obj in variants.0.images.all %}
-                        <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
-                            onclick="changeImage(this,'{{ img_obj.image.url }}')">
-                            <img src="{{ img_obj.image.url }}" class="w-full h-full object-contain" />
-                        </div>
-                        {% endfor %}
+                    {% for img_obj in variants.0.images.all %}
+                    <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
+                        onclick="changeImage(this,'{{ img_obj.image.url }}')">
+                        <img src="{{ img_obj.image.url }}" class="w-full h-full object-contain" />
+                    </div>
+                    {% endfor %}
                     {% endif %}
+                </div>
+
+                <!-- Craftsmanship & Quality Assurance Card -->
+                <div class="mt-6 mb-8 p-4 bg-[#FAF8F5] border border-gray-200 flex flex-col gap-3 select-none">
+                    <div class="flex items-center gap-2.5 border-b border-gray-200 pb-2.5">
+                        <div class="w-7 h-7 rounded-full bg-[#E8500A]/10 text-[#E8500A] flex items-center justify-center shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                            </svg>
+                        </div>
+                        <div>
+                            <h4 class="text-[0.64rem] font-extrabold uppercase tracking-[0.12em] text-brand-dark">Craftsmanship & Sound Guarantee</h4>
+                            <p class="text-[0.52rem] font-bold text-gray-400 uppercase tracking-wide">100% Certified Acoustic Calibration</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-3 gap-2 pt-0.5 text-center">
+                        <div class="p-2 bg-white border border-gray-200 flex flex-col items-center justify-center">
+                            <span class="text-[0.58rem] font-black text-brand-dark uppercase tracking-wider">Luthier Setup</span>
+                            <span class="text-[0.5rem] font-semibold text-gray-500 uppercase tracking-widest mt-0.5">Fine-Tuned</span>
+                        </div>
+                        <div class="p-2 bg-white border border-gray-200 flex flex-col items-center justify-center">
+                            <span class="text-[0.58rem] font-black text-brand-dark uppercase tracking-wider">Tone Tested</span>
+                            <span class="text-[0.5rem] font-semibold text-gray-500 uppercase tracking-widest mt-0.5">Harmonic Peak</span>
+                        </div>
+                        <div class="p-2 bg-white border border-gray-200 flex flex-col items-center justify-center">
+                            <span class="text-[0.58rem] font-black text-brand-dark uppercase tracking-wider">Flight Crate</span>
+                            <span class="text-[0.5rem] font-semibold text-gray-500 uppercase tracking-widest mt-0.5">Safe Transit</span>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -60,13 +92,13 @@
                 <!-- Price row with active offer discount checking -->
                 <div class="flex items-center gap-4 pb-5 border-b border-gray-300">
                     {% if has_discount %}
-                    <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{% if variants %}{{ variants.0.display_discounted|floatformat:2 }}{% else %}{{ discounted_price|floatformat:2 }}{% endif %}</p>
-                    <p class="text-[1.05rem] text-gray-400 line-through" id="original-price-display">₹{% if variants %}{{ variants.0.display_price|floatformat:2 }}{% else %}{{ product.price|floatformat:2 }}{% endif %}</p>
+                    <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{{ discounted_price|floatformat:2 }}</p>
+                    <p class="text-[1.05rem] text-gray-400 line-through" id="original-price-display">₹{{ product.price|floatformat:2 }}</p>
                     <span id="discount-badge"
                         class="bg-[#A33C08] text-white text-[0.58rem] font-bold tracking-[0.15em] uppercase px-3 py-[4px]">SAVE
                         {{ discount_pct }}%</span>
                     {% else %}
-                    <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{% if variants %}{{ variants.0.display_price|floatformat:2 }}{% else %}{{ product.price|floatformat:2 }}{% endif %}</p>
+                    <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{{ product.price|floatformat:2 }}</p>
                     {% endif %}
                 </div>
 
@@ -74,10 +106,23 @@
                 <div class="flex items-start justify-between gap-8 mt-4">
                     <!-- Left: Buying actions -->
                     <div class="flex-grow flex flex-col gap-6">
+                        <!-- Star Rating & Review Link UI -->
+                        <div class="flex items-center gap-2">
+                            <div class="flex items-center text-[#E8500A] text-xs tracking-[2px]">
+                                ★★★★★
+                            </div>
+                            <span class="text-[0.68rem] font-black text-brand-dark">4.9</span>
+                            <span class="text-gray-300 text-xs">•</span>
+                            <a href="#reviews-section" onclick="document.getElementById('reviews-section').scrollIntoView({ behavior: 'smooth', block: 'start' }); return false;" class="text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:text-[#E8500A] transition-colors no-underline cursor-pointer">
+                                48 Verified Reviews
+                            </a>
+                        </div>
+
                         <!-- Stock Status -->
                         <div id="stock-status-container">
-                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500 mb-2.5">Availability</p>
-                            {% with initial_item=variants.0|default:product %}
+                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500 mb-2.5">
+                                Availability</p>
+                            {% with initial_item=product %}
                             {% if initial_item.stock_info.is_out %}
                             <div class="inline-flex items-center gap-2.5 bg-red-50 border border-red-300 px-4 py-2.5">
                                 <div class="w-4 h-4 rounded-full bg-red-600 flex items-center justify-center shrink-0">
@@ -85,7 +130,8 @@
                                 </div>
                                 <span class="text-[0.68rem] font-bold uppercase tracking-[0.1em] text-red-700 whitespace-nowrap">{{ initial_item.stock_info.label }}</span>
                             </div>
-                            <p class="text-[0.58rem] font-semibold uppercase text-red-700 mt-2.5 tracking-wider select-none leading-relaxed max-w-[240px]">Temporarily sold out. Add to wishlist for alerts.</p>
+                            <p class="text-[0.58rem] font-semibold uppercase text-red-700 mt-2.5 tracking-wider select-none leading-relaxed max-w-[240px]">
+                                Temporarily sold out. Add to wishlist for alerts.</p>
                             {% elif initial_item.stock_info.status == 'low_stock' %}
                             <div class="inline-flex items-center gap-2.5 bg-red-50 border border-red-300 px-4 py-2.5">
                                 <div class="w-4 h-4 rounded-full bg-red-600 flex items-center justify-center shrink-0">
@@ -105,60 +151,64 @@
                         </div>
 
                         <!-- Finish / Color Choices (Dynamic or fallbacks) -->
-                        <div class="flex flex-col gap-2.5">
-                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500">Select Finish: <span id="selected-finish-name" class="text-brand-dark font-extrabold ml-1">{% if variants %}{{ variants.0.name }}{% else %}Natural Wood{% endif %}</span></p>
+                        <div class="flex flex-col gap-2.5" id="finish-selection-container">
+                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500">Select Finish:
+                                <span id="selected-finish-name" class="text-brand-dark font-extrabold ml-1">Natural Wood</span>
+                            </p>
                             <div class="flex gap-3">
+                                <!-- Base / Default Product Swatch Circle (First) -->
+                                <div class="color-option active ring-2 ring-white ring-offset-2 ring-brand-dark w-9 h-9 rounded-full bg-[#d4a574] cursor-pointer transition-all duration-200"
+                                    data-variant-id="base"
+                                    data-name="Natural Wood"
+                                    data-price="{{ product.price|floatformat:2 }}"
+                                    data-discounted-price="{{ discounted_price|floatformat:2 }}"
+                                    data-stock="{{ product.stock }}"
+                                    data-stock-label="{{ product.stock_info.label }}"
+                                    data-stock-status="{{ product.stock_info.status }}"
+                                    data-is-out="{{ product.stock_info.is_out|yesno:'true,false' }}"
+                                    data-images="{% for img in product.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
+
                                 {% if variants %}
-                                    {% for var in variants %}
-                                    <div class="color-option {% if forloop.first %}active ring-2 ring-white ring-offset-2 ring-brand-dark{% else %}border border-black/15{% endif %} w-9 h-9 rounded-full cursor-pointer transition-all duration-200"
-                                        style="background-color: {{ var.color_code }};"
-                                        data-name="{{ var.name }}"
-                                        data-price="{{ var.display_price|floatformat:2 }}"
-                                        data-discounted-price="{{ var.display_discounted|floatformat:2 }}"
-                                        data-stock="{{ var.stock }}"
-                                        data-stock-label="{{ var.stock_info.label }}"
-                                        data-stock-status="{{ var.stock_info.status }}"
-                                        data-is-out="{{ var.stock_info.is_out|yesno:'true,false' }}"
-                                        data-images="{% for img in var.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
-                                    {% endfor %}
-                                {% else %}
-                                    <div class="color-option active ring-2 ring-white ring-offset-2 ring-brand-dark w-9 h-9 rounded-full bg-[#d4a574] cursor-pointer transition-all duration-200"
-                                        data-name="Natural Wood"
-                                        data-price="{{ product.price|floatformat:2 }}"
-                                        data-discounted-price="{{ discounted_price|floatformat:2 }}"
-                                        data-stock="{{ product.stock }}"
-                                        data-stock-label="{{ product.stock_info.label }}"
-                                        data-stock-status="{{ product.stock_info.status }}"
-                                        data-is-out="{{ product.stock_info.is_out|yesno:'true,false' }}"></div>
-                                    <div class="color-option border border-black/15 w-9 h-9 rounded-full bg-[#2d2d2d] cursor-pointer transition-all duration-200"
-                                        data-name="Matte Black"
-                                        data-price="{{ product.price|floatformat:2 }}"
-                                        data-discounted-price="{{ discounted_price|floatformat:2 }}"
-                                        data-stock="{{ product.stock }}"
-                                        data-stock-label="{{ product.stock_info.label }}"
-                                        data-stock-status="{{ product.stock_info.status }}"
-                                        data-is-out="{{ product.stock_info.is_out|yesno:'true,false' }}"></div>
-                                    <div class="color-option border border-black/15 w-9 h-9 rounded-full bg-[#c74032] cursor-pointer transition-all duration-200"
-                                        data-name="Cherry Red"
-                                        data-price="{{ product.price|floatformat:2 }}"
-                                        data-discounted-price="{{ discounted_price|floatformat:2 }}"
-                                        data-stock="{{ product.stock }}"
-                                        data-stock-label="{{ product.stock_info.label }}"
-                                        data-stock-status="{{ product.stock_info.status }}"
-                                        data-is-out="{{ product.stock_info.is_out|yesno:'true,false' }}"></div>
+                                {% for var in variants %}
+                                <div class="color-option border border-black/15 w-9 h-9 rounded-full cursor-pointer transition-all duration-200"
+                                    style="background-color: {{ var.color_code }};"
+                                    data-variant-id="{{ var.id }}"
+                                    data-name="{{ var.name }}"
+                                    data-price="{{ var.display_price|floatformat:2 }}"
+                                    data-discounted-price="{{ var.display_discounted|floatformat:2 }}"
+                                    data-stock="{{ var.stock }}"
+                                    data-stock-label="{{ var.stock_info.label }}"
+                                    data-stock-status="{{ var.stock_info.status }}"
+                                    data-is-out="{{ var.stock_info.is_out|yesno:'true,false' }}"
+                                    data-images="{% for img in var.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
+                                {% endfor %}
                                 {% endif %}
                             </div>
                         </div>
 
                         <!-- Buttons -->
-                        <div class="flex flex-col gap-4">
-                            {% with initial_item=variants.0|default:product %}
-                            <form action="{% url 'add_to_cart' product.id %}" method="POST" class="w-full">
+                        <div class="flex flex-col gap-3">
+                            {% with initial_item=product %}
+                            <form action="{% url 'add_to_cart' product.id %}" method="POST" class="w-full flex flex-col gap-3">
                                 {% csrf_token %}
+                                <input type="hidden" name="variant_id" id="selected-variant-id" value="base">
+                                <!-- Quantity Selector Control -->
+                                <div class="flex items-center justify-between border border-gray-200 bg-[#FAF8F5] px-3 py-2 select-none">
+                                    <span class="text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500">Quantity </span>
+                                    <div class="flex items-center border border-gray-300 bg-white">
+                                        <button type="button" onclick="decreaseQuantity()" class="w-7 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-black text-xs transition-colors cursor-pointer select-none">−</button>
+                                        <input id="quantity-input" type="number" name="quantity" value="{% if initial_item.stock_info.is_out %}0{% else %}1{% endif %}" min="1" data-max-stock="{% if product.stock < 5 %}{{ product.stock }}{% else %}5{% endif %}" max="{% if product.stock < 5 %}{{ product.stock }}{% else %}5{% endif %}" readonly class="w-8 h-6 text-center text-xs font-bold text-brand-dark focus:outline-none bg-transparent">
+                                        <button type="button" onclick="increaseQuantity()" class="w-7 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-black text-xs transition-colors cursor-pointer select-none">+</button>
+                                    </div>
+                                </div>
+
                                 <button id="add-to-cart-btn" type="submit"
-                                    class="w-full bg-[#E8500A] text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[15px] hover:bg-[#c94008] transition-colors {% if initial_item.stock_info.is_out %}opacity-50 cursor-not-allowed{% endif %}"
+                                    class="w-full bg-[#E8500A] text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-[#c94008] transition-colors flex items-center justify-center gap-2.5 cursor-pointer {% if initial_item.stock_info.is_out %}opacity-50 cursor-not-allowed{% endif %}"
                                     {% if initial_item.stock_info.is_out %}disabled{% endif %}>
-                                    {% if initial_item.stock_info.is_out %}Out of Stock{% else %}Add to Cart{% endif %}
+                                    <svg class="w-4 h-4 fill-none stroke-current shrink-0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                        <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" />
+                                    </svg>
+                                    <span id="add-to-cart-text" class="leading-none">{% if initial_item.stock_info.is_out %}Out of Stock{% else %}Add to Cart{% endif %}</span>
                                 </button>
                             </form>
                             {% endwith %}
@@ -166,31 +216,49 @@
                                 {% csrf_token %}
                                 {% if is_in_wishlist %}
                                 <button type="submit"
-                                    class="w-full border border-red-600 text-red-600 text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[15px] hover:bg-red-600 hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                                    In Wishlist (Remove)
+                                    class="w-full border border-red-600 text-red-600 text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-red-600 hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
+                                    <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                    <span class="leading-none">In Wishlist (Remove)</span>
                                 </button>
                                 {% else %}
                                 <button type="submit"
-                                    class="w-full border border-black text-black text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[15px] hover:bg-black hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2">
-                                    <svg class="w-4 h-4 fill-none stroke-current" stroke-width="2" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
-                                    Add to Wishlist
+                                    class="w-full border border-black text-black text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-black hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
+                                    <svg class="w-4 h-4 fill-none stroke-current shrink-0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
+                                        <path
+                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                                    </svg>
+                                    <span class="leading-none">Add to Wishlist</span>
                                 </button>
                                 {% endif %}
                             </form>
+
+                            <!-- Express Checkout Reassurance Micro Badges -->
+                            <div class="flex items-center justify-between px-1 py-1 select-none border-t border-gray-200/80 pt-3.5 mt-1">
+                                <span class="text-[0.52rem] font-bold uppercase tracking-wider text-gray-400">Guaranteed Safe Checkout</span>
+                                <div class="flex items-center gap-1.5 text-[0.52rem] font-extrabold uppercase tracking-widest text-gray-500">
+                                    <span>UPI</span> • <span>Cards</span> • <span>EMI</span>
+                                </div>
+                            </div>
                         </div>
                     </div>
 
                     <!-- Right: Info & Coupons & Highlights -->
-                    <div class="w-[320px] shrink-0 flex flex-col gap-6">
+                    <div class="w-[320px] shrink-0 flex flex-col gap-5">
                         <!-- Coupons & Offers -->
-                        <div class="border border-dashed border-[#E8500A] bg-[#FFFBF9] p-4 flex flex-col gap-3 select-none">
+                        <div
+                            class="border border-dashed border-[#E8500A] bg-[#FFFBF9] p-4 flex flex-col gap-3 select-none">
                             <div class="flex justify-between items-start gap-4">
                                 <div>
-                                    <p class="text-[0.62rem] font-black uppercase tracking-wider text-[#A04100] mb-0.5">Code: ZITARRA10</p>
-                                    <p class="text-[0.54rem] text-gray-500 uppercase tracking-wide">Get an extra 10% discount at checkout</p>
+                                    <p class="text-[0.62rem] font-black uppercase tracking-wider text-[#A04100] mb-0.5">
+                                        Code: ZITARRA10</p>
+                                    <p class="text-[0.54rem] text-gray-500 uppercase tracking-wide">Get an extra 10%
+                                        discount at checkout</p>
                                 </div>
-                                <button onclick="navigator.clipboard.writeText('ZITARRA10'); alert('Coupon code copied to clipboard!');" 
+                                <button
+                                    onclick="navigator.clipboard.writeText('ZITARRA10'); alert('Coupon code copied to clipboard!');"
                                     class="border border-[#E8500A] text-[#E8500A] hover:bg-[#E8500A] hover:text-white transition-all text-[0.52rem] font-black uppercase tracking-widest px-2.5 py-1 active:scale-95 cursor-pointer shrink-0">
                                     Copy
                                 </button>
@@ -199,8 +267,11 @@
 
                         <!-- Product Highlights -->
                         <div class="border border-gray-200 bg-[#FAF8F5] p-5 select-none">
-                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500 mb-2.5 border-b border-gray-200 pb-2">Product Highlights</p>
-                            <ul class="list-disc pl-4 space-y-2 text-[0.58rem] font-semibold uppercase tracking-wider text-gray-600">
+                            <p
+                                class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500 mb-2.5 border-b border-gray-200 pb-2">
+                                Product Highlights</p>
+                            <ul
+                                class="list-disc pl-4 space-y-2 text-[0.58rem] font-semibold uppercase tracking-wider text-gray-600 h-[285px] max-h-[285px] overflow-y-auto pr-2 highlights-scrollbar">
                                 {% for highlight in highlights_list %}
                                 <li>{{ highlight }}</li>
                                 {% endfor %}
@@ -210,251 +281,333 @@
                 </div>
 
                 <!-- Unified Full-Width Divider Line and Badges -->
-                <div class="flex items-center justify-between pt-5 border-t border-gray-200 mt-6 pb-2 select-none">
+                <div class="flex items-center justify-between pt-5 pb-5 border-t border-gray-200 mt-auto select-none">
                     <div class="flex items-center gap-2">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
                             <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <p class="text-[0.6rem] font-bold uppercase tracking-[0.08em] text-gray-500">One Year Warranty</p>
+                        <p class="text-[0.6rem] font-bold uppercase tracking-[0.08em] text-gray-500">One Year Warranty
+                        </p>
                     </div>
                     <div class="w-[320px] flex items-center gap-2 shrink-0">
                         <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
                             viewBox="0 0 24 24">
-                            <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                            <path
+                                d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
                         </svg>
-                        <p class="text-[0.6rem] font-bold uppercase tracking-[0.08em] text-gray-500">Free Express Shipping</p>
+                        <p class="text-[0.6rem] font-bold uppercase tracking-[0.08em] text-gray-500">Free Express
+                            Shipping</p>
                     </div>
                 </div>
             </div>
         </div>
-    <!-- END PRODUCT SECTION -->
+        <!-- END PRODUCT SECTION -->
 
-    <!-- SPECS / SHIPPING / RETURN — 3 column layout -->
-    <div class="grid grid-cols-3 divide-x divide-gray-300 border border-gray-300 mb-8 bg-[#FDF8F5]">
+        <!-- SPECS / SHIPPING / RETURN — 3 column layout -->
+        <div class="grid grid-cols-3 divide-x divide-gray-300 border border-gray-300 mb-8 bg-[#FDF8F5]">
 
-        <!-- Manufacturer Specs -->
-        <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/spec" onclick="openSpecsModal()">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="text-[0.72rem] font-black tracking-[0.16em] uppercase text-brand-dark">Manufacturer Specs</h3>
-                <span class="text-gray-400 group-hover/spec:text-brand-orange text-xs transition-colors">Know More ↗</span>
+            <!-- Manufacturer Specs -->
+            <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/spec" onclick="openSpecsModal()">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-[0.72rem] font-black tracking-[0.16em] uppercase text-brand-dark">Manufacturer Specs
+                    </h3>
+                    <span class="text-gray-400 group-hover/spec:text-brand-orange text-xs transition-colors">Know More
+                        ↗</span>
+                </div>
+                <div class="space-y-3">
+                    <div class="flex gap-4">
+                        <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Description</p>
+                        <p class="text-[0.65rem] text-gray-700 font-semibold uppercase line-clamp-1 break-words min-w-0 flex-1">{{ product.description }}</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Category</p>
+                        <p class="text-[0.65rem] text-gray-700 font-semibold uppercase break-words min-w-0 flex-1">{{ product.category.name }}</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Brand</p>
+                        <p class="text-[0.65rem] text-gray-700 font-semibold uppercase break-words min-w-0 flex-1">{{ product.brand|default:"Zitarra" }}</p>
+                    </div>
+                    <div class="flex gap-4">
+                        <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Finish</p>
+                        <p class="text-[0.65rem] text-gray-700 font-semibold uppercase break-words min-w-0 flex-1" id="specs-finish-val">{% if variants %}Default Finish{% else %}Natural Wood{% endif %}</p>
+                    </div>
+                </div>
             </div>
-            <div class="space-y-3">
-                <div class="flex gap-4">
-                    <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Description</p>
-                    <p class="text-[0.65rem] text-gray-700 font-semibold uppercase line-clamp-1">{{ product.description }}</p>
+
+            <!-- Shipping -->
+            <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/ship" onclick="openShippingModal()">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-[0.72rem] font-black tracking-[0.16em] uppercase text-brand-dark">Shipping</h3>
+                    <span class="text-gray-400 group-hover/ship:text-brand-orange text-xs transition-colors">Know More
+                        ↗</span>
                 </div>
-                <div class="flex gap-4">
-                    <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Category</p>
-                    <p class="text-[0.65rem] text-gray-700 font-semibold uppercase">{{ product.category.name }}</p>
+                <p class="text-[0.7rem] text-gray-600 leading-relaxed mb-4">Professional crate packaging. Insured
+                    transit via specialized instrument logistics.</p>
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                    </svg>
+                    <span class="text-[0.62rem] font-bold uppercase tracking-widest text-[#E8500A]">Delivery: 14–21
+                        Business Days</span>
                 </div>
-                <div class="flex gap-4">
-                    <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Brand</p>
-                    <p class="text-[0.65rem] text-gray-700 font-semibold uppercase">{{ product.brand_name }}</p>
+            </div>
+
+            <!-- Return Policy -->
+            <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/ret" onclick="openReturnModal()">
+                <div class="flex justify-between items-start mb-4">
+                    <h3 class="text-[0.72rem] font-black tracking-[0.16em] uppercase text-brand-dark">Return Policy</h3>
+                    <span class="text-gray-400 group-hover/ret:text-brand-orange text-xs transition-colors">Know More
+                        ↗</span>
                 </div>
-                <div class="flex gap-4">
-                    <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Finish</p>
-                    <p class="text-[0.65rem] text-gray-700 font-semibold uppercase" id="specs-finish-val">{% if variants %}Default Finish{% else %}Natural Wood{% endif %}</p>
+                <p class="text-[0.7rem] text-gray-600 leading-relaxed mb-4">30-day satisfaction guarantee. Must be
+                    returned in original flight cases. 15% restocking fee for custom configurations.</p>
+                <div class="flex items-center gap-2">
+                    <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
+                        viewBox="0 0 24 24">
+                        <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <span class="text-[0.62rem] font-bold uppercase tracking-widest text-gray-500">Full Warranty
+                        Included</span>
+                </div>
+            </div>
+
+        </div>
+        <!-- END SPECS SECTION -->
+
+        <!-- REVIEWS SECTION (Static decoration) -->
+        <div id="reviews-section" class="mb-8 pb-8 border-b border-gray-300 scroll-mt-8">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-[0.8rem] font-black tracking-[0.1em] uppercase text-brand-dark">Verified Buyers Reviews</h2>
+                <!-- Arrow Navigation Buttons -->
+                <div class="flex items-center gap-2">
+                    <button onclick="scrollReviews(-300)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all cursor-pointer shadow-sm active:scale-95 text-lg font-bold leading-none select-none" title="Scroll Left">
+                        ‹
+                    </button>
+                    <button onclick="scrollReviews(300)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all cursor-pointer shadow-sm active:scale-95 text-lg font-bold leading-none select-none" title="Scroll Right">
+                        ›
+                    </button>
+                </div>
+            </div>
+            <div id="reviews-container" class="overflow-x-auto scroll-smooth flex gap-0 pb-4">
+                <!-- Review Card 1 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Thomas R.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Worth Every Penny
+                    </p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Upgraded from a Jupiter and the difference is
+                        night and day. The resonance of the alder body is incredible even unplugged. A lifetime
+                        instrument.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Feb. 08, 2025</p>
+                </div>
+
+                <!-- Review Card 2 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Justin M.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">The Sunburst is
+                        Stunning</p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">The 3-color sunburst finish is flawless.
+                        Pickups are super responsive. Deducted one star because the set-up out of the box needed a tiny
+                        tweak.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Jan. 13, 2025</p>
+                </div>
+
+                <!-- Review Card 3 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Sarah K.</p>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Great Sound Quality
+                    </p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Amazing tone and build quality. The maple
+                        shells produce beautiful warm tones. Only complaint is the hardware could be slightly better at
+                        this price.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Nov. 15, 2024</p>
+                </div>
+
+                <!-- Review Card 4 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Mike D.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Professional Grade
+                        Kit</p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Been playing for 20 years and this is the
+                        best kit I've owned. The projection is phenomenal and tuning stability is excellent throughout.
+                    </p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Oct. 30, 2024</p>
+                </div>
+
+                <!-- Review Card 5 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Anna L.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Absolutely Worth It
+                    </p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">This drum kit exceeded all expectations.
+                        Recording quality is studio-grade right out of the box. The finish is immaculate and hardware is
+                        solid.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Sep. 18, 2024</p>
+                </div>
+
+                <!-- Review Card 6 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Chris P.</p>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Solid Build</p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Very solid construction and the maple tone is
+                        warm and punchy. Delivery was fast and well-packaged. Minor setup needed but overall very happy.
+                    </p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Aug. 05, 2024</p>
+                </div>
+
+                <!-- Review Card 7 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">David H.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Perfect for Studio
+                    </p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Used this in multiple recording sessions. The
+                        attack is precise and the sustain is beautiful. Fits perfectly in any mix without EQ
+                        adjustments.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Jul. 22, 2024</p>
+                </div>
+
+                <!-- Review Card 8 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Emily R.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Best Purchase Ever
+                    </p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">After months of research I chose this and I'm
+                        so glad. The warmth and clarity are unmatched. Customer service was also very responsive.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Jun. 10, 2024</p>
+                </div>
+
+                <!-- Review Card 9 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Robert T.</p>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Great Value</p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Solid instrument for the price. The tone is
+                        rich and full. Only downside is the tuning pegs could be smoother but that's a minor issue.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">May. 28, 2024</p>
+                </div>
+
+                <!-- Review Card 10 -->
+                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
+                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
+                    <div class="flex items-center gap-1 mb-1">
+                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Jessica W.</p>
+                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd"
+                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
+                                clip-rule="evenodd" />
+                        </svg>
+                    </div>
+                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Exceeded
+                        Expectations</p>
+                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Bought this for my studio and it's
+                        incredible. The craftsmanship is top-notch and the sound is exactly what I needed. Highly
+                        recommend it.</p>
+                    <p class="text-[0.54rem] text-gray-400 mt-3">Apr. 14, 2024</p>
+                </div>
+
+                <!-- CTA Dark Card -->
+                <div
+                    class="min-w-[260px] max-w-[260px] bg-brand-dark text-white p-8 shrink-0 flex flex-col items-center justify-center text-center border border-brand-dark">
+                    <svg class="w-8 h-8 mb-4 opacity-50" fill="none" stroke="currentColor" stroke-width="1.5"
+                        viewBox="0 0 24 24">
+                        <path
+                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
+                    </svg>
+                    <p class="text-[0.58rem] font-bold tracking-[0.15em] uppercase mb-2">See More Reviews</p>
+                    <p class="text-[0.52rem] text-gray-400 leading-relaxed mb-4 uppercase tracking-wider">Explore 242+
+                        verified owner experiences and technical ratings</p>
+                    <button
+                        class="border border-white text-white text-[0.52rem] font-bold tracking-[0.15em] uppercase px-5 py-2 hover:bg-white hover:text-brand-dark transition-all">View
+                        All</button>
                 </div>
             </div>
         </div>
+        <!-- END REVIEWS -->
 
-        <!-- Shipping -->
-        <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/ship" onclick="openShippingModal()">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="text-[0.72rem] font-black tracking-[0.16em] uppercase text-brand-dark">Shipping</h3>
-                <span class="text-gray-400 group-hover/ship:text-brand-orange text-xs transition-colors">Know More ↗</span>
-            </div>
-            <p class="text-[0.7rem] text-gray-600 leading-relaxed mb-4">Professional crate packaging. Insured transit via specialized instrument logistics.</p>
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
-                </svg>
-                <span class="text-[0.62rem] font-bold uppercase tracking-widest text-[#E8500A]">Delivery: 14–21 Business Days</span>
+        <!-- RELATED PRODUCTS -->
+        <div class="pb-8">
+            <h3 class="text-[0.62rem] font-black tracking-[0.16em] uppercase text-brand-dark mb-4">Related Instruments
+            </h3>
+            <div class="grid grid-cols-4 gap-0 border border-gray-200">
+                {% for item in related_products %}
+                <a href="{% url 'product_detail' item.id %}"
+                    class="border-r last:border-r-0 border-gray-200 group hover:shadow-md transition-shadow duration-200 cursor-pointer no-underline block text-brand-dark">
+                    <div class="bg-[#1a1a1a] aspect-square flex items-center justify-center p-6">
+                        <img src="{% if item.images.all %}{{ item.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=400&q=80{% endif %}"
+                            alt="{{ item.name }}"
+                            class="max-h-full max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-400" />
+                    </div>
+                    <div class="p-4">
+                        <p class="text-[0.44rem] font-bold tracking-[0.2em] uppercase text-gray-400 mb-1">{{ item.category.name }}</p>
+                        <p class="text-[0.65rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">{{ item.name }}</p>
+                        <p class="text-[0.75rem] font-black text-[#E8500A]">₹{{ item.price|floatformat:2 }}</p>
+                    </div>
+                </a>
+                {% empty %}
+                <div class="col-span-4 p-8 text-center text-gray-400 uppercase tracking-widest text-[0.6rem]">No related instruments available</div>
+                {% endfor %}
             </div>
         </div>
-
-        <!-- Return Policy -->
-        <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/ret" onclick="openReturnModal()">
-            <div class="flex justify-between items-start mb-4">
-                <h3 class="text-[0.72rem] font-black tracking-[0.16em] uppercase text-brand-dark">Return Policy</h3>
-                <span class="text-gray-400 group-hover/ret:text-brand-orange text-xs transition-colors">Know More ↗</span>
-            </div>
-            <p class="text-[0.7rem] text-gray-600 leading-relaxed mb-4">30-day satisfaction guarantee. Must be returned in original flight cases. 15% restocking fee for custom configurations.</p>
-            <div class="flex items-center gap-2">
-                <svg class="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" stroke-width="2"
-                    viewBox="0 0 24 24">
-                    <path d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span class="text-[0.62rem] font-bold uppercase tracking-widest text-gray-500">Full Warranty Included</span>
-            </div>
-        </div>
+        <!-- END RELATED -->
 
     </div>
-    <!-- END SPECS SECTION -->
-
-    <!-- REVIEWS SECTION (Static decoration) -->
-    <div class="mb-8 pb-8 border-b border-gray-300">
-        <h2 class="text-[0.8rem] font-black tracking-[0.1em] uppercase text-brand-dark mb-6">Verified Buyers Reviews</h2>
-        <div class="overflow-x-auto scroll-smooth flex gap-0 pb-4">
-            <!-- Review Card 1 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Thomas R.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Worth Every Penny</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Upgraded from a Jupiter and the difference is night and day. The resonance of the alder body is incredible even unplugged. A lifetime instrument.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Feb. 08, 2025</p>
-            </div>
-
-            <!-- Review Card 2 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Justin M.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">The Sunburst is Stunning</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">The 3-color sunburst finish is flawless. Pickups are super responsive. Deducted one star because the set-up out of the box needed a tiny tweak.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Jan. 13, 2025</p>
-            </div>
-
-            <!-- Review Card 3 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Sarah K.</p>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Great Sound Quality</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Amazing tone and build quality. The maple shells produce beautiful warm tones. Only complaint is the hardware could be slightly better at this price.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Nov. 15, 2024</p>
-            </div>
-
-            <!-- Review Card 4 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Mike D.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Professional Grade Kit</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Been playing for 20 years and this is the best kit I've owned. The projection is phenomenal and tuning stability is excellent throughout.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Oct. 30, 2024</p>
-            </div>
-
-            <!-- Review Card 5 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Anna L.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Absolutely Worth It</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">This drum kit exceeded all expectations. Recording quality is studio-grade right out of the box. The finish is immaculate and hardware is solid.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Sep. 18, 2024</p>
-            </div>
-
-            <!-- Review Card 6 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Chris P.</p>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Solid Build</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Very solid construction and the maple tone is warm and punchy. Delivery was fast and well-packaged. Minor setup needed but overall very happy.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Aug. 05, 2024</p>
-            </div>
-
-            <!-- Review Card 7 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">David H.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Perfect for Studio</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Used this in multiple recording sessions. The attack is precise and the sustain is beautiful. Fits perfectly in any mix without EQ adjustments.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Jul. 22, 2024</p>
-            </div>
-
-            <!-- Review Card 8 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Emily R.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Best Purchase Ever</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">After months of research I chose this and I'm so glad. The warmth and clarity are unmatched. Customer service was also very responsive.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Jun. 10, 2024</p>
-            </div>
-
-            <!-- Review Card 9 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Robert T.</p>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Great Value</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Solid instrument for the price. The tone is rich and full. Only downside is the tuning pegs could be smoother but that's a minor issue.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">May. 28, 2024</p>
-            </div>
-
-            <!-- Review Card 10 -->
-            <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                <div class="flex items-center gap-1 mb-1">
-                    <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Jessica W.</p>
-                    <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-                </div>
-                <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Exceeded Expectations</p>
-                <p class="text-[0.6rem] text-gray-600 leading-relaxed">Bought this for my studio and it's incredible. The craftsmanship is top-notch and the sound is exactly what I needed. Highly recommend it.</p>
-                <p class="text-[0.54rem] text-gray-400 mt-3">Apr. 14, 2024</p>
-            </div>
-
-            <!-- CTA Dark Card -->
-            <div class="min-w-[260px] max-w-[260px] bg-brand-dark text-white p-8 shrink-0 flex flex-col items-center justify-center text-center border border-brand-dark">
-                <svg class="w-8 h-8 mb-4 opacity-50" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                    <path d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z"/>
-                </svg>
-                <p class="text-[0.58rem] font-bold tracking-[0.15em] uppercase mb-2">See More Reviews</p>
-                <p class="text-[0.52rem] text-gray-400 leading-relaxed mb-4 uppercase tracking-wider">Explore 242+ verified owner experiences and technical ratings</p>
-                <button class="border border-white text-white text-[0.52rem] font-bold tracking-[0.15em] uppercase px-5 py-2 hover:bg-white hover:text-brand-dark transition-all">View All</button>
-            </div>
-        </div>
-    </div>
-    <!-- END REVIEWS -->
-
-    <!-- RELATED PRODUCTS -->
-    <div class="pb-8">
-        <h3 class="text-[0.62rem] font-black tracking-[0.16em] uppercase text-brand-dark mb-4">Related Instruments</h3>
-        <div class="grid grid-cols-4 gap-0 border border-gray-200">
-            {% for item in related_products %}
-            <a href="{% url 'product_detail' item.id %}"
-                class="border-r last:border-r-0 border-gray-200 group hover:shadow-md transition-shadow duration-200 cursor-pointer no-underline block text-brand-dark">
-                <div class="bg-[#1a1a1a] aspect-square flex items-center justify-center p-6">
-                    <img src="{% if item.images.all %}{{ item.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1525201548942-d8732f6617a0?w=400&q=80{% endif %}"
-                        alt="{{ item.name }}"
-                        class="max-h-full max-w-full object-contain grayscale group-hover:grayscale-0 transition-all duration-400" />
-                </div>
-                <div class="p-4">
-                    <p class="text-[0.44rem] font-bold tracking-[0.2em] uppercase text-gray-400 mb-1">{{ item.category.name }}</p>
-                    <p class="text-[0.65rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">{{ item.name }}</p>
-                    <p class="text-[0.75rem] font-black text-[#E8500A]">₹{{ item.price|floatformat:2 }}</p>
-                </div>
-            </a>
-            {% empty %}
-            <div class="col-span-4 p-8 text-center text-gray-400 uppercase tracking-widest text-[0.6rem]">No related
-                instruments available</div>
-            {% endfor %}
-        </div>
-    </div>
-    <!-- END RELATED -->
-
-</div>
 </div>
 
 {% include 'user/partials/footer.html' %}
@@ -462,70 +615,113 @@
 
 <!-- Hidden modal contents -->
 <div id="specs-content-raw" class="hidden">
-    <div class="space-y-4 text-xs font-normal normal-case tracking-normal">
-        <div class="flex border-b border-gray-100 pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Model Name</span>
-            <span class="text-gray-900 font-semibold">{{ product.name }}</span>
+    <div class="space-y-3.5 text-xs font-normal normal-case tracking-normal">
+        <div class="flex border-b border-gray-100 pb-2.5 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Model Name</span>
+            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words">{{ product.name }}</span>
         </div>
-        <div class="flex border-b border-gray-100 pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Category</span>
-            <span class="text-gray-900 font-semibold">{{ product.category.name }}</span>
+        <div class="flex border-b border-gray-100 pb-2.5 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Category</span>
+            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words">{{ product.category.name }}</span>
         </div>
-        <div class="flex border-b border-gray-100 pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Brand Manufacturer</span>
-            <span class="text-gray-900 font-semibold">{{ product.brand_name }}</span>
+        <div class="flex border-b border-gray-100 pb-2.5 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Brand Manufacturer</span>
+            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words">{{ product.brand|default:"Zitarra" }}</span>
         </div>
-        <div class="flex border-b border-gray-100 pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Finish Option</span>
-            <span class="text-gray-900 font-semibold" id="modal-specs-finish-val">{% if variants %}Default Finish{% else %}Natural Wood{% endif %}</span>
+        <div class="flex border-b border-gray-100 pb-2.5 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Finish Option</span>
+            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words" id="modal-specs-finish-val">{% if variants %}Default Finish{% else %}Natural Wood{% endif %}</span>
         </div>
-        <div class="flex border-b border-gray-100 pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Stock Availability</span>
-            <span class="text-gray-900 font-semibold">{% if product.stock > 0 %}In Stock ({{ product.stock }} units available){% else %}Out of Stock{% endif %}</span>
+        <div class="flex border-b border-gray-100 pb-2.5 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Stock Availability</span>
+            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words">{% if product.stock > 0 %}In Stock ({{ product.stock }} units available){% else %}Out of Stock{% endif %}</span>
         </div>
-        <div class="flex border-b border-gray-100 pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Product Info</span>
-            <span class="text-gray-900 leading-relaxed">{{ product.description }}</span>
+        <div class="flex border-b border-gray-100 pb-2.5 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Product Info</span>
+            <span class="text-gray-900 leading-relaxed flex-1 min-w-0 break-words overflow-hidden">{{ product.description }}</span>
         </div>
-        <div class="flex pb-2">
-            <span class="font-bold text-gray-500 w-28 shrink-0">Warranty Coverage</span>
-            <span class="text-gray-900">Standard 1-Year (12 months) warranty covered by Zitarra Protection Plan, covering all mechanical and electronics hardware failures.</span>
+        <div class="flex pb-2 gap-4">
+            <span class="font-bold text-gray-500 w-32 shrink-0">Warranty Coverage</span>
+            <span class="text-gray-900 flex-1 min-w-0 break-words">Standard 1-Year (12 months) warranty covered by Zitarra Protection Plan, covering all mechanical and electronics hardware failures.</span>
         </div>
     </div>
 </div>
 
 <div id="shipping-content-raw" class="hidden">
     <div class="space-y-4 text-xs font-normal normal-case tracking-normal text-gray-600 leading-relaxed">
-        <p><strong class="text-brand-dark font-bold block mb-1">DELIVERY ESTIMATE</strong> Orders are processed within 24–48 hours. Shipping to your destination is estimated to take between 14 to 21 business days.</p>
-        <p><strong class="text-brand-dark font-bold block mb-1">SECURE PACKAGING</strong> Delicate stringed instruments and drums are packed in high-density professional flight crates. Inside, custom thermo-molded foam keeps the necks, hardware, and finishes free from vibration damage.</p>
-        <p><strong class="text-brand-dark font-bold block mb-1">TRANSIT INSURANCE</strong> Full cargo insurance is standard for all premium shipments at zero extra fee. Should any structural damage occur during shipping, Zitarra will replace or fully refund your order.</p>
-        <p><strong class="text-brand-dark font-bold block mb-1">SPECIALIZED LOGISTICS</strong> Deliveries are executed by specialized premium cargo carriers (e.g. FedEx Custom Critical or DHL Express Specialty Air) to maintain high environment standards during flight and road transport.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">DELIVERY ESTIMATE</strong> Orders are processed within
+            24–48 hours. Shipping to your destination is estimated to take between 14 to 21 business days.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">SECURE PACKAGING</strong> Delicate stringed instruments
+            and drums are packed in high-density professional flight crates. Inside, custom thermo-molded foam keeps the
+            necks, hardware, and finishes free from vibration damage.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">TRANSIT INSURANCE</strong> Full cargo insurance is
+            standard for all premium shipments at zero extra fee. Should any structural damage occur during shipping,
+            Zitarra will replace or fully refund your order.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">SPECIALIZED LOGISTICS</strong> Deliveries are executed
+            by specialized premium cargo carriers (e.g. FedEx Custom Critical or DHL Express Specialty Air) to maintain
+            high environment standards during flight and road transport.</p>
     </div>
 </div>
 
 <div id="return-content-raw" class="hidden">
     <div class="space-y-4 text-xs font-normal normal-case tracking-normal text-gray-600 leading-relaxed">
-        <p><strong class="text-brand-dark font-bold block mb-1">30-DAY REFUND WINDOW</strong> If you are not completely satisfied with your purchase, you have 30 calendar days from the delivery date to initiate a return request.</p>
-        <p><strong class="text-brand-dark font-bold block mb-1">INSTRUMENT CONDITION</strong> Returns must be shipped back in the original, undamaged instrument cases, along with all accessories, certificates, user guides, and hex adjustment tools included in the package.</p>
-        <p><strong class="text-brand-dark font-bold block mb-1">15% RESTOCKING FEE</strong> Due to the professional setups (calibration, string action adjustments, and fine-tuning) performed by our luthier team prior to shipping, a standard 15% restocking fee is deducted from the refund total.</p>
-        <p><strong class="text-brand-dark font-bold block mb-1">REFUND PROCESSING</strong> Once received and checked by our inspection technicians, refunds are authorized and processed back to your original payment method in 5 to 7 business days.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">30-DAY REFUND WINDOW</strong> If you are not completely
+            satisfied with your purchase, you have 30 calendar days from the delivery date to initiate a return request.
+        </p>
+        <p><strong class="text-brand-dark font-bold block mb-1">INSTRUMENT CONDITION</strong> Returns must be shipped
+            back in the original, undamaged instrument cases, along with all accessories, certificates, user guides, and
+            hex adjustment tools included in the package.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">15% RESTOCKING FEE</strong> Due to the professional
+            setups (calibration, string action adjustments, and fine-tuning) performed by our luthier team prior to
+            shipping, a standard 15% restocking fee is deducted from the refund total.</p>
+        <p><strong class="text-brand-dark font-bold block mb-1">REFUND PROCESSING</strong> Once received and checked by
+            our inspection technicians, refunds are authorized and processed back to your original payment method in 5
+            to 7 business days.</p>
     </div>
 </div>
 
 <!-- Modal Overlay -->
-<div id="info-modal-overlay" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity duration-300 opacity-0 flex items-center justify-center p-4">
+<div id="info-modal-overlay"
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity duration-300 opacity-0 flex items-center justify-center p-4">
     <!-- Modal Content Container -->
-    <div id="info-modal-content" class="bg-white border border-gray-200 max-w-lg w-full p-8 shadow-2xl relative transition-transform duration-300 scale-95 flex flex-col gap-5">
+    <div id="info-modal-content"
+        class="bg-white border border-gray-200 max-w-lg w-full p-8 shadow-2xl relative transition-transform duration-300 scale-95 flex flex-col gap-5">
         <!-- Close Button -->
-        <button onclick="closeInfoModal()" class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark transition-colors cursor-pointer text-2xl leading-none">&times;</button>
+        <button onclick="closeInfoModal()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark transition-colors cursor-pointer text-2xl leading-none">&times;</button>
         <!-- Dynamic Modal Header -->
-        <h3 id="info-modal-title" class="text-[0.78rem] font-black tracking-[0.16em] uppercase text-brand-dark border-b border-gray-200 pb-3"></h3>
+        <h3 id="info-modal-title"
+            class="text-[0.78rem] font-black tracking-[0.16em] uppercase text-brand-dark border-b border-gray-200 pb-3">
+        </h3>
         <!-- Dynamic Modal Body -->
         <div id="info-modal-body" class="max-h-[350px] overflow-y-auto pr-1"></div>
     </div>
-</div>
+<style>
+    .highlights-scrollbar::-webkit-scrollbar {
+        width: 3px;
+    }
+    .highlights-scrollbar::-webkit-scrollbar-track {
+        background: rgba(0, 0, 0, 0.04);
+    }
+    .highlights-scrollbar::-webkit-scrollbar-thumb {
+        background: #E8500A;
+        border-radius: 2px;
+    }
+    .highlights-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #c94008;
+    }
+</style>
 
 <script>
+    function scrollReviews(distance) {
+        const container = document.getElementById('reviews-container');
+        if (container) {
+            container.scrollBy({ left: distance, behavior: 'smooth' });
+        }
+    }
+
+
+
     function changeImage(thumb, src) {
         document.getElementById('main-image').src = src;
         const container = document.getElementById('main-image-container');
@@ -543,10 +739,10 @@
     // Default product images array
     const defaultProductImages = [
         {% for img in product.images.all %}
-            "{{ img.image.url }}"{% if not forloop.last %},{% endif %}
-        {% empty %}
-            "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85"
-        {% endfor %}
+    "{{ img.image.url }}"{% if not forloop.last %}, {% endif %}
+    {% empty %}
+    "https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85"
+    {% endfor %}
     ];
 
     document.querySelectorAll('.color-option').forEach(function (opt) {
@@ -558,11 +754,26 @@
             this.classList.add('active', 'ring-2', 'ring-white', 'ring-offset-2', 'ring-brand-dark', 'border-transparent');
             this.classList.remove('border-black/15');
 
+            // Hide variant selection error message if visible
+            const errEl = document.getElementById('variant-error-msg');
+            if (errEl) {
+                errEl.classList.add('hidden');
+            }
+
+            // Update selected variant ID
+            const varId = this.getAttribute('data-variant-id') || 'base';
+            const varIdInput = document.getElementById('selected-variant-id');
+            if (varIdInput) {
+                varIdInput.value = varId;
+            }
+
             // Update selected finish name
             const selectedName = this.getAttribute('data-name');
             const selectedNameEl = document.getElementById('selected-finish-name');
             if (selectedNameEl) {
                 selectedNameEl.textContent = selectedName;
+                selectedNameEl.classList.remove('text-[#A33C08]');
+                selectedNameEl.classList.add('text-brand-dark');
             }
             const specsFinishVal = document.getElementById('specs-finish-val');
             if (specsFinishVal) {
@@ -629,7 +840,7 @@
             // Update price displays
             const price = parseFloat(this.getAttribute('data-price'));
             const discountedPrice = parseFloat(this.getAttribute('data-discounted-price'));
-            
+
             const priceEl = document.getElementById('price-display');
             if (priceEl) {
                 priceEl.textContent = '₹' + discountedPrice.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -681,18 +892,52 @@
                 }
             }
 
+            // Update quantity max stock limit
+            const variantStock = parseInt(this.getAttribute('data-stock') || '0');
+            const newMax = Math.min(variantStock, 5);
+            const qInput = document.getElementById('quantity-input');
+            if (qInput) {
+                qInput.setAttribute('data-max-stock', newMax);
+                qInput.setAttribute('max', newMax);
+                if (isOut || newMax === 0) {
+                    qInput.value = 0;
+                } else if (parseInt(qInput.value) > newMax || parseInt(qInput.value) === 0) {
+                    qInput.value = 1;
+                }
+            }
+
+            const cartText = document.getElementById('add-to-cart-text');
             if (btn) {
                 btn.disabled = isOut;
                 if (isOut) {
                     btn.classList.add('opacity-50', 'cursor-not-allowed');
-                    btn.textContent = 'Out of Stock';
+                    if (cartText) cartText.textContent = 'Out of Stock';
                 } else {
                     btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    btn.textContent = 'Add to Cart';
+                    if (cartText) cartText.textContent = 'Add to Cart';
                 }
             }
         });
     });
+
+    function increaseQuantity() {
+        const q = document.getElementById('quantity-input');
+        if (!q) return;
+        const maxAllowed = parseInt(q.getAttribute('data-max-stock') || '5');
+        const currentVal = parseInt(q.value || '1');
+        if (currentVal < maxAllowed) {
+            q.value = currentVal + 1;
+        }
+    }
+
+    function decreaseQuantity() {
+        const q = document.getElementById('quantity-input');
+        if (!q) return;
+        const currentVal = parseInt(q.value || '1');
+        if (currentVal > 1) {
+            q.value = currentVal - 1;
+        }
+    }
 
     function openInfoModal(title, bodyHtml) {
         const overlay = document.getElementById('info-modal-overlay');
@@ -721,7 +966,7 @@
         }, 300);
     }
 
-    document.getElementById('info-modal-overlay').addEventListener('click', function(e) {
+    document.getElementById('info-modal-overlay').addEventListener('click', function (e) {
         if (e.target === this) {
             closeInfoModal();
         }

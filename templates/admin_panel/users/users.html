@@ -75,7 +75,7 @@
         </a>
 
         <!-- Order List -->
-        <a href="{% url 'admin_unimplemented' %}"
+        <a href="{% url 'admin_orders' %}"
           class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
             height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -193,24 +193,7 @@
     <!-- Main Content Area -->
     <main class="flex-1 bg-white p-8 flex flex-col justify-between h-full overflow-hidden">
 
-      <!-- Alert Container -->
-      {% if messages %}
-      <div class="flex flex-col gap-3 mb-6 shrink-0">
-        {% for message in messages %}
-          {% if 'success' in message.tags %}
-            <div class="p-4 bg-white border-l-4 border-green-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-              <span>{{ message }}</span>
-            </div>
-          {% else %}
-            <div class="p-4 bg-white border-l-4 border-red-500 text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
-              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-              <span>{{ message }}</span>
-            </div>
-          {% endif %}
-        {% endfor %}
-      </div>
-      {% endif %}
+
 
       <!-- Top Action Bar (Refined Layout) -->
       <div class="shrink-0">
@@ -296,181 +279,153 @@
             </div>
           </div>
         </div>
-      </div>
+      </div>      <!-- Table Container -->
+      <div class="bg-white border border-[#EAE3DC] shadow-xs overflow-hidden flex flex-col flex-1 min-h-0">
+        <div class="overflow-x-auto overflow-y-auto flex-1 min-h-0">
+          <table class="w-full text-left border-collapse min-w-[700px]">
+            <thead class="sticky top-0 z-10 bg-[#F7EFE9] shadow-xs">
+              <tr class="border-b border-[#E8DDD5] text-xs font-bold uppercase tracking-wider text-[#4A3E37]">
+                <th class="py-3.5 px-5 text-center w-[80px]" style="vertical-align: middle;">S.NO</th>
+                <th class="py-3.5 px-5 text-left" style="vertical-align: middle;">NAME</th>
+                <th class="py-3.5 px-5 text-center" style="vertical-align: middle;">EMAIL</th>
+                <th class="py-3.5 px-5 text-center" style="vertical-align: middle;">MOBILE NUMBER</th>
+                <th class="py-3.5 px-5 text-center w-[120px]" style="vertical-align: middle;">ACTION</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#EFE8E1] text-xs font-sans text-[#2C241E]">
 
-      <!-- Table Container -->
-      <div class="w-full flex-1 overflow-auto border border-[#e8e8e8] bg-white">
-        <table class="w-full text-left border-collapse min-w-[700px]">
-          <thead>
-            <tr class="bg-[#fcfbfa] border-b border-[#e8e8e8]">
-              <th
-                class="py-5 px-6 border-r border-[#e8e8e8] text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[10%] select-none">
-                S.NO</th>
-              <th
-                class="py-5 px-6 border-r border-[#e8e8e8] text-left text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[35%] select-none">
-                NAME</th>
-              <th
-                class="py-5 px-6 border-r border-[#e8e8e8] text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[25%] select-none">
-                EMAIL</th>
-              <th
-                class="py-5 px-6 border-r border-[#e8e8e8] text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[20%] select-none">
-                MOBILE NUMBER</th>
-              <th
-                class="py-5 px-6 text-center text-[0.55rem] font-bold tracking-[0.18em] text-gray-400 uppercase w-[15%] select-none">
-                ACTION</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-[#e8e8e8]">
+              {% for user in users %}
+              <tr class="user-row hover:bg-[#FAF6F3] transition-colors" data-id="{{ user.id }}"
+                data-name="{{ user.name }}" data-email="{{ user.email }}" data-mobile="{{ user.mobile }}"
+                data-blocked="{{ user.blocked|yesno:'true,false' }}">
+                <!-- S.NO -->
+                <td class="s-no-cell py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] align-middle">
+                  {{ user.s_no }}
+                </td>
 
-            {% for user in users %}
-            <tr class="user-row hover:bg-[#fcfbfa] transition-colors duration-150" data-id="{{ user.id }}"
-              data-name="{{ user.name }}" data-email="{{ user.email }}" data-mobile="{{ user.mobile }}"
-              data-blocked="{{ user.blocked|yesno:'true,false' }}">
-              <!-- S.NO -->
-              <td
-                class="s-no-cell py-3 px-6 border-r border-[#e8e8e8] text-center text-[0.68rem] font-bold text-[#a0aec0] tracking-wider align-middle select-none">
-                {{ user.s_no }}
-              </td>
-
-              <!-- NAME -->
-              <td class="py-3 px-6 border-r border-[#e8e8e8] align-middle">
-                <div class="flex items-center gap-3.5">
-                  <img src="{{ user.avatar }}" alt="{{ user.name }}"
-                    class="w-10 h-10 rounded-full object-cover object-center border border-gray-100 shrink-0 select-none" />
-                  <div class="min-w-[120px] name-container">
-                    <span
-                      class="user-name-text text-[0.7rem] font-bold text-[#1A1A1A] uppercase tracking-wide leading-none">
-                      {{ user.name }}
-                    </span>
-                  </div>
-                  <div class="badge-container shrink-0">
-                    {% if user.blocked %}
-                    <span
-                      class="status-badge px-2 py-0.5 text-[0.45rem] font-extrabold tracking-wider bg-red-50 text-red-600 uppercase rounded-sm select-none">BLOCKED</span>
-                    {% else %}
-                    <span
-                      class="status-badge px-2 py-0.5 text-[0.45rem] font-extrabold tracking-wider bg-green-50 text-green-600 uppercase rounded-sm select-none">ACTIVE</span>
-                    {% endif %}
-                  </div>
-                </div>
-              </td>
-
-              <!-- EMAIL -->
-              <td
-                class="py-3 px-6 border-r border-[#e8e8e8] text-center text-[0.68rem] font-medium text-gray-400 align-middle">
-                {{ user.email }}</td>
-
-              <!-- MOBILE NUMBER -->
-              <td
-                class="py-3 px-6 border-r border-[#e8e8e8] text-center text-[0.68rem] font-medium text-gray-500 align-middle">
-                {{ user.mobile }}</td>
-
-              <!-- ACTION -->
-              <td class="py-3 px-6 text-center align-middle">
-                <div class="flex items-center justify-center gap-4.5">
-
-                  <!-- Block/Unblock Action -->
-                  <form id="toggle-form-{{ user.id }}" method="POST" action="{% url 'admin_toggle_block' user.id %}" class="inline">
-                    {% csrf_token %}
-                    <button
-                      type="button"
-                      onclick="confirmBlockToggle('{{ user.id }}', '{{ user.name }}', '{{ user.blocked }}' === 'True')"
-                      class="lock-toggle-btn text-gray-400 hover:text-brand-dark transition-colors focus:outline-none"
-                      title="{% if user.blocked %}Unblock User{% else %}Block User{% endif %}">
+                <!-- NAME -->
+                <td class="py-3.5 px-5 text-left align-middle">
+                  <div class="flex items-center gap-3.5">
+                    <img src="{{ user.avatar }}" alt="{{ user.name }}"
+                      class="w-10 h-10 rounded-full object-cover object-center border border-[#E0D5C9] shrink-0" />
+                    <div class="min-w-[120px] name-container">
+                      <span class="user-name-text text-xs font-bold text-[#1A1A1A] uppercase tracking-wide leading-none">
+                        {{ user.name }}
+                      </span>
+                    </div>
+                    <div class="badge-container shrink-0">
                       {% if user.blocked %}
-                      <!-- Closed Red Lock Icon -->
-                      <svg class="w-[18px] h-[18px] shrink-0 text-red-500 hover:text-red-700 transition-colors" width="18"
-                        height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 0110 0v4" />
-                      </svg>
+                      <span class="status-badge w-[64px] py-1 text-[0.48rem] font-black uppercase tracking-wider rounded-xs border bg-[#FDE8E8] text-[#C53030] border-[#F8B4B4] inline-flex items-center justify-center leading-none text-center">BLOCKED</span>
                       {% else %}
-                      <!-- Open Gray Lock Icon -->
-                      <svg class="w-[18px] h-[18px] shrink-0 text-gray-400 hover:text-[#A33C08] transition-colors"
-                        width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
-                        <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-                        <path d="M7 11V7a5 5 0 019.9-1" />
-                      </svg>
+                      <span class="status-badge w-[64px] py-1 text-[0.48rem] font-black uppercase tracking-wider rounded-xs border bg-[#DEF7EC] text-[#03543F] border-green-300 inline-flex items-center justify-center leading-none text-center">ACTIVE</span>
                       {% endif %}
-                    </button>
-                  </form>
+                    </div>
+                  </div>
+                </td>
 
-                </div>
-              </td>
-            </tr>
-            {% empty %}
-            <tr>
-              <td colspan="5"
-                class="py-12 text-center text-[0.75rem] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50">
-                No users match the query.
-              </td>
-            </tr>
-            {% endfor %}
-            <!-- Empty state row for client-side search (hidden by default) -->
-            <tr id="emptySearchRow" class="hidden">
-              <td colspan="5"
-                class="py-12 text-center text-[0.75rem] font-bold text-gray-400 uppercase tracking-widest bg-gray-50/50">
-                No users match the query.
-              </td>
-            </tr>
+                <!-- EMAIL -->
+                <td class="py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] align-middle">
+                  {{ user.email }}
+                </td>
 
-          </tbody>
-        </table>
-      </div>
+                <!-- MOBILE NUMBER -->
+                <td class="py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] align-middle">
+                  {{ user.mobile }}
+                </td>
 
-      <!-- Footer Action Row (Pagination) -->
-      <div class="flex justify-between items-center mt-8 pt-6 border-t border-[#e8e8e8] select-none shrink-0">
+                <!-- ACTION -->
+                <td class="py-3.5 px-5 text-center align-middle">
+                  <div class="flex items-center justify-center">
+                    <!-- Block/Unblock Action -->
+                    <form id="toggle-form-{{ user.id }}" method="POST" action="{% url 'admin_toggle_block' user.id %}" class="inline">
+                      {% csrf_token %}
+                      <button
+                        type="button"
+                        onclick="confirmBlockToggle('{{ user.id }}', '{{ user.name }}', '{{ user.blocked }}' === 'True')"
+                        class="w-7 h-7 rounded-full border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors inline-flex items-center justify-center cursor-pointer border-none bg-transparent"
+                        title="{% if user.blocked %}Unblock User{% else %}Block User{% endif %}">
+                        {% if user.blocked %}
+                        <!-- Closed Red Lock Icon -->
+                        <svg class="w-3.5 h-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 0110 0v4" />
+                        </svg>
+                        {% else %}
+                        <!-- Open Gray Lock Icon -->
+                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                          <path d="M7 11V7a5 5 0 019.9-1" />
+                        </svg>
+                        {% endif %}
+                      </button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="5" class="py-16 text-center text-gray-400">
+                  <svg class="w-10 h-10 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/>
+                  </svg>
+                  <p class="text-xs font-bold uppercase tracking-wider text-[#4A3E37] m-0">NO USERS FOUND</p>
+                </td>
+              </tr>
+              {% endfor %}
+              <!-- Empty state row for client-side search (hidden by default) -->
+              <tr id="emptySearchRow" class="hidden">
+                <td colspan="5" class="py-16 text-center text-gray-400">
+                  <p class="text-xs font-bold uppercase tracking-wider text-[#4A3E37] m-0">NO USERS MATCH THE QUERY</p>
+                </td>
+              </tr>
 
-        <!-- Entries Selector -->
-        <div class="flex items-center gap-2">
-          <span class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase">SHOWING ENTRIES:</span>
-          <div class="relative">
-            <select id="perPageSelect" onchange="applyFiltersAndSort()"
-              class="appearance-none bg-white border border-[#1a1a1a] px-4 py-1.5 pr-8 text-[0.62rem] font-bold text-brand-dark rounded-none focus:outline-none cursor-pointer">
-              <option value="10" {% if per_page_10 %}selected{% endif %}>10</option>
-              <option value="25" {% if per_page_25 %}selected{% endif %}>25</option>
-              <option value="50" {% if per_page_50 %}selected{% endif %}>50</option>
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2.5 text-gray-600">
-              <svg class="w-2.5 h-2.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-              </svg>
-            </div>
-          </div>
+            </tbody>
+          </table>
         </div>
 
-        <!-- Paginator -->
-        <div class="flex items-center gap-6">
-          {% if page_obj.has_previous %}
-          <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}&per_page={{ per_page }}"
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">PREV</a>
-          {% else %}
-          <span
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">PREV</span>
-          {% endif %}
+        <!-- Footer Action Row (Pagination) -->
+        <div class="bg-[#FAF6F3] border-t-2 border-[#A33C08] px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 w-full shrink-0 mt-auto z-20">
 
-          <div class="flex items-center gap-2">
-            {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <span
-              class="w-7 h-7 bg-[#1A1A1A] text-white flex items-center justify-center text-[0.62rem] font-bold select-none cursor-default">
-              {{ num|stringformat:"02d" }}
-            </span>
-            {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %} <a
-              href="?page={{ num }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}&per_page={{ per_page }}"
-              class="w-7 h-7 border border-transparent text-gray-500 hover:border-gray-200 flex items-center justify-center text-[0.62rem] font-bold no-underline transition-all duration-250">
-              {{ num|stringformat:"02d" }}</a>
-              {% endif %}
-              {% endfor %}
+          <!-- Left Info Text -->
+          <div class="text-xs font-bold uppercase tracking-wider text-[#1A1A1A] font-sans">
+            SHOWING {{ page_obj.start_index|default:0 }}–{{ page_obj.end_index|default:0 }} OF {{ page_obj.paginator.count }} USERS
           </div>
 
-          {% if page_obj.has_next %}
-          <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}&per_page={{ per_page }}"
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">NEXT</a>
-          {% else %}
-          <span
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">NEXT</span>
-          {% endif %}
+          <!-- Paginator Buttons -->
+          <div class="flex items-center gap-1.5">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}"
+               class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+              PREV
+            </a>
+            {% else %}
+            <span class="px-3.5 py-1.5 bg-[#FAF4EF] border border-[#E2D6CB] text-gray-300 text-xs font-bold select-none cursor-not-allowed">PREV</span>
+            {% endif %}
+
+            <div class="flex items-center gap-1.5">
+              {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+              <span class="w-8 h-8 flex items-center justify-center bg-[#A33C08] border border-[#A33C08] text-white text-xs font-black shadow-xs">
+                {{ num }}
+              </span>
+              {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
+              <a href="?page={{ num }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}"
+                 class="w-8 h-8 flex items-center justify-center bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                {{ num }}
+              </a>
+              {% endif %}
+              {% endfor %}
+            </div>
+
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}"
+               class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+              NEXT
+            </a>
+            {% else %}
+            <span class="px-3.5 py-1.5 bg-[#FAF4EF] border border-[#E2D6CB] text-gray-300 text-xs font-bold select-none cursor-not-allowed">NEXT</span>
+            {% endif %}
+          </div>
         </div>
 
       </div>
@@ -493,38 +448,36 @@
   <span id="adminToastMsg">An error occurred.</span>
 </div>
 
-<!-- Custom Confirmation Modal Overlay -->
+<!-- Custom Confirmation Modal Overlay for User Status -->
 <div id="confirmModal"
-  class="fixed inset-0 bg-[#1A1A1A]/40 backdrop-blur-[1px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250 ease-in-out">
-  <div id="confirmModalContent"
-    class="bg-white border border-[#e8e8e8] w-[420px] p-8 relative flex flex-col justify-between transform scale-95 transition-transform duration-250 ease-[cubic-bezier(0.4,0,0.2,1)]">
-
-    <div>
-      <!-- Modal Accent & Title -->
-      <div class="flex items-center gap-3 mb-4">
-        <span class="w-2.5 h-2.5 bg-[#A33C08] inline-block"></span>
-        <h3 class="text-[0.8rem] font-bold tracking-[0.18em] uppercase text-brand-dark leading-none">CONFIRM USER STATUS
-          UPDATE</h3>
+  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
+  <div id="confirmModalContent" class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[420px] p-6 flex flex-col shadow-2xl rounded-sm transform scale-95 transition-transform duration-250">
+    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
+      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
+        <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+        </svg>
       </div>
-
-      <!-- Modal Text -->
-      <p id="modalMessage" class="text-[0.7rem] text-gray-500 leading-relaxed mb-6 font-medium">
-        Are you sure you want to perform this action?
-      </p>
+      <div>
+        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]">User Status Update</h3>
+        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Confirmation Required</p>
+      </div>
     </div>
+    
+    <p class="text-[0.65rem] font-semibold text-gray-600 mb-6 leading-relaxed" id="modalMessage">
+      Are you sure you want to perform this action?
+    </p>
 
-    <!-- Modal Cancel/Confirm Buttons -->
     <div class="flex justify-end gap-3">
-      <button id="modalCancel"
-        class="border border-[#dcdcdc] px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all duration-200 bg-white cursor-pointer rounded-none focus:outline-none">
-        CANCEL
+      <button id="modalCancel" type="button"
+        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">
+        Cancel
       </button>
-      <button id="modalConfirm"
-        class="bg-[#A33C08] hover:bg-[#c94008] text-white px-5 py-2.5 text-[0.62rem] font-bold tracking-wider uppercase border-none cursor-pointer transition-colors rounded-none focus:outline-none">
-        CONFIRM
+      <button id="modalConfirm" type="button"
+        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-brand-rust transition-colors cursor-pointer shadow-sm">
+        Confirm
       </button>
     </div>
-
   </div>
 </div>
 
@@ -629,13 +582,11 @@
   function applyFiltersAndSort() {
     const filterVal = document.getElementById('filterSelect').value;
     const sortVal = document.getElementById('sortSelect').value;
-    const perPageVal = document.getElementById('perPageSelect').value;
     const searchVal = document.getElementById('searchInput').value.trim();
 
     const url = new URL(window.location.href);
     url.searchParams.set('filter', filterVal);
     url.searchParams.set('sort', sortVal);
-    url.searchParams.set('per_page', perPageVal);
     url.searchParams.set('search', searchVal);
     url.searchParams.set('page', '1'); // Reset to page 1 on filter/search change
     window.location.href = url.pathname + url.search;

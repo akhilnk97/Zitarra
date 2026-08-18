@@ -60,8 +60,22 @@ def admin_products_view(request):
 @admin_required
 def admin_product_add_view(request):
     if request.method == "POST":
+        name = request.POST.get("name", "").strip()
         category_id = request.POST.get("category")
         category = get_object_or_404(Category, id=category_id)
+
+        if not name:
+            messages.error(request, "Product name is required.")
+            return redirect('admin_product_add')
+
+        if Product.objects.filter(name__iexact=name, category=category, is_deleted=False).exists():
+            messages.error(request, f"A product named '{name}' already exists in the '{category.name}' category.")
+            return redirect('admin_product_add')
+
+        description = request.POST.get("description", "").strip()
+        if len(description) > 500:
+            messages.error(request, "Product description cannot exceed 500 characters.")
+            return redirect('admin_product_add')
         
         # VALIDATE MAIN PRODUCT IMAGES (Before creating anything in DB)
         cropped_images_data = request.POST.getlist("cropped_images")
@@ -92,7 +106,7 @@ def admin_product_add_view(request):
                     img_list = v_image_data if is_base64 else request.FILES.getlist(f"variant_image_{idx}")
 
                     if len(img_list) < 3 or len(img_list) > 5:
-                        messages.error(request, f"VARIANT '{v_name.upper()}': YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES.")
+                        messages.error(request, f"VARIANT '{v_name.upper()}': YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES (MAX 5).")
                         return redirect('admin_product_add')
 
                     try:
@@ -166,14 +180,39 @@ def admin_product_add_view(request):
 def admin_product_edit_view(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_deleted=False)
     if request.method == "POST":
+        name = request.POST.get("name", "").strip()
         category_id = request.POST.get("category")
         category = get_object_or_404(Category, id=category_id)
+
+        if not name:
+            messages.error(request, "Product name is required.")
+            return redirect('admin_product_edit', product_id=product.id)
+
+        if Product.objects.filter(name__iexact=name, category=category, is_deleted=False).exclude(id=product.id).exists():
+            messages.error(request, f"A product named '{name}' already exists in the '{category.name}' category.")
+            return redirect('admin_product_edit', product_id=product.id)
+
+        description = request.POST.get("description", "").strip()
+        if len(description) > 500:
+            messages.error(request, "Product description cannot exceed 500 characters.")
+            return redirect('admin_product_edit', product_id=product.id)
 
         # VALIDATE NEW IMAGES FIRST (If uploaded)
         cropped_images_data = request.POST.getlist("cropped_images")
         if cropped_images_data:
             if len(cropped_images_data) < 3 or len(cropped_images_data) > 5:
                 messages.error(request, "YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES.")
+                return redirect('admin_product_edit', product_id=product.id)
+
+            for img_str in cropped_images_data:
+                if not save_base64_image(img_str, "val_check"):
+                    messages.error(request, "Invalid or corrupted image format detected.")
+                    return redirect('admin_product_edit', product_id=product.id)
+
+        uploaded_files = request.FILES.getlist("images") or request.FILES.getlist("image")
+        for file in uploaded_files:
+            if not is_valid_image_file(file):
+                messages.error(request, "Invalid file format. Only JPG, PNG, WEBP, and AVIF image files are allowed.")
                 return redirect('admin_product_edit', product_id=product.id)
 
         with transaction.atomic():
@@ -256,7 +295,7 @@ def admin_product_variants_view(request, product_id):
         img_list = variant_images_data if is_base64 else request.FILES.getlist("images")
 
         if len(img_list) < 3 or len(img_list) > 5:
-            messages.error(request, "YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES.")
+            messages.error(request, "YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES AND MAXIMUM 5 IMAGES.")
             return redirect('admin_product_variants', product_id=product.id)
 
         with transaction.atomic():
@@ -296,6 +335,108 @@ def admin_variant_delete_view(request, variant_id):
         variant.save()
         messages.success(request, "Product variant deleted successfully!")
         return redirect('admin_product_variants', product_id=variant.product.id)
+    return redirect('admin_products')
+
+
+@admin_required
+def admin_variant_edit_view(request, variant_id):
+    variant = get_object_or_404(ProductVariant, id=variant_id, is_deleted=False)
+    if request.method == "POST":
+        name = request.POST.get("name", "").strip()
+        color_code = request.POST.get("color_code", "").strip()
+        price = request.POST.get("price", "").strip()
+        stock = request.POST.get("stock", "").strip()
+
+        if not name or not color_code or stock == "":
+            messages.error(request, "Please fill in all required fields.")
+            return redirect('admin_product_variants', product_id=variant.product.id)
+
+        try:
+            stock = int(stock)
+            if stock < 0:
+                raise ValueError()
+        except ValueError:
+            messages.error(request, "Stock must be a non-negative integer.")
+            return redirect('admin_product_variants', product_id=variant.product.id)
+
+        if price:
+            try:
+                price = float(price)
+                if price <= 0:
+                    raise ValueError()
+            except ValueError:
+                messages.error(request, "Price must be a positive number.")
+                return redirect('admin_product_variants', product_id=variant.product.id)
+        else:
+            price = None
+
+        with transaction.atomic():
+            # Validate final image count before applying changes
+            delete_image_ids = request.POST.getlist("delete_image_ids")
+            variant_images_data = request.POST.getlist("images")
+            is_base64 = len(variant_images_data) > 0
+            img_list = variant_images_data if is_base64 else request.FILES.getlist("images")
+
+            existing_count = variant.images.count()
+            total_after = existing_count - len(delete_image_ids) + len(img_list)
+            if total_after < 3 or total_after > 5:
+                messages.error(request, f"Variant '{variant.name}' must have at least 3 images and maximum 5 images.")
+                return redirect('admin_product_variants', product_id=variant.product.id)
+
+            variant.name = name
+            variant.color_code = color_code
+            variant.price = price
+            variant.stock = stock
+            variant.save()
+
+            # Delete specific variant images if requested by admin
+            if delete_image_ids:
+                VariantImage.objects.filter(id__in=delete_image_ids, variant=variant).delete()
+
+            # Replace specific variant images if requested by admin
+            for key, val in request.POST.items():
+                if key.startswith("replace_image_") and val:
+                    img_id = key.replace("replace_image_", "")
+                    try:
+                        var_img = VariantImage.objects.get(id=img_id, variant=variant)
+                        new_img_file = save_base64_image(val, f"variant_{variant.id}_replaced_{img_id}")
+                        if new_img_file:
+                            var_img.image = new_img_file
+                            var_img.save()
+                    except VariantImage.DoesNotExist:
+                        pass
+
+            # Handle new added cropped images
+            if img_list:
+                for i, img in enumerate(img_list):
+                    if is_base64:
+                        image_file = save_base64_image(img, f"variant_{variant.id}_new_{i}")
+                    else:
+                        image_file = img
+
+                    if image_file:
+                        VariantImage.objects.create(variant=variant, image=image_file)
+
+        messages.success(request, f"Variant '{variant.name}' updated successfully!")
+        return redirect('admin_product_variants', product_id=variant.product.id)
+
+    return redirect('admin_product_variants', product_id=variant.product.id)
+
+
+@admin_required
+def admin_variant_image_delete_view(request, image_id):
+    if request.method == "POST":
+        image = get_object_or_404(VariantImage, id=image_id)
+        variant = image.variant
+        product_id = variant.product.id
+
+        if variant.images.count() <= 3:
+            messages.error(request, "A variant must keep at least 3 images. You cannot delete an image when only 3 images remain.")
+        else:
+            image.delete()
+            messages.success(request, "Variant image deleted successfully!")
+
+        return redirect('admin_product_variants', product_id=product_id)
     return redirect('admin_products')
 
 

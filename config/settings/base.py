@@ -26,16 +26,18 @@ INSTALLED_APPS = [
 
     'user_panel.authentication',
     'user_panel.home',
+    'user_panel.profiles',
     'user_panel.shop',
     'user_panel.cart',
     'user_panel.wishlist',
+    'user_panel.orders',
 
     'admin_panel.authentication',
     'admin_panel.dashboard',
     'admin_panel.users',
     'admin_panel.category',
-    'user_panel.profiles',
     'admin_panel.products',
+    'admin_panel.orders.apps.AdminOrdersConfig',
 ]
 
 MIDDLEWARE = [
@@ -88,7 +90,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # Internationalization
 LANGUAGE_CODE = 'en-us'
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Kolkata'
 USE_I18N = True
 USE_TZ = True
 

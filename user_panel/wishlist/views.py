@@ -14,15 +14,18 @@ def wishlist_view(request):
     wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
     all_items = wishlist.items.select_related('product', 'variant', 'product__category').all()
     
-    paginator = Paginator(all_items, 4)
+    paginator = Paginator(all_items, 12)
     page_number = request.GET.get('page', 1)
     page_obj = paginator.get_page(page_number)
+
+    from_profile = request.GET.get('from') == 'profile'
 
     context = {
         'wishlist': wishlist,
         'items': page_obj.object_list,
         'page_obj': page_obj,
         'total_items': all_items.count(),
+        'from_profile': from_profile,
     }
     return render(request, 'user/wishlist/wishlist.html', context)
 

@@ -41,7 +41,7 @@
         </a>
         
         <!-- Products -->
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+        <a href="{% url 'admin_products' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
           </svg>
@@ -49,7 +49,7 @@
         </a>
 
         <!-- Order List -->
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+        <a href="{% url 'admin_orders' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
           </svg>
@@ -138,6 +138,19 @@
       <div class="absolute inset-0 bg-[radial-gradient(#A33C08_0.6px,transparent_0.6px)] [background-size:24px_24px] opacity-[0.03] pointer-events-none"></div>
       
       <div class="w-full max-w-md text-center flex flex-col items-center z-10">
+        <!-- Equalizer Animation / Visual -->
+        <div class="flex items-end justify-center gap-1.5 h-20 mb-6 eq-group cursor-pointer" title="Hover to make the waves dance">
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-10 animate-eq-bounce-1"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-16 animate-eq-bounce-2"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-7 animate-eq-bounce-3"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-20 animate-eq-bounce-4"></div>
+          <div class="w-2.5 bg-[#A33C08] rounded-full h-12 animate-eq-bounce-5"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-18 animate-eq-bounce-6"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-9 animate-eq-bounce-7"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-14 animate-eq-bounce-8"></div>
+          <div class="w-2.5 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-5 animate-eq-bounce-9"></div>
+        </div>
+
         <!-- 404 Large Label -->
         <h1 class="text-[7rem] font-black tracking-widest text-[#1A1A1A] leading-none mb-1 select-none drop-shadow-sm animate-[iconBounce_0.6s_ease-out]">
           404
@@ -180,8 +193,21 @@
   <div class="w-full max-w-md bg-white border border-[#e8e8e8] p-10 text-center flex flex-col items-center z-10 shadow-sm animate-[iconBounce_0.6s_ease-out]">
     
     <!-- Zitarra Brand Header -->
-    <div class="text-[1.1rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] mb-8 select-none">
+    <div class="text-[1.1rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] mb-4 select-none">
       ZITARRA
+    </div>
+
+    <!-- Equalizer Animation / Visual -->
+    <div class="flex items-end justify-center gap-1.5 h-16 mb-6 eq-group cursor-pointer" title="Hover to make the waves dance">
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-8 animate-eq-bounce-1"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-12 animate-eq-bounce-2"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-5 animate-eq-bounce-3"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-14 animate-eq-bounce-4"></div>
+      <div class="w-2 bg-[#A33C08] rounded-full h-10 animate-eq-bounce-5"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-13 animate-eq-bounce-6"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-7 animate-eq-bounce-7"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-11 animate-eq-bounce-8"></div>
+      <div class="w-2 bg-[#1A1A1A] rounded-full transition-all duration-300 ease-out group-hover:bg-[#A33C08] h-4 animate-eq-bounce-9"></div>
     </div>
 
     <!-- 404 Large Label -->

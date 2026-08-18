@@ -12,9 +12,11 @@
 <div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
 
   <!-- Header -->
-  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 z-10">
+  <header
+    class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 z-10">
     <div class="flex items-center gap-4">
-      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer"
+        title="Toggle Menu">
         <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
           <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
         </svg>
@@ -173,31 +175,7 @@
         <!-- Scrollable form body -->
         <div class="flex-1 overflow-y-auto px-10 py-8">
 
-          <!-- Messaging Alert -->
-          {% if messages %}
-          {% for message in messages %}
-          {% if 'success' in message.tags %}
-          <div
-            class="mb-6 p-4 bg-white border-l-4 border-green-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert">
-            <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>{{ message }}</span>
-          </div>
-          {% else %}
-          <div
-            class="mb-6 p-4 bg-white border-l-4 border-red-500 text-[#1A1A1A] text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center gap-3 msg-alert animate-shake">
-            <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-              stroke-width="2.5">
-              <path stroke-linecap="round" stroke-linejoin="round"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-            </svg>
-            <span>{{ message }}</span>
-          </div>
-          {% endif %}
-          {% endfor %}
-          {% endif %}
+
 
           <!-- Section heading -->
           <div class="flex items-center gap-3 mb-8">
@@ -217,9 +195,12 @@
 
           <!-- Row 2: Description -->
           <div class="mb-6">
-            <label
-              class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Description</label>
-            <textarea name="description" rows="5"
+            <div class="flex justify-between items-center mb-[7px]">
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Description (Max 500 chars)</label>
+              <span id="prodDescCounter" class="text-[0.55rem] font-mono font-bold text-gray-400 uppercase tracking-wider">0 / 500</span>
+            </div>
+            <textarea name="description" rows="5" maxlength="500"
+              oninput="document.getElementById('prodDescCounter').textContent = this.value.length + ' / 500'"
               class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white transition-colors duration-200 rounded-none focus:border-brand-rust resize-none"
               placeholder="Handcrafted professional grade instrument description..." required></textarea>
           </div>
@@ -394,16 +375,29 @@
 
 <!-- Cropper Modal -->
 <div id="cropperModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50">
-  <div class="bg-white border border-[#e8e8e8] w-[450px] p-6 flex flex-col shadow-2xl rounded-sm">
-    <h3 class="text-[0.7rem] font-black uppercase tracking-wider mb-4 text-[#1a1a1a]">Crop Product Image</h3>
-    <div class="w-full h-[300px] bg-black overflow-hidden relative">
+  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
+  <div class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[460px] p-6 flex flex-col shadow-2xl rounded-sm">
+    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
+      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
+        <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+          stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+        </svg>
+      </div>
+      <div>
+        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]">Crop Product Image</h3>
+        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Media Studio</p>
+      </div>
+    </div>
+
+    <div class="w-full h-[280px] bg-black overflow-hidden relative border border-gray-200">
       <img id="cropperImage" class="max-w-full max-h-full block mx-auto" />
     </div>
 
     <!-- Aspect Ratio Selectors -->
     <div class="flex justify-between items-center mt-4 border-b border-gray-100 pb-3">
-      <span class="text-[0.55rem] font-bold text-gray-400 uppercase tracking-widest">Aspect Ratio</span>
+      <span class="text-[0.52rem] font-bold text-gray-400 uppercase tracking-widest">Aspect Ratio</span>
       <div class="flex gap-1.5" id="ratioSelectorContainer">
         <button type="button" onclick="setAspectRatio(1)"
           class="ratio-btn border border-[#A33C08] bg-[#A33C08] text-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">1:1</button>
@@ -418,9 +412,9 @@
 
     <div class="flex justify-end gap-3 mt-4">
       <button type="button" onclick="cancelCrop()"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors">Cancel</button>
+        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
       <button type="button" onclick="saveCrop()"
-        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-[#863005] transition-colors">Apply
+        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-[#863005] transition-colors cursor-pointer shadow-sm">Apply
         Crop</button>
     </div>
   </div>
@@ -486,9 +480,44 @@
     });
   }
 
+  const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/avif'];
+  const ALLOWED_IMAGE_EXTS = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+
+  function isImageFile(file) {
+    if (!file) return false;
+    if (file.type && ALLOWED_IMAGE_TYPES.includes(file.type.toLowerCase())) {
+      return true;
+    }
+    const ext = file.name ? file.name.split('.').pop().toLowerCase() : '';
+    return ALLOWED_IMAGE_EXTS.includes(ext);
+  }
+
+  function filterImageFiles(files) {
+    const validFiles = [];
+    let invalidFound = false;
+
+    for (const file of files) {
+      if (isImageFile(file)) {
+        validFiles.push(file);
+      } else {
+        invalidFound = true;
+      }
+    }
+
+    if (invalidFound) {
+      showCustomAlert("INVALID FILE FORMAT! PLEASE SELECT ONLY IMAGE FILES (JPG, PNG, WEBP, AVIF).");
+    }
+
+    return validFiles;
+  }
+
   function previewImages(input) {
-    const files = Array.from(input.files);
-    if (files.length === 0) return;
+    let files = Array.from(input.files);
+    files = filterImageFiles(files);
+    if (files.length === 0) {
+      input.value = '';
+      return;
+    }
 
     if (croppedImages.length + files.length > 5) {
       showCustomAlert("You can upload a maximum of 5 images. Please select fewer files.");
@@ -506,8 +535,12 @@
   }
 
   function replaceImage(input, index) {
-    const files = Array.from(input.files);
-    if (files.length === 0) return;
+    let files = Array.from(input.files);
+    files = filterImageFiles(files);
+    if (files.length === 0) {
+      input.value = '';
+      return;
+    }
 
     cropperTarget = 'main';
     replaceIndex = index;
@@ -520,8 +553,12 @@
   }
 
   function previewVariantImages(input, idx) {
-    const files = Array.from(input.files);
-    if (files.length === 0) return;
+    let files = Array.from(input.files);
+    files = filterImageFiles(files);
+    if (files.length === 0) {
+      input.value = '';
+      return;
+    }
 
     cropperTarget = 'variant';
     currentVariantIndex = idx;
@@ -584,13 +621,18 @@
       if (!variantCroppedImages[currentVariantIndex]) {
         variantCroppedImages[currentVariantIndex] = [];
       }
-      if (variantCroppedImages[currentVariantIndex].length >= 4) {
-        showCustomAlert("Maximum 4 images allowed per variant.");
-        fileQueue = []; // Clear queue
+      if (variantReplaceIndex !== null) {
+        variantCroppedImages[currentVariantIndex][variantReplaceIndex] = base64Data;
+        variantReplaceIndex = null;
       } else {
-        variantCroppedImages[currentVariantIndex].push(base64Data);
-        renderVariantPreviews(currentVariantIndex);
+        if (variantCroppedImages[currentVariantIndex].length >= 5) {
+          showCustomAlert("Maximum 5 images allowed per variant.");
+          fileQueue = []; // Clear queue
+        } else {
+          variantCroppedImages[currentVariantIndex].push(base64Data);
+        }
       }
+      renderVariantPreviews(currentVariantIndex);
     }
 
     // Close Modal and check for queue
@@ -606,6 +648,7 @@
   function cancelCrop() {
     document.getElementById('cropperModal').classList.add('hidden');
     replaceIndex = null;
+    variantReplaceIndex = null;
     if (cropper) {
       cropper.destroy();
       cropper = null;
@@ -791,7 +834,7 @@
 
       <!-- Variant Images Slot -->
       <div>
-        <label class="text-[0.44rem] font-bold uppercase tracking-[0.15em] text-gray-400 block mb-1">Variant Images (1 - 4 Images Required)</label>
+        <label class="text-[0.44rem] font-bold uppercase tracking-[0.15em] text-gray-400 block mb-1">Variant Images (3 - 5 Images Required)</label>
         <div class="flex gap-2.5 flex-wrap mt-1.5" id="variant_previews_${variantIndex}">
           <!-- Upload Slot -->
           <label class="w-16 h-16 border border-dashed border-gray-300 flex flex-col items-center justify-center cursor-pointer bg-white transition-colors duration-200 shrink-0 hover:border-brand-rust" id="variant_upload_slot_${variantIndex}">
@@ -833,7 +876,7 @@
         'pink': '#FFC0CB',
         'purple': '#800080'
       };
-      
+
       const currentIdx = variantIndex;
       dynamicNameInput.addEventListener('input', () => {
         const term = dynamicNameInput.value.trim().toLowerCase();
@@ -848,7 +891,7 @@
           const hexInput = document.getElementById(`hex_${currentIdx}`);
           const selectEl = document.getElementById(`select_color_${currentIdx}`);
           const previewEl = document.getElementById(`preview_color_${currentIdx}`);
-          
+
           if (hexInput) hexInput.value = matchedHex;
           if (previewEl) previewEl.style.backgroundColor = matchedHex;
           if (selectEl) {
@@ -880,6 +923,27 @@
     indicesInput.value = currentIndices.join(',');
   }
 
+  let variantReplaceIndex = null;
+
+  function replaceVariantImage(input, idx, imgIdx) {
+    let files = Array.from(input.files);
+    files = filterImageFiles(files);
+    if (files.length === 0) {
+      input.value = '';
+      return;
+    }
+
+    cropperTarget = 'variant';
+    currentVariantIndex = idx;
+    variantReplaceIndex = imgIdx;
+    fileQueue.unshift(files[0]);
+    input.value = '';
+
+    if (!cropper && fileQueue.length > 0) {
+      processNextFile();
+    }
+  }
+
   function renderVariantPreviews(idx) {
     const container = document.getElementById(`variant_previews_${idx}`);
     const slot = document.getElementById(`variant_upload_slot_${idx}`);
@@ -892,12 +956,22 @@
 
     const images = variantCroppedImages[idx] || [];
     images.forEach((base64Data, imgIdx) => {
-      // Thumbnail Preview
+      // Thumbnail Preview with Replace and Delete overlay buttons
       const div = document.createElement('div');
-      div.className = "variant-thumb-preview w-16 h-16 border border-gray-200 relative bg-white shrink-0";
+      div.className = "variant-thumb-preview group w-16 h-16 border border-gray-200 relative bg-white shrink-0 overflow-hidden";
       div.innerHTML = `
         <img src="${base64Data}" class="w-full h-full object-cover" />
-        <div onclick="removeVariantImage(${idx}, ${imgIdx})" class="absolute -top-1.5 -right-1.5 bg-red-600 hover:bg-red-700 text-white rounded-full w-4 h-4 flex items-center justify-center cursor-pointer shadow text-[10px] select-none">&times;</div>
+        <div class="overlay-controls absolute inset-0 bg-black/60 flex items-center justify-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-200 cursor-pointer">
+          <!-- Replace Button -->
+          <label class="p-1 bg-[#A33C08] rounded-full text-white cursor-pointer hover:bg-[#863005] transition-colors shadow flex items-center justify-center" title="Replace Image">
+            <input type="file" accept="image/*" class="hidden" onchange="replaceVariantImage(this, ${idx}, ${imgIdx})"/>
+            <svg class="w-3 h-3" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"/></svg>
+          </label>
+          <!-- Delete Button -->
+          <div onclick="removeVariantImage(${idx}, ${imgIdx})" class="p-1 bg-red-600 rounded-full text-white cursor-pointer hover:bg-red-700 transition-colors shadow flex items-center justify-center" title="Remove Image">
+            <svg class="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+          </div>
+        </div>
       `;
       container.insertBefore(div, slot);
 
@@ -909,8 +983,8 @@
       hiddenContainer.appendChild(input);
     });
 
-    // Hide or show upload slot if max images (4) reached
-    if (images.length >= 4) {
+    // Hide or show upload slot if max images (5) reached
+    if (images.length >= 5) {
       slot.classList.add('hidden');
     } else {
       slot.classList.remove('hidden');

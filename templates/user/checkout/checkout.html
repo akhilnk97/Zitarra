@@ -1,0 +1,1064 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Checkout — Zitarra{% endblock %}
+
+{% block navbar %}{% include 'user/partials/navbar_shop.html' %}{% endblock %}
+
+{% block extra_head %}
+<style>
+  .address-card {
+    transition: all 0.2s ease;
+    cursor: pointer;
+  }
+
+  .address-card.active {
+    border-color: #E8500A !important;
+    background-color: #FFF9F6 !important;
+  }
+
+  .payment-option-card {
+    transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: pointer;
+  }
+
+  .payment-option-card.active {
+    border-color: #A33C08 !important;
+    background-color: #FFFBF8 !important;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+
+<div class="bg-white min-h-screen">
+
+  <form id="checkout-form" action="{% url 'place_order' %}" method="POST">
+    {% csrf_token %}
+
+    <div class="flex w-full flex-col lg:flex-row px-4 md:px-8">
+
+      <!-- LEFT COLUMN: ADDRESS & PAYMENT -->
+      <div class="flex-1 px-6 py-8 lg:px-12 bg-white">
+
+        {% if messages %}
+        <div class="mb-6 space-y-3">
+          {% for message in messages %}
+          <div
+            class="p-4 bg-white border-l-4 {% if 'success' in message.tags %}border-green-500{% elif 'error' in message.tags %}border-red-500 animate-shake{% else %}border-[#E8500A]{% endif %} text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center justify-between gap-3 msg-alert">
+            <div class="flex items-center gap-3">
+              {% if 'success' in message.tags %}
+              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {% elif 'error' in message.tags %}
+              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              {% else %}
+              <svg class="w-5 h-5 text-[#E8500A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              {% endif %}
+              <span>{{ message }}</span>
+            </div>
+            <button type="button" onclick="this.parentElement.remove()"
+              class="text-gray-400 hover:text-black font-bold text-base leading-none cursor-pointer bg-transparent border-none px-1"
+              title="Dismiss">&times;</button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
+
+        <!-- SECTION 1: ADDRESS SELECTION -->
+        <div class="mb-10">
+          <div class="mb-6">
+            <h2 class="text-[1.2rem] font-black uppercase tracking-tight text-brand-dark m-0">Address Selection</h2>
+            <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-[#E8500A] mt-1">Select Your Address</p>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="address-grid">
+
+            {% for addr in addresses %}
+            <div
+              class="address-card border-2 p-5 rounded-none relative flex flex-col justify-between cursor-pointer transition-all duration-200 {% if default_address and default_address.id == addr.id %}active bg-[#FFFBF8] border-[#A33C08] shadow-xs{% else %}bg-white border-gray-200 hover:border-gray-400{% endif %}"
+              onclick="selectAddress({{ addr.id }})">
+
+              <input type="radio" name="selected_address" value="{{ addr.id }}" id="addr-radio-{{ addr.id }}"
+                class="hidden" {% if default_address and default_address.id == addr.id %}checked{% endif %}>
+
+              <div>
+                <div class="flex items-center justify-between mb-3">
+                  {% if addr.is_default or addr.badge == 'DEFAULT' %}
+                  <span
+                    data-primary="true"
+                    class="address-badge bg-[#A33C08] text-white text-[0.5rem] font-bold tracking-[0.18em] uppercase px-2.5 py-1">
+                    Primary Address
+                  </span>
+                  {% else %}
+                  <span
+                    class="address-badge text-[0.5rem] font-bold tracking-[0.18em] uppercase px-2.5 py-1 transition-colors {% if default_address and default_address.id == addr.id %}bg-[#A33C08] text-white{% else %}bg-gray-100 text-gray-600{% endif %}">
+                    {{ addr.label|default:"STUDIO_HUB" }}
+                  </span>
+                  {% endif %}
+                </div>
+
+                <h4 class="text-[0.82rem] font-black uppercase tracking-wider text-[#1A1A1A] mb-2">{{ addr.full_name }}</h4>
+                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-1">{{ addr.address_line_1 }}</p>
+                {% if addr.address_line_2 %}
+                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-1">{{ addr.address_line_2 }}</p>
+                {% endif %}
+                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-2">{{ addr.city }}, {{ addr.state }} {{ addr.pincode }}</p>
+              </div>
+
+              <div class="pt-3 border-t border-gray-200/80 flex items-center justify-between mt-2">
+                <span class="text-xs font-mono tracking-wider font-semibold text-gray-500">MOBILE NUMBER: {{ addr.phone_number }}</span>
+                <span
+                  class="text-xs font-bold uppercase tracking-widest text-[#A33C08] cursor-pointer hover:underline"
+                  onclick="event.stopPropagation(); openEditAddressModal({{ addr.id }}, '{{ addr.full_name|escapejs }}', '{{ addr.phone_number|escapejs }}', '{{ addr.address_line_1|escapejs }}', '{{ addr.address_line_2|default:""|escapejs }}', '{{ addr.city|escapejs }}', '{{ addr.state|escapejs }}', '{{ addr.pincode|escapejs }}', '{{ addr.label|escapejs }}', {{ addr.is_default|yesno:'true,false' }})">
+                  EDIT
+                </span>
+              </div>
+
+            </div>
+            {% empty %}
+            <div class="col-span-2 text-center py-6 border border-dashed border-gray-300">
+              <p class="text-xs font-bold uppercase text-gray-400 mb-2">No logistics endpoints saved</p>
+              <p class="text-[0.55rem] text-gray-400">Please add a delivery address below to continue.</p>
+            </div>
+            {% endfor %}
+
+            <!-- ADD NEW ADDRESS CARD -->
+            {% if addresses.count >= 3 %}
+            <div
+              class="border border-dashed border-gray-300 p-5 flex flex-col items-center justify-center bg-gray-50/80 min-h-[160px] text-center select-none">
+              <div
+                class="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-2">
+                <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2"
+                  viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                </svg>
+              </div>
+              <p class="text-[0.62rem] font-black uppercase tracking-wider text-gray-700 m-0">Address Limit Reached
+                (3/3)</p>
+              <p class="text-[0.5rem] font-semibold text-gray-500 uppercase leading-snug mt-1.5 px-2">You can save up to
+                3 addresses. Edit any existing address above to make changes.</p>
+            </div>
+            {% else %}
+            <div
+              class="border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center cursor-pointer hover:border-[#E8500A] transition-colors group min-h-[160px]"
+              onclick="openAddAddressModal()">
+              <div
+                class="w-8 h-8 rounded-none border border-gray-300 flex items-center justify-center mb-2 group-hover:border-[#E8500A] group-hover:bg-[#FFF9F6]">
+                <svg class="w-4 h-4 text-gray-500 group-hover:text-[#E8500A]" fill="none" stroke="currentColor"
+                  stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M12 4v16m8-8H4" />
+                </svg>
+              </div>
+              <p
+                class="text-[0.62rem] font-black uppercase tracking-wider text-brand-dark m-0 group-hover:text-[#E8500A]">
+                Add New Address ({{ addresses.count }}/3)</p>
+              <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-400 mt-0.5">ADD.SHIPPING.ADDRESS
+              </p>
+            </div>
+            {% endif %}
+
+          </div>
+        </div>
+
+        <!-- SECTION 2: PAYMENT OPTIONS -->
+        <div class="mb-10">
+          <div class="mb-6 flex items-center justify-between">
+            <div>
+              <h2 class="text-[1.2rem] font-black uppercase tracking-tight text-brand-dark m-0">Payment Options</h2>
+              <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-[#E8500A] mt-1">Flexible payment
+                options</p>
+            </div>
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path
+                d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+          </div>
+
+          <div class="space-y-3">
+
+            <!-- OPTION 1: CASH ON DELIVERY (ACTIVE / FUNCTIONAL) -->
+            <div class="payment-option-card active border-2 border-[#A33C08] bg-[#FFFBF8] shadow-xs p-4 flex flex-col transition-all duration-200 cursor-pointer"
+              onclick="selectPaymentOption('COD', this)">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <input type="radio" name="payment_method" value="CASH_ON_DELIVERY" checked
+                    class="accent-[#A33C08] w-4 h-4 cursor-pointer">
+                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">Cash on Delivery (COD)</span>
+                </div>
+              </div>
+              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay cash to delivery officer upon shipment arrival. Zero surcharge.</p>
+            </div>
+
+            <!-- OPTION 2: UPI DIRECT TRANSFER -->
+            <div class="payment-option-card border-2 border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
+              onclick="selectPaymentOption('UPI', this)">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <input type="radio" name="payment_method" value="UPI_DIRECT_TRANSFER" class="accent-[#A33C08] w-4 h-4 cursor-pointer">
+                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">UPI DIRECT TRANSFER</span>
+                </div>
+              </div>
+              <p class="text-[0.58rem] font-sans font-semibold text-red-500 mt-2 ml-7 uppercase tracking-wide">Currently Unavailable. Only Cash on Delivery is supported.</p>
+            </div>
+
+            <!-- OPTION 3: CREDIT / DEBIT CARD -->
+            <div class="payment-option-card border-2 border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
+              onclick="selectPaymentOption('CARD', this)">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <input type="radio" name="payment_method" value="CREDIT_DEBIT_CARD" class="accent-[#A33C08] w-4 h-4 cursor-pointer">
+                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">CREDIT / DEBIT CARD</span>
+                </div>
+                <div class="flex items-center gap-1.5 opacity-60">
+                  <span class="w-5 h-3 bg-gray-300 inline-block"></span>
+                  <span class="w-5 h-3 bg-gray-400 inline-block"></span>
+                </div>
+              </div>
+              <p class="text-[0.58rem] font-sans font-semibold text-red-500 mt-2 ml-7 uppercase tracking-wide">Currently Unavailable. Only Cash on Delivery is supported.</p>
+            </div>
+
+            <!-- OPTION 4: NET BANKING -->
+            <div class="payment-option-card border-2 border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
+              onclick="selectPaymentOption('NETBANKING', this)">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-3">
+                  <input type="radio" name="payment_method" value="NET_BANKING" class="accent-[#A33C08] w-4 h-4 cursor-pointer">
+                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">NET BANKING</span>
+                </div>
+              </div>
+              <p class="text-[0.58rem] font-sans font-semibold text-red-500 mt-2 ml-7 uppercase tracking-wide">Currently Unavailable. Only Cash on Delivery is supported.</p>
+            </div>
+
+            <!-- AVAILABLE COUPONS ACCORDION -->
+            <div class="border border-gray-200 p-4 bg-[#FAF9F7]">
+              <div class="flex items-center justify-between cursor-pointer" onclick="toggleCoupons()">
+                <span class="text-[0.65rem] font-black uppercase tracking-wider text-brand-dark">Available
+                  Coupons</span>
+                <svg id="coupon-arrow" class="w-4 h-4 text-gray-500 transition-transform" fill="none"
+                  stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                  <path d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div id="coupon-content" class="hidden mt-3 pt-3 border-t border-gray-200">
+                <p class="text-[0.55rem] font-bold uppercase text-gray-400 tracking-wider">No promo codes active for
+                  this session.</p>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- ACTION BUTTON: COMPLEATE PURCHASE -->
+        <div class="mt-8">
+          <button type="submit" id="submit-order-btn"
+            class="w-full bg-[#E8500A] text-white text-[0.75rem] font-black tracking-[0.25em] uppercase py-5 hover:bg-[#c94008] transition-colors flex items-center justify-center gap-4 border-none cursor-pointer shadow-md">
+            <span>Compleate Purchase</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+      </div>
+      <!-- END LEFT COLUMN -->
+
+      <!-- RIGHT COLUMN: ORDER SUMMARY -->
+      <div class="w-full lg:w-[420px] shrink-0 bg-[#FAF6F2] px-8 py-8 h-fit sticky top-24">
+
+        <div>
+          <div class="mb-6 flex items-center justify-between border-b border-gray-300 pb-4">
+            <div>
+              <h3 class="text-[0.95rem] font-black tracking-[0.18em] uppercase text-brand-dark m-0">Order Summary</h3>
+            </div>
+            <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path
+                d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+          </div>
+
+          <!-- ITEMS LIST -->
+          <div class="space-y-4 mb-8">
+            {% for item in items %}
+            <div class="flex items-center gap-4 bg-white p-3 border border-gray-200">
+              <div class="w-16 h-16 bg-[#111111] shrink-0 flex items-center justify-center overflow-hidden">
+                <img
+                  src="{% if item.product.images.all %}{{ item.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
+                  alt="{{ item.product.name }}" class="w-full h-full object-cover" />
+              </div>
+              <div class="flex-1 text-left">
+                <h5 class="text-[0.78rem] font-black uppercase tracking-wider text-brand-dark m-0 leading-tight">{{ item.product.name }}{% if item.variant %} {{ item.variant.name }}{% endif %}</h5>
+                <div class="flex items-center gap-3 mt-1 text-[0.6rem] font-mono text-gray-500 uppercase">
+                  <span>Count: 0{{ item.quantity }}_Unit</span>
+                  <span class="text-green-600 font-bold">In_Stock</span>
+                </div>
+                <p class="text-[0.58rem] font-mono text-gray-400 uppercase mt-0.5">{{ item.product.brand|default:"ZITARRA" }}</p>
+              </div>
+              <div class="text-right">
+                <p class="text-[0.88rem] font-black text-brand-dark m-0">₹{{ item.get_subtotal|floatformat:2 }}</p>
+              </div>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- SYSTEM TOTALS BREAKDOWN -->
+          <div class="pt-4 border-t border-gray-300">
+
+            <div class="space-y-3 font-mono text-[0.72rem]">
+              <div class="flex justify-between items-center text-gray-600">
+                <span class="uppercase tracking-wider">Subtotal</span>
+                <span class="font-bold text-brand-dark">₹{{ subtotal|floatformat:2 }}</span>
+              </div>
+              <div class="flex justify-between items-center text-gray-600">
+                <span class="uppercase tracking-wider">Delivery Charges</span>
+                <span class="font-bold {% if shipping_cost == 0 %}text-green-600 uppercase{% else %}text-brand-dark{% endif %}">
+                  {% if shipping_cost == 0 %}Free{% else %}₹{{ shipping_cost|floatformat:2 }}{% endif %}
+                </span>
+              </div>
+              <div class="flex justify-between items-center text-gray-600 pb-3 border-b border-gray-200">
+                <span class="uppercase tracking-wider">Tax (5% GST)</span>
+                <span class="font-bold text-brand-dark">₹{{ tax_amount|floatformat:2 }}</span>
+              </div>
+            </div>
+
+            <!-- TOTAL DUE NOW -->
+            <div class="mt-6 flex flex-col text-left pb-5 border-b border-gray-300">
+              <span class="text-[0.65rem] font-mono font-bold uppercase tracking-widest text-gray-500">Total Payment</span>
+              <span class="text-[1.8rem] font-black text-[#E8500A] leading-tight mt-1">₹{{ total_price|floatformat:2 }}</span>
+            </div>
+
+            <!-- PROMO CODE / COUPON INPUT & OFFERS BOX -->
+            <div class="mt-5 select-none text-left">
+              <span class="text-[0.62rem] font-black uppercase tracking-[0.15em] text-gray-500 block mb-2">Have a Promo Code?</span>
+              <div class="flex gap-2">
+                <input type="text" id="checkout-coupon-input" placeholder="Enter Code (e.g. ZITARRA10)"
+                  class="flex-1 bg-white border border-gray-300 px-3 py-2 text-[0.7rem] font-mono uppercase focus:outline-none focus:border-[#E8500A] transition-colors" />
+                <button type="button" onclick="handleCouponApply()"
+                  class="bg-brand-dark text-white text-[0.6rem] font-black uppercase tracking-widest px-4 py-2 hover:bg-[#E8500A] transition-colors border-none cursor-pointer">
+                  Apply
+                </button>
+              </div>
+
+              <!-- Available Coupon Reassurance Tag -->
+              <div class="mt-3 bg-[#FFFBF9] border border-dashed border-[#E8500A] p-2.5 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <span class="text-[#E8500A] text-xs">🏷️</span>
+                  <div>
+                    <p class="text-[0.58rem] font-black uppercase tracking-wider text-[#A04100] m-0">Code: ZITARRA10</p>
+                    <p class="text-[0.52rem] text-gray-500 uppercase tracking-wide m-0">Save 10% Extra on this order</p>
+                  </div>
+                </div>
+                <button type="button" onclick="document.getElementById('checkout-coupon-input').value = 'ZITARRA10';"
+                  class="text-[0.5rem] font-black uppercase tracking-widest text-[#E8500A] hover:underline bg-transparent border-none cursor-pointer">
+                  Use Code
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+      <!-- END RIGHT COLUMN -->
+
+    </div>
+  </form>
+
+</div>
+
+<!-- ADD ADDRESS MODAL -->
+<div id="add-address-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div
+    class="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row text-left font-sans">
+
+    <!-- LEFT COLUMN: CREAM PROTOCOL PANEL -->
+    <div class="w-full md:w-[36%] bg-[#F9EFE9] p-8 flex flex-col justify-between border-r border-[#F0DFD5]">
+      <div>
+        <!-- Brand Title -->
+        <h2 class="text-lg font-black uppercase tracking-[0.25em] text-brand-dark mb-8">
+          ZITARRA
+        </h2>
+
+        <!-- Protocol Subtitle -->
+        <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-[#D4501B] mb-2">
+          LOGISTICS PROTOCOL
+        </p>
+
+        <!-- Italicized Description -->
+        <p class="text-xs font-serif italic text-gray-700 leading-relaxed mb-8">
+          White-glove delivery, climate-stabilized for architectural precision.
+        </p>
+      </div>
+
+      <!-- Feature Bullets -->
+      <div
+        class="space-y-3 font-mono text-[0.55rem] font-bold tracking-widest text-gray-700 uppercase pt-4 border-t border-[#EBD4C7]">
+        <div class="flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-[#D4501B]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>VERIFIED ROUTING</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-[#D4501B]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+          </svg>
+          <span>CLIMATE STABLE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: FORM PANEL -->
+    <div class="w-full md:w-[64%] p-8 bg-white relative flex flex-col justify-between">
+
+      <!-- Close Button -->
+      <button type="button" onclick="closeAddAddressModal()"
+        class="absolute top-5 right-5 text-gray-400 hover:text-black text-lg leading-none cursor-pointer bg-transparent border-none p-1"
+        title="Close">&times;</button>
+
+      <div>
+        <!-- Modal Title -->
+        <h3 class="text-lg font-black uppercase tracking-[0.15em] text-brand-dark m-0 mb-0.5">
+          NEW DESTINATION
+        </h3>
+        <p class="text-[0.52rem] font-bold tracking-[0.2em] uppercase text-gray-400 mb-6">
+          SPECIFY DELIVERY COORDINATES
+        </p>
+
+        <form id="add-address-form" action="{% url 'checkout_add_address' %}" method="POST" class="space-y-4">
+          {% csrf_token %}
+
+          <!-- Full Name -->
+          <div>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">FULL NAME *</label>
+            <input type="text" name="full_name" required placeholder="E.g. Sterling Archer"
+              class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+            <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+          </div>
+
+          <!-- Address Line 1 & City -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 1 *</label>
+              <input type="text" name="address_line_1" required placeholder="Primary Street / Flat No."
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY *</label>
+              <input type="text" name="city" required placeholder="E.g. Kochi"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+          </div>
+
+          <!-- Address Line 2 -->
+          <div>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 2</label>
+            <input type="text" name="address_line_2" placeholder="Apartment, Suite, Landmark (Optional)"
+              class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+            <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+          </div>
+
+          <!-- Postal Code & State -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL CODE *</label>
+              <input type="text" name="pincode" maxlength="6" required placeholder="6-Digit PIN"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE *</label>
+              <input type="text" name="state" required placeholder="E.g. Kerala"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+          </div>
+
+          <!-- Phone Number & Label Chips -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">PHONE NUMBER *</label>
+              <input type="text" name="phone_number" required placeholder="Mobile Number"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LABEL *</label>
+              <div class="relative">
+                <select name="label" id="add-addr-label" required
+                  class="w-full border-b border-gray-300 py-2 pr-8 text-xs font-sans font-semibold text-gray-900 outline-none focus:border-[#A33C08] transition-colors bg-transparent appearance-none cursor-pointer">
+                  <option value="HOME">HOME</option>
+                  <option value="OFFICE">OFFICE</option>
+                </select>
+                <svg class="w-3.5 h-3.5 text-gray-500 absolute right-1 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Address Checkbox -->
+          <div class="flex items-center gap-2 pt-2">
+            <input type="checkbox" name="is_default" id="add-is-default" class="accent-[#A33C08]">
+            <label for="add-is-default"
+              class="text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-700 cursor-pointer">SET AS PRIMARY ADDRESS</label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-6 flex items-center justify-end gap-3">
+            <button type="submit"
+              class="bg-[#1A1A1A] text-white hover:bg-[#A33C08] px-6 py-2.5 text-[0.65rem] font-sans font-bold uppercase tracking-[0.16em] transition-all cursor-pointer border-none shadow-xs">
+              ADD ADDRESS
+            </button>
+            <button type="button" onclick="closeAddAddressModal()"
+              class="border border-gray-300 text-gray-600 hover:text-black px-5 py-2.5 text-[0.65rem] font-sans font-bold uppercase tracking-[0.16em] transition-colors cursor-pointer bg-white">
+              CANCEL
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- EDIT ADDRESS MODAL -->
+<div id="edit-address-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  <div
+    class="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row text-left font-sans">
+
+    <!-- LEFT COLUMN: CREAM PROTOCOL PANEL -->
+    <div class="w-full md:w-[36%] bg-[#F9EFE9] p-8 flex flex-col justify-between border-r border-[#F0DFD5]">
+      <div>
+        <!-- Brand Title -->
+        <h2 class="text-lg font-black uppercase tracking-[0.25em] text-brand-dark mb-8">
+          ZITARRA
+        </h2>
+
+        <!-- Protocol Subtitle -->
+        <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-[#D4501B] mb-2">
+          LOGISTICS PROTOCOL
+        </p>
+
+        <!-- Italicized Description -->
+        <p class="text-xs font-serif italic text-gray-700 leading-relaxed mb-8">
+          White-glove delivery, climate-stabilized for architectural precision.
+        </p>
+      </div>
+
+      <!-- Feature Bullets -->
+      <div
+        class="space-y-3 font-mono text-[0.55rem] font-bold tracking-widest text-gray-700 uppercase pt-4 border-t border-[#EBD4C7]">
+        <div class="flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-[#D4501B]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>VERIFIED ROUTING</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <svg class="w-3.5 h-3.5 text-[#D4501B]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+            stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707" />
+          </svg>
+          <span>CLIMATE STABLE</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN: FORM PANEL -->
+    <div class="w-full md:w-[64%] p-8 bg-white relative flex flex-col justify-between">
+
+      <!-- Close Button -->
+      <button type="button" onclick="closeEditAddressModal()"
+        class="absolute top-5 right-5 text-gray-400 hover:text-black text-lg leading-none cursor-pointer bg-transparent border-none p-1"
+        title="Close">&times;</button>
+
+      <div>
+        <!-- Modal Title -->
+        <h3 class="text-lg font-black uppercase tracking-[0.15em] text-brand-dark m-0 mb-0.5">
+          EDIT DESTINATION
+        </h3>
+        <p class="text-[0.52rem] font-bold tracking-[0.2em] uppercase text-gray-400 mb-6">
+          UPDATE DELIVERY ADDRESS
+        </p>
+
+        <form id="edit-address-form" action="" method="POST" class="space-y-4">
+          {% csrf_token %}
+          <input type="hidden" name="id" id="edit-addr-id">
+
+          <!-- Full Name -->
+          <div>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">FULL NAME *</label>
+            <input type="text" name="full_name" id="edit-addr-name" required placeholder="E.g. Sterling Archer"
+              class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+            <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+          </div>
+
+          <!-- Address Line 1 & City -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 1 *</label>
+              <input type="text" name="address_line_1" id="edit-addr-line1" required placeholder="Primary Street / Flat No."
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY *</label>
+              <input type="text" name="city" id="edit-addr-city" required placeholder="E.g. Kochi"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+          </div>
+
+          <!-- Address Line 2 -->
+          <div>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 2</label>
+            <input type="text" name="address_line_2" id="edit-addr-line2" placeholder="Apartment, Suite, Landmark (Optional)"
+              class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+            <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+          </div>
+
+          <!-- Postal Code & State -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL CODE *</label>
+              <input type="text" name="pincode" id="edit-addr-pincode" maxlength="6" required placeholder="6-Digit PIN"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE *</label>
+              <input type="text" name="state" id="edit-addr-state" required placeholder="E.g. Kerala"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+          </div>
+
+          <!-- Phone Number & Label Chips -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">PHONE NUMBER *</label>
+              <input type="text" name="phone_number" id="edit-addr-phone" required placeholder="Mobile Number"
+                class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
+              <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
+            </div>
+            <div>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LABEL *</label>
+              <div class="relative">
+                <select name="label" id="edit-addr-label" required
+                  class="w-full border-b border-gray-300 py-2 pr-8 text-xs font-sans font-semibold text-gray-900 outline-none focus:border-[#A33C08] transition-colors bg-transparent appearance-none cursor-pointer">
+                  <option value="HOME">HOME</option>
+                  <option value="OFFICE">OFFICE</option>
+                </select>
+                <svg class="w-3.5 h-3.5 text-gray-500 absolute right-1 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+            </div>
+          </div>
+
+          <!-- Primary Address Checkbox -->
+          <div class="flex items-center gap-2 pt-2">
+            <input type="checkbox" name="is_default" id="edit-addr-default" class="accent-[#A33C08]">
+            <label for="edit-addr-default"
+              class="text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-700 cursor-pointer">SET AS PRIMARY ADDRESS</label>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="pt-6 flex items-center justify-end gap-3">
+            <button type="submit"
+              class="bg-[#1A1A1A] text-white hover:bg-[#A33C08] px-6 py-2.5 text-[0.65rem] font-sans font-bold uppercase tracking-[0.16em] transition-all cursor-pointer border-none shadow-xs">
+              UPDATE ADDRESS
+            </button>
+            <button type="button" onclick="closeEditAddressModal()"
+              class="border border-gray-300 text-gray-600 hover:text-black px-5 py-2.5 text-[0.65rem] font-sans font-bold uppercase tracking-[0.16em] transition-colors cursor-pointer bg-white">
+              CANCEL
+            </button>
+          </div>
+        </form>
+      </div>
+
+    </div>
+
+  </div>
+</div>
+
+<!-- CUSTOM ZITARRA MODAL FOR COUPONS & NOTIFICATIONS -->
+<div id="zitarra-custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
+  <div id="zitarra-modal-box" class="bg-white border border-gray-200 shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-300 overflow-hidden text-left font-sans">
+    <!-- Header bar -->
+    <div class="bg-[#FAF6F2] px-6 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[#E8500A]"></span>
+        <span class="text-[0.68rem] font-black uppercase tracking-[0.2em] text-brand-dark" id="zitarra-modal-title">Coupon Notification</span>
+      </div>
+      <button type="button" onclick="closeZitarraModal()" class="text-gray-400 hover:text-brand-dark transition-colors border-none bg-transparent cursor-pointer text-lg leading-none">&times;</button>
+    </div>
+    <!-- Body -->
+    <div class="p-6">
+      <div class="flex items-start gap-4">
+        <div id="zitarra-modal-icon-bg" class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path d="M5 13l4 4L19 7" />
+          </svg>
+        </div>
+        <div>
+          <h4 id="zitarra-modal-heading" class="text-sm font-extrabold uppercase tracking-wider text-brand-dark m-0">Coupon Applied!</h4>
+          <p id="zitarra-modal-message" class="text-xs text-gray-600 mt-1 mb-0 leading-relaxed font-sans">Coupon ZITARRA10 applied successfully!</p>
+        </div>
+      </div>
+      <!-- Action Button -->
+      <div class="mt-6 flex justify-end">
+        <button type="button" onclick="closeZitarraModal()" class="bg-[#E8500A] text-white text-[0.65rem] font-bold uppercase tracking-[0.18em] px-6 py-2.5 hover:bg-[#c94008] transition-colors border-none cursor-pointer shadow-xs">
+          Continue
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% include 'user/partials/footer.html' %}
+
+<script>
+  function selectAddress(id) {
+    document.querySelectorAll('.address-card').forEach(card => {
+      card.classList.remove('active', 'bg-[#FFFBF8]', 'border-[#A33C08]', 'shadow-xs');
+      card.classList.add('bg-white', 'border-gray-200');
+      const badge = card.querySelector('.address-badge');
+      if (badge && !badge.dataset.primary) {
+        badge.className = 'address-badge bg-gray-100 text-gray-600 text-[0.5rem] font-bold tracking-[0.18em] uppercase px-2.5 py-1 transition-colors';
+      }
+    });
+
+    const radio = document.getElementById(`addr-radio-${id}`);
+    if (radio) {
+      radio.checked = true;
+      const card = radio.closest('.address-card');
+      if (card) {
+        card.classList.remove('bg-white', 'border-gray-200');
+        card.classList.add('active', 'bg-[#FFFBF8]', 'border-[#A33C08]', 'shadow-xs');
+        const badge = card.querySelector('.address-badge');
+        if (badge && !badge.dataset.primary) {
+          badge.className = 'address-badge bg-[#A33C08] text-white text-[0.5rem] font-bold tracking-[0.18em] uppercase px-2.5 py-1 transition-colors';
+        }
+      }
+    }
+  }
+
+  function selectPaymentOption(type, element) {
+    document.querySelectorAll('.payment-option-card').forEach(card => {
+      card.classList.remove('active', 'border-[#A33C08]', 'bg-[#FFFBF8]', 'shadow-xs');
+      card.classList.add('border-gray-200', 'bg-white');
+    });
+    element.classList.remove('border-gray-200', 'bg-white');
+    element.classList.add('active', 'border-[#A33C08]', 'bg-[#FFFBF8]', 'shadow-xs');
+    const radio = element.querySelector('input[type="radio"]');
+    if (radio) radio.checked = true;
+  }
+
+  document.addEventListener('DOMContentLoaded', function() {
+    const checkoutForm = document.getElementById('checkout-form');
+    if (checkoutForm) {
+      checkoutForm.addEventListener('submit', function(e) {
+        const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
+        if (selectedPayment && selectedPayment.value !== 'CASH_ON_DELIVERY') {
+          e.preventDefault();
+          const activeCard = selectedPayment.closest('.payment-option-card');
+          if (activeCard) {
+            activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            activeCard.classList.add('animate-shake');
+            setTimeout(() => activeCard.classList.remove('animate-shake'), 800);
+          }
+          return false;
+        }
+      });
+    }
+  });
+
+  function toggleCoupons() {
+    const content = document.getElementById('coupon-content');
+    const arrow = document.getElementById('coupon-arrow');
+    content.classList.toggle('hidden');
+    arrow.classList.toggle('rotate-180');
+  }
+
+  function openAddAddressModal() {
+    document.getElementById('add-address-modal').classList.remove('hidden');
+  }
+
+  function closeAddAddressModal() {
+    document.getElementById('add-address-modal').classList.add('hidden');
+  }
+
+  function setAddressLabel(labelVal, btnElement, hiddenInputId) {
+    const hiddenInput = document.getElementById(hiddenInputId);
+    if (hiddenInput) {
+      hiddenInput.value = labelVal.toUpperCase();
+    }
+    const container = btnElement.parentElement;
+    container.querySelectorAll('.addr-label-btn').forEach(btn => {
+      btn.classList.remove('border-[#E8500A]', 'bg-[#FFF3ED]', 'text-[#E8500A]');
+      btn.classList.add('border-gray-300', 'bg-white', 'text-gray-600');
+    });
+    btnElement.classList.remove('border-gray-300', 'bg-white', 'text-gray-600');
+    btnElement.classList.add('border-[#E8500A]', 'bg-[#FFF3ED]', 'text-[#E8500A]');
+  }
+
+  function openEditAddressModal(id, name, phone, line1, line2, city, state, pincode, label, isDefault) {
+    document.getElementById('edit-addr-id').value = id;
+    document.getElementById('edit-addr-name').value = name;
+    document.getElementById('edit-addr-phone').value = phone;
+    document.getElementById('edit-addr-line1').value = line1;
+    document.getElementById('edit-addr-line2').value = line2;
+    document.getElementById('edit-addr-city').value = city;
+    document.getElementById('edit-addr-state').value = state;
+    document.getElementById('edit-addr-pincode').value = pincode;
+
+    const editForm = document.getElementById('edit-address-form');
+    if (editForm) {
+      editForm.action = `/checkout/edit-address/${id}/`;
+    }
+
+    // Select matching label dropdown option
+    const targetLabel = (label || 'HOME').toUpperCase();
+    const selectElem = document.getElementById('edit-addr-label');
+    if (selectElem) selectElem.value = targetLabel;
+
+    document.getElementById('edit-addr-default').checked = isDefault;
+    document.getElementById('edit-address-modal').classList.remove('hidden');
+  }
+
+  function closeEditAddressModal() {
+    document.getElementById('edit-address-modal').classList.add('hidden');
+  }
+
+  // Form field validation function
+  function validateAddressField(input) {
+    const name = input.name;
+    const val = input.value.trim();
+    let errorMsg = '';
+
+    if (name === 'full_name') {
+      if (!val || val.length < 3) {
+        errorMsg = 'Full name must be at least 3 characters.';
+      } else if (!/^[A-Za-z\s]+$/.test(val)) {
+        errorMsg = 'Full name must contain letters and spaces only.';
+      }
+    } else if (name === 'address_line_1') {
+      if (!val || val.length < 3) {
+        errorMsg = 'Address line 1 must be at least 3 characters.';
+      }
+    } else if (name === 'address_line_2') {
+      if (val && val.length < 3) {
+        errorMsg = 'Address line 2 must be at least 3 characters.';
+      }
+    } else if (name === 'city') {
+      if (!val || val.length < 2) {
+        errorMsg = 'City must be at least 2 characters.';
+      } else if (!/^[A-Za-z\s\-'\.]+$/.test(val)) {
+        errorMsg = 'City must contain letters and spaces only.';
+      }
+    } else if (name === 'state') {
+      if (!val || val.length < 2) {
+        errorMsg = 'State must be at least 2 characters.';
+      } else if (!/^[A-Za-z\s\-'\.]+$/.test(val)) {
+        errorMsg = 'State must contain letters and spaces only.';
+      }
+    } else if (name === 'pincode') {
+      if (!val || !/^\d{6}$/.test(val)) {
+        errorMsg = 'Pincode must be exactly 6 numeric digits.';
+      }
+    } else if (name === 'phone_number') {
+      if (!val || !/^[6-9]\d{9}$/.test(val)) {
+        errorMsg = 'Enter a valid 10-digit mobile number starting with 6-9.';
+      }
+    }
+
+    let errorContainer = input.parentElement.querySelector('.field-error');
+    if (errorContainer) {
+      if (errorMsg) {
+        errorContainer.textContent = errorMsg;
+        errorContainer.classList.remove('hidden');
+        input.classList.add('border-red-500');
+        input.classList.remove('border-gray-300');
+        return false;
+      } else {
+        errorContainer.textContent = '';
+        errorContainer.classList.add('hidden');
+        input.classList.remove('border-red-500');
+        input.classList.add('border-gray-300');
+        return true;
+      }
+    }
+    return true;
+  }
+
+  // Attach live input listeners for modals
+  document.querySelectorAll('#add-address-form input, #edit-address-modal form input').forEach(input => {
+    if (input.type !== 'checkbox' && input.type !== 'hidden') {
+      input.addEventListener('input', () => validateAddressField(input));
+      input.addEventListener('blur', () => validateAddressField(input));
+    }
+  });
+
+  // Handle Add Address form submit validation & AJAX
+  const addForm = document.getElementById('add-address-form');
+  if (addForm) {
+    addForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      let isValid = true;
+      addForm.querySelectorAll('input').forEach(input => {
+        if (input.type !== 'checkbox' && input.type !== 'hidden') {
+          if (!validateAddressField(input)) isValid = false;
+        }
+      });
+
+      if (!isValid) return;
+
+      const formData = new FormData(this);
+      try {
+        const response = await fetch(this.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const data = await response.json();
+        if (response.ok && data.status === 'success') {
+          window.location.reload();
+        } else {
+          alert(data.message || 'Failed to save address.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to save address. Please try again.');
+      }
+    });
+  }
+
+  // Handle Edit Address form submit validation & AJAX
+  const editForm = document.getElementById('edit-address-form');
+  if (editForm) {
+    editForm.addEventListener('submit', async function (e) {
+      e.preventDefault();
+      let isValid = true;
+      editForm.querySelectorAll('input').forEach(input => {
+        if (input.type !== 'checkbox' && input.type !== 'hidden') {
+          if (!validateAddressField(input)) isValid = false;
+        }
+      });
+
+      if (!isValid) return;
+
+      const formData = new FormData(this);
+      try {
+        const response = await fetch(this.action, {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        });
+        const data = await response.json();
+        if (response.ok && data.status === 'success') {
+          window.location.reload();
+        } else {
+          alert(data.message || 'Failed to update address.');
+        }
+      } catch (err) {
+        console.error(err);
+        alert('Failed to update address. Please try again.');
+      }
+    });
+  }
+
+  // Auto-dismiss alert messages after 4 seconds
+  setTimeout(function () {
+    document.querySelectorAll('.msg-alert').forEach(function (el) {
+      el.style.transition = 'opacity 0.5s ease-out, transform 0.5s ease-out';
+      el.style.opacity = '0';
+      el.style.transform = 'translateY(-8px)';
+      setTimeout(function () { el.remove(); }, 500);
+    });
+  }, 4000);
+
+  // Custom Zitarra Modal Helper Functions
+  function showZitarraModal(title, heading, message, isSuccess = true) {
+    const modal = document.getElementById('zitarra-custom-modal');
+    const box = document.getElementById('zitarra-modal-box');
+    const titleEl = document.getElementById('zitarra-modal-title');
+    const headingEl = document.getElementById('zitarra-modal-heading');
+    const messageEl = document.getElementById('zitarra-modal-message');
+    const iconBg = document.getElementById('zitarra-modal-icon-bg');
+
+    if (titleEl) titleEl.textContent = title;
+    if (headingEl) headingEl.textContent = heading;
+    if (messageEl) messageEl.textContent = message;
+
+    if (iconBg) {
+      if (isSuccess) {
+        iconBg.className = 'w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0';
+        iconBg.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M5 13l4 4L19 7"/></svg>';
+      } else {
+        iconBg.className = 'w-10 h-10 rounded-full bg-red-100 text-red-600 flex items-center justify-center shrink-0';
+        iconBg.innerHTML = '<svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>';
+      }
+    }
+
+    if (modal && box) {
+      modal.classList.remove('hidden');
+      setTimeout(() => {
+        modal.classList.remove('opacity-0');
+        box.classList.remove('scale-95');
+      }, 20);
+    }
+  }
+
+  function closeZitarraModal() {
+    const modal = document.getElementById('zitarra-custom-modal');
+    const box = document.getElementById('zitarra-modal-box');
+    if (modal && box) {
+      modal.classList.add('opacity-0');
+      box.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+      }, 300);
+    }
+  }
+
+  function handleCouponApply() {
+    const input = document.getElementById('checkout-coupon-input');
+    const code = input ? input.value.trim().toUpperCase() : '';
+    if (code === 'ZITARRA10') {
+      showZitarraModal('Coupon Applied', 'Success!', 'Coupon ZITARRA10 applied successfully! 10% extra discount has been deducted.', true);
+    } else if (code !== '') {
+      showZitarraModal('Invalid Code', 'Coupon Error', 'The promo code "' + code + '" is invalid or expired. Please check and try again.', false);
+    } else {
+      showZitarraModal('Enter Code', 'Promo Code Required', 'Please enter a valid promo code before clicking apply.', false);
+    }
+  }
+</script>
+
+{% endblock %}

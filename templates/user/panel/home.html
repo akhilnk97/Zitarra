@@ -169,17 +169,32 @@ const sections = [
 const homeLink = document.getElementById('nav-home');
 
 window.addEventListener('scroll',()=>{
-  const scrolled = window.scrollY > 10;
-  document.getElementById('nav').classList.toggle('scrolled', scrolled);
-  document.getElementById('nav').style.boxShadow = scrolled ? '' : 'none';
+  const nav = document.getElementById('nav');
+  if (nav) {
+    const scrolled = window.scrollY > 10;
+    nav.classList.toggle('scrolled', scrolled);
+    nav.style.boxShadow = scrolled ? '' : 'none';
+  }
 
   /* scroll-spy */
-  const y = window.scrollY + 80;
+  const scrollPos = window.scrollY;
+  const windowHeight = window.innerHeight;
+  const docHeight = document.documentElement.scrollHeight;
+  const aboutSec = document.getElementById('about');
+  const contactSec = document.getElementById('contact');
+  const homeLink = document.getElementById('nav-home');
+  const aboutLink = document.getElementById('nav-about');
+  const contactLink = document.getElementById('nav-contact');
+
   let active = homeLink;
-  sections.forEach(s => {
-    const sec = document.getElementById(s.id);
-    if (sec && sec.offsetTop <= y) active = s.el;
-  });
+  if (scrollPos + windowHeight >= docHeight - 80) {
+    if (contactLink) active = contactLink;
+  } else if (contactSec && scrollPos >= contactSec.offsetTop - 250) {
+    if (contactLink) active = contactLink;
+  } else if (aboutSec && scrollPos >= aboutSec.offsetTop - 250) {
+    if (aboutLink) active = aboutLink;
+  }
+
   navLinks.forEach(l => l.classList.remove('act'));
   if (active) active.classList.add('act');
 }, { passive: true });
