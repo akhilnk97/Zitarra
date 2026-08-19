@@ -7,7 +7,7 @@ from django.db import transaction
 from common.decorators import user_member_required
 from user_panel.cart.models import Cart
 from user_panel.profiles.models import Address
-from admin_panel.products.models import Product
+from admin_panel.products.models import Product, ProductVariant
 from common.services import (
     validate_full_name,
     validate_phone_number,
@@ -298,33 +298,57 @@ def order_success_view(request, order_id):
 
 @user_member_required
 def my_orders_view(request):
-    orders_list = Order.objects.filter(user=request.user).prefetch_related(
-        'items__product__images', 'items__variant__images'
-    ).order_by('-created_at')
+    items_list = OrderItem.objects.filter(
+        order__user=request.user
+    ).select_related(
+        'order', 'product', 'variant'
+    ).prefetch_related(
+        'product__images', 'variant__images'
+    ).order_by('-order__created_at', '-id')
 
     query = request.GET.get('search', '').strip()
     status_filter = request.GET.get('status', '').strip()
 
     if query:
-        orders_list = orders_list.filter(
-            Q(order_id__icontains=query) |
-            Q(items__product_name__icontains=query)
-        ).distinct()
+        q_objects = (
+            Q(order__order_id__icontains=query) |
+            Q(product_name__icontains=query) |
+            Q(variant_name__icontains=query) |
+            Q(product__name__icontains=query) |
+            Q(product__description__icontains=query) |
+            Q(product__category__name__icontains=query)
+        )
+        words = query.split()
+        if len(words) > 1:
+            word_q = Q()
+            for w in words:
+                word_q &= (
+                    Q(order__order_id__icontains=w) |
+                    Q(product_name__icontains=w) |
+                    Q(variant_name__icontains=w) |
+                    Q(product__name__icontains=w) |
+                    Q(product__description__icontains=w) |
+                    Q(product__category__name__icontains=w)
+                )
+            q_objects |= word_q
+
+        items_list = items_list.filter(q_objects).distinct()
 
     if status_filter:
-        orders_list = orders_list.filter(order_status=status_filter)
+        items_list = items_list.filter(item_status=status_filter)
 
-    paginator = Paginator(orders_list, 10)
+    paginator = Paginator(items_list, 10)
     page = request.GET.get('page', 1)
     try:
-        orders = paginator.page(page)
+        order_items = paginator.page(page)
     except PageNotAnInteger:
-        orders = paginator.page(1)
+        order_items = paginator.page(1)
     except EmptyPage:
-        orders = paginator.page(paginator.num_pages)
+        order_items = paginator.page(paginator.num_pages)
 
     context = {
-        'orders': orders,
+        'orders': order_items,
+        'order_items': order_items,
         'search_query': query,
         'status_filter': status_filter,
     }
@@ -340,23 +364,104 @@ def order_detail_view(request, order_id):
         user=request.user
     )
     if order.order_status != 'CANCELLED':
-        if order.order_status == 'DELIVERED' and order.payment_status != 'PAID':
-            order.payment_status = 'PAID'
+        from django.utils import timezone
+        today = timezone.now().date()
+        if order.order_status == 'DELIVERED':
+            if order.payment_status != 'PAID':
+                order.payment_status = 'PAID'
+            if order.expected_delivery_date and order.expected_delivery_date > today:
+                order.expected_delivery_date = today
+            order.save()
+            for item in order.items.filter(item_status='DELIVERED'):
+                if item.expected_delivery_date and item.expected_delivery_date > today:
+                    item.expected_delivery_date = today
+                    item.save(update_fields=['expected_delivery_date'])
         
-        # If all items were marked cancelled but order is active/delivered, restore items
-        if order.items.filter(item_status='CANCELLED').count() == order.items.count() and order.items.exists():
-            order.items.update(item_status='CONFIRMED', cancel_reason=None)
-        
-        active_items = order.items.exclude(item_status='CANCELLED')
-        if active_items.exists():
-            new_subtotal = sum(item.item_subtotal for item in active_items)
-            if order.subtotal == Decimal('0.00') or order.total_price == Decimal('0.00') or order.subtotal != new_subtotal:
-                order.subtotal = new_subtotal
-                order.tax_amount = round(new_subtotal * Decimal('0.05'), 2)
-                order.total_price = order.subtotal + order.shipping_cost + order.tax_amount - order.discount_amount
-                order.save()
+        order.recalculate_totals()
 
-    return render(request, 'user/orders/order_detail.html', {'order': order})
+    item_id = request.GET.get('item_id') or request.GET.get('item')
+    selected_item = None
+    if item_id:
+        selected_item = order.items.filter(id=item_id).first()
+
+    if selected_item:
+        order_items = [selected_item]
+        display_subtotal = selected_item.item_subtotal
+        display_tax = round(display_subtotal * Decimal('0.05'), 2)
+        display_shipping = order.shipping_cost if order.items.exclude(item_status='CANCELLED').count() <= 1 else Decimal('0.00')
+        display_total = display_subtotal + display_tax + display_shipping
+    else:
+        order_items = list(order.items.all())
+        display_subtotal = order.subtotal
+        display_tax = order.tax_amount
+        display_shipping = order.shipping_cost
+        display_total = order.total_price
+
+    context = {
+        'order': order,
+        'order_items': order_items,
+        'selected_item': selected_item,
+        'display_subtotal': display_subtotal,
+        'display_tax': display_tax,
+        'display_shipping': display_shipping,
+        'display_total': display_total,
+    }
+    return render(request, 'user/orders/order_detail.html', context)
+
+
+@user_member_required
+def cancel_order_item_view(request, order_id, item_id):
+    next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+    if not next_url:
+        from django.urls import reverse
+        next_url = reverse('order_detail', kwargs={'order_id': order_id})
+
+    if request.method != 'POST':
+        return redirect(next_url)
+
+    order_item = get_object_or_404(
+        OrderItem.objects.select_related('order', 'product', 'variant'),
+        id=item_id,
+        order__order_id=order_id,
+        order__user=request.user
+    )
+
+    if order_item.item_status != 'CONFIRMED' or order_item.order.order_status not in ['CONFIRMED', 'PROCESSING', 'SHIPPED']:
+        messages.error(request, "This item cannot be cancelled at its current status.")
+        return redirect(next_url)
+
+    reason_select = request.POST.get('cancel_reason_select', '').strip()
+    reason_text = request.POST.get('cancel_reason', '').strip()
+    reason = reason_select
+    if reason_select == 'Other' or not reason:
+        reason = reason_text or "Cancelled by customer"
+    elif reason_text and reason_text != reason_select:
+        reason = f"{reason_select}: {reason_text}"
+
+    with transaction.atomic():
+        item = OrderItem.objects.select_for_update().get(id=order_item.id)
+
+        if item.item_status == 'CANCELLED':
+            messages.error(request, "This item has already been cancelled.")
+            return redirect(next_url)
+
+        item.item_status = 'CANCELLED'
+        item.cancel_reason = reason
+        item.save(update_fields=['item_status', 'cancel_reason'])
+
+        if item.variant_id:
+            variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
+            variant.stock += item.quantity
+            variant.save(update_fields=['stock'])
+        elif item.product_id:
+            product = Product.objects.select_for_update().get(id=item.product_id)
+            product.stock += item.quantity
+            product.save(update_fields=['stock'])
+
+        order_item.order.recalculate_totals()
+
+    messages.success(request, f"Product '{order_item.product_name}' from Order #{order_item.order.order_id} has been cancelled successfully.")
+    return redirect(next_url)
 
 
 @user_member_required
@@ -376,15 +481,54 @@ def return_order_view(request, order_id):
                 reason = f"{reason_select}: {reason_text}"
 
             with transaction.atomic():
+                from datetime import timedelta
                 order.order_status = 'RETURN_REQUESTED'
                 order.return_reason = reason
                 order.save()
+
+                for item in order.items.all():
+                    if item.item_status not in ['CANCELLED', 'RETURNED']:
+                        item.item_status = 'RETURN_REQUESTED'
+                        item.cancel_reason = reason
+                        item.expected_pickup_date = item.effective_expected_delivery_date + timedelta(days=3)
+                        item.save(update_fields=['item_status', 'cancel_reason', 'expected_pickup_date'])
 
             messages.success(request, f"Return request submitted for Order #{order.order_id}. Our team will review your request shortly.")
         else:
             messages.error(request, "Return requests can only be submitted for delivered orders.")
 
     return redirect('order_detail', order_id=order_id)
+
+
+@user_member_required
+def return_order_item_view(request, order_id, item_id):
+    order_item = get_object_or_404(OrderItem, id=item_id, order__order_id=order_id, order__user=request.user)
+    next_url = request.META.get('HTTP_REFERER') or reverse('order_detail', kwargs={'order_id': order_id})
+
+    if request.method == 'POST':
+        if order_item.item_status == 'DELIVERED':
+            reason_select = request.POST.get('return_reason_select', '').strip()
+            reason_text = request.POST.get('return_reason', '').strip()
+            
+            reason = reason_select
+            if reason_select == 'Other' or not reason:
+                reason = reason_text or "Return requested by customer"
+            elif reason_text:
+                reason = f"{reason_select}: {reason_text}"
+
+            with transaction.atomic():
+                from datetime import timedelta
+                order_item.item_status = 'RETURN_REQUESTED'
+                order_item.cancel_reason = reason
+                order_item.expected_pickup_date = order_item.effective_expected_delivery_date + timedelta(days=3)
+                order_item.save(update_fields=['item_status', 'cancel_reason', 'expected_pickup_date'])
+                order_item.order.recalculate_totals()
+
+            messages.success(request, f"Return request submitted for '{order_item.product_name}'.")
+        else:
+            messages.error(request, "Only delivered products can be returned.")
+
+    return redirect(next_url)
 
 
 @user_member_required
@@ -426,10 +570,10 @@ def cancel_order_view(request, order_id):
                         # Restore stock
                         if item.variant:
                             item.variant.stock += item.quantity
-                            item.variant.save()
+                            item.variant.save(update_fields=['stock'])
                         if item.product:
                             item.product.stock += item.quantity
-                            item.product.save()
+                            item.product.save(update_fields=['stock'])
 
                 order.recalculate_totals()
 
@@ -437,4 +581,4 @@ def cancel_order_view(request, order_id):
         else:
             messages.error(request, "This order cannot be cancelled at its current status.")
 
-    return redirect('order_detail', order_id=order_id)
+    return redirect('order_detail', order_id=order_id)

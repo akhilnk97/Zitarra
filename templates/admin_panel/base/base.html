@@ -208,7 +208,7 @@
 
           // Create menu container
           const menu = document.createElement('div');
-          menu.className = 'custom-select-menu absolute left-0 right-0 mt-1 bg-white border border-[#e2e2e2] shadow-lg max-h-60 overflow-y-auto hidden z-[999]';
+          menu.className = 'custom-select-menu absolute left-0 right-0 mt-1 bg-white border border-[#E0D5C9] shadow-2xl max-h-60 overflow-y-auto hidden z-[9999]';
           
           const rebuildItems = () => {
             menu.innerHTML = '';
@@ -289,8 +289,28 @@
             }
           });
 
+          // Sync disabled state
+          const syncDisabledState = () => {
+            if (select.disabled) {
+              button.disabled = true;
+              button.classList.add('opacity-60', 'cursor-not-allowed');
+              arrowSvg.style.display = 'none';
+            } else {
+              button.disabled = false;
+              button.classList.remove('opacity-60', 'cursor-not-allowed');
+              arrowSvg.style.display = 'block';
+            }
+          };
+          syncDisabledState();
+
+          const disabledObserver = new MutationObserver(syncDisabledState);
+          disabledObserver.observe(select, { attributes: true, attributeFilter: ['disabled'] });
+
           // Toggle menu
           button.addEventListener('click', (e) => {
+            if (select.disabled || button.disabled) {
+              return;
+            }
             e.stopPropagation();
             document.querySelectorAll('.custom-select-menu').forEach(m => {
               if (m !== menu) {
@@ -362,6 +382,111 @@
           initCustomDropdowns();
         });
         observer.observe(document.body, { childList: true, subtree: true });
+
+        // Auto-dismiss floating notification messages after 3 seconds
+        setTimeout(function () {
+          const alerts = document.querySelectorAll('.msg-alert');
+          alerts.forEach(function (alert) {
+            alert.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+            alert.style.opacity = '0';
+            alert.style.transform = 'translateY(-10px)';
+            setTimeout(function () { alert.remove(); }, 400);
+          });
+        }, 3000);
+      });
+    })();
+  </script>
+
+  <!-- ── Global Admin Logout Confirmation Modal ── -->
+  <div id="admin-logout-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm flex items-center justify-center z-[99999] opacity-0 pointer-events-none transition-opacity duration-300 p-4">
+    <div class="bg-white max-w-md w-full p-8 shadow-2xl relative text-center border border-gray-100 scale-[0.85] opacity-0 transition-all duration-300 ease-[cubic-bezier(0.34,1.56,0.64,1)] font-sans">
+      <!-- Top Right Close X Button -->
+      <button type="button" id="close-admin-logout-x-btn" class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer p-1 leading-none" aria-label="Close">&times;</button>
+      
+      <!-- Shield/Logout Red Warning Badge -->
+      <div class="w-16 h-16 rounded-full bg-red-50 border-2 border-red-600 text-red-600 flex items-center justify-center mx-auto mb-5 shadow-xs">
+        <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+        </svg>
+      </div>
+
+      <h3 class="text-lg font-black uppercase text-[#1A1A1A] tracking-wider m-0 mb-2">ADMIN LOGOUT</h3>
+      <div class="w-12 h-[2px] bg-red-600 mx-auto mb-4"></div>
+      <p class="text-xs text-gray-600 mb-6 leading-relaxed font-sans">
+        Are you sure you want to exit the Zitarra Admin Portal? Any unsaved administrative changes may be lost.
+      </p>
+
+      <div class="flex flex-col gap-2.5">
+        <a id="confirm-admin-logout-btn" href="#" class="w-full py-3.5 bg-[#1A1A1A] hover:bg-red-600 text-white text-xs font-black uppercase tracking-[0.18em] transition-colors cursor-pointer border-none shadow-sm no-underline inline-block">
+          CONFIRM LOGOUT
+        </a>
+        <button type="button" id="cancel-admin-logout-btn" class="w-full py-3 bg-gray-100 text-gray-700 text-xs font-bold uppercase tracking-[0.18em] hover:bg-gray-200 transition-colors cursor-pointer border-none">
+          CANCEL
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // ── Global Admin Logout Confirmation Modal System ──
+    (function() {
+      let pendingAdminLogoutUrl = null;
+
+      function openAdminLogoutModal(targetUrl) {
+        const modal = document.getElementById('admin-logout-modal');
+        if (!modal) {
+          if (targetUrl) window.location.href = targetUrl;
+          return;
+        }
+        pendingAdminLogoutUrl = targetUrl;
+        const confirmBtn = document.getElementById('confirm-admin-logout-btn');
+        if (confirmBtn && pendingAdminLogoutUrl) {
+          confirmBtn.href = pendingAdminLogoutUrl;
+        }
+        document.body.appendChild(modal);
+        document.body.style.overflow = 'hidden';
+        const content = modal.querySelector('div');
+        modal.classList.remove('opacity-0', 'pointer-events-none', 'hidden');
+        modal.classList.add('opacity-100', 'pointer-events-auto');
+        if (content) {
+          content.classList.remove('scale-[0.85]', 'opacity-0');
+          content.classList.add('scale-100', 'opacity-100');
+        }
+      }
+
+      function closeAdminLogoutModal() {
+        const modal = document.getElementById('admin-logout-modal');
+        if (!modal) return;
+        document.body.style.overflow = '';
+        const content = modal.querySelector('div');
+        modal.classList.remove('opacity-100', 'pointer-events-auto');
+        modal.classList.add('opacity-0', 'pointer-events-none');
+        if (content) {
+          content.classList.remove('scale-100', 'opacity-100');
+          content.classList.add('scale-[0.85]', 'opacity-0');
+        }
+      }
+
+      document.addEventListener('click', function(e) {
+        const logoutLink = e.target.closest('a[href*="/admin-panel/logout/"], a[href*="admin_logout"]');
+        if (logoutLink && logoutLink.id !== 'confirm-admin-logout-btn') {
+          e.preventDefault();
+          openAdminLogoutModal(logoutLink.getAttribute('href'));
+        }
+      });
+
+      document.addEventListener('DOMContentLoaded', function() {
+        const closeX = document.getElementById('close-admin-logout-x-btn');
+        const cancelBtn = document.getElementById('cancel-admin-logout-btn');
+        const modal = document.getElementById('admin-logout-modal');
+
+        if (closeX) closeX.addEventListener('click', closeAdminLogoutModal);
+        if (cancelBtn) cancelBtn.addEventListener('click', closeAdminLogoutModal);
+        if (modal) {
+          modal.addEventListener('click', function(e) {
+            if (e.target === modal) closeAdminLogoutModal();
+          });
+        }
       });
     })();
   </script>

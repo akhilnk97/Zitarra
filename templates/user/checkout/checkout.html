@@ -24,6 +24,27 @@
     border-color: #A33C08 !important;
     background-color: #FFFBF8 !important;
   }
+
+  /* Left Section Scroll Bubble Spring Animation */
+  .scroll-bubble-card {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    transition: opacity 0.35s ease, 
+                transform 0.35s ease,
+                box-shadow 0.3s ease,
+                border-color 0.2s ease,
+                background-color 0.2s ease;
+  }
+
+  .scroll-bubble-card.bubble-in {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  .scroll-bubble-card:hover {
+    transform: translateY(-4px) scale(1.008);
+    box-shadow: 0 14px 28px -6px rgba(232, 80, 10, 0.14), 0 6px 14px -3px rgba(0, 0, 0, 0.06);
+  }
 </style>
 {% endblock %}
 
@@ -39,41 +60,6 @@
       <!-- LEFT COLUMN: ADDRESS & PAYMENT -->
       <div class="flex-1 px-6 py-8 lg:px-12 bg-white">
 
-        {% if messages %}
-        <div class="mb-6 space-y-3">
-          {% for message in messages %}
-          <div
-            class="p-4 bg-white border-l-4 {% if 'success' in message.tags %}border-green-500{% elif 'error' in message.tags %}border-red-500 animate-shake{% else %}border-[#E8500A]{% endif %} text-brand-dark text-[0.72rem] font-bold tracking-widest uppercase shadow-sm flex items-center justify-between gap-3 msg-alert">
-            <div class="flex items-center gap-3">
-              {% if 'success' in message.tags %}
-              <svg class="w-5 h-5 text-green-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {% elif 'error' in message.tags %}
-              <svg class="w-5 h-5 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-              {% else %}
-              <svg class="w-5 h-5 text-[#E8500A] shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                stroke-width="2.5">
-                <path stroke-linecap="round" stroke-linejoin="round"
-                  d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              {% endif %}
-              <span>{{ message }}</span>
-            </div>
-            <button type="button" onclick="this.parentElement.remove()"
-              class="text-gray-400 hover:text-black font-bold text-base leading-none cursor-pointer bg-transparent border-none px-1"
-              title="Dismiss">&times;</button>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-
         <!-- SECTION 1: ADDRESS SELECTION -->
         <div class="mb-10">
           <div class="mb-6">
@@ -85,7 +71,7 @@
 
             {% for addr in addresses %}
             <div
-              class="address-card border-2 p-5 rounded-none relative flex flex-col justify-between cursor-pointer transition-all duration-200 {% if default_address and default_address.id == addr.id %}active bg-[#FFFBF8] border-[#A33C08] shadow-xs{% else %}bg-white border-gray-200 hover:border-gray-400{% endif %}"
+              class="scroll-bubble-card address-card border-2 p-5 rounded-none relative flex flex-col justify-between cursor-pointer transition-all duration-200 {% if default_address and default_address.id == addr.id %}active bg-[#FFFBF8] border-[#A33C08] shadow-xs{% else %}bg-white border-gray-200 hover:border-gray-400{% endif %}"
               onclick="selectAddress({{ addr.id }})">
 
               <input type="radio" name="selected_address" value="{{ addr.id }}" id="addr-radio-{{ addr.id }}"
@@ -135,7 +121,7 @@
             <!-- ADD NEW ADDRESS CARD -->
             {% if addresses.count >= 3 %}
             <div
-              class="border border-dashed border-gray-300 p-5 flex flex-col items-center justify-center bg-gray-50/80 min-h-[160px] text-center select-none">
+              class="scroll-bubble-card border border-dashed border-gray-300 p-5 flex flex-col items-center justify-center bg-gray-50/80 min-h-[160px] text-center select-none">
               <div
                 class="w-8 h-8 rounded-full bg-amber-50 border border-amber-200 flex items-center justify-center mb-2">
                 <svg class="w-4 h-4 text-amber-600" fill="none" stroke="currentColor" stroke-width="2"
@@ -151,7 +137,7 @@
             </div>
             {% else %}
             <div
-              class="border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center cursor-pointer hover:border-[#E8500A] transition-colors group min-h-[160px]"
+              class="scroll-bubble-card border border-dashed border-gray-300 p-6 flex flex-col items-center justify-center cursor-pointer hover:border-[#E8500A] transition-colors group min-h-[160px]"
               onclick="openAddAddressModal()">
               <div
                 class="w-8 h-8 rounded-none border border-gray-300 flex items-center justify-center mb-2 group-hover:border-[#E8500A] group-hover:bg-[#FFF9F6]">
@@ -188,7 +174,7 @@
           <div class="space-y-3">
 
             <!-- OPTION 1: CASH ON DELIVERY (ACTIVE / FUNCTIONAL) -->
-            <div class="payment-option-card active border-2 border-[#A33C08] bg-[#FFFBF8] shadow-xs p-4 flex flex-col transition-all duration-200 cursor-pointer"
+            <div class="scroll-bubble-card payment-option-card active border-2 border-[#A33C08] bg-[#FFFBF8] shadow-xs p-4 flex flex-col transition-all duration-200 cursor-pointer"
               onclick="selectPaymentOption('COD', this)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -377,11 +363,15 @@
 
 </div>
 
+{% include 'user/partials/footer.html' %}
+{% endblock %}
+
+{% block modal %}
 <!-- ADD ADDRESS MODAL -->
 <div id="add-address-modal"
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4">
   <div
-    class="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row text-left font-sans">
+    class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col md:flex-row text-left font-sans">
 
     <!-- LEFT COLUMN: CREAM PROTOCOL PANEL -->
     <div class="w-full md:w-[36%] bg-[#F9EFE9] p-8 flex flex-col justify-between border-r border-[#F0DFD5]">
@@ -542,9 +532,9 @@
 
 <!-- EDIT ADDRESS MODAL -->
 <div id="edit-address-modal"
-  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4">
   <div
-    class="bg-white w-full max-w-2xl shadow-2xl relative overflow-hidden flex flex-col md:flex-row text-left font-sans">
+    class="bg-white w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl relative flex flex-col md:flex-row text-left font-sans">
 
     <!-- LEFT COLUMN: CREAM PROTOCOL PANEL -->
     <div class="w-full md:w-[36%] bg-[#F9EFE9] p-8 flex flex-col justify-between border-r border-[#F0DFD5]">
@@ -705,7 +695,7 @@
 </div>
 
 <!-- CUSTOM ZITARRA MODAL FOR COUPONS & NOTIFICATIONS -->
-<div id="zitarra-custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
+<div id="zitarra-custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
   <div id="zitarra-modal-box" class="bg-white border border-gray-200 shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-300 overflow-hidden text-left font-sans">
     <!-- Header bar -->
     <div class="bg-[#FAF6F2] px-6 py-4 border-b border-gray-200 flex items-center justify-between">
@@ -737,8 +727,7 @@
     </div>
   </div>
 </div>
-
-{% include 'user/partials/footer.html' %}
+{% endblock %}
 
 <script>
   function selectAddress(id) {
@@ -804,11 +793,18 @@
   }
 
   function openAddAddressModal() {
-    document.getElementById('add-address-modal').classList.remove('hidden');
+    const modal = document.getElementById('add-address-modal');
+    if (!modal) return;
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+    modal.classList.remove('hidden');
   }
 
   function closeAddAddressModal() {
-    document.getElementById('add-address-modal').classList.add('hidden');
+    const modal = document.getElementById('add-address-modal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
   }
 
   function setAddressLabel(labelVal, btnElement, hiddenInputId) {
@@ -845,12 +841,23 @@
     const selectElem = document.getElementById('edit-addr-label');
     if (selectElem) selectElem.value = targetLabel;
 
-    document.getElementById('edit-addr-default').checked = isDefault;
-    document.getElementById('edit-address-modal').classList.remove('hidden');
+    const defaultInput = document.getElementById('edit-addr-default');
+    if (defaultInput) defaultInput.checked = isDefault;
+
+    const modal = document.getElementById('edit-address-modal');
+    if (modal) {
+      document.body.appendChild(modal);
+      document.body.style.overflow = 'hidden';
+      modal.classList.remove('hidden');
+    }
   }
 
   function closeEditAddressModal() {
-    document.getElementById('edit-address-modal').classList.add('hidden');
+    const modal = document.getElementById('edit-address-modal');
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
   }
 
   // Form field validation function
@@ -1059,6 +1066,10 @@
       showZitarraModal('Enter Code', 'Promo Code Required', 'Please enter a valid promo code before clicking apply.', false);
     }
   }
-</script>
 
-{% endblock %}
+  // Scroll Bubble Spring Animation Trigger for Left Section Cards ONLY
+  document.addEventListener('DOMContentLoaded', function() {
+    const bubbleCards = document.querySelectorAll('.scroll-bubble-card');
+    bubbleCards.forEach(card => card.classList.add('bubble-in'));
+  });
+</script>

@@ -145,7 +145,7 @@
 
     var params = new URLSearchParams(window.location.search);
     var searchVal = params.get('search');
-    if (searchVal && searchInput) {
+    if (searchVal && searchInput && window.location.pathname.includes('/shop/')) {
       searchInput.value = searchVal;
       openSearch();
     }

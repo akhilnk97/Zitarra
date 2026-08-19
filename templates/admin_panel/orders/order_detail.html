@@ -213,18 +213,24 @@
               <!-- ORDER DATE -->
               <div>
                 <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-1.5">ORDER DATE</label>
-                <input type="text" readonly value="{{ order.created_at|date:'m/d/Y' }}"
+                <input type="text" readonly value="{{ order.created_at|date:'d/m/Y' }}"
                        class="w-full bg-[#FAF6F3] border border-[#E0D5C9] p-3 text-xs font-mono text-gray-700 outline-none">
               </div>
 
-              <!-- EDITABLE EXPECTED DELIVERY -->
+              <!-- EDITABLE EXPECTED DELIVERY / PICKUP -->
               <div>
-                <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-[#A33C08] mb-1.5 flex items-center justify-between">
-                  <span>EXPECTED DELIVERY</span>
+                <label id="general-date-label" class="block text-[0.55rem] font-bold uppercase tracking-widest {% if is_terminal_status %}text-gray-500{% else %}text-[#A33C08]{% endif %} mb-1.5 flex items-center justify-between">
+                  <span>{% if order.order_status == 'RETURN_REQUESTED' %}SCHEDULE PICKUP DATE{% elif order.order_status == 'RETURN_APPROVED' %}EXPECTED PICKUP DATE{% elif order.order_status == 'RETURN_PICKUP' %}PICKUP DATE{% elif order.order_status == 'RETURNED' %}RETURN DATE{% else %}EXPECTED DELIVERY{% endif %}</span>
                 </label>
+                {% if is_terminal_status %}
+                <input type="text" readonly value="{{ order.default_delivery_date|date:'d/m/Y' }}"
+                       class="w-full bg-[#FAF6F3] border border-[#E0D5C9] p-3 text-xs font-mono text-gray-700 outline-none">
+                {% else %}
                 <input type="date" name="expected_delivery_date" form="update-order-form"
-                       value="{% if order.expected_delivery_date %}{{ order.expected_delivery_date|date:'Y-m-d' }}{% else %}{{ order.created_at|date:'Y-m-d' }}{% endif %}"
+                       min="{% now 'Y-m-d' %}"
+                       value="{{ order.default_delivery_date|date:'Y-m-d' }}"
                        class="w-full bg-white border border-[#A33C08] p-2.5 text-xs font-mono font-bold text-[#1A1A1A] outline-none focus:ring-1 focus:ring-[#A33C08] cursor-pointer shadow-2xs">
+                {% endif %}
               </div>
 
               <!-- PAYMENT METHOD -->
@@ -245,6 +251,147 @@
             </div>
           </div>
 
+          <!-- SECTION: LOGISTICS DISPATCH TIMELINE GRAPH -->
+          {% if order.order_status != 'CANCELLED' %}
+          <div class="bg-white border border-[#EAE3DC] p-6 md:p-8 rounded-xs shadow-xs space-y-4">
+            <div class="flex items-center gap-2 pb-4 border-b border-[#F2EBE4]">
+              <span class="w-1 h-4 bg-[#A33C08] inline-block"></span>
+              <h2 class="text-sm font-black uppercase tracking-[0.18em] text-[#1A1A1A] m-0">
+                {% if order.order_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURNED,REFUNDED' %}
+                  RETURN &amp; DISPATCH TIMELINE
+                {% else %}
+                  DISPATCH TIMELINE
+                {% endif %}
+              </h2>
+            </div>
+
+            <div class="relative pt-2">
+              {% if order.order_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED,REFUNDED' %}
+              <!-- 7-STEP RETURN & REFUND TIMELINE GRAPH -->
+              <div class="absolute top-[18px] left-[7%] right-[7%] h-[3px] bg-gray-200 z-0">
+                <div class="h-full bg-[#A33C08] transition-all duration-500" 
+                     style="width: {% if order.order_status in 'RETURNED,REFUNDED' %}100%{% elif order.order_status == 'RETURN_PICKUP' %}83%{% elif order.order_status == 'RETURN_APPROVED' %}66%{% elif order.order_status == 'RETURN_REQUESTED' %}50%{% else %}33%{% endif %};">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-7 gap-1 relative z-10 text-center">
+                <!-- Step 1: Placed -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full bg-[#A33C08] text-white flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">✓</div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider text-[#1A1A1A] mb-0.5">PLACED</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">{{ order.created_at|date:"M d, h:i A" }}</p>
+                </div>
+
+                <!-- Step 2: Dispatched -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full bg-[#A33C08] text-white flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">✓</div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider text-[#1A1A1A] mb-0.5">DISPATCHED</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">{{ order.created_at|date:"M d" }} &bull; IN TRANSIT</p>
+                </div>
+
+                <!-- Step 3: Delivered -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">✓</div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider text-emerald-600 mb-0.5">DELIVERED</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">{{ order.expected_delivery_date|default:order.updated_at|date:"M d, Y" }}</p>
+                </div>
+
+                <!-- Step 4: Return Requested -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full bg-[#A33C08] text-white flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">✓</div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider text-[#A33C08] mb-0.5">REQUESTED</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">{{ order.updated_at|date:"M d, h:i A" }}</p>
+                </div>
+
+                <!-- Step 5: Return Approved -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full {% if order.order_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}bg-[#A33C08] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">
+                    {% if order.order_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}✓{% else %}•{% endif %}
+                  </div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider {% if order.order_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}text-[#1A1A1A]{% else %}text-gray-400{% endif %} mb-0.5">RETURN APPROVED</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">
+                    {% if order.order_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}{{ order.updated_at|date:"M d, h:i A" }}{% else %}PENDING{% endif %}
+                  </p>
+                </div>
+
+                <!-- Step 6: Pickup -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full {% if order.order_status in 'RETURN_PICKUP,RETURNED' %}bg-[#A33C08] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">
+                    {% if order.order_status in 'RETURN_PICKUP,RETURNED' %}✓{% else %}•{% endif %}
+                  </div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider {% if order.order_status in 'RETURN_PICKUP,RETURNED' %}text-[#1A1A1A]{% else %}text-gray-400{% endif %} mb-0.5">PICKUP</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">
+                    {% if order.order_status in 'RETURN_PICKUP,RETURNED' %}PICKED UP{% else %}UPCOMING{% endif %}
+                  </p>
+                </div>
+
+                <!-- Step 7: Returned -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full {% if order.order_status == 'RETURNED' %}bg-purple-600 text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">
+                    {% if order.order_status == 'RETURNED' %}✓{% else %}•{% endif %}
+                  </div>
+                  <p class="text-[0.55rem] font-black uppercase tracking-wider {% if order.order_status == 'RETURNED' %}text-purple-600{% else %}text-gray-400{% endif %} mb-0.5">RETURNED</p>
+                  <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-500 m-0">
+                    {% if order.order_status == 'RETURNED' %}COMPLETED{% else %}UPCOMING{% endif %}
+                  </p>
+                </div>
+              </div>
+
+              {% else %}
+
+              <!-- STANDARD 4-STEP DISPATCH TIMELINE GRAPH -->
+              <div class="absolute top-[18px] left-[12%] right-[12%] h-[3px] bg-gray-200 z-0">
+                <div class="h-full bg-[#A33C08] transition-all duration-500" 
+                     style="width: {% if order.order_status == 'DELIVERED' %}100%{% elif order.order_status == 'SHIPPED' %}66%{% elif order.order_status == 'PROCESSING' %}33%{% else %}0%{% endif %};">
+                </div>
+              </div>
+
+              <div class="grid grid-cols-4 gap-2 relative z-10 text-center">
+                <!-- Step 1: Placed -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full bg-[#A33C08] text-white flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">✓</div>
+                  <p class="text-[0.62rem] font-black uppercase tracking-wider text-[#1A1A1A] mb-0.5">ORDER PLACED</p>
+                  <p class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-500 m-0">{{ order.created_at|date:"M d, h:i A" }}</p>
+                </div>
+
+                <!-- Step 2: Processing -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full {% if order.order_status in 'PROCESSING,SHIPPED,DELIVERED' %}bg-[#A33C08] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">
+                    {% if order.order_status in 'PROCESSING,SHIPPED,DELIVERED' %}✓{% else %}•{% endif %}
+                  </div>
+                  <p class="text-[0.62rem] font-black uppercase tracking-wider {% if order.order_status in 'PROCESSING,SHIPPED,DELIVERED' %}text-[#1A1A1A]{% else %}text-gray-400{% endif %} mb-0.5">PROCESSING</p>
+                  <p class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-500 m-0">
+                    {% if order.order_status in 'PROCESSING,SHIPPED,DELIVERED' %}{{ order.created_at|date:"M d" }} &bull; PACKED{% else %}PENDING{% endif %}
+                  </p>
+                </div>
+
+                <!-- Step 3: Shipped -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full {% if order.order_status in 'SHIPPED,DELIVERED' %}bg-[#A33C08] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">
+                    {% if order.order_status in 'SHIPPED,DELIVERED' %}✓{% else %}•{% endif %}
+                  </div>
+                  <p class="text-[0.62rem] font-black uppercase tracking-wider {% if order.order_status in 'SHIPPED,DELIVERED' %}text-[#1A1A1A]{% else %}text-gray-400{% endif %} mb-0.5">DISPATCHED</p>
+                  <p class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-500 m-0">
+                    {% if order.order_status in 'SHIPPED,DELIVERED' %}{{ order.created_at|date:"M d" }} &bull; IN TRANSIT{% else %}UPCOMING{% endif %}
+                  </p>
+                </div>
+
+                <!-- Step 4: Delivered -->
+                <div class="flex flex-col items-center">
+                  <div class="w-8 h-8 rounded-full {% if order.order_status == 'DELIVERED' %}bg-emerald-600 text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-2 border-white mb-2">
+                    {% if order.order_status == 'DELIVERED' %}✓{% else %}•{% endif %}
+                  </div>
+                  <p class="text-[0.62rem] font-black uppercase tracking-wider {% if order.order_status == 'DELIVERED' %}text-emerald-600{% else %}text-gray-400{% endif %} mb-0.5">DELIVERED</p>
+                  <p class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-500 m-0">
+                    {% if order.order_status == 'DELIVERED' %}{{ order.expected_delivery_date|default:order.updated_at|date:"M d, Y" }}{% else %}EST. {{ order.default_delivery_date|date:"M d, Y" }}{% endif %}
+                  </p>
+                </div>
+              </div>
+              {% endif %}
+            </div>
+          </div>
+          {% endif %}
+
           <!-- SECTION 2: ITEM_LEDGER CARD -->
           <div class="bg-white border border-[#EAE3DC] p-6 md:p-8 rounded-xs shadow-xs space-y-4">
             <div class="flex items-center gap-2 pb-4 border-b border-[#F2EBE4]">
@@ -253,45 +400,102 @@
             </div>
 
             <!-- Purchased Products List Cards -->
-            <div class="space-y-3">
+            <div class="space-y-4">
               {% for item in order.items.all %}
-              <div class="border border-[#E0D5C9] bg-white p-4 flex items-center justify-between gap-4 rounded-xs">
+              <div class="border border-[#E0D5C9] bg-white p-5 rounded-xs shadow-2xs space-y-4">
                 
-                <div class="flex items-center gap-4">
-                  <!-- Product Image -->
-                  <div class="w-16 h-16 bg-[#1A1A1A] shrink-0 border border-gray-200 rounded-xs overflow-hidden flex items-center justify-center">
-                    {% if item.variant and item.variant.images.first %}
-                      <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product_name }}" class="w-full h-full object-cover">
-                    {% elif item.product and item.product.images.first %}
-                      <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}" class="w-full h-full object-cover">
-                    {% else %}
-                      <span class="text-white text-[0.55rem] font-bold">ZT</span>
-                    {% endif %}
+                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b border-[#F2EBE4] pb-4">
+                  <div class="flex items-center gap-4">
+                    <!-- Product Image -->
+                    <div class="w-16 h-16 bg-[#1A1A1A] shrink-0 border border-gray-200 rounded-xs overflow-hidden flex items-center justify-center">
+                      {% if item.variant and item.variant.images.first %}
+                        <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product_name }}" class="w-full h-full object-cover">
+                      {% elif item.product and item.product.images.first %}
+                        <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}" class="w-full h-full object-cover">
+                      {% else %}
+                        <span class="text-white text-[0.55rem] font-bold">ZT</span>
+                      {% endif %}
+                    </div>
+
+                    <!-- Specs & Name -->
+                    <div>
+                      <h3 class="text-xs md:text-sm font-black uppercase tracking-tight text-[#1A1A1A] m-0 leading-tight">
+                        {{ item.product_name }}
+                      </h3>
+                      {% if item.variant_name %}
+                      <p class="text-[0.58rem] font-bold uppercase tracking-wider text-gray-400 m-0 mt-1 font-mono">
+                        VARIANT: {{ item.variant_name }}
+                      </p>
+                      {% endif %}
+                      <div class="mt-1.5 flex items-center gap-2">
+                        <span class="text-[0.52rem] font-black uppercase px-2.5 py-0.5 border shadow-2xs
+                          {% if item.item_status == 'DELIVERED' %}bg-emerald-50 text-emerald-700 border-emerald-200
+                          {% elif item.item_status == 'CANCELLED' %}bg-red-50 text-red-700 border-red-200
+                          {% elif item.item_status == 'SHIPPED' %}bg-blue-50 text-blue-700 border-blue-200
+                          {% elif item.item_status == 'PROCESSING' %}bg-amber-50 text-amber-700 border-amber-200
+                          {% else %}bg-gray-50 text-gray-700 border-gray-200{% endif %}">
+                          STATUS: {{ item.get_item_status_display|upper }}
+                        </span>
+                      </div>
+                    </div>
                   </div>
 
-                  <!-- Specs & Name -->
-                  <div>
-                    <h3 class="text-xs md:text-sm font-black uppercase tracking-tight text-[#1A1A1A] m-0 leading-tight">
-                      {{ item.product_name }}
-                    </h3>
-                    <p class="text-[0.58rem] font-bold uppercase tracking-wider text-gray-400 m-0 mt-1 font-mono">
-                      SKU: ZT-{{ item.id }}-PRO {% if item.variant_name %}&bull; {{ item.variant_name }}{% endif %}
+                  <!-- Price & Quantity -->
+                  <div class="text-right shrink-0">
+                    <p class="text-[0.58rem] font-bold uppercase tracking-widest text-gray-400 m-0 font-mono">
+                      QTY: 0{{ item.quantity }} &bull; ₹{{ item.price|floatformat:2 }}
                     </p>
-                    {% if item.item_status == 'CANCELLED' %}
-                    <span class="inline-block mt-1 text-[0.5rem] font-black uppercase text-red-600 bg-red-50 px-2 py-0.5 border border-red-200">ITEM CANCELLED</span>
-                    {% endif %}
+                    <p class="text-lg font-black text-[#A33C08] m-0 mt-0.5">
+                      ₹{{ item.item_subtotal|floatformat:2 }}
+                    </p>
                   </div>
                 </div>
 
-                <!-- Qty & Price -->
-                <div class="text-right shrink-0">
-                  <p class="text-[0.58rem] font-bold uppercase tracking-widest text-gray-400 m-0 font-mono">
-                    QTY: 0{{ item.quantity }}
-                  </p>
-                  <p class="text-base font-black text-[#A33C08] m-0 mt-0.5">
-                    ₹{{ item.item_subtotal|floatformat:2 }}
-                  </p>
+                <!-- ITEM STATUS & DELIVERY DATE UPDATE FORM -->
+                {% if item.is_terminal %}
+                <div class="mt-3 pt-3 border-t border-[#F2EBE4] text-[0.6rem] font-black uppercase tracking-widest text-gray-400 font-mono flex items-center gap-1.5">
+                  <span>{% if item.item_status == 'RETURNED' %}RETURN DATE:{% elif item.item_status == 'DELIVERED' %}DELIVERED DATE:{% else %}STATUS DATE:{% endif %}</span>
+                  <span class="text-[#1A1A1A]">{% if item.item_status in 'RETURNED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' %}{{ item.effective_expected_pickup_date|date:'d/m/Y' }}{% else %}{{ item.effective_expected_delivery_date|date:'d/m/Y' }}{% endif %}</span>
                 </div>
+                {% else %}
+                <form id="item-form-{{ item.id }}" action="{% url 'admin_order_item_update_status' order.order_id item.id %}" method="POST"
+                      class="flex flex-wrap items-end justify-between gap-4 pt-1">
+                  {% csrf_token %}
+                  
+                  <div class="flex flex-wrap items-end gap-4">
+                    <!-- ITEM STATUS SELECT -->
+                    <div class="flex flex-col text-left">
+                      <label class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 mb-1">PRODUCT STATUS</label>
+                      <select id="item-status-select-{{ item.id }}" name="item_status"
+                              class="bg-[#FAF6F3] border border-[#E0D5C9] px-3 h-[36px] text-xs font-bold uppercase text-[#1A1A1A] outline-none focus:border-[#A33C08] cursor-pointer rounded-xs min-w-[170px]">
+                        {% for code, label in all_status_choices %}
+                          {% if code in item.allowed_transitions %}
+                          <option value="{{ code }}" {% if item.item_status == code %}selected{% endif %}>{{ label|upper }}</option>
+                          {% endif %}
+                        {% endfor %}
+                      </select>
+                    </div>
+
+                    <!-- EXPECTED DELIVERY / PICKUP / RETURN DATE -->
+                    <div class="flex flex-col text-left">
+                      <label id="item-date-label-{{ item.id }}" class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 mb-1">
+                        {% if item.item_status == 'RETURN_REQUESTED' %}SCHEDULE PICKUP DATE{% elif item.item_status == 'RETURN_APPROVED' %}EXPECTED PICKUP DATE{% elif item.item_status == 'RETURN_PICKUP' %}PICKUP DATE{% elif item.item_status == 'RETURNED' %}RETURN DATE{% else %}EXPECTED DELIVERY DATE{% endif %}
+                      </label>
+                      <input type="date" id="item-date-{{ item.id }}" name="expected_delivery_date"
+                             min="{% now 'Y-m-d' %}"
+                             value="{% if item.item_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}{{ item.effective_expected_pickup_date|date:'Y-m-d' }}{% else %}{{ item.effective_expected_delivery_date|date:'Y-m-d' }}{% endif %}"
+                             class="bg-[#FAF6F3] border border-[#E0D5C9] px-3 h-[36px] text-xs font-mono font-bold text-[#1A1A1A] outline-none focus:border-[#A33C08] rounded-xs cursor-pointer box-border">
+                    </div>
+                  </div>
+
+                  <!-- UPDATE ITEM BUTTON -->
+                  <button type="button"
+                          onclick="openUpdateItemModal('{{ item.id }}', '{{ item.product_name|escapejs }}', 'item-form-{{ item.id }}', 'item-status-select-{{ item.id }}', 'item-date-{{ item.id }}')"
+                          class="px-4 h-[36px] bg-[#A33C08] hover:bg-black text-white text-[0.62rem] font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-xs rounded-xs flex items-center justify-center">
+                    UPDATE PRODUCT
+                  </button>
+                </form>
+                {% endif %}
 
               </div>
               {% endfor %}
@@ -390,12 +594,12 @@
 </div>
 
 <!-- CUSTOM UPDATE ORDER STATUS MODAL -->
-<div id="updateStatusModal" class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs hidden transition-opacity duration-200">
-  <div class="bg-white border border-gray-200 shadow-2xl max-w-md w-full p-6 text-left transform transition-transform duration-200">
+<div id="updateStatusModal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-xs hidden transition-opacity duration-200 p-4 min-h-screen overflow-y-auto">
+  <div class="bg-white border border-gray-200 shadow-2xl max-w-md w-full p-6 text-left transform transition-transform duration-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
     <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-4">
       <div class="flex items-center gap-2">
         <span class="w-2.5 h-2.5 bg-[#A33C08]"></span>
-        <h3 class="text-xs font-black uppercase tracking-widest text-[#1A1A1A] m-0">Confirm Status Update</h3>
+        <h3 class="text-xs font-black uppercase tracking-widest text-[#1A1A1A] m-0">Confirm Order Status Update</h3>
       </div>
       <button type="button" onclick="closeUpdateStatusModal()" class="text-gray-400 hover:text-[#1A1A1A] bg-transparent border-none text-base cursor-pointer font-bold leading-none">&times;</button>
     </div>
@@ -421,9 +625,128 @@
   </div>
 </div>
 
+<!-- CUSTOM UPDATE ITEM STATUS MODAL -->
+<div id="updateItemStatusModal" class="fixed inset-0 z-[99999] flex items-center justify-center bg-black/60 backdrop-blur-xs hidden transition-opacity duration-200 p-4 min-h-screen overflow-y-auto">
+  <div class="bg-white border border-gray-200 shadow-2xl max-w-md w-full p-6 text-left transform transition-transform duration-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
+    <div class="flex items-center justify-between pb-3 border-b border-gray-200 mb-4">
+      <div class="flex items-center gap-2">
+        <span class="w-2.5 h-2.5 bg-[#A33C08]"></span>
+        <h3 class="text-xs font-black uppercase tracking-widest text-[#1A1A1A] m-0">Confirm Item Update</h3>
+      </div>
+      <button type="button" onclick="closeUpdateItemModal()" class="text-gray-400 hover:text-[#1A1A1A] bg-transparent border-none text-base cursor-pointer font-bold leading-none">&times;</button>
+    </div>
+
+    <div class="space-y-3 mb-6">
+      <p class="text-xs text-gray-700 font-bold m-0 leading-relaxed">Are you sure you want to update this individual product's status and date?</p>
+      <div class="bg-[#FAF6F3] border border-[#E0D5C9] p-3 text-xs space-y-1.5 font-sans">
+        <p class="m-0 text-gray-500 font-bold text-[0.58rem] uppercase">PRODUCT: <span id="targetItemName" class="text-[#1A1A1A] font-black"></span></p>
+        <p class="m-0 text-gray-500 font-bold text-[0.58rem] uppercase">NEW STATUS: <span id="targetItemStatus" class="text-[#A33C08] font-black"></span></p>
+        <p class="m-0 text-gray-500 font-bold text-[0.58rem] uppercase"><span id="targetItemDateLabel">EXPECTED DELIVERY</span>: <span id="targetItemDate" class="text-[#1A1A1A] font-black font-mono"></span></p>
+      </div>
+    </div>
+
+    <div class="flex items-center justify-end gap-3 pt-3 border-t border-gray-100">
+      <button type="button" onclick="closeUpdateItemModal()" class="px-5 py-2.5 bg-gray-100 hover:bg-gray-200 text-[#1A1A1A] text-[0.62rem] font-extrabold uppercase tracking-widest cursor-pointer border-none transition-colors">
+        CANCEL
+      </button>
+      <button type="button" onclick="confirmItemStatusUpdateSubmit()" class="px-5 py-2.5 bg-[#A33C08] hover:bg-black text-white text-[0.62rem] font-black uppercase tracking-widest cursor-pointer border-none transition-colors shadow-xs">
+        CONFIRM UPDATE
+      </button>
+    </div>
+  </div>
+</div>
+
 <script>
+  let targetItemFormId = null;
+
+  function openUpdateItemModal(itemId, productName, formId, selectId, dateId) {
+    const selectEl = document.getElementById(selectId);
+    const dateEl = document.getElementById(dateId);
+    const selectedVal = selectEl ? selectEl.value : '';
+
+    // Validate expected date before opening confirmation modal
+    if (selectedVal !== 'CANCELLED' && selectedVal !== 'REFUNDED') {
+      if (!dateEl || !dateEl.value) {
+        if (window.showToastAlert) {
+          window.showToastAlert('Expected date is required when updating status.', 'error');
+        } else {
+          alert('Expected date is required when updating status.');
+        }
+        return;
+      }
+      
+      const todayStr = new Date().toISOString().split('T')[0];
+      if (dateEl.value < todayStr) {
+        if (window.showToastAlert) {
+          window.showToastAlert('Invalid Date! Expected date cannot be earlier than today.', 'error');
+        } else {
+          alert('Invalid Date! Expected date cannot be earlier than today.');
+        }
+        return;
+      }
+    }
+
+    targetItemFormId = formId;
+    const targetItemName = document.getElementById('targetItemName');
+    const targetItemStatus = document.getElementById('targetItemStatus');
+    const targetItemDateLabel = document.getElementById('targetItemDateLabel');
+    const targetItemDate = document.getElementById('targetItemDate');
+    const modal = document.getElementById('updateItemStatusModal');
+
+    if (targetItemName) targetItemName.textContent = productName;
+    if (selectEl && targetItemStatus) {
+      targetItemStatus.textContent = selectEl.options[selectEl.selectedIndex].text;
+      
+      if (targetItemDateLabel) {
+        if (selectedVal === 'RETURN_REQUESTED') {
+          targetItemDateLabel.textContent = 'SCHEDULE PICKUP DATE';
+        } else if (selectedVal === 'RETURN_APPROVED') {
+          targetItemDateLabel.textContent = 'EXPECTED PICKUP DATE';
+        } else if (selectedVal === 'RETURN_PICKUP') {
+          targetItemDateLabel.textContent = 'PICKUP DATE';
+        } else if (selectedVal === 'RETURNED') {
+          targetItemDateLabel.textContent = 'RETURN DATE';
+        } else {
+          targetItemDateLabel.textContent = 'EXPECTED DELIVERY DATE';
+        }
+      }
+    }
+    if (dateEl && targetItemDate) {
+      const rawVal = dateEl.value;
+      if (rawVal && rawVal.includes('-')) {
+        const parts = rawVal.split('-');
+        targetItemDate.textContent = parts[2] + '/' + parts[1] + '/' + parts[0];
+      } else {
+        targetItemDate.textContent = rawVal || 'Not specified';
+      }
+    }
+
+    if (modal) {
+      document.body.appendChild(modal);
+      document.body.style.overflow = 'hidden';
+      modal.classList.remove('hidden');
+    }
+  }
+
+  function closeUpdateItemModal() {
+    const modal = document.getElementById('updateItemStatusModal');
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+    targetItemFormId = null;
+  }
+
+  function confirmItemStatusUpdateSubmit() {
+    if (targetItemFormId) {
+      const form = document.getElementById(targetItemFormId);
+      if (form) form.submit();
+    }
+  }
+
   function openUpdateStatusModal() {
     const selectEl = document.getElementById('orderStatusSelect');
+    const dateInput = document.querySelector('input[name="expected_delivery_date"][form="update-order-form"]');
     const targetStatusText = document.getElementById('targetStatusText');
     const cancelNoticeBox = document.getElementById('cancelNoticeBox');
     const modal = document.getElementById('updateStatusModal');
@@ -431,6 +754,29 @@
     if (selectEl && targetStatusText) {
       const selectedOptionText = selectEl.options[selectEl.selectedIndex].text;
       const selectedOptionVal = selectEl.value;
+
+      if (selectedOptionVal !== 'CANCELLED' && selectedOptionVal !== 'REFUNDED') {
+        if (dateInput) {
+          if (!dateInput.value) {
+            if (window.showToastAlert) {
+              window.showToastAlert('Expected delivery date is required when updating order status.', 'error');
+            } else {
+              alert('Expected delivery date is required when updating order status.');
+            }
+            return;
+          }
+
+          const todayStr = new Date().toISOString().split('T')[0];
+          if (dateInput.value < todayStr) {
+            if (window.showToastAlert) {
+              window.showToastAlert('Invalid Date! Expected delivery date cannot be earlier than today.', 'error');
+            } else {
+              alert('Invalid Date! Expected delivery date cannot be earlier than today.');
+            }
+            return;
+          }
+        }
+      }
 
       targetStatusText.textContent = selectedOptionText;
 
@@ -443,12 +789,19 @@
       }
     }
 
-    if (modal) modal.classList.remove('hidden');
+    if (modal) {
+      document.body.appendChild(modal);
+      document.body.style.overflow = 'hidden';
+      modal.classList.remove('hidden');
+    }
   }
 
   function closeUpdateStatusModal() {
     const modal = document.getElementById('updateStatusModal');
-    if (modal) modal.classList.add('hidden');
+    if (modal) {
+      modal.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
   }
 
   function confirmStatusUpdateSubmit() {
@@ -467,6 +820,49 @@
         setTimeout(function() { alert.remove(); }, 600);
       });
     }, 3500);
+
+    // Dynamic item date label update
+    document.querySelectorAll('select[id^="item-status-select-"]').forEach(select => {
+      select.addEventListener('change', function() {
+        const itemId = this.id.replace('item-status-select-', '');
+        const label = document.getElementById('item-date-label-' + itemId);
+        if (label) {
+          if (this.value === 'RETURN_REQUESTED') {
+            label.textContent = 'SCHEDULE PICKUP DATE';
+          } else if (this.value === 'RETURN_APPROVED') {
+            label.textContent = 'EXPECTED PICKUP DATE';
+          } else if (this.value === 'RETURN_PICKUP') {
+            label.textContent = 'PICKUP DATE';
+          } else if (this.value === 'RETURNED') {
+            label.textContent = 'RETURN DATE';
+          } else {
+            label.textContent = 'EXPECTED DELIVERY DATE';
+          }
+        }
+      });
+    });
+
+    const orderStatusSelect = document.getElementById('orderStatusSelect');
+    if (orderStatusSelect) {
+      orderStatusSelect.addEventListener('change', function() {
+        const val = this.value;
+        const genLabel = document.querySelector('#general-date-label span');
+        if (genLabel) {
+          if (val === 'RETURN_REQUESTED') {
+            genLabel.textContent = 'SCHEDULE PICKUP DATE';
+          } else if (val === 'RETURN_APPROVED') {
+            genLabel.textContent = 'EXPECTED PICKUP DATE';
+          } else if (val === 'RETURN_PICKUP') {
+            genLabel.textContent = 'PICKUP DATE';
+          } else if (val === 'RETURNED') {
+            genLabel.textContent = 'RETURN DATE';
+          } else {
+            genLabel.textContent = 'EXPECTED DELIVERY';
+          }
+        }
+      });
+    }
   });
 </script>
 {% endblock %}
+

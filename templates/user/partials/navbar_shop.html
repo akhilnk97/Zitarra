@@ -137,10 +137,10 @@
       }
     });
 
-    // Auto-open and fill search bar if active search query exists in URL
+    // Auto-open and fill search bar if active search query exists in URL on shop page
     var params = new URLSearchParams(window.location.search);
     var searchVal = params.get('search');
-    if (searchVal) {
+    if (searchVal && window.location.pathname.includes('/shop/')) {
       document.getElementById('search-input').value = searchVal;
       openSearch();
     }

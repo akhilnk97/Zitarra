@@ -38,7 +38,10 @@ def add_to_cart(request, product_id):
     product = get_object_or_404(Product, id=product_id)
 
     if not product.is_available:
-        messages.error(request, "This product is no longer available.")
+        msg = "This product is no longer available."
+        if is_ajax(request):
+            return JsonResponse({'status': 'error', 'message': msg})
+        messages.error(request, msg)
         return redirect('shop')
 
     variant_id = request.POST.get('variant_id', '').strip()
@@ -50,10 +53,31 @@ def add_to_cart(request, product_id):
         except ProductVariant.DoesNotExist:
             variant = None
 
+    # Fallback to nearest variant if base product stock is 0 or if selected variant is out of stock
+    if variant:
+        if variant.stock == 0:
+            alt_variant = ProductVariant.objects.filter(
+                product=product, is_active=True, is_deleted=False, stock__gt=0
+            ).order_by('id').first()
+            if alt_variant:
+                variant = alt_variant
+            elif product.stock > 0:
+                variant = None
+    else:
+        if product.stock == 0:
+            alt_variant = ProductVariant.objects.filter(
+                product=product, is_active=True, is_deleted=False, stock__gt=0
+            ).order_by('id').first()
+            if alt_variant:
+                variant = alt_variant
+
     available_stock = variant.stock if variant else product.stock
 
     if available_stock == 0:
-        messages.error(request, f"'{product.name}' is currently out of stock.")
+        msg = f"'{product.name}' is currently out of stock."
+        if is_ajax(request):
+            return JsonResponse({'status': 'error', 'message': msg})
+        messages.error(request, msg)
         referer = request.META.get('HTTP_REFERER')
         if referer:
             return redirect(referer)
@@ -77,17 +101,22 @@ def add_to_cart(request, product_id):
             if is_ajax(request):
                 return JsonResponse({'status': 'warning', 'message': msg})
             messages.warning(request, msg)
+            referer = request.META.get('HTTP_REFERER')
+            return redirect(referer or 'shop')
 
         elif new_qty > available_stock:
             msg = f"Cannot add {qty_requested} more. Only {available_stock} units available in stock."
             if is_ajax(request):
                 return JsonResponse({'status': 'warning', 'message': msg})
             messages.warning(request, msg)
+            referer = request.META.get('HTTP_REFERER')
+            return redirect(referer or 'shop')
 
         else:
             item.quantity = new_qty
             item.save()
             msg = f"{product.name}{var_suffix} (x{qty_requested}) added to cart"
+            WishlistItem.objects.filter(wishlist__user=request.user, product=product).delete()
             if is_ajax(request):
                 return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
             messages.success(request, msg)
@@ -97,14 +126,10 @@ def add_to_cart(request, product_id):
         item.quantity = actual_qty
         item.save()
         msg = f"{product.name}{var_suffix} (x{actual_qty}) added to cart"
+        WishlistItem.objects.filter(wishlist__user=request.user, product=product).delete()
         if is_ajax(request):
             return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
         messages.success(request, msg)
-
-    WishlistItem.objects.filter(wishlist__user=request.user, product=product).delete()
-
-    if is_ajax(request):
-        return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
 
     referer = request.META.get('HTTP_REFERER')
     if referer:

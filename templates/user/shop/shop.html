@@ -548,11 +548,11 @@
               }
             }
           } else {
-            showToast(data.message || 'Failed to add product to cart.', 'error');
+            showToast(data.message || 'Failed to add product to cart.', data.status === 'warning' ? 'warning' : 'error');
           }
         } catch (err) {
           console.error('AJAX add to cart error:', err);
-          showToast('Product added to cart!', 'success');
+          showToast(err.message || 'Failed to add product to cart.', 'error');
         } finally {
           if (submitBtn) {
             submitBtn.disabled = false;
@@ -572,6 +572,9 @@
       container.className = 'fixed top-20 right-6 z-[9999] flex flex-col gap-2.5 max-w-sm w-full pointer-events-none';
       document.body.appendChild(container);
     }
+
+    // Clear previous toasts so alerts do not stack line-by-line
+    container.innerHTML = '';
 
     const toast = document.createElement('div');
     const isSuccess = type === 'success';
