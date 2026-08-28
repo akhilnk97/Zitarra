@@ -4,6 +4,7 @@
 {% block navbar %}{% include 'user/partials/navbar_shop.html' %}{% endblock %}
 
 {% block extra_head %}
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <style>
   .address-card {
     transition: all 0.2s ease;
@@ -29,11 +30,11 @@
   .scroll-bubble-card {
     opacity: 1;
     transform: translateY(0) scale(1);
-    transition: opacity 0.35s ease, 
-                transform 0.35s ease,
-                box-shadow 0.3s ease,
-                border-color 0.2s ease,
-                background-color 0.2s ease;
+    transition: opacity 0.35s ease,
+      transform 0.35s ease,
+      box-shadow 0.3s ease,
+      border-color 0.2s ease,
+      background-color 0.2s ease;
   }
 
   .scroll-bubble-card.bubble-in {
@@ -80,8 +81,7 @@
               <div>
                 <div class="flex items-center justify-between mb-3">
                   {% if addr.is_default or addr.badge == 'DEFAULT' %}
-                  <span
-                    data-primary="true"
+                  <span data-primary="true"
                     class="address-badge bg-[#A33C08] text-white text-[0.5rem] font-bold tracking-[0.18em] uppercase px-2.5 py-1">
                     Primary Address
                   </span>
@@ -93,18 +93,20 @@
                   {% endif %}
                 </div>
 
-                <h4 class="text-[0.82rem] font-black uppercase tracking-wider text-[#1A1A1A] mb-2">{{ addr.full_name }}</h4>
-                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-1">{{ addr.address_line_1 }}</p>
+                <h4 class="text-[0.82rem] font-black uppercase tracking-wider text-[#1A1A1A] mb-2">{{ addr.full_name }}
+                </h4>
+                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-1">{{ addr.address_line_1 }}
+                </p>
                 {% if addr.address_line_2 %}
-                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-1">{{ addr.address_line_2 }}</p>
+                <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-1">{{ addr.address_line_2 }}
+                </p>
                 {% endif %}
                 <p class="text-xs text-gray-700 uppercase font-medium leading-relaxed mb-2">{{ addr.city }}, {{ addr.state }} {{ addr.pincode }}</p>
               </div>
 
               <div class="pt-3 border-t border-gray-200/80 flex items-center justify-between mt-2">
                 <span class="text-xs font-mono tracking-wider font-semibold text-gray-500">MOBILE NUMBER: {{ addr.phone_number }}</span>
-                <span
-                  class="text-xs font-bold uppercase tracking-widest text-[#A33C08] cursor-pointer hover:underline"
+                <span class="text-xs font-bold uppercase tracking-widest text-[#A33C08] cursor-pointer hover:underline"
                   onclick="event.stopPropagation(); openEditAddressModal({{ addr.id }}, '{{ addr.full_name|escapejs }}', '{{ addr.phone_number|escapejs }}', '{{ addr.address_line_1|escapejs }}', '{{ addr.address_line_2|default:""|escapejs }}', '{{ addr.city|escapejs }}', '{{ addr.state|escapejs }}', '{{ addr.pincode|escapejs }}', '{{ addr.label|escapejs }}', {{ addr.is_default|yesno:'true,false' }})">
                   EDIT
                 </span>
@@ -173,8 +175,9 @@
 
           <div class="space-y-3">
 
-            <!-- OPTION 1: CASH ON DELIVERY (ACTIVE / FUNCTIONAL) -->
-            <div class="scroll-bubble-card payment-option-card active border-2 border-[#A33C08] bg-[#FFFBF8] shadow-xs p-4 flex flex-col transition-all duration-200 cursor-pointer"
+            <!-- OPTION 1: CASH ON DELIVERY -->
+            <div
+              class="scroll-bubble-card payment-option-card active border-2 border-[#A33C08] bg-[#FFFBF8] shadow-xs p-4 flex flex-col transition-all duration-200 cursor-pointer"
               onclick="selectPaymentOption('COD', this)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
@@ -186,44 +189,18 @@
               <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay cash to delivery officer upon shipment arrival. Zero surcharge.</p>
             </div>
 
-            <!-- OPTION 2: UPI DIRECT TRANSFER -->
-            <div class="payment-option-card border-2 border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
-              onclick="selectPaymentOption('UPI', this)">
+            <!-- OPTION 2: RAZORPAY (ONLINE PAYMENT) -->
+            <div
+              class="scroll-bubble-card payment-option-card border border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
+              onclick="selectPaymentOption('RAZORPAY', this)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
-                  <input type="radio" name="payment_method" value="UPI_DIRECT_TRANSFER" class="accent-[#A33C08] w-4 h-4 cursor-pointer">
-                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">UPI DIRECT TRANSFER</span>
+                  <input type="radio" name="payment_method" value="RAZORPAY"
+                    class="accent-[#A33C08] w-4 h-4 cursor-pointer">
+                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">Razorpay (Cards, Netbanking, Wallets)</span>
                 </div>
               </div>
-              <p class="text-[0.58rem] font-sans font-semibold text-red-500 mt-2 ml-7 uppercase tracking-wide">Currently Unavailable. Only Cash on Delivery is supported.</p>
-            </div>
-
-            <!-- OPTION 3: CREDIT / DEBIT CARD -->
-            <div class="payment-option-card border-2 border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
-              onclick="selectPaymentOption('CARD', this)">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <input type="radio" name="payment_method" value="CREDIT_DEBIT_CARD" class="accent-[#A33C08] w-4 h-4 cursor-pointer">
-                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">CREDIT / DEBIT CARD</span>
-                </div>
-                <div class="flex items-center gap-1.5 opacity-60">
-                  <span class="w-5 h-3 bg-gray-300 inline-block"></span>
-                  <span class="w-5 h-3 bg-gray-400 inline-block"></span>
-                </div>
-              </div>
-              <p class="text-[0.58rem] font-sans font-semibold text-red-500 mt-2 ml-7 uppercase tracking-wide">Currently Unavailable. Only Cash on Delivery is supported.</p>
-            </div>
-
-            <!-- OPTION 4: NET BANKING -->
-            <div class="payment-option-card border-2 border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer"
-              onclick="selectPaymentOption('NETBANKING', this)">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-3">
-                  <input type="radio" name="payment_method" value="NET_BANKING" class="accent-[#A33C08] w-4 h-4 cursor-pointer">
-                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">NET BANKING</span>
-                </div>
-              </div>
-              <p class="text-[0.58rem] font-sans font-semibold text-red-500 mt-2 ml-7 uppercase tracking-wide">Currently Unavailable. Only Cash on Delivery is supported.</p>
+              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay securely via Credit/Debit Card, Netbanking, or Digital Wallets.</p>
             </div>
 
             <!-- AVAILABLE COUPONS ACCORDION -->
@@ -307,7 +284,8 @@
               </div>
               <div class="flex justify-between items-center text-gray-600">
                 <span class="uppercase tracking-wider">Delivery Charges</span>
-                <span class="font-bold {% if shipping_cost == 0 %}text-green-600 uppercase{% else %}text-brand-dark{% endif %}">
+                <span
+                  class="font-bold {% if shipping_cost == 0 %}text-green-600 uppercase{% else %}text-brand-dark{% endif %}">
                   {% if shipping_cost == 0 %}Free{% else %}₹{{ shipping_cost|floatformat:2 }}{% endif %}
                 </span>
               </div>
@@ -325,7 +303,8 @@
 
             <!-- PROMO CODE / COUPON INPUT & OFFERS BOX -->
             <div class="mt-5 select-none text-left">
-              <span class="text-[0.62rem] font-black uppercase tracking-[0.15em] text-gray-500 block mb-2">Have a Promo Code?</span>
+              <span class="text-[0.62rem] font-black uppercase tracking-[0.15em] text-gray-500 block mb-2">Have a Promo
+                Code?</span>
               <div class="flex gap-2">
                 <input type="text" id="checkout-coupon-input" placeholder="Enter Code (e.g. ZITARRA10)"
                   class="flex-1 bg-white border border-gray-300 px-3 py-2 text-[0.7rem] font-mono uppercase focus:outline-none focus:border-[#E8500A] transition-colors" />
@@ -336,7 +315,8 @@
               </div>
 
               <!-- Available Coupon Reassurance Tag -->
-              <div class="mt-3 bg-[#FFFBF9] border border-dashed border-[#E8500A] p-2.5 flex items-center justify-between">
+              <div
+                class="mt-3 bg-[#FFFBF9] border border-dashed border-[#E8500A] p-2.5 flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <span class="text-[#E8500A] text-xs">🏷️</span>
                   <div>
@@ -435,7 +415,8 @@
 
           <!-- Full Name -->
           <div>
-            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">FULL NAME *</label>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">FULL
+              NAME *</label>
             <input type="text" name="full_name" required placeholder="E.g. Sterling Archer"
               class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
             <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -444,13 +425,16 @@
           <!-- Address Line 1 & City -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 1 *</label>
+              <label
+                class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
+                LINE 1 *</label>
               <input type="text" name="address_line_1" required placeholder="Primary Street / Flat No."
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY
+                *</label>
               <input type="text" name="city" required placeholder="E.g. Kochi"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -459,7 +443,8 @@
 
           <!-- Address Line 2 -->
           <div>
-            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 2</label>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
+              LINE 2</label>
             <input type="text" name="address_line_2" placeholder="Apartment, Suite, Landmark (Optional)"
               class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
             <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -468,13 +453,15 @@
           <!-- Postal Code & State -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL CODE *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL
+                CODE *</label>
               <input type="text" name="pincode" maxlength="6" required placeholder="6-Digit PIN"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE
+                *</label>
               <input type="text" name="state" required placeholder="E.g. Kerala"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -484,20 +471,24 @@
           <!-- Phone Number & Label Chips -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">PHONE NUMBER *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">PHONE
+                NUMBER *</label>
               <input type="text" name="phone_number" required placeholder="Mobile Number"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LABEL *</label>
+              <label
+                class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
+                LABEL *</label>
               <div class="relative">
                 <select name="label" id="add-addr-label" required
                   class="w-full border-b border-gray-300 py-2 pr-8 text-xs font-sans font-semibold text-gray-900 outline-none focus:border-[#A33C08] transition-colors bg-transparent appearance-none cursor-pointer">
                   <option value="HOME">HOME</option>
                   <option value="OFFICE">OFFICE</option>
                 </select>
-                <svg class="w-3.5 h-3.5 text-gray-500 absolute right-1 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-3.5 h-3.5 text-gray-500 absolute right-1 top-2.5 pointer-events-none" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -508,7 +499,8 @@
           <div class="flex items-center gap-2 pt-2">
             <input type="checkbox" name="is_default" id="add-is-default" class="accent-[#A33C08]">
             <label for="add-is-default"
-              class="text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-700 cursor-pointer">SET AS PRIMARY ADDRESS</label>
+              class="text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-700 cursor-pointer">SET AS
+              PRIMARY ADDRESS</label>
           </div>
 
           <!-- Action Buttons -->
@@ -599,7 +591,8 @@
 
           <!-- Full Name -->
           <div>
-            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">FULL NAME *</label>
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">FULL
+              NAME *</label>
             <input type="text" name="full_name" id="edit-addr-name" required placeholder="E.g. Sterling Archer"
               class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
             <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -608,13 +601,17 @@
           <!-- Address Line 1 & City -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 1 *</label>
-              <input type="text" name="address_line_1" id="edit-addr-line1" required placeholder="Primary Street / Flat No."
+              <label
+                class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
+                LINE 1 *</label>
+              <input type="text" name="address_line_1" id="edit-addr-line1" required
+                placeholder="Primary Street / Flat No."
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY
+                *</label>
               <input type="text" name="city" id="edit-addr-city" required placeholder="E.g. Kochi"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -623,8 +620,10 @@
 
           <!-- Address Line 2 -->
           <div>
-            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LINE 2</label>
-            <input type="text" name="address_line_2" id="edit-addr-line2" placeholder="Apartment, Suite, Landmark (Optional)"
+            <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
+              LINE 2</label>
+            <input type="text" name="address_line_2" id="edit-addr-line2"
+              placeholder="Apartment, Suite, Landmark (Optional)"
               class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
             <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
           </div>
@@ -632,13 +631,15 @@
           <!-- Postal Code & State -->
           <div class="grid grid-cols-2 gap-4">
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL CODE *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL
+                CODE *</label>
               <input type="text" name="pincode" id="edit-addr-pincode" maxlength="6" required placeholder="6-Digit PIN"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE
+                *</label>
               <input type="text" name="state" id="edit-addr-state" required placeholder="E.g. Kerala"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
@@ -648,20 +649,24 @@
           <!-- Phone Number & Label Chips -->
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">PHONE NUMBER *</label>
+              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">PHONE
+                NUMBER *</label>
               <input type="text" name="phone_number" id="edit-addr-phone" required placeholder="Mobile Number"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
-              <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS LABEL *</label>
+              <label
+                class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
+                LABEL *</label>
               <div class="relative">
                 <select name="label" id="edit-addr-label" required
                   class="w-full border-b border-gray-300 py-2 pr-8 text-xs font-sans font-semibold text-gray-900 outline-none focus:border-[#A33C08] transition-colors bg-transparent appearance-none cursor-pointer">
                   <option value="HOME">HOME</option>
                   <option value="OFFICE">OFFICE</option>
                 </select>
-                <svg class="w-3.5 h-3.5 text-gray-500 absolute right-1 top-2.5 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <svg class="w-3.5 h-3.5 text-gray-500 absolute right-1 top-2.5 pointer-events-none" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                   <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
                 </svg>
               </div>
@@ -672,7 +677,8 @@
           <div class="flex items-center gap-2 pt-2">
             <input type="checkbox" name="is_default" id="edit-addr-default" class="accent-[#A33C08]">
             <label for="edit-addr-default"
-              class="text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-700 cursor-pointer">SET AS PRIMARY ADDRESS</label>
+              class="text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-700 cursor-pointer">SET AS
+              PRIMARY ADDRESS</label>
           </div>
 
           <!-- Action Buttons -->
@@ -695,32 +701,40 @@
 </div>
 
 <!-- CUSTOM ZITARRA MODAL FOR COUPONS & NOTIFICATIONS -->
-<div id="zitarra-custom-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
-  <div id="zitarra-modal-box" class="bg-white border border-gray-200 shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-300 overflow-hidden text-left font-sans">
+<div id="zitarra-custom-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4">
+  <div id="zitarra-modal-box"
+    class="bg-white border border-gray-200 shadow-2xl w-full max-w-sm transform scale-95 transition-transform duration-300 overflow-hidden text-left font-sans">
     <!-- Header bar -->
     <div class="bg-[#FAF6F2] px-6 py-4 border-b border-gray-200 flex items-center justify-between">
       <div class="flex items-center gap-2">
         <span class="w-2 h-2 rounded-full bg-[#E8500A]"></span>
-        <span class="text-[0.68rem] font-black uppercase tracking-[0.2em] text-brand-dark" id="zitarra-modal-title">Coupon Notification</span>
+        <span class="text-[0.68rem] font-black uppercase tracking-[0.2em] text-brand-dark"
+          id="zitarra-modal-title">Coupon Notification</span>
       </div>
-      <button type="button" onclick="closeZitarraModal()" class="text-gray-400 hover:text-brand-dark transition-colors border-none bg-transparent cursor-pointer text-lg leading-none">&times;</button>
+      <button type="button" onclick="closeZitarraModal()"
+        class="text-gray-400 hover:text-brand-dark transition-colors border-none bg-transparent cursor-pointer text-lg leading-none">&times;</button>
     </div>
     <!-- Body -->
     <div class="p-6">
       <div class="flex items-start gap-4">
-        <div id="zitarra-modal-icon-bg" class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
+        <div id="zitarra-modal-icon-bg"
+          class="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
             <path d="M5 13l4 4L19 7" />
           </svg>
         </div>
         <div>
-          <h4 id="zitarra-modal-heading" class="text-sm font-extrabold uppercase tracking-wider text-brand-dark m-0">Coupon Applied!</h4>
-          <p id="zitarra-modal-message" class="text-xs text-gray-600 mt-1 mb-0 leading-relaxed font-sans">Coupon ZITARRA10 applied successfully!</p>
+          <h4 id="zitarra-modal-heading" class="text-sm font-extrabold uppercase tracking-wider text-brand-dark m-0">
+            Coupon Applied!</h4>
+          <p id="zitarra-modal-message" class="text-xs text-gray-600 mt-1 mb-0 leading-relaxed font-sans">Coupon
+            ZITARRA10 applied successfully!</p>
         </div>
       </div>
       <!-- Action Button -->
       <div class="mt-6 flex justify-end">
-        <button type="button" onclick="closeZitarraModal()" class="bg-[#E8500A] text-white text-[0.65rem] font-bold uppercase tracking-[0.18em] px-6 py-2.5 hover:bg-[#c94008] transition-colors border-none cursor-pointer shadow-xs">
+        <button type="button" onclick="closeZitarraModal()"
+          class="bg-[#E8500A] text-white text-[0.65rem] font-bold uppercase tracking-[0.18em] px-6 py-2.5 hover:bg-[#c94008] transition-colors border-none cursor-pointer shadow-xs">
           Continue
         </button>
       </div>
@@ -729,8 +743,12 @@
 </div>
 {% endblock %}
 
+{% block extra_js %}
 <script>
+  console.log('[CHECKOUT] checkout.js loaded');
+
   function selectAddress(id) {
+    console.log('[CHECKOUT] selecting address:', id);
     document.querySelectorAll('.address-card').forEach(card => {
       card.classList.remove('active', 'bg-[#FFFBF8]', 'border-[#A33C08]', 'shadow-xs');
       card.classList.add('bg-white', 'border-gray-200');
@@ -756,6 +774,7 @@
   }
 
   function selectPaymentOption(type, element) {
+    console.log('[CHECKOUT] payment option selected:', type);
     document.querySelectorAll('.payment-option-card').forEach(card => {
       card.classList.remove('active', 'border-[#A33C08]', 'bg-[#FFFBF8]', 'shadow-xs');
       card.classList.add('border-gray-200', 'bg-white');
@@ -765,25 +784,6 @@
     const radio = element.querySelector('input[type="radio"]');
     if (radio) radio.checked = true;
   }
-
-  document.addEventListener('DOMContentLoaded', function() {
-    const checkoutForm = document.getElementById('checkout-form');
-    if (checkoutForm) {
-      checkoutForm.addEventListener('submit', function(e) {
-        const selectedPayment = document.querySelector('input[name="payment_method"]:checked');
-        if (selectedPayment && selectedPayment.value !== 'CASH_ON_DELIVERY') {
-          e.preventDefault();
-          const activeCard = selectedPayment.closest('.payment-option-card');
-          if (activeCard) {
-            activeCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            activeCard.classList.add('animate-shake');
-            setTimeout(() => activeCard.classList.remove('animate-shake'), 800);
-          }
-          return false;
-        }
-      });
-    }
-  });
 
   function toggleCoupons() {
     const content = document.getElementById('coupon-content');
@@ -1067,9 +1067,152 @@
     }
   }
 
+  // Razorpay Checkout Interceptor Handler
+  let razorpayPaymentInProgress = false;
+  const checkoutForm = document.getElementById('checkout-form');
+  if (checkoutForm) {
+    checkoutForm.addEventListener('submit', function (e) {
+      const selectedPayment = document.querySelector('input[name="payment_method"]:checked')?.value;
+      if (selectedPayment === 'RAZORPAY') {
+        e.preventDefault();
+
+        if (razorpayPaymentInProgress) {
+          console.log('[CHECKOUT] Payment initialization already in progress. Ignoring duplicate click.');
+          return;
+        }
+        razorpayPaymentInProgress = true;
+        console.log('[CHECKOUT] Intercepted checkout submit for Razorpay payment');
+
+        const submitBtn = checkoutForm.querySelector('button[type="submit"]');
+        const origText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = 'Initiating Payment...';
+        }
+
+        const formData = new FormData(checkoutForm);
+        fetch("{% url 'create_razorpay_order' %}", {
+          method: 'POST',
+          body: formData,
+          headers: {
+            'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+          }
+        })
+        .then(response => {
+          if (!response.ok && response.headers.get('content-type')?.includes('text/html')) {
+            throw new Error('Server returned HTML error ' + response.status);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('[RAZORPAY] Create order response:', data);
+          if (data.status === 'success') {
+            const options = {
+              "key": data.razorpay_key,
+              "amount": data.amount,
+              "currency": data.currency,
+              "name": "Zitarra Store",
+              "description": "Order #" + data.order_id,
+              "order_id": data.razorpay_order_id,
+              "handler": function (response) {
+                console.log('[RAZORPAY] Payment succeeded in modal, verifying server-side...', response);
+                if (submitBtn) {
+                  submitBtn.innerHTML = 'Verifying Payment...';
+                }
+                fetch("{% url 'verify_razorpay_payment' %}", {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                  },
+                  body: new URLSearchParams({
+                    'order_db_id': data.order_db_id,
+                    'razorpay_payment_id': response.razorpay_payment_id,
+                    'razorpay_order_id': response.razorpay_order_id,
+                    'razorpay_signature': response.razorpay_signature
+                  })
+                })
+                .then(res => res.json())
+                .then(verifyData => {
+                  console.log('[RAZORPAY] Verification response:', verifyData);
+                  if (verifyData.status === 'success') {
+                    // Verification success: redirect immediately, do NOT reset razorpayPaymentInProgress
+                    window.location.href = verifyData.redirect_url;
+                  } else {
+                    alert(verifyData.message || 'Payment verification failed.');
+                    razorpayPaymentInProgress = false;
+                    if (submitBtn) {
+                      submitBtn.disabled = false;
+                      submitBtn.innerHTML = origText;
+                    }
+                  }
+                })
+                .catch(err => {
+                  console.error('[RAZORPAY] Verification fetch error:', err);
+                  alert('Verification error. Please contact support.');
+                  razorpayPaymentInProgress = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origText;
+                  }
+                });
+              },
+              "prefill": {
+                "name": data.user_name,
+                "email": data.user_email,
+                "contact": data.user_phone
+              },
+              "theme": {
+                "color": "#A33C08"
+              },
+              "modal": {
+                "ondismiss": function() {
+                  console.log('[RAZORPAY] Modal dismissed by user');
+                  razorpayPaymentInProgress = false;
+                  if (submitBtn) {
+                    submitBtn.disabled = false;
+                    submitBtn.innerHTML = origText;
+                  }
+                }
+              }
+            };
+            const rzp = new Razorpay(options);
+            rzp.on('payment.failed', function (response) {
+              console.error('[RAZORPAY] Payment failed:', response.error);
+              alert(response.error.description || 'Payment failed. Please try again.');
+              razorpayPaymentInProgress = false;
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = origText;
+              }
+            });
+            rzp.open();
+          } else {
+            alert(data.message || 'Failed to initiate Razorpay order.');
+            razorpayPaymentInProgress = false;
+            if (submitBtn) {
+              submitBtn.disabled = false;
+              submitBtn.innerHTML = origText;
+            }
+          }
+        })
+        .catch(err => {
+          console.error('[RAZORPAY] Order creation fetch error:', err);
+          alert(err.message || 'Network error. Failed to initiate payment.');
+          razorpayPaymentInProgress = false;
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = origText;
+          }
+        });
+      }
+    });
+  }
+
   // Scroll Bubble Spring Animation Trigger for Left Section Cards ONLY
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
     const bubbleCards = document.querySelectorAll('.scroll-bubble-card');
     bubbleCards.forEach(card => card.classList.add('bubble-in'));
   });
 </script>
+{% endblock %}

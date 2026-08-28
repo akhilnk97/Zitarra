@@ -175,3 +175,11 @@ LOGGING = {
         },
     },
 }
+
+# Security settings for Razorpay popups
+SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
+
+# Razorpay Credentials
+RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', '')
+RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
+

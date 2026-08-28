@@ -22,9 +22,20 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from .models import Order, OrderItem
 
+from django.urls import reverse
+from django.conf import settings
+import json
+import logging
+import razorpay
+
+logger = logging.getLogger(__name__)
+
 
 @user_member_required
 def checkout_view(request):
+    # Consume any pending session messages from previous failed requests
+    list(get_messages(request))
+
     try:
         cart = request.user.cart
     except Cart.DoesNotExist:
@@ -74,18 +85,7 @@ def place_order_view(request):
         messages.error(request, "Your cart is empty.")
         return redirect('cart_view')
 
-    # Verify inventory stock and availability for all items
-    for item in items:
-        if not item.is_available:
-            messages.error(request, f"Product '{item.product.name}' is no longer available.")
-            return redirect('cart_view')
-
-        if item.quantity > item.stock:
-            item_label = f"{item.product.name} ({item.variant.name})" if item.variant else item.product.name
-            messages.error(request, f"Not enough stock for '{item_label}'. Only {item.stock} left.")
-            return redirect('cart_view')
-
-    selected_address_id = request.POST.get('selected_address')
+    selected_address_id = request.POST.get('selected_address') or request.POST.get('selected_address_id')
     if not selected_address_id:
         messages.error(request, "Please select a shipping address.")
         return redirect('checkout')
@@ -96,19 +96,32 @@ def place_order_view(request):
         messages.error(request, "Selected address was not found.")
         return redirect('checkout')
 
-    payment_method = request.POST.get('payment_method', 'CASH_ON_DELIVERY').upper()
-    if payment_method != 'CASH_ON_DELIVERY':
-        messages.error(request, "Only Cash on Delivery is currently supported.")
-        return redirect('checkout')
-    
+    for item in items:
+        available_stock = item.variant.stock if item.variant else item.product.stock
+        if item.quantity > available_stock:
+            name = f"'{item.product.name}'" if not item.variant else f"'{item.product.name} ({item.variant.name})'"
+            messages.error(request, f"Insufficient stock for {name}. Only {available_stock} available.")
+            return redirect('cart_view')
+
     subtotal = cart.get_subtotal()
     shipping_cost, tax_amount, calculated_total = calculate_order_totals(subtotal)
     discount_amount = Decimal('0.00')
     total_price = calculated_total - discount_amount
 
-    payment_status = 'PENDING'
-
     with transaction.atomic():
+        # Pre-check inventory availability with row locks
+        for item in items:
+            if item.variant_id:
+                variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
+                if variant.stock < item.quantity:
+                    messages.error(request, f"Insufficient stock for '{variant.name}'. Only {variant.stock} available.")
+                    return redirect('cart_view')
+            elif item.product_id:
+                product = Product.objects.select_for_update().get(id=item.product_id)
+                if product.stock < item.quantity:
+                    messages.error(request, f"Insufficient stock for '{product.name}'. Only {product.stock} available.")
+                    return redirect('cart_view')
+
         order = Order.objects.create(
             user=request.user,
             shipping_full_name=address.full_name,
@@ -119,8 +132,8 @@ def place_order_view(request):
             shipping_state=address.state,
             shipping_pincode=address.pincode,
             shipping_label=address.label or 'HOME',
-            payment_method=payment_method,
-            payment_status=payment_status,
+            payment_method='CASH_ON_DELIVERY',
+            payment_status='PENDING',
             order_status='CONFIRMED',
             subtotal=subtotal,
             shipping_cost=shipping_cost,
@@ -140,17 +153,30 @@ def place_order_view(request):
                 quantity=item.quantity,
                 item_subtotal=item.get_subtotal(),
             )
-
-            if item.variant:
-                item.variant.stock -= item.quantity
-                item.variant.save(update_fields=['stock'])
-            else:
-                item.product.stock -= item.quantity
-                item.product.save(update_fields=['stock'])
+        
+        # Deduct stock safely with locked rows for COD
+        for item in items:
+            if item.variant_id:
+                variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
+                variant.stock -= item.quantity
+                variant.save(update_fields=['stock'])
+            elif item.product_id:
+                product = Product.objects.select_for_update().get(id=item.product_id)
+                product.stock -= item.quantity
+                product.save(update_fields=['stock'])
 
         cart.items.all().delete()
 
-    return redirect('order_success', order_id=order.order_id)
+        if is_ajax(request):
+            return JsonResponse({
+                'status': 'success',
+                'payment_method': 'CASH_ON_DELIVERY',
+                'redirect_url': reverse('order_success', args=[order.order_id])
+            })
+
+        return redirect('order_success', order_id=order.order_id)
+        
+
 
 
 @user_member_required
@@ -581,4 +607,267 @@ def cancel_order_view(request, order_id):
         else:
             messages.error(request, "This order cannot be cancelled at its current status.")
 
-    return redirect('order_detail', order_id=order_id)
+    return redirect('order_detail', order_id=order_id)
+
+
+@user_member_required
+def create_razorpay_order_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed.'}, status=405)
+
+    try:
+        cart = request.user.cart
+    except Cart.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Your cart is empty.'}, status=400)
+
+    items = cart.items.select_related('product__category', 'variant').all()
+    if not items.exists():
+        return JsonResponse({'status': 'error', 'message': 'Your cart is empty.'}, status=400)
+
+    for item in items:
+        if not item.is_available:
+            return JsonResponse({
+                'status': 'error',
+                'message': f"'{item.product.name}' is currently unavailable. Please update your cart."
+            }, status=400)
+
+    selected_address_id = request.POST.get('selected_address') or request.POST.get('selected_address_id')
+    if not selected_address_id and request.content_type == 'application/json':
+        try:
+            body_data = json.loads(request.body)
+            selected_address_id = body_data.get('selected_address') or body_data.get('selected_address_id')
+        except Exception:
+            pass
+
+    if not selected_address_id:
+        return JsonResponse({'status': 'error', 'message': 'Please select a shipping address.'}, status=400)
+
+    try:
+        address = Address.objects.get(id=selected_address_id, user=request.user)
+    except Address.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Selected address was not found.'}, status=400)
+
+    for item in items:
+        available_stock = item.variant.stock if item.variant else item.product.stock
+        if item.quantity > available_stock:
+            name = f"'{item.product.name}'" if not item.variant else f"'{item.product.name} ({item.variant.name})'"
+            return JsonResponse({
+                'status': 'error',
+                'message': f"Insufficient stock for {name}. Only {available_stock} available."
+            }, status=400)
+
+    subtotal = cart.get_subtotal()
+    shipping_cost, tax_amount, calculated_total = calculate_order_totals(subtotal)
+    discount_amount = Decimal('0.00')
+    total_price = calculated_total - discount_amount
+    amount_in_paise = int(total_price * 100)
+
+    if not settings.RAZORPAY_KEY_ID or not settings.RAZORPAY_KEY_SECRET:
+        logger.error("[RAZORPAY] Missing Razorpay Key ID or Secret in settings")
+        return JsonResponse({
+            'status': 'error',
+            'message': 'Razorpay payment gateway is not properly configured.'
+        }, status=500)
+
+    try:
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        razorpay_order_data = {
+            'amount': amount_in_paise,
+            'currency': 'INR',
+            'payment_capture': 1,
+        }
+        logger.info(f"[RAZORPAY] Creating order for user {request.user.id}, amount {amount_in_paise} paise")
+        razorpay_order = client.order.create(data=razorpay_order_data)
+        logger.info(f"[RAZORPAY] Created Razorpay order ID: {razorpay_order.get('id')}")
+    except Exception as e:
+        logger.error(f"[RAZORPAY] Order creation failed: {str(e)}")
+        return JsonResponse({
+            'status': 'error',
+            'message': f"Failed to initiate payment with Razorpay: {str(e)}"
+        }, status=500)
+
+    with transaction.atomic():
+        order = Order.objects.create(
+            user=request.user,
+            shipping_full_name=address.full_name,
+            shipping_phone=address.phone_number,
+            shipping_address_line_1=address.address_line_1,
+            shipping_address_line_2=address.address_line_2 or '',
+            shipping_city=address.city,
+            shipping_state=address.state,
+            shipping_pincode=address.pincode,
+            shipping_label=address.label or 'HOME',
+            payment_method='RAZORPAY',
+            payment_status='PENDING',
+            order_status='PENDING',
+            subtotal=subtotal,
+            shipping_cost=shipping_cost,
+            tax_amount=tax_amount,
+            discount_amount=discount_amount,
+            total_price=total_price,
+            razorpay_order_id=razorpay_order['id'],
+        )
+
+        for item in items:
+            OrderItem.objects.create(
+                order=order,
+                product=item.product,
+                variant=item.variant,
+                product_name=item.product.name,
+                variant_name=item.variant.name if item.variant else None,
+                price=item.get_unit_price(),
+                quantity=item.quantity,
+                item_subtotal=item.get_subtotal(),
+                item_status='PENDING',
+            )
+
+    return JsonResponse({
+        'status': 'success',
+        'razorpay_key': settings.RAZORPAY_KEY_ID,
+        'razorpay_order_id': razorpay_order['id'],
+        'amount': amount_in_paise,
+        'currency': 'INR',
+        'order_db_id': order.id,
+        'order_id': order.order_id,
+        'user_name': address.full_name,
+        'user_email': request.user.email,
+        'user_phone': address.phone_number,
+    })
+
+
+@user_member_required
+def verify_razorpay_payment_view(request):
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed.'}, status=405)
+
+    order_db_id = request.POST.get('order_db_id')
+    razorpay_payment_id = request.POST.get('razorpay_payment_id')
+    razorpay_order_id = request.POST.get('razorpay_order_id')
+    razorpay_signature = request.POST.get('razorpay_signature')
+
+    if not order_db_id and request.content_type == 'application/json':
+        try:
+            body_data = json.loads(request.body)
+            order_db_id = body_data.get('order_db_id')
+            razorpay_payment_id = body_data.get('razorpay_payment_id')
+            razorpay_order_id = body_data.get('razorpay_order_id')
+            razorpay_signature = body_data.get('razorpay_signature')
+        except Exception as e:
+            logger.error(f"[RAZORPAY] Failed to parse verification JSON: {str(e)}")
+
+    if not order_db_id or not razorpay_payment_id or not razorpay_order_id or not razorpay_signature:
+        return JsonResponse({'status': 'error', 'message': 'Missing payment verification data.'}, status=400)
+
+    try:
+        order = Order.objects.get(id=order_db_id, user=request.user)
+    except Order.DoesNotExist:
+        return JsonResponse({'status': 'error', 'message': 'Order not found.'}, status=404)
+
+    #Check if order is already PAID
+    if order.payment_status == 'PAID':
+        logger.info(f"[RAZORPAY] Order {order.order_id} is already marked PAID. Returning idempotent success.")
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Payment already verified.',
+            'redirect_url': reverse('order_success', args=[order.order_id])
+        })
+
+    # Compare browser razorpay_order_id with stored order.razorpay_order_id
+    if not order.razorpay_order_id or str(razorpay_order_id) != str(order.razorpay_order_id):
+        logger.error(f"[RAZORPAY] Mismatch in Razorpay Order ID. Client: {razorpay_order_id}, Stored: {order.razorpay_order_id}")
+        return JsonResponse({'status': 'error', 'message': 'Razorpay order ID mismatch.'}, status=400)
+
+    # Perform signature verification using trusted stored order.razorpay_order_id
+    client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+    params_dict = {
+        'razorpay_order_id': order.razorpay_order_id,
+        'razorpay_payment_id': razorpay_payment_id,
+        'razorpay_signature': razorpay_signature,
+    }
+
+    try:
+        client.utility.verify_payment_signature(params_dict)
+        logger.info(f"[RAZORPAY] Signature verified successfully for Order {order.order_id}")
+    except razorpay.errors.SignatureVerificationError as e:
+        logger.error(f"[RAZORPAY] Signature verification failed for Order {order.order_id}: {str(e)}")
+        order.payment_status = 'FAILED'
+        order.save(update_fields=['payment_status', 'updated_at'])
+        return JsonResponse({'status': 'error', 'message': 'Invalid payment signature.'}, status=400)
+    except Exception as e:
+        logger.error(f"[RAZORPAY] Signature verification error for Order {order.order_id}: {str(e)}")
+        order.payment_status = 'FAILED'
+        order.save(update_fields=['payment_status', 'updated_at'])
+        return JsonResponse({'status': 'error', 'message': f'Verification error: {str(e)}'}, status=400)
+
+    try:
+        with transaction.atomic():
+            # Re-fetch order with lock
+            order = Order.objects.select_for_update().get(id=order.id)
+            if order.payment_status == 'PAID':
+                return JsonResponse({
+                    'status': 'success',
+                    'message': 'Payment already verified.',
+                    'redirect_url': reverse('order_success', args=[order.order_id])
+                })
+
+            order_items = order.items.all()
+
+            # Pre-check inventory availability with row locks
+            for item in order_items:
+                if item.variant_id:
+                    variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
+                    if variant.stock < item.quantity:
+                        order.payment_status = 'FAILED'
+                        order.save(update_fields=['payment_status', 'updated_at'])
+                        return JsonResponse({
+                            'status': 'error',
+                            'message': f'Insufficient stock for {variant.name}. Only {variant.stock} available.'
+                        }, status=400)
+                elif item.product_id:
+                    product = Product.objects.select_for_update().get(id=item.product_id)
+                    if product.stock < item.quantity:
+                        order.payment_status = 'FAILED'
+                        order.save(update_fields=['payment_status', 'updated_at'])
+                        return JsonResponse({
+                            'status': 'error',
+                            'message': f'Insufficient stock for {product.name}. Only {product.stock} available.'
+                        }, status=400)
+
+            # Deduct inventory stock
+            for item in order_items:
+                if item.variant_id:
+                    variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
+                    variant.stock -= item.quantity
+                    variant.save(update_fields=['stock'])
+                elif item.product_id:
+                    product = Product.objects.select_for_update().get(id=item.product_id)
+                    product.stock -= item.quantity
+                    product.save(update_fields=['stock'])
+
+            # Mark Order as PAID and CONFIRMED
+            order.payment_status = 'PAID'
+            order.order_status = 'CONFIRMED'
+            order.razorpay_payment_id = razorpay_payment_id
+            order.razorpay_signature = razorpay_signature
+            order.save(update_fields=['payment_status', 'order_status', 'razorpay_payment_id', 'razorpay_signature', 'updated_at'])
+
+            order_items.update(item_status='CONFIRMED')
+
+            # Clear cart items exactly once
+            try:
+                cart = request.user.cart
+                cart.items.all().delete()
+            except Cart.DoesNotExist:
+                pass
+
+        logger.info(f"[RAZORPAY] Order {order.order_id} fulfilled successfully.")
+        return JsonResponse({
+            'status': 'success',
+            'message': 'Payment verified successfully.',
+            'redirect_url': reverse('order_success', args=[order.order_id])
+        })
+
+    except Exception as e:
+        logger.error(f"[RAZORPAY] Exception during fulfillment for Order {order.order_id}: {str(e)}")
+        return JsonResponse({'status': 'error', 'message': f'Fulfillment error: {str(e)}'}, status=500)
+

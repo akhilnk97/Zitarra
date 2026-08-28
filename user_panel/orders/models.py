@@ -14,6 +14,7 @@ def generate_order_id():
 
 class Order(models.Model):
     STATUS_CHOICES = (
+        ('PENDING', 'Pending Payment'),
         ('CONFIRMED', 'Confirmed'),
         ('PROCESSING', 'Processing'),
         ('SHIPPED', 'Shipped'),
@@ -40,17 +41,21 @@ class Order(models.Model):
     payment_method = models.CharField(max_length=50, default='CASH_ON_DELIVERY')
     payment_status = models.CharField(max_length=50, default='VERIFIED')
     order_status = models.CharField(max_length=50, choices=STATUS_CHOICES, default='CONFIRMED')
-    expected_delivery_date = models.DateField(blank=True, null=True)
 
-    subtotal = models.DecimalField(max_digits=12, decimal_places=2)
-    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
-    total_price = models.DecimalField(max_digits=12, decimal_places=2)
+    subtotal = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+    shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    total_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
+
+    razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_payment_id = models.CharField(max_length=100, blank=True, null=True)
+    razorpay_signature = models.CharField(max_length=255, blank=True, null=True)
 
     cancel_reason = models.TextField(blank=True, null=True)
     return_reason = models.TextField(blank=True, null=True)
 
+    expected_delivery_date = models.DateField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
