@@ -8,6 +8,8 @@ from admin_panel.products.models import Product
 from admin_panel.category.models import Category
 from django.contrib import messages
 from user_panel.wishlist.models import WishlistItem
+from common.services import get_eligible_coupons
+
 
 
 
@@ -202,6 +204,8 @@ def product_detail_view(request, product_id):
     else:
         first_available = product
 
+    active_coupons = get_eligible_coupons(user=request.user, limit=3)
+
     context = {
         "product": product,
         "variants": variants,
@@ -212,6 +216,7 @@ def product_detail_view(request, product_id):
         "related_products": related_products,
         "highlights_list": highlights_list,
         "is_in_wishlist": is_in_wishlist,
+        "active_coupons": active_coupons,
     }
     
     return render(request, "user/shop/product_detail.html", context)

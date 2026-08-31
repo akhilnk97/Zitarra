@@ -16,11 +16,22 @@ from common.services import (
 from django.contrib.auth import update_session_auth_hash
 from django.utils import timezone
 from .models import Address
+from common.services import get_or_create_user_referral_code
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+
 
 
 @user_member_required
 def profile_view(request):
-    return render(request, "user/profile/profile.html")
+    ref_code = get_or_create_user_referral_code(request.user)
+    scheme = 'https' if request.is_secure() else 'http'
+    domain = request.get_host()
+    referral_link = f"{scheme}://{domain}/referral/?ref={ref_code}"
+    return render(request, "user/profile/profile.html", {
+        'referral_code': ref_code,
+        'referral_link': referral_link,
+    })
 
 
 @user_member_required
@@ -39,8 +50,6 @@ def profile_send_otp_view(request):
         messages.error(request, "Email is required")
         return render(request, "user/profile/profile_edit.html")
 
-    from django.core.validators import validate_email
-    from django.core.exceptions import ValidationError
     try:
         validate_email(email)
     except ValidationError:

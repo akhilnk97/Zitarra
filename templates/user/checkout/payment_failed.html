@@ -1,0 +1,333 @@
+{% extends 'user/base/base.html' %}
+{% block title %}Payment Failed — Zitarra{% endblock %}
+
+{% block navbar %}{% include 'user/partials/navbar_shop.html' %}{% endblock %}
+
+{% block content %}
+
+<style>
+  /* Custom Animations for Payment Failed Page */
+  @keyframes drawXmark {
+    0% { stroke-dashoffset: 40; }
+    100% { stroke-dashoffset: 0; }
+  }
+  @keyframes popScaleFailed {
+    0% { transform: scale(0); opacity: 0; }
+    70% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+  }
+  @keyframes fadeInUp {
+    0% { opacity: 0; transform: translateY(24px); }
+    100% { opacity: 1; transform: translateY(0); }
+  }
+
+  .animated-failed-circle {
+    animation: popScaleFailed 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  }
+  .animated-x-path {
+    stroke-dasharray: 40;
+    stroke-dashoffset: 40;
+    animation: drawXmark 0.5s ease-in-out 0.35s forwards;
+  }
+  .animate-stagger-1 { animation: fadeInUp 0.7s ease-out 0.1s both; }
+  .animate-stagger-2 { animation: fadeInUp 0.7s ease-out 0.3s both; }
+  .animate-stagger-3 { animation: fadeInUp 0.7s ease-out 0.5s both; }
+</style>
+
+<div class="bg-white min-h-screen text-brand-dark overflow-hidden">
+
+  <!-- TOP HERO: ANIMATED FAILURE ICON & STATEMENT -->
+  <div class="max-w-4xl mx-auto text-center px-6 pt-12 pb-10 animate-stagger-1">
+    
+    <!-- Concentric Circles with Failure X Icon -->
+    <div class="flex justify-center mb-6 relative">
+      <div class="w-20 h-20 rounded-full border border-red-200 flex items-center justify-center p-2 relative z-10 bg-white shadow-lg">
+        <div class="w-16 h-16 rounded-full border border-red-300 flex items-center justify-center bg-red-50">
+          <div class="w-12 h-12 rounded-full bg-red-600 flex items-center justify-center text-white shadow-md animated-failed-circle">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
+              <path class="animated-x-path" stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Title -->
+    <h1 class="text-2xl md:text-3xl font-black uppercase tracking-[0.25em] text-red-600 mb-3">
+      P A Y M E N T _ F A I L E D
+    </h1>
+
+    <!-- Subtitle -->
+    <p class="text-xs md:text-sm font-medium text-gray-600 max-w-xl mx-auto leading-relaxed mb-6">
+      Your payment attempt could not be processed. Your order has <span class="font-bold text-red-600">NOT</span> been placed and your cart items remain safe. No charges were made. You can retry payment immediately below.
+    </p>
+
+    <!-- Error Reason Callout -->
+    {% if error_message %}
+    <div class="max-w-xl mx-auto mb-8 bg-red-50 border-l-4 border-red-600 p-4 text-left rounded-r shadow-sm">
+      <div class="flex items-start gap-3">
+        <svg class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+        <div>
+          <p class="text-[0.65rem] font-mono font-bold tracking-widest text-red-700 uppercase">DECLINE REASON / ERROR DETAILS</p>
+          <p class="text-xs font-semibold text-red-900 mt-0.5">{{ error_message }}</p>
+        </div>
+      </div>
+    </div>
+    {% endif %}
+
+    <!-- Customer Cart Summary Bar -->
+    <div class="inline-flex flex-wrap items-center justify-center gap-6 border-t border-b border-gray-200 py-3 px-8 font-mono text-[0.58rem] font-bold tracking-widest text-gray-500 uppercase">
+      <div>PAYMENT METHOD: <span class="text-brand-dark font-extrabold">RAZORPAY (ONLINE PAYMENT)</span></div>
+      <div class="text-gray-300">|</div>
+      <div>TOTAL DUE: <span class="text-red-600 font-extrabold">₹{{ total_price|floatformat:2 }}</span></div>
+    </div>
+
+  </div>
+
+  <!-- MAIN 2-COLUMN SECTION WRAPPER -->
+  <div class="w-full px-4 md:px-8 pb-12">
+
+    <!-- MIDDLE SECTION: 2 COLUMNS (SHIPPING ADDRESS & ITEMS RECAP) -->
+    <div class="border border-gray-200 grid grid-cols-1 md:grid-cols-2 animate-stagger-2">
+      
+      <!-- LEFT: SHIPPING ADDRESS & PAYMENT NOTICE -->
+      <div class="p-5 md:p-6 border-b md:border-b-0 md:border-r border-gray-200 flex flex-col justify-between">
+        
+        <div>
+          <p class="text-[0.52rem] font-mono font-bold tracking-[0.2em] uppercase text-gray-400 mb-1">TRANSACTION STATUS</p>
+          <h2 class="text-xl md:text-2xl font-mono font-black uppercase tracking-tight text-red-600 mb-6">
+            UNCONFIRMED / PENDING RETRY
+          </h2>
+
+          <!-- Shipping Details -->
+          {% if address %}
+          <div class="border-t border-gray-200 pt-6">
+            <p class="text-[0.52rem] font-mono font-bold tracking-[0.2em] uppercase text-gray-400 mb-3">SELECTED SHIPPING ADDRESS</p>
+            <div class="text-xs text-gray-700 leading-relaxed font-mono">
+              <p class="font-bold text-brand-dark uppercase">{{ address.full_name }}</p>
+              <p>{{ address.address_line_1 }}</p>
+              {% if address.address_line_2 %}<p>{{ address.address_line_2 }}</p>{% endif %}
+              <p>{{ address.city }}, {{ address.state }} - {{ address.pincode }}</p>
+              <p class="text-gray-500 mt-1">PHONE: {{ address.phone_number }}</p>
+            </div>
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- Payment Notice Box -->
+        <div class="mt-8 p-4 bg-gray-50 border border-gray-200 text-xs font-mono text-gray-600 rounded">
+          <p class="font-bold text-brand-dark uppercase mb-1">NEED HELP WITH PAYMENT?</p>
+          <p class="text-[0.7rem] text-gray-500 leading-relaxed">
+            If money was debited from your account or UPI app during a connection failure, your bank will automatically refund it within 3-5 business days. Your items remain saved in your cart so you can retry payment safely.
+          </p>
+        </div>
+
+      </div>
+
+      <!-- RIGHT: CART ITEMS & PRICE SUMMARY -->
+      <div class="p-5 md:p-6 bg-gray-50 flex flex-col justify-between">
+        
+        <div>
+          <p class="text-[0.52rem] font-mono font-bold tracking-[0.2em] uppercase text-gray-400 mb-4">ITEMS IN YOUR CART</p>
+
+          <div class="space-y-4 max-h-72 overflow-y-auto pr-2">
+            {% for item in items %}
+            <div class="flex items-center justify-between gap-4 border-b border-gray-200 pb-3">
+              <div class="flex items-center gap-3">
+                {% if item.variant and item.variant.images.first %}
+                  <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded border border-gray-200" />
+                {% elif item.product.images.first %}
+                  <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="w-12 h-12 object-cover rounded border border-gray-200" />
+                {% else %}
+                  <div class="w-12 h-12 bg-gray-200 rounded flex items-center justify-center text-gray-400 text-xs font-mono">NO IMG</div>
+                {% endif %}
+                <div>
+                  <p class="text-xs font-mono font-bold text-brand-dark uppercase line-clamp-1">{{ item.product.name }}</p>
+                  {% if item.variant %}
+                    <p class="text-[0.65rem] font-mono text-gray-500">VARIANT: {{ item.variant.name|upper }}</p>
+                  {% endif %}
+                  <p class="text-[0.65rem] font-mono text-gray-500">QTY: {{ item.quantity }} × ₹{{ item.get_unit_price|floatformat:2 }}</p>
+                </div>
+              </div>
+              <p class="text-xs font-mono font-bold text-brand-dark">₹{{ item.get_subtotal|floatformat:2 }}</p>
+            </div>
+            {% endfor %}
+          </div>
+
+          <!-- Price Calculation Breakdown -->
+          <div class="mt-6 border-t border-gray-200 pt-4 space-y-2 font-mono text-xs">
+            <div class="flex justify-between text-gray-600">
+              <span>SUBTOTAL</span>
+              <span>₹{{ subtotal|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>SHIPPING</span>
+              <span>{% if shipping_cost == 0 %}FREE{% else %}₹{{ shipping_cost|floatformat:2 }}{% endif %}</span>
+            </div>
+            <div class="flex justify-between text-gray-600">
+              <span>ESTIMATED TAX</span>
+              <span>₹{{ tax_amount|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between text-brand-dark font-black text-sm pt-2 border-t border-gray-300">
+              <span>TOTAL DUE</span>
+              <span class="text-red-600">₹{{ total_price|floatformat:2 }}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- BOTTOM ACTION BUTTONS: EXACTLY TWO BUTTONS (RETRY PAYMENT & CONTINUE SHOPPING) -->
+    <div class="mt-8 flex flex-col sm:flex-row items-center justify-center gap-4 animate-stagger-3">
+      
+      <!-- BUTTON 1: RETRY PAYMENT -->
+      <button id="retry-payment-btn" onclick="handleRetryPayment()" class="w-full sm:w-auto min-w-[240px] px-8 py-4 bg-[#E8500A] hover:bg-[#c84205] text-white font-mono font-black text-xs md:text-sm tracking-[0.2em] uppercase rounded shadow-lg transition-all duration-200 flex items-center justify-center gap-3">
+        <svg class="w-4 h-4 text-white animate-spin hidden" id="retry-spinner" fill="none" viewBox="0 0 24 24">
+          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+        </svg>
+        <svg class="w-4 h-4 text-white" id="retry-icon" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
+        <span id="retry-btn-text">RETRY PAYMENT NOW</span>
+      </button>
+
+      <!-- BUTTON 2: CONTINUE SHOPPING -->
+      <a href="{% url 'shop' %}" class="w-full sm:w-auto min-w-[240px] text-center px-8 py-4 border border-gray-900 bg-brand-dark hover:bg-gray-800 text-white font-mono font-bold text-xs md:text-sm tracking-[0.15em] uppercase rounded transition-all duration-150 shadow-md">
+        CONTINUE SHOPPING
+      </a>
+
+    </div>
+
+  </div>
+
+</div>
+
+<!-- Razorpay Checkout Script Integration -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  let isRetryInProgress = false;
+
+  function handleRetryPayment() {
+    if (isRetryInProgress) return;
+    isRetryInProgress = true;
+
+    const btn = document.getElementById('retry-payment-btn');
+    const spinner = document.getElementById('retry-spinner');
+    const icon = document.getElementById('retry-icon');
+    const text = document.getElementById('retry-btn-text');
+
+    if (btn) btn.disabled = true;
+    if (spinner) spinner.classList.remove('hidden');
+    if (icon) icon.classList.add('hidden');
+    if (text) text.innerText = 'INITIATING RETRY...';
+
+    fetch("{% url 'retry_payment' %}", {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'X-CSRFToken': '{{ csrf_token }}'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('[RETRY] Response:', data);
+      if (data.status === 'success') {
+        const options = {
+          "key": data.razorpay_key,
+          "amount": data.amount,
+          "currency": data.currency,
+          "name": "Zitarra Store",
+          "description": "Order Payment Retry",
+          "order_id": data.razorpay_order_id,
+          "handler": function (response) {
+            console.log('[RETRY] Payment succeeded, verifying server-side...', response);
+            if (text) text.innerText = 'VERIFYING PAYMENT...';
+            
+            fetch("{% url 'verify_razorpay_payment' %}", {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': '{{ csrf_token }}'
+              },
+              body: new URLSearchParams({
+                'razorpay_payment_id': response.razorpay_payment_id,
+                'razorpay_order_id': response.razorpay_order_id,
+                'razorpay_signature': response.razorpay_signature
+              })
+            })
+            .then(res => res.json())
+            .then(verifyData => {
+              if (verifyData.status === 'success') {
+                window.location.href = verifyData.redirect_url;
+              } else {
+                alert(verifyData.message || 'Payment verification failed.');
+                resetRetryBtn();
+              }
+            })
+            .catch(err => {
+              console.error('[RETRY] Verification fetch error:', err);
+              alert('Verification error. Please contact support.');
+              resetRetryBtn();
+            });
+          },
+          "prefill": {
+            "name": data.user_name,
+            "email": data.user_email,
+            "contact": data.user_phone
+          },
+          "theme": {
+            "color": "#E8500A"
+          },
+          "modal": {
+            "ondismiss": function() {
+              console.log('[RETRY] Modal dismissed by user');
+              resetRetryBtn();
+            }
+          }
+        };
+
+        const rzp = new Razorpay(options);
+        rzp.on('payment.failed', function (resp) {
+          console.error('[RETRY] Payment failed event:', resp.error);
+          alert(resp.error.description || 'Payment failed again. Please check card/UPI details.');
+          resetRetryBtn();
+        });
+        rzp.open();
+
+      } else {
+        alert(data.message || 'Unable to retry payment.');
+        if (data.redirect_url) {
+          window.location.href = data.redirect_url;
+        } else {
+          resetRetryBtn();
+        }
+      }
+    })
+    .catch(err => {
+      console.error('[RETRY] Fetch error:', err);
+      alert('Error communicating with server. Please try again.');
+      resetRetryBtn();
+    });
+  }
+
+  function resetRetryBtn() {
+    isRetryInProgress = false;
+    const btn = document.getElementById('retry-payment-btn');
+    const spinner = document.getElementById('retry-spinner');
+    const icon = document.getElementById('retry-icon');
+    const text = document.getElementById('retry-btn-text');
+
+    if (btn) btn.disabled = false;
+    if (spinner) spinner.classList.add('hidden');
+    if (icon) icon.classList.remove('hidden');
+    if (text) text.innerText = 'RETRY PAYMENT NOW';
+  }
+</script>
+
+{% endblock %}

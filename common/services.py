@@ -7,6 +7,17 @@ from django.conf import settings
 from user_panel.authentication.models import OTPVerification
 import base64
 from django.core.files.base import ContentFile
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+import random
+import string
+from django.contrib.auth import get_user_model
+from django.contrib.sessions.models import Session
+from django.utils import timezone as tz
+from user_panel.orders.models import Coupon, Order
+from django.db.models import Q
+from django.utils import timezone
+from decimal import Decimal
 
 
 def validate_full_name(name):
@@ -107,8 +118,7 @@ def send_mail_safe(subject, message, recipient, html_template=None, context=None
     """
     try:
         if html_template and context:
-            from django.template.loader import render_to_string
-            from django.utils.html import strip_tags
+
             html_message = render_to_string(html_template, context)
             plain_message = strip_tags(html_message)
         else:
@@ -242,8 +252,7 @@ def invalidate_user_sessions(user):
     """
     Invalidates all active database sessions belonging to the user.
     """
-    from django.contrib.sessions.models import Session
-    from django.utils import timezone as tz
+    
 
     active_sessions = Session.objects.filter(expire_date__gte=tz.now())
 
@@ -284,25 +293,29 @@ def save_base64_image(base64_string, filename):
 
 from decimal import Decimal
 
-def calculate_order_totals(subtotal):
+def calculate_order_totals(subtotal, discount_amount=Decimal('0.00')):
     """
-    Calculates dynamic shipping cost, 18% GST tax, and total price.
+    Calculates dynamic shipping cost, 5% GST tax, and total price with optional coupon discount.
     Rules:
     - Shipping: FREE (0.00) if subtotal >= 5000.00, else 150.00.
-    - Tax: 5% GST on subtotal.
-    - Total: subtotal + shipping_cost + tax_amount
+    - Tax: 5% GST on discounted subtotal.
+    - Total: (subtotal - discount_amount) + shipping_cost + tax_amount
     """
     subtotal = Decimal(str(subtotal))
+    discount_amount = Decimal(str(discount_amount or 0))
+
     if subtotal == Decimal('0.00'):
         return Decimal('0.00'), Decimal('0.00'), Decimal('0.00')
+
+    discounted_subtotal = max(Decimal('0.00'), subtotal - discount_amount)
 
     if subtotal >= Decimal('5000.00'):
         shipping_cost = Decimal('0.00')
     else:
         shipping_cost = Decimal('150.00')
 
-    tax_amount = (subtotal * Decimal('0.05')).quantize(Decimal('0.01'))
-    total_price = subtotal + shipping_cost + tax_amount
+    tax_amount = (discounted_subtotal * Decimal('0.05')).quantize(Decimal('0.01'))
+    total_price = discounted_subtotal + shipping_cost + tax_amount
     return shipping_cost, tax_amount, total_price
 
 
@@ -310,6 +323,87 @@ def is_ajax(request):
     """
     Helper function to check if the incoming request is an asynchronous AJAX request.
     """
-    return request.headers.get('x-requested-with') == 'XMLHttpRequest'
+    return (
+        request.headers.get('x-requested-with') == 'XMLHttpRequest' or
+        request.headers.get('X-Requested-With') == 'XMLHttpRequest' or
+        request.META.get('HTTP_X_REQUESTED_WITH') == 'XMLHttpRequest' or
+        request.POST.get('is_ajax') == 'true' or
+        request.GET.get('is_ajax') == 'true'
+    )
 
 
+def get_eligible_coupons(user=None, subtotal=None, limit=None):
+    """
+    Returns active, valid coupons filtered specifically for the given user and subtotal context.
+    
+    Filters applied:
+    1. Active status & date validity (valid_from <= now <= valid_to)
+    2. Global usage limit (used_count < usage_limit)
+    3. User first-order restriction: Hides 'is_first_order_only' coupons if user has 1+ non-cancelled orders
+    4. Per-user usage limit: Hides coupons already redeemed by user up to 'usage_limit_per_user'
+    5. Subtotal threshold (if subtotal is provided): Filters coupons where subtotal >= min_purchase
+    6. Sorted by highest discount_value first. Optionally truncated to `limit` items.
+    """
+
+    now = timezone.now()
+    qs = Coupon.objects.filter(is_active=True).filter(
+        Q(valid_from__isnull=True) | Q(valid_from__lte=now)
+    ).filter(
+        Q(valid_to__isnull=True) | Q(valid_to__gte=now)
+    )
+
+    # Exclude global usage limit exceeded
+    coupons_list = [c for c in qs if not (c.usage_limit and c.used_count >= c.usage_limit)]
+
+    # Check user context if user is authenticated
+    if user and user.is_authenticated:
+        has_prior_orders = Order.objects.filter(user=user).exclude(order_status='CANCELLED').exists()
+        
+        filtered = []
+        for c in coupons_list:
+            # 1. First order restriction
+            if c.is_first_order_only and has_prior_orders:
+                continue
+            
+            # 2. Per-user usage limit restriction
+            if c.usage_limit_per_user:
+                user_uses = Order.objects.filter(user=user, coupon_code__iexact=c.code).exclude(order_status='CANCELLED').count()
+                if user_uses >= c.usage_limit_per_user:
+                    continue
+            
+            filtered.append(c)
+        coupons_list = filtered
+
+    # Subtotal threshold filter
+    if subtotal is not None:
+        subtotal_dec = Decimal(str(subtotal))
+        coupons_list = [c for c in coupons_list if subtotal_dec >= c.min_purchase]
+
+    # Sort by highest discount value first
+    coupons_list.sort(key=lambda c: (c.discount_type == 'PERCENTAGE', c.discount_value), reverse=True)
+
+    if limit and isinstance(limit, int):
+        return coupons_list[:limit]
+    return coupons_list
+
+
+def get_or_create_user_referral_code(user):
+    """
+    Ensures user has a unique referral code like ZTR-REF-8A3X.
+    """
+    if not user or not user.is_authenticated:
+        return ''
+
+    if getattr(user, 'referral_code', None) and user.referral_code.strip():
+        return user.referral_code
+
+    
+    UserModel = get_user_model()
+
+    while True:
+        suffix = ''.join(random.choices(string.ascii_uppercase + string.digits, k=4))
+        code = f"ZTR-REF-{suffix}"
+        if not UserModel.objects.filter(referral_code=code).exists():
+            user.referral_code = code
+            user.save(update_fields=['referral_code'])
+            return code

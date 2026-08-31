@@ -61,7 +61,7 @@
         </a>
 
         <!-- Returns Management -->
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#EAE3DC]">
+        <a href="{% url 'admin_returns' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#EAE3DC]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 5h.01M12 16h.01M12 12h.01" />
           </svg>
@@ -93,7 +93,7 @@
         </a>
 
         <!-- Coupons -->
-        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#EAE3DC]">
+        <a href="{% url 'admin_coupons' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#EAE3DC]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
           </svg>
@@ -452,10 +452,10 @@
                 </div>
 
                 <!-- ITEM STATUS & DELIVERY DATE UPDATE FORM -->
-                {% if item.is_terminal %}
+                {% if item.is_terminal or item.item_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED,REFUNDED' %}
                 <div class="mt-3 pt-3 border-t border-[#F2EBE4] text-[0.6rem] font-black uppercase tracking-widest text-gray-400 font-mono flex items-center gap-1.5">
-                  <span>{% if item.item_status == 'RETURNED' %}RETURN DATE:{% elif item.item_status == 'DELIVERED' %}DELIVERED DATE:{% else %}STATUS DATE:{% endif %}</span>
-                  <span class="text-[#1A1A1A]">{% if item.item_status in 'RETURNED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' %}{{ item.effective_expected_pickup_date|date:'d/m/Y' }}{% else %}{{ item.effective_expected_delivery_date|date:'d/m/Y' }}{% endif %}</span>
+                  <span>{% if item.item_status == 'DELIVERED' %}DELIVERED DATE:{% elif item.item_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED,REFUNDED' %}RETURN DATE:{% else %}STATUS DATE:{% endif %}</span>
+                  <span class="text-[#1A1A1A]">{% if item.item_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}{{ item.effective_expected_pickup_date|date:'d/m/Y' }}{% else %}{{ item.effective_expected_delivery_date|date:'d/m/Y' }}{% endif %}</span>
                 </div>
                 {% else %}
                 <form id="item-form-{{ item.id }}" action="{% url 'admin_order_item_update_status' order.order_id item.id %}" method="POST"
@@ -476,14 +476,12 @@
                       </select>
                     </div>
 
-                    <!-- EXPECTED DELIVERY / PICKUP / RETURN DATE -->
+                    <!-- EXPECTED DELIVERY DATE -->
                     <div class="flex flex-col text-left">
-                      <label id="item-date-label-{{ item.id }}" class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 mb-1">
-                        {% if item.item_status == 'RETURN_REQUESTED' %}SCHEDULE PICKUP DATE{% elif item.item_status == 'RETURN_APPROVED' %}EXPECTED PICKUP DATE{% elif item.item_status == 'RETURN_PICKUP' %}PICKUP DATE{% elif item.item_status == 'RETURNED' %}RETURN DATE{% else %}EXPECTED DELIVERY DATE{% endif %}
-                      </label>
+                      <label id="item-date-label-{{ item.id }}" class="text-[0.52rem] font-bold uppercase tracking-widest text-gray-400 mb-1">EXPECTED DELIVERY DATE</label>
                       <input type="date" id="item-date-{{ item.id }}" name="expected_delivery_date"
                              min="{% now 'Y-m-d' %}"
-                             value="{% if item.item_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}{{ item.effective_expected_pickup_date|date:'Y-m-d' }}{% else %}{{ item.effective_expected_delivery_date|date:'Y-m-d' }}{% endif %}"
+                             value="{{ item.effective_expected_delivery_date|date:'Y-m-d' }}"
                              class="bg-[#FAF6F3] border border-[#E0D5C9] px-3 h-[36px] text-xs font-mono font-bold text-[#1A1A1A] outline-none focus:border-[#A33C08] rounded-xs cursor-pointer box-border">
                     </div>
                   </div>
@@ -513,6 +511,16 @@
             <div>
               <h3 class="text-sm font-black uppercase tracking-[0.18em] text-[#1A1A1A] mb-4 m-0">ORDER STATUS</h3>
               
+              {% if order.order_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED,REFUNDED' %}
+              <div class="space-y-3">
+                <div class="bg-[#FAF6F3] border border-[#E0D5C9] p-3 text-xs font-black uppercase tracking-wider text-[#A33C08]">
+                  {{ order.get_order_status_display|upper }}
+                </div>
+                <a href="{% url 'admin_returns' %}" class="w-full py-3 bg-[#A33C08] hover:bg-black text-white text-xs font-black uppercase tracking-[0.16em] transition-colors cursor-pointer text-center no-underline block shadow-xs">
+                  GO TO RETURNS MANAGEMENT →
+                </a>
+              </div>
+              {% else %}
               <form id="update-order-form" action="{% url 'admin_order_update_status' order.order_id %}" method="POST" class="space-y-3">
                 {% csrf_token %}
                 
@@ -531,6 +539,7 @@
                 </button>
                 {% endif %}
               </form>
+              {% endif %}
 
               <!-- BACK TO ORDER LIST BUTTON -->
               <a href="{% url 'admin_orders' %}" class="w-full py-3 bg-white border border-[#E0D5C9] text-[#1A1A1A] hover:bg-gray-100 hover:border-[#1A1A1A] text-xs font-bold uppercase tracking-[0.16em] transition-colors cursor-pointer text-center no-underline block mt-2.5">

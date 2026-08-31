@@ -35,13 +35,18 @@ def admin_users_view(request):
     elif filter_val == "Blocked Accounts":
         queryset = queryset.filter(is_blocked=True)
 
-    if sort_val == "Oldest First":
+    sort_upper = sort_val.upper()
+    if sort_upper in ["OLDEST FIRST", "OLDEST"]:
+        sort_val = "Oldest First"
         queryset = queryset.order_by("id")
-    elif sort_val == "Name (A-Z)":
+    elif sort_upper in ["NAME (A-Z)", "NAME A-Z", "A-Z"]:
+        sort_val = "Name (A-Z)"
         queryset = queryset.order_by(Lower("fullname").asc())
-    elif sort_val == "Name (Z-A)":
+    elif sort_upper in ["NAME (Z-A)", "NAME Z-A", "Z-A"]:
+        sort_val = "Name (Z-A)"
         queryset = queryset.order_by(Lower("fullname").desc())
     else:
+        sort_val = "Latest First"
         queryset = queryset.order_by("-id")
 
     per_page = 10

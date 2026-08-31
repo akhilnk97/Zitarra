@@ -9,6 +9,7 @@ from django.core.exceptions import ValidationError
 from django.urls import reverse
 from django.views.decorators.cache import cache_control
 from django.utils import timezone
+from user_panel.profiles.models import Referral
 
 from .models import User, OTPVerification
 from common.services import (
@@ -137,6 +138,23 @@ def otp_verification_view(request):
         user = User.objects.get(id=pending_user_id)
         user.is_verified = True
         user.save()
+
+        # Link Referral record for order-based reward fulfillment
+        ref_code = (user.referral_code or request.session.get('referral_code') or '').strip().upper()
+        if ref_code:
+            referrer_user = User.objects.filter(referral_code__iexact=ref_code).exclude(id=user.id).first()
+            if referrer_user:
+
+                Referral.objects.get_or_create(
+                    referred_user=user,
+                    defaults={
+                        'referrer': referrer_user,
+                        'referral_code': ref_code,
+                        'token': f"ref_{user.id}_{int(timezone.now().timestamp())}",
+                        'status': 'REGISTERED'
+                    }
+                )
+                request.session.pop('referral_code', None)
 
         OTPVerification.objects.filter(user=user, purpose="signup").delete()
         request.session.pop("pending_user_id", None)

@@ -40,13 +40,20 @@
           </svg>
           ADDRESSES
         </a>
-        <a href="/wallet/"
+        <a href="{% url 'user_wallet' %}"
           class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
           <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round"
               d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
           WALLET
+        </a>
+        <a href="{% url 'user_referrals' %}"
+          class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">
+          <svg class="w-3.5 h-3.5 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+          </svg>
+          REFER &amp; EARN
         </a>
         <a href="{% url 'wishlist:wishlist_view' %}?from=profile"
           class="flex items-center gap-2.5 px-6 py-3 text-[0.58rem] font-bold tracking-[0.14em] uppercase no-underline border-b border-[#f5f5f5] transition-all duration-200 text-[#444] hover:text-[#1a1a1a] hover:bg-[#f7f7f5]">

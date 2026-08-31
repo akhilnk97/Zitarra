@@ -84,9 +84,15 @@
       <!-- Right Field: Payment Status -->
       <div class="flex items-center gap-1.5 justify-start md:justify-end">
         <span class="text-gray-400">PAYMENT STATUS:</span>
-        <span class="{% if order.payment_status == 'PAID' or order.order_status == 'DELIVERED' %}text-green-600{% else %}text-[#E8500A]{% endif %} font-black">
-          {% if order.order_status == 'DELIVERED' %}PAID{% else %}{{ order.payment_status|upper }}{% endif %}
-        </span>
+        {% with curr_status=selected_item.item_status|default:order.order_status %}
+          {% if curr_status in 'RETURNED,REFUNDED' or order.payment_status == 'REFUNDED' %}
+            <span class="text-purple-600 font-black">REFUNDED</span>
+          {% elif order.payment_method in 'RAZORPAY,ONLINE' or curr_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' or order.payment_status in 'PAID,VERIFIED' %}
+            <span class="text-green-600 font-black">PAID</span>
+          {% else %}
+            <span class="text-[#E8500A] font-black">PENDING</span>
+          {% endif %}
+        {% endwith %}
       </div>
     </div>
 
@@ -166,12 +172,18 @@
 
           <!-- Step 6: Pickup -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status in 'RETURN_PICKUP,RETURNED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
-              {% if active_status in 'RETURN_PICKUP,RETURNED' %}✓{% else %}•{% endif %}
+            <div class="w-9 h-9 rounded-full {% if active_status == 'RETURNED' %}bg-[#E8500A] text-white shadow-md border-4 border-white{% elif active_status == 'RETURN_PICKUP' %}bg-[#E8500A] text-white shadow-md border-4 border-white ring-2 ring-[#E8500A]/30{% else %}bg-gray-200 text-gray-400 border-4 border-white{% endif %} flex items-center justify-center text-xs font-black mb-2.5">
+              {% if active_status == 'RETURNED' %}
+                ✓
+              {% elif active_status == 'RETURN_PICKUP' %}
+                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              {% else %}
+                •
+              {% endif %}
             </div>
             <p class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status in 'RETURN_PICKUP,RETURNED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">PICKUP</p>
             <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-400 m-0">
-              {% if active_status in 'RETURN_PICKUP,RETURNED' %}PICKED UP{% else %}UPCOMING{% endif %}
+              {% if active_status == 'RETURNED' %}PICKED UP{% elif active_status == 'RETURN_PICKUP' %}SCHEDULED{% else %}UPCOMING{% endif %}
             </p>
           </div>
 
@@ -319,22 +331,6 @@
                   <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-red-600">
                     ITEM CANCELLED
                   </span>
-                  {% elif item.item_status == 'RETURN_REQUESTED' %}
-                  <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-amber-600">
-                    RETURN REQUESTED
-                  </span>
-                  {% elif item.item_status == 'RETURN_APPROVED' %}
-                  <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-blue-600">
-                    RETURN APPROVED
-                  </span>
-                  {% elif item.item_status == 'RETURN_PICKUP' %}
-                  <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-indigo-600">
-                    ITEM PICKED UP
-                  </span>
-                  {% elif item.item_status == 'RETURNED' %}
-                  <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-purple-600">
-                    ITEM RETURNED
-                  </span>
                   {% else %}
 
                   {% if order.order_status in 'CONFIRMED,PROCESSING,SHIPPED' and item.item_status != 'CANCELLED' %}
@@ -345,20 +341,40 @@
                   </button>
                   {% endif %}
 
-                  {% if item.item_status == 'DELIVERED' %}
+                  {% if item.item_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}
                   <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-green-600">
                     DELIVERED
                   </span>
-                  <span class="text-gray-300 text-xs">•</span>
-                  <button type="button"
-                          onclick="openReturnProductModal('{% url 'return_order_item' order_id=order.order_id item_id=item.id %}', '{{ item.product_name|escapejs }}')"
-                          class="text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors cursor-pointer p-0 border-none bg-transparent inline-flex items-center">
-                    RETURN PRODUCT
-                  </button>
+                  {% if item.item_status == 'DELIVERED' %}
+                    {% if not item.admin_note or 'reject' not in item.admin_note|lower %}
+                      {% if not item.cancel_reason or 'return rejected' not in item.cancel_reason|lower %}
+                      <span class="text-gray-300 text-xs">•</span>
+                      <button type="button"
+                              onclick="openReturnProductModal('{% url 'return_order_item' order_id=order.order_id item_id=item.id %}', '{{ item.product_name|escapejs }}')"
+                              class="text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors cursor-pointer p-0 border-none bg-transparent inline-flex items-center">
+                        RETURN PRODUCT
+                      </button>
+                      {% endif %}
+                    {% endif %}
+                  {% endif %}
                   {% endif %}
 
                   {% endif %}
                 </div>
+
+                {% if item.admin_note and 'reject' in item.admin_note|lower or item.cancel_reason and 'return rejected' in item.cancel_reason|lower %}
+                <div class="mt-3 p-3 bg-red-50 border-l-4 border-red-600 text-xs text-red-800 rounded-xs">
+                  <div class="flex items-center gap-2 font-bold uppercase tracking-wider text-[0.6rem] text-red-700 mb-1">
+                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <span>RETURN REQUEST REJECTED BY ADMIN</span>
+                  </div>
+                  <p class="font-sans text-[0.72rem] text-gray-700 m-0">
+                    {% if item.admin_note %}{{ item.admin_note }}{% else %}{{ item.cancel_reason }}{% endif %}
+                  </p>
+                </div>
+                {% endif %}
               </div>
 
               <!-- Subtotal & Review Action -->
@@ -366,7 +382,7 @@
                 <div class="text-base font-black text-brand-dark">
                   ₹{{ item.item_subtotal|floatformat:2 }}
                 </div>
-                {% if item.item_status == 'DELIVERED' %}
+                {% if item.item_status != 'CANCELLED' %}
                 <button type="button" class="inline-flex items-center gap-1.5 text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors border-none bg-transparent cursor-pointer p-0">
                   <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   <span>WRITE A REVIEW</span>
@@ -434,10 +450,10 @@
               <span class="font-black text-brand-dark">₹{{ display_tax|floatformat:2 }}</span>
             </div>
 
-            {% if order.discount_amount > 0 and not selected_item %}
-            <div class="flex justify-between text-green-600 font-black">
-              <span class="uppercase">DISCOUNT APPLIED</span>
-              <span>-₹{{ order.discount_amount|floatformat:2 }}</span>
+            {% if display_discount > 0 %}
+            <div class="flex justify-between text-[#E8500A] font-black">
+              <span class="uppercase">COUPON DISCOUNT {% if order.coupon_code %}({{ order.coupon_code }}){% endif %}</span>
+              <span>-₹{{ display_discount|floatformat:2 }}</span>
             </div>
             {% endif %}
 
@@ -479,21 +495,21 @@
 
     <p class="text-xs text-gray-600 mb-6 leading-relaxed">Are you sure you want to cancel this order? Once confirmed, your order will be cancelled immediately.</p>
 
-    <form action="{% url 'cancel_order' order.order_id %}" method="POST" class="space-y-4">
+    <form action="{% url 'cancel_order' order.order_id %}" method="POST" onsubmit="return validateReasonForm(this, 'cancel_reason_select', 'cancel-order-custom-reason')" class="space-y-4">
       {% csrf_token %}
       
       <div>
-        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR CANCELLATION</label>
-        <select name="cancel_reason_select" onchange="handleReasonSelectChange(this, 'cancel-order-custom-reason')"
+        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR CANCELLATION <span class="text-red-500">*</span></label>
+        <select name="cancel_reason_select" required onchange="handleReasonSelectChange(this, 'cancel-order-custom-reason')"
                 class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
-          <option value="">-- Select a reason --</option>
+          <option value="">-- Select a reason (Required) --</option>
           <option value="Changed my mind">Changed my mind</option>
           <option value="Ordered by mistake">Ordered by mistake</option>
           <option value="Found better price elsewhere">Found better price elsewhere</option>
           <option value="Shipping time is too long">Shipping time is too long</option>
-          <option value="Other">Other reason...</option>
+          <option value="Other">Other (Please specify below)</option>
         </select>
-        <textarea name="cancel_reason" id="cancel-order-custom-reason" rows="3" placeholder="Provide additional details..."
+        <textarea name="cancel_reason" id="cancel-order-custom-reason" rows="3" placeholder="Provide additional details or reason..."
                   class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
       </div>
 
@@ -527,20 +543,36 @@
 
     <p class="text-xs text-gray-600 mb-6 leading-relaxed">Please select a reason for returning this item. Our team will verify and organize pick-up for your return.</p>
 
-    <form id="return-order-form" action="{% url 'return_order' order.order_id %}" method="POST" class="space-y-4">
+    <form id="return-order-form" action="{% url 'return_order' order.order_id %}" method="POST" enctype="multipart/form-data" onsubmit="return validateReturnForm(this)" class="space-y-4">
       {% csrf_token %}
       
       <div>
-        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR RETURN</label>
-        <select name="return_reason_select" onchange="handleReasonSelectChange(this, 'return-order-custom-reason')"
+        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR RETURN <span class="text-red-500">*</span></label>
+        <select name="return_reason_select" required onchange="handleReturnReasonSelect(this, 'return-order-custom-reason')"
                 class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
-          <option value="">-- Select a return reason --</option>
-          <option value="Defective or damaged item">Defective or damaged item</option>
-          <option value="Item not as described">Item not as described</option>
-          <option value="Received wrong product">Received wrong product</option>
-          <option value="Quality not up to expectations">Quality not up to expectations</option>
-          <option value="Other">Other reason...</option>
+          <option value="">-- Select a return reason (Required) --</option>
+          <option value="Defective or Damaged Product">Defective or Damaged Product</option>
+          <option value="Received Wrong Item / Size / Color">Received Wrong Item / Size / Color</option>
+          <option value="Quality Not as Expected">Quality Not as Expected</option>
+          <option value="Size or Fit Issue">Size or Fit Issue</option>
+          <option value="Item No Longer Needed">Item No Longer Needed</option>
+          <option value="Other">Other (Please specify below)</option>
         </select>
+        
+        <!-- Photo Proof Upload Field -->
+        <div id="return-photo-upload-section" class="hidden mb-3">
+          <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-red-600 mb-1 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+              <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            UPLOAD PROOF PHOTOS (REQUIRED - UP TO 3)
+          </label>
+          <input type="file" name="return_images" id="return-images-input" multiple accept="image/*" onchange="handleReturnImagesPreview(this)"
+                 class="w-full bg-gray-50 border border-gray-300 p-2 text-xs font-sans text-brand-dark cursor-pointer" />
+          <div id="return-images-preview" class="flex flex-wrap gap-2 mt-2"></div>
+        </div>
+
         <textarea name="return_reason" id="return-order-custom-reason" rows="3" placeholder="Provide additional details about the return..."
                   class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
       </div>
@@ -604,21 +636,21 @@
 
     <p class="text-xs text-gray-600 mb-6 leading-relaxed">Are you sure you want to cancel this product? Once confirmed, this item will be cancelled and your order totals will be updated.</p>
 
-    <form id="cancel-product-form" action="" method="POST" class="space-y-4">
+    <form id="cancel-product-form" action="" method="POST" onsubmit="return validateReasonForm(this, 'cancel_reason_select', 'cancel-product-custom-reason')" class="space-y-4">
       {% csrf_token %}
       
       <div>
-        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR CANCELLATION</label>
-        <select name="cancel_reason_select" onchange="handleProductReasonChange(this)"
+        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR CANCELLATION <span class="text-red-500">*</span></label>
+        <select name="cancel_reason_select" required onchange="handleProductReasonChange(this)"
                 class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
-          <option value="">-- Select a reason --</option>
+          <option value="">-- Select a reason (Required) --</option>
           <option value="Changed my mind">Changed my mind</option>
           <option value="Ordered by mistake">Ordered by mistake</option>
           <option value="Found better price elsewhere">Found better price elsewhere</option>
           <option value="Shipping time is too long">Shipping time is too long</option>
-          <option value="Other">Other reason...</option>
+          <option value="Other">Other (Please specify below)</option>
         </select>
-        <textarea name="cancel_reason" id="cancel-product-custom-reason" rows="3" placeholder="Provide additional details..."
+        <textarea name="cancel_reason" id="cancel-product-custom-reason" rows="3" placeholder="Provide additional details or reason..."
                   class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
       </div>
 
@@ -634,7 +666,96 @@
   </div>
 </div>
 
+<!-- REUSABLE CUSTOM ALERT / WARNING MODAL -->
+<div id="custom-alert-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[999999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
+  <div class="bg-white max-w-sm w-full p-6 text-center border border-gray-200 shadow-2xl relative my-auto rounded-xs transform transition-all duration-300">
+    <button type="button" onclick="closeCustomAlertModal()" class="absolute top-3 right-3 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+    
+    <div class="w-14 h-14 rounded-full bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center mx-auto mb-4 shrink-0">
+      <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+      </svg>
+    </div>
+
+    <h3 id="custom-alert-title" class="text-sm font-black uppercase text-brand-dark tracking-wider m-0 mb-2">ATTENTION REQUIRED</h3>
+    <p id="custom-alert-message" class="text-xs text-gray-600 mb-6 leading-relaxed font-sans"></p>
+
+    <button type="button" onclick="closeCustomAlertModal()" class="w-full py-2.5 bg-[#E8500A] text-white text-[0.68rem] font-black uppercase tracking-[0.18em] hover:bg-black transition-colors cursor-pointer border-none shadow-sm">
+      UNDERSTOOD
+    </button>
+  </div>
+</div>
+
 <script>
+  let customAlertFocusElem = null;
+
+  function showCustomAlert(message, title = 'ATTENTION REQUIRED', focusElem = null) {
+    customAlertFocusElem = focusElem;
+    const modal = document.getElementById('custom-alert-modal');
+    const msgElem = document.getElementById('custom-alert-message');
+    const titleElem = document.getElementById('custom-alert-title');
+    if (msgElem) msgElem.textContent = message;
+    if (titleElem) titleElem.textContent = title;
+    if (modal) {
+      document.body.appendChild(modal);
+      document.body.style.overflow = 'hidden';
+      modal.classList.remove('hidden');
+    }
+  }
+
+  function closeCustomAlertModal() {
+    const modal = document.getElementById('custom-alert-modal');
+    if (modal) modal.classList.add('hidden');
+    document.body.style.overflow = '';
+    if (customAlertFocusElem) {
+      try { customAlertFocusElem.focus(); } catch(e) {}
+      customAlertFocusElem = null;
+    }
+  }
+
+  function validateReasonForm(form, selectName, textareaId) {
+    const selectElem = form.elements[selectName];
+    const textareaElem = document.getElementById(textareaId);
+    const selectVal = selectElem ? selectElem.value.trim() : '';
+    const textVal = textareaElem ? textareaElem.value.trim() : '';
+
+    if (!selectVal && !textVal) {
+      showCustomAlert('Please select or specify a reason before submitting your cancellation.', 'REASON REQUIRED', selectElem);
+      return false;
+    }
+    if (selectVal === 'Other' && !textVal) {
+      showCustomAlert('Please describe your cancellation reason in the details text box.', 'DETAILS REQUIRED', textareaElem);
+      return false;
+    }
+    return true;
+  }
+
+  function validateReturnForm(form) {
+    const selectElem = form.elements['return_reason_select'];
+    const textareaElem = document.getElementById('return-order-custom-reason');
+    const selectVal = selectElem ? selectElem.value.trim() : '';
+    const textVal = textareaElem ? textareaElem.value.trim() : '';
+
+    if (!selectVal && !textVal) {
+      showCustomAlert('Please select or specify a reason for your return request.', 'REASON REQUIRED', selectElem);
+      return false;
+    }
+    if (selectVal === 'Other' && !textVal) {
+      showCustomAlert('Please describe your return reason in the details text box.', 'DETAILS REQUIRED', textareaElem);
+      return false;
+    }
+
+    const valLower = selectVal.toLowerCase();
+    if (valLower.includes('defective') || valLower.includes('damaged') || valLower.includes('wrong')) {
+      const fileInput = document.getElementById('return-images-input');
+      if (!fileInput || !fileInput.files || fileInput.files.length === 0) {
+        showCustomAlert('Photo proof is required for defective, damaged, or wrong item return requests.', 'PHOTO PROOF REQUIRED', fileInput);
+        return false;
+      }
+    }
+    return true;
+  }
+
   function openGlobalModal(modalId) {
     const modal = document.getElementById(modalId);
     if (!modal) return;
@@ -703,6 +824,44 @@
     const textarea = document.getElementById(targetTextareaId);
     if (selectElem.value && selectElem.value !== 'Other') {
       textarea.value = selectElem.value;
+    }
+  }
+
+  function handleReturnReasonSelect(selectElem, targetTextareaId) {
+    handleReasonSelectChange(selectElem, targetTextareaId);
+    const photoSection = document.getElementById('return-photo-upload-section');
+    const fileInput = document.getElementById('return-images-input');
+    const val = selectElem.value.toLowerCase();
+    if (val.includes('defective') || val.includes('damaged') || val.includes('wrong')) {
+      if (photoSection) photoSection.classList.remove('hidden');
+      if (fileInput) fileInput.required = true;
+    } else {
+      if (photoSection) photoSection.classList.add('hidden');
+      if (fileInput) fileInput.required = false;
+    }
+  }
+
+  function handleReturnImagesPreview(input) {
+    const container = document.getElementById('return-images-preview');
+    if (!container) return;
+    container.innerHTML = '';
+    
+    if (input.files && input.files.length > 0) {
+      if (input.files.length > 3) {
+        showCustomAlert('You can upload a maximum of 3 proof photos.', 'MAX 3 PHOTOS ALLOWED', input);
+        input.value = '';
+        return;
+      }
+      Array.from(input.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement('img');
+          img.src = e.target.result;
+          img.className = 'w-14 h-14 object-cover rounded border border-gray-300 shadow-xs';
+          container.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+      });
     }
   }
 

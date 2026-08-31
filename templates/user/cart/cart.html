@@ -216,6 +216,13 @@
             <p class="text-[0.66rem] font-bold uppercase tracking-wider text-gray-500">Subtotal</p>
             <p id="summary-subtotal" class="text-[0.82rem] font-black text-brand-dark">₹{{ subtotal|floatformat:2 }}</p>
           </div>
+
+          <!-- Coupon Discount Row -->
+          <div id="cart-discount-row" class="{% if not discount_amount or discount_amount == 0 %}hidden{% endif %} flex justify-between items-center text-[#E8500A]">
+            <p class="text-[0.66rem] font-bold uppercase tracking-wider">Coupon Discount (<span id="cart-applied-code">{{ applied_coupon.code|default:"" }}</span>)</p>
+            <p id="cart-discount-amount" class="text-[0.82rem] font-black">-₹{{ discount_amount|floatformat:2 }}</p>
+          </div>
+
           <div class="flex justify-between items-center">
             <p class="text-[0.66rem] font-bold uppercase tracking-wider text-gray-500">Shipping &amp; Handling</p>
             <p id="summary-shipping" class="text-[0.82rem] font-black {% if subtotal > 0 and shipping_cost == 0 %}text-green-600 uppercase tracking-widest text-[11px]{% else %}text-brand-dark{% endif %}">{% if subtotal > 0 and shipping_cost == 0 %}FREE{% else %}₹{{ shipping_cost|floatformat:2 }}{% endif %}</p>
@@ -231,15 +238,27 @@
         </div>
       </div>
 
-      <!-- Promo Code -->
+      <!-- Promo Code Section -->
       <div class="px-8 py-6 border-b border-gray-200 text-left">
         <p class="text-[0.64rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Promo Code</p>
-        <div class="flex items-center border-b border-gray-300 pb-2.5">
-          <input type="text" placeholder="Enter Code"
-            class="flex-1 text-[0.68rem] font-bold uppercase tracking-wider text-brand-dark outline-none placeholder-gray-300 bg-transparent border-none" />
-          <button
-            class="text-[0.64rem] font-black uppercase tracking-widest text-[#E8500A] hover:text-[#c94008] transition-colors ml-3 border-none bg-transparent cursor-pointer">Apply</button>
+        
+        <!-- Applied Badge (When coupon active) -->
+        <div id="cart-applied-badge" class="{% if not applied_coupon %}hidden{% endif %} bg-emerald-50 border border-emerald-200 p-3 mb-2 flex items-center justify-between">
+          <div>
+            <p class="text-[0.62rem] font-black uppercase tracking-wider text-emerald-950 m-0">Coupon Applied: <span id="cart-active-code" class="font-mono text-emerald-700">{{ applied_coupon.code }}</span></p>
+            <p class="text-[0.55rem] text-emerald-700 font-medium m-0 mt-0.5">Saved ₹<span id="cart-active-discount">{{ discount_amount|floatformat:2 }}</span> on this order</p>
+          </div>
+          <button type="button" onclick="handleCartCouponRemove()" class="text-[0.55rem] font-black uppercase text-red-600 hover:text-red-800 border-none bg-transparent cursor-pointer">Remove</button>
         </div>
+
+        <!-- Input Form (When no coupon active) -->
+        <form id="cart-coupon-form" onsubmit="event.preventDefault(); handleCartCouponApply();" class="{% if applied_coupon %}hidden{% endif %} flex items-center border-b border-gray-300 pb-2.5">
+          <input type="text" id="cart-coupon-input" placeholder="Enter Code (e.g. FLAT500)"
+            class="flex-1 text-[0.68rem] font-bold uppercase tracking-wider text-brand-dark outline-none placeholder-gray-300 bg-transparent border-none" />
+          <button type="submit"
+            class="text-[0.64rem] font-black uppercase tracking-widest text-[#E8500A] hover:text-[#c94008] transition-colors ml-3 border-none bg-transparent cursor-pointer">Apply</button>
+        </form>
+        <p id="cart-coupon-msg" class="text-[0.58rem] font-semibold mt-2 hidden"></p>
       </div>
 
       <!-- Checkout Button -->
@@ -511,6 +530,65 @@
         `;
       }
     }
+  }
+
+  function handleCartCouponApply() {
+    const input = document.getElementById('cart-coupon-input');
+    const msgEl = document.getElementById('cart-coupon-msg');
+    const code = input ? input.value.trim().toUpperCase() : '';
+    if (!code) {
+      if (msgEl) {
+        msgEl.textContent = 'Please enter a promo code.';
+        msgEl.className = 'text-[0.58rem] font-semibold mt-2 text-red-600 block';
+      }
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('coupon_code', code);
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch("{% url 'apply_coupon' %}", {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+      if (data.status === 'success') {
+        if (msgEl) {
+          msgEl.textContent = data.message;
+          msgEl.className = 'text-[0.58rem] font-semibold mt-2 text-emerald-600 block';
+        }
+        setTimeout(() => { window.location.reload(); }, 600);
+      } else {
+        if (msgEl) {
+          msgEl.textContent = data.message;
+          msgEl.className = 'text-[0.58rem] font-semibold mt-2 text-red-600 block';
+        }
+      }
+    })
+    .catch(() => {
+      if (msgEl) {
+        msgEl.textContent = 'Unable to apply promo code. Please try again.';
+        msgEl.className = 'text-[0.58rem] font-semibold mt-2 text-red-600 block';
+      }
+    });
+  }
+
+  function handleCartCouponRemove() {
+    const formData = new FormData();
+    formData.append('csrfmiddlewaretoken', '{{ csrf_token }}');
+
+    fetch("{% url 'remove_coupon' %}", {
+      method: 'POST',
+      headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      body: formData
+    })
+    .then(r => r.json())
+    .then(data => {
+      window.location.reload();
+    });
   }
 
   // Auto-hide top alert messages after 3 seconds

@@ -4,7 +4,11 @@ from django.conf import settings
 from admin_panel.products.models import Product, ProductVariant
 import random
 import string
-
+from datetime import timedelta
+from django.utils import timezone
+from user_panel.returns.models import ReturnRequestImage
+from user_panel.coupons.models import Coupon
+from user_panel.profiles.models import Referral
 
 def generate_order_id():
     """Generates unique Order ID like ZT-99281"""
@@ -22,8 +26,9 @@ class Order(models.Model):
         ('CANCELLED', 'Cancelled'),
         ('RETURN_REQUESTED', 'Return Requested'),
         ('RETURN_APPROVED', 'Return Approved'),
-        ('RETURN_PICKUP', 'Item Picked Up'),
+        ('RETURN_PICKUP', 'Pickup Scheduled'),
         ('RETURNED', 'Returned'),
+        ('RETURN_REJECTED', 'Return Rejected'),
     )
 
     order_id = models.CharField(max_length=50, unique=True, default=generate_order_id)
@@ -46,6 +51,7 @@ class Order(models.Model):
     shipping_cost = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     tax_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
     discount_amount = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal('0.00'))
+    coupon_code = models.CharField(max_length=50, blank=True, null=True)
     total_price = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
     razorpay_order_id = models.CharField(max_length=100, blank=True, null=True)
@@ -75,8 +81,11 @@ class Order(models.Model):
         else:
             new_subtotal = sum((item.item_subtotal for item in active_items), Decimal('0.00'))
             self.subtotal = new_subtotal
-            self.tax_amount = round(new_subtotal * Decimal('0.05'), 2)
-            calc_total = self.subtotal + self.shipping_cost + self.tax_amount - self.discount_amount
+            self.discount_amount = sum((item.discount_amount for item in active_items), Decimal('0.00'))
+
+            discounted_subtotal = max(Decimal('0.00'), self.subtotal - self.discount_amount)
+            self.tax_amount = round(discounted_subtotal * Decimal('0.05'), 2)
+            calc_total = discounted_subtotal + self.shipping_cost + self.tax_amount
             self.total_price = max(Decimal('0.00'), calc_total)
 
             # Recalculate summary order_status based on active items
@@ -116,10 +125,9 @@ class Order(models.Model):
         if self.expected_delivery_date:
             return self.expected_delivery_date
         if self.created_at:
-            from datetime import timedelta
+
             return (self.created_at + timedelta(days=5)).date()
-        from django.utils import timezone
-        from datetime import timedelta
+
         return (timezone.now() + timedelta(days=5)).date()
 
     def __str__(self):
@@ -137,9 +145,11 @@ class OrderItem(models.Model):
     price = models.DecimalField(max_digits=12, decimal_places=2)
     quantity = models.PositiveIntegerField(default=1)
     item_subtotal = models.DecimalField(max_digits=12, decimal_places=2)
+    discount_amount = models.DecimalField(max_digits=12, decimal_places=2, default=Decimal('0.00'))
 
     item_status = models.CharField(max_length=50, choices=ITEM_STATUS_CHOICES, default='CONFIRMED')
     cancel_reason = models.TextField(blank=True, null=True)
+    admin_note = models.TextField(blank=True, null=True)
     expected_delivery_date = models.DateField(blank=True, null=True)
     expected_pickup_date = models.DateField(blank=True, null=True)
 
@@ -174,10 +184,10 @@ class OrderItem(models.Model):
             'CONFIRMED': ['CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
             'PROCESSING': ['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
             'SHIPPED': ['SHIPPED', 'DELIVERED', 'CANCELLED'],
-            'DELIVERED': ['DELIVERED', 'RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_PICKUP', 'RETURNED'],
-            'RETURN_REQUESTED': ['RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_PICKUP', 'RETURNED'],
-            'RETURN_APPROVED': ['RETURN_APPROVED', 'RETURN_PICKUP', 'RETURNED'],
-            'RETURN_PICKUP': ['RETURN_PICKUP', 'RETURNED'],
+            'DELIVERED': ['DELIVERED'],
+            'RETURN_REQUESTED': ['RETURN_REQUESTED'],
+            'RETURN_APPROVED': ['RETURN_APPROVED'],
+            'RETURN_PICKUP': ['RETURN_PICKUP'],
             'RETURNED': ['RETURNED'],
             'CANCELLED': ['CANCELLED'],
         }
@@ -185,7 +195,7 @@ class OrderItem(models.Model):
 
     @property
     def is_terminal(self):
-        return self.item_status in ['DELIVERED', 'CANCELLED', 'RETURNED']
+        return self.item_status in ['CANCELLED', 'RETURNED']
 
     class Meta:
         ordering = ['id']

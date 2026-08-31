@@ -86,7 +86,7 @@
         </a>
 
         <!-- Returns Management -->
-        <a href="{% url 'admin_unimplemented' %}"
+        <a href="{% url 'admin_returns' %}"
           class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
             height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -130,7 +130,7 @@
         </a>
 
         <!-- Coupons -->
-        <a href="{% url 'admin_unimplemented' %}"
+        <a href="{% url 'admin_coupons' %}"
           class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
           <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
             height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -188,153 +188,162 @@
         </a>
       </div>
 
-    </aside>
+    </aside>    <!-- Main Content Area -->
+    <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-[#FDFBF9]">
+      <div class="max-w-7xl mx-auto space-y-8">
 
-    <!-- Main Content Area -->
-    <main class="flex-1 bg-white p-8 flex flex-col justify-between h-full overflow-hidden">
+        <!-- Django Alert Messages -->
+        {% if messages %}
+        <div class="space-y-2">
+          {% for message in messages %}
+          <div class="msg-alert p-4 text-xs font-bold uppercase tracking-wider border flex items-center justify-between rounded-xs transition-all shadow-xs
+                      {% if message.tags == 'success' %}bg-[#DEF7EC] text-[#03543F] border-green-300{% else %}bg-[#FDE8E8] text-[#C53030] border-[#F8B4B4]{% endif %}">
+            <span>{{ message }}</span>
+            <button type="button" onclick="this.parentElement.remove()" class="text-current hover:opacity-75 font-bold cursor-pointer">&times;</button>
+          </div>
+          {% endfor %}
+        </div>
+        {% endif %}
 
-
-
-      <!-- Top Action Bar (Refined Layout) -->
-      <div class="shrink-0">
-        <div class="flex items-center justify-between mb-8 pb-5 border-b border-[#e8e8e8]">
-          <div class="flex items-center gap-6">
-            <div class="flex items-center gap-3">
-              <span class="w-2.5 h-2.5 bg-[#A33C08] inline-block"></span>
-              <h2 class="text-[0.95rem] font-black tracking-[0.2em] uppercase text-[#1A1A1A] leading-none">USER DATABASE
-              </h2>
-
-            </div>
-
-            <!-- Filter & Sort Dropdown Form -->
-            <div class="flex items-center gap-4.5">
-
-              <!-- Filter Dropdown -->
-              <div class="relative">
-                <select id="filterSelect" onchange="applyFiltersAndSort()"
-                  class="appearance-none bg-[#fcfbfa] border border-[#dcdcdc] px-5 py-2 pr-10 text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all duration-200 cursor-pointer rounded-none focus:outline-none">
-                  <option value="All Users" {% if filter_all or not filter_val %}selected{% endif %}>Filter
-                  </option>
-                  <option value="All Users" {% if filter_all %}selected{% endif %}>All Users</option>
-                  <option value="Active Accounts" {% if filter_active %}selected{% endif %}>Active
-                    Accounts</option>
-                  <option value="Blocked Accounts" {% if filter_blocked %}selected{% endif %}>Blocked
-                    Accounts</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
-                  <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-
-              <!-- Sort Dropdown -->
-              <div class="relative">
-                <select id="sortSelect" onchange="applyFiltersAndSort()"
-                  class="appearance-none bg-[#fcfbfa] border border-[#dcdcdc] px-5 py-2 pr-10 text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all duration-200 cursor-pointer rounded-none focus:outline-none">
-                  <option value="Latest First" {% if sort_latest or not sort_val %}selected{% endif %}>Sort
-                    By</option>
-                  <option value="Latest First" {% if sort_latest %}selected{% endif %}>Latest First
-                  </option>
-                  <option value="Oldest First" {% if sort_oldest %}selected{% endif %}>Oldest First
-                  </option>
-                  <option value="Name (A-Z)" {% if sort_name_az %}selected{% endif %}>Name (A-Z)</option>
-                  <option value="Name (Z-A)" {% if sort_name_za %}selected{% endif %}>Name (Z-A)</option>
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-gray-400">
-                  <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                    stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                  </svg>
-                </div>
-              </div>
-
-            </div>
+        <!-- PAGE HEADER: TITLE + FILTER/SORT BUTTONS -->
+        <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE3DC] shrink-0">
+          <div>
+            <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight text-[#1A1A1A] m-0 leading-none">USER DATABASE</h1>
+            <div class="w-16 h-1 bg-[#A33C08] mt-3"></div>
           </div>
 
-          <!-- Search Bar -->
-          <div class="flex items-center gap-2">
-            <div class="relative w-[280px]">
-              <span class="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none text-gray-400">
-                <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                  stroke-width="2.2">
-                  <path stroke-linecap="round" stroke-linejoin="round"
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-              </span>
+          <!-- Action Control Buttons (FILTER + SORT) -->
+          <div class="flex items-center gap-3">
+            <!-- Toggle Filter Button -->
+            <button type="button" onclick="toggleFilterPanel()" class="px-5 py-2.5 bg-white border border-[#D5C9BE] text-[#332A24] text-[0.6rem] font-bold uppercase tracking-[0.16em] hover:border-[#A33C08] hover:text-[#A33C08] transition-colors cursor-pointer flex items-center gap-2 shadow-xs">
+              <svg class="w-3.5 h-3.5 text-[#332A24]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+              </svg>
+              <span>FILTER</span>
+            </button>
 
-              <input type="text" id="searchInput" value="{{ search_query|default:'' }}" placeholder="SEARCH"
-                class="w-full bg-[#fcfbfa] border border-[#1a1a1a] py-2 pl-10 pr-10 text-[0.68rem] font-bold tracking-wide uppercase placeholder-gray-400 rounded-none focus:outline-none focus:border-brand-dark transition-all duration-200" />
-
-              <!-- Cancel / Clear button -->
-              <span id="searchClearBtn" onclick="clearSearch()"
-                class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-red-600 transition-colors cursor-pointer {% if not search_query %}hidden{% endif %}"
-                title="Clear Search">
-                <svg class="w-4 h-4" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                  stroke-width="2.5">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </span>
+            <!-- Sort Button Form -->
+            <div class="relative">
+              <select id="sortSelect" onchange="applyFiltersAndSort()" class="appearance-none bg-[#A33C08] text-white px-6 py-2.5 pr-8 text-[0.6rem] font-black uppercase tracking-[0.16em] cursor-pointer outline-none border-none hover:bg-black transition-colors shadow-xs">
+                <option value="Latest First" {% if sort_latest or not sort_val %}selected{% endif %}>SORT BY: LATEST</option>
+                <option value="Oldest First" {% if sort_oldest %}selected{% endif %}>SORT BY: OLDEST</option>
+                <option value="Name (A-Z)" {% if sort_name_az %}selected{% endif %}>SORT BY: NAME (A-Z)</option>
+                <option value="Name (Z-A)" {% if sort_name_za %}selected{% endif %}>SORT BY: NAME (Z-A)</option>
+              </select>
+              <svg class="w-3 h-3 text-white absolute right-3 top-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
             </div>
           </div>
         </div>
-      </div>      <!-- Table Container -->
-      <div class="bg-white border border-[#EAE3DC] shadow-xs overflow-hidden flex flex-col flex-1 min-h-0">
-        <div class="overflow-x-auto overflow-y-auto flex-1 min-h-0">
-          <table class="w-full text-left border-collapse min-w-[700px]">
+
+        <!-- EXPANDABLE SEARCH & STATUS FILTER PANEL -->
+        <div id="filter-panel" class="{% if not search_query and filter_val == 'All Users' %}hidden{% endif %} bg-white border border-[#EAE3DC] p-5 shadow-xs transition-all shrink-0">
+          <div class="flex flex-col gap-4">
+            
+            <!-- Search Bar with Integrated Search Button -->
+            <div class="flex items-center gap-2">
+              <div class="relative flex-1">
+                <input type="text" id="searchInput" value="{{ search_query|default:'' }}" placeholder="SEARCH BY NAME, EMAIL, OR MOBILE..."
+                       class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2.5 pl-10 pr-4 text-xs font-sans uppercase text-[#1A1A1A] placeholder-gray-400 outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+                <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                </svg>
+              </div>
+              <button type="button" onclick="applyFiltersAndSort()" class="bg-[#1A1A1A] text-white px-6 py-2.5 text-[0.6rem] font-black uppercase tracking-wider hover:bg-[#A33C08] transition-colors cursor-pointer border-none shadow-xs shrink-0">
+                SEARCH
+              </button>
+            </div>
+
+            <!-- Status Code Quick Filters & Reset -->
+            <div class="flex flex-wrap items-center justify-between gap-3 pt-3 border-t border-[#F2EBE4]">
+              <div class="flex flex-wrap items-center gap-1.5 text-[0.55rem] font-bold uppercase tracking-wider">
+                <span class="text-gray-400 mr-2">ACCOUNT STATUS:</span>
+                
+                <a href="?filter=All Users{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_val %}&sort={{ sort_val }}{% endif %}"
+                   class="px-3 py-1.5 border transition-all no-underline {% if filter_all or not filter_val %}bg-[#A33C08] text-white border-[#A33C08]{% else %}bg-[#FAF6F3] text-gray-600 border-[#E0D5C9] hover:border-[#A33C08] hover:text-[#A33C08]{% endif %}">
+                  ALL USERS
+                </a>
+                <a href="?filter=Active Accounts{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_val %}&sort={{ sort_val }}{% endif %}"
+                   class="px-3 py-1.5 border transition-all no-underline {% if filter_active %}bg-[#A33C08] text-white border-[#A33C08]{% else %}bg-[#FAF6F3] text-gray-600 border-[#E0D5C9] hover:border-[#A33C08] hover:text-[#A33C08]{% endif %}">
+                  ACTIVE ACCOUNTS
+                </a>
+                <a href="?filter=Blocked Accounts{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_val %}&sort={{ sort_val }}{% endif %}"
+                   class="px-3 py-1.5 border transition-all no-underline {% if filter_blocked %}bg-[#A33C08] text-white border-[#A33C08]{% else %}bg-[#FAF6F3] text-gray-600 border-[#E0D5C9] hover:border-[#A33C08] hover:text-[#A33C08]{% endif %}">
+                  BLOCKED ACCOUNTS
+                </a>
+              </div>
+
+              {% if search_query or filter_val != 'All Users' %}
+              <div>
+                <a href="{% url 'admin_users' %}" class="px-4 py-1.5 bg-[#FDEEE9] text-[#A33C08] border border-[#F5D5C8] text-[0.58rem] font-bold uppercase tracking-wider hover:bg-[#A33C08] hover:text-white transition-colors no-underline inline-flex items-center gap-1">
+                  <span>&times; RESET ALL FILTERS</span>
+                </a>
+              </div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Main Clean Users Table Container -->
+        <div class="overflow-x-auto border border-[#EAE3DC] bg-white rounded-xs shadow-xs">
+          <table class="w-full text-left border-collapse min-w-[950px] table-fixed">
+            
+            <!-- Sticky Table Header with Standardized Alignments -->
             <thead class="sticky top-0 z-10 bg-[#F7EFE9] shadow-xs">
               <tr class="border-b border-[#E8DDD5] text-xs font-bold uppercase tracking-wider text-[#4A3E37]">
-                <th class="py-3.5 px-5 text-center w-[80px]" style="vertical-align: middle;">S.NO</th>
-                <th class="py-3.5 px-5 text-left" style="vertical-align: middle;">NAME</th>
-                <th class="py-3.5 px-5 text-center" style="vertical-align: middle;">EMAIL</th>
-                <th class="py-3.5 px-5 text-center" style="vertical-align: middle;">MOBILE NUMBER</th>
-                <th class="py-3.5 px-5 text-center w-[120px]" style="vertical-align: middle;">ACTION</th>
+                <th class="py-3.5 px-5 text-center w-[8%]" style="vertical-align: middle;">S.NO</th>
+                <th class="py-3.5 px-5 text-left w-[26%]" style="vertical-align: middle;">NAME</th>
+                <th class="py-3.5 px-5 text-left w-[28%]" style="vertical-align: middle;">EMAIL</th>
+                <th class="py-3.5 px-5 text-center w-[16%]" style="vertical-align: middle;">MOBILE NUMBER</th>
+                <th class="py-3.5 px-5 text-center w-[12%]" style="vertical-align: middle;">STATUS</th>
+                <th class="py-3.5 px-5 text-center w-[10%]" style="vertical-align: middle;">ACTION</th>
               </tr>
             </thead>
             <tbody class="divide-y divide-[#EFE8E1] text-xs font-sans text-[#2C241E]">
 
               {% for user in users %}
-              <tr class="user-row hover:bg-[#FAF6F3] transition-colors" data-id="{{ user.id }}"
+              <tr class="user-row hover:bg-[#FAF6F3] transition-colors border-b border-[#EAE3DC]" data-id="{{ user.id }}"
                 data-name="{{ user.name }}" data-email="{{ user.email }}" data-mobile="{{ user.mobile }}"
                 data-blocked="{{ user.blocked|yesno:'true,false' }}">
                 <!-- S.NO -->
-                <td class="s-no-cell py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] align-middle">
-                  {{ user.s_no }}
+                <td class="s-no-cell py-3.5 px-5 text-center text-xs font-sans font-bold text-[#A33C08] align-middle w-[8%]">
+                  #{{ user.s_no }}
                 </td>
 
                 <!-- NAME -->
-                <td class="py-3.5 px-5 text-left align-middle">
+                <td class="py-3.5 px-5 text-left align-middle w-[26%]">
                   <div class="flex items-center gap-3.5">
                     <img src="{{ user.avatar }}" alt="{{ user.name }}"
-                      class="w-10 h-10 rounded-full object-cover object-center border border-[#E0D5C9] shrink-0" />
-                    <div class="min-w-[120px] name-container">
-                      <span class="user-name-text text-xs font-bold text-[#1A1A1A] uppercase tracking-wide leading-none">
-                        {{ user.name }}
-                      </span>
-                    </div>
-                    <div class="badge-container shrink-0">
-                      {% if user.blocked %}
-                      <span class="status-badge w-[64px] py-1 text-[0.48rem] font-black uppercase tracking-wider rounded-xs border bg-[#FDE8E8] text-[#C53030] border-[#F8B4B4] inline-flex items-center justify-center leading-none text-center">BLOCKED</span>
-                      {% else %}
-                      <span class="status-badge w-[64px] py-1 text-[0.48rem] font-black uppercase tracking-wider rounded-xs border bg-[#DEF7EC] text-[#03543F] border-green-300 inline-flex items-center justify-center leading-none text-center">ACTIVE</span>
-                      {% endif %}
-                    </div>
+                      class="w-9 h-9 rounded-full object-cover object-center border border-[#E0D5C9] shrink-0" />
+                    <span class="user-name-text text-xs font-bold text-[#1A1A1A] uppercase tracking-wide leading-snug truncate" title="{{ user.name }}">
+                      {{ user.name }}
+                    </span>
                   </div>
                 </td>
 
                 <!-- EMAIL -->
-                <td class="py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] align-middle">
+                <td class="py-3.5 px-5 text-left text-xs font-sans font-bold text-[#1A1A1A] align-middle w-[28%] truncate" title="{{ user.email }}">
                   {{ user.email }}
                 </td>
 
                 <!-- MOBILE NUMBER -->
-                <td class="py-3.5 px-5 text-center text-xs font-mono font-bold text-[#A33C08] align-middle">
+                <td class="py-3.5 px-5 text-center text-xs font-sans font-bold text-[#1A1A1A] align-middle w-[16%]">
                   {{ user.mobile }}
                 </td>
 
+                <!-- STATUS -->
+                <td class="py-3.5 px-5 text-center align-middle whitespace-nowrap w-[12%]">
+                  {% if user.blocked %}
+                  <span class="status-badge w-[72px] py-1 text-[0.55rem] font-bold uppercase tracking-wider rounded-xs border bg-[#FDE8E8] text-[#C53030] border-[#F8B4B4] inline-flex items-center justify-center leading-none text-center mx-auto">BLOCKED</span>
+                  {% else %}
+                  <span class="status-badge w-[72px] py-1 text-[0.55rem] font-bold uppercase tracking-wider rounded-xs border bg-[#DEF7EC] text-[#03543F] border-green-300 inline-flex items-center justify-center leading-none text-center mx-auto">ACTIVE</span>
+                  {% endif %}
+                </td>
+
                 <!-- ACTION -->
-                <td class="py-3.5 px-5 text-center align-middle">
+                <td class="py-3.5 px-5 text-center align-middle w-[10%]">
                   <div class="flex items-center justify-center">
                     <!-- Block/Unblock Action -->
                     <form id="toggle-form-{{ user.id }}" method="POST" action="{% url 'admin_toggle_block' user.id %}" class="inline">
@@ -342,17 +351,17 @@
                       <button
                         type="button"
                         onclick="confirmBlockToggle('{{ user.id }}', '{{ user.name }}', '{{ user.blocked }}' === 'True')"
-                        class="w-7 h-7 rounded-full border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors inline-flex items-center justify-center cursor-pointer border-none bg-transparent"
+                        class="w-8 h-8 rounded-full border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors inline-flex items-center justify-center cursor-pointer border-none bg-transparent"
                         title="{% if user.blocked %}Unblock User{% else %}Block User{% endif %}">
                         {% if user.blocked %}
                         <!-- Closed Red Lock Icon -->
-                        <svg class="w-3.5 h-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                           <path d="M7 11V7a5 5 0 0110 0v4" />
                         </svg>
                         {% else %}
                         <!-- Open Gray Lock Icon -->
-                        <svg class="w-3.5 h-3.5 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <svg class="w-4 h-4 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                           <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
                           <path d="M7 11V7a5 5 0 019.9-1" />
                         </svg>
@@ -364,7 +373,7 @@
               </tr>
               {% empty %}
               <tr>
-                <td colspan="5" class="py-16 text-center text-gray-400">
+                <td colspan="6" class="py-16 text-center text-gray-400">
                   <svg class="w-10 h-10 mx-auto text-gray-300 mb-3" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z"/>
                   </svg>
@@ -372,64 +381,47 @@
                 </td>
               </tr>
               {% endfor %}
-              <!-- Empty state row for client-side search (hidden by default) -->
-              <tr id="emptySearchRow" class="hidden">
-                <td colspan="5" class="py-16 text-center text-gray-400">
-                  <p class="text-xs font-bold uppercase tracking-wider text-[#4A3E37] m-0">NO USERS MATCH THE QUERY</p>
-                </td>
-              </tr>
 
             </tbody>
           </table>
-        </div>
 
-        <!-- Footer Action Row (Pagination) -->
-        <div class="bg-[#FAF6F3] border-t-2 border-[#A33C08] px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-4 w-full shrink-0 mt-auto z-20">
-
-          <!-- Left Info Text -->
-          <div class="text-xs font-bold uppercase tracking-wider text-[#1A1A1A] font-sans">
-            SHOWING {{ page_obj.start_index|default:0 }}–{{ page_obj.end_index|default:0 }} OF {{ page_obj.paginator.count }} USERS
-          </div>
-
-          <!-- Paginator Buttons -->
-          <div class="flex items-center gap-1.5">
-            {% if page_obj.has_previous %}
-            <a href="?page={{ page_obj.previous_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}"
-               class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
-              PREV
-            </a>
-            {% else %}
-            <span class="px-3.5 py-1.5 bg-[#FAF4EF] border border-[#E2D6CB] text-gray-300 text-xs font-bold select-none cursor-not-allowed">PREV</span>
-            {% endif %}
-
+          <!-- Footer Action Row (Pagination) -->
+          {% if page_obj.has_other_pages %}
+          <div class="px-6 py-4 border-t border-[#EAE3DC] bg-[#FAF6F3] flex flex-wrap items-center justify-between gap-4">
+            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
+              SHOWING <span class="text-[#1A1A1A] font-black">{{ page_obj.start_index }}</span> TO <span class="text-[#1A1A1A] font-black">{{ page_obj.end_index }}</span> OF <span class="text-[#1A1A1A] font-black">{{ page_obj.paginator.count }}</span> USERS
+            </span>
+            
             <div class="flex items-center gap-1.5">
-              {% for num in page_obj.paginator.page_range %}
-              {% if page_obj.number == num %}
-              <span class="w-8 h-8 flex items-center justify-center bg-[#A33C08] border border-[#A33C08] text-white text-xs font-black shadow-xs">
-                {{ num }}
-              </span>
-              {% elif num > page_obj.number|add:"-3" and num < page_obj.number|add:"3" %}
-              <a href="?page={{ num }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}"
-                 class="w-8 h-8 flex items-center justify-center bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
-                {{ num }}
+              {% if page_obj.has_previous %}
+              <a href="?page={{ page_obj.previous_page_number }}&filter={{ filter_val }}&search={{ search_query }}&sort={{ sort_val }}"
+                 class="px-3 py-1.5 border border-[#E0D5C9] bg-white text-[#1A1A1A] hover:bg-[#A33C08] hover:text-white transition-colors text-xs font-bold uppercase no-underline rounded-xs">
+                &laquo; PREV
               </a>
               {% endif %}
-              {% endfor %}
-            </div>
 
-            {% if page_obj.has_next %}
-            <a href="?page={{ page_obj.next_page_number }}&search={{ search_query }}&filter={{ filter_val }}&sort={{ sort_val }}"
-               class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
-              NEXT
-            </a>
-            {% else %}
-            <span class="px-3.5 py-1.5 bg-[#FAF4EF] border border-[#E2D6CB] text-gray-300 text-xs font-bold select-none cursor-not-allowed">NEXT</span>
-            {% endif %}
+              {% for p in page_obj.paginator.page_range %}
+                {% if page_obj.number == p %}
+                <span class="px-3 py-1.5 bg-[#A33C08] text-white text-xs font-black rounded-xs">{{ p }}</span>
+                {% else %}
+                <a href="?page={{ p }}&filter={{ filter_val }}&search={{ search_query }}&sort={{ sort_val }}"
+                   class="px-3 py-1.5 border border-[#E0D5C9] bg-white text-[#1A1A1A] hover:bg-[#A33C08] hover:text-white transition-colors text-xs font-bold no-underline rounded-xs">{{ p }}</a>
+                {% endif %}
+              {% endfor %}
+
+              {% if page_obj.has_next %}
+              <a href="?page={{ page_obj.next_page_number }}&filter={{ filter_val }}&search={{ search_query }}&sort={{ sort_val }}"
+                 class="px-3 py-1.5 border border-[#E0D5C9] bg-white text-[#1A1A1A] hover:bg-[#A33C08] hover:text-white transition-colors text-xs font-bold uppercase no-underline rounded-xs">
+                NEXT &raquo;
+              </a>
+              {% endif %}
+            </div>
           </div>
+          {% endif %}
+
         </div>
 
       </div>
-
     </main>
 
   </div>
@@ -579,16 +571,34 @@
     pendingBlockedState = null;
   }
 
+  function toggleFilterPanel() {
+    const panel = document.getElementById('filter-panel');
+    if (panel) {
+      const isHidden = panel.classList.contains('hidden');
+      if (isHidden) {
+        panel.classList.remove('hidden');
+        localStorage.setItem('admin_users_filter_open', 'true');
+      } else {
+        panel.classList.add('hidden');
+        localStorage.setItem('admin_users_filter_open', 'false');
+      }
+    }
+  }
+
   function applyFiltersAndSort() {
-    const filterVal = document.getElementById('filterSelect').value;
-    const sortVal = document.getElementById('sortSelect').value;
-    const searchVal = document.getElementById('searchInput').value.trim();
+    const filterSelect = document.getElementById('filterSelect');
+    const sortSelect = document.getElementById('sortSelect');
+    const searchInput = document.getElementById('searchInput');
+
+    const filterVal = filterSelect ? filterSelect.value : '{{ filter_val }}';
+    const sortVal = sortSelect ? sortSelect.value : '{{ sort_val }}';
+    const searchVal = searchInput ? searchInput.value.trim() : '';
 
     const url = new URL(window.location.href);
-    url.searchParams.set('filter', filterVal);
-    url.searchParams.set('sort', sortVal);
-    url.searchParams.set('search', searchVal);
-    url.searchParams.set('page', '1'); // Reset to page 1 on filter/search change
+    if (filterVal) url.searchParams.set('filter', filterVal);
+    if (sortVal) url.searchParams.set('sort', sortVal);
+    if (searchVal) url.searchParams.set('search', searchVal); else url.searchParams.delete('search');
+    url.searchParams.set('page', '1');
     window.location.href = url.pathname + url.search;
   }
 
@@ -598,8 +608,17 @@
   }
 
 
-  // Submit search on Enter keypress
+  // Submit search on Enter keypress & restore filter panel state
   document.addEventListener('DOMContentLoaded', () => {
+    const panel = document.getElementById('filter-panel');
+    const filterState = localStorage.getItem('admin_users_filter_open');
+    if (panel && filterState !== null) {
+      if (filterState === 'true') {
+        panel.classList.remove('hidden');
+      } else if (filterState === 'false') {
+        panel.classList.add('hidden');
+      }
+    }
     const searchInput = document.getElementById('searchInput');
     if (searchInput) {
       searchInput.addEventListener('keypress', function (e) {

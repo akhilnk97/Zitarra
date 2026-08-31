@@ -1,0 +1,248 @@
+{% extends 'admin_panel/base.html' %}
+{% load static %}
+
+{% block title %}Wallet Management | Zitarra Admin{% endblock %}
+{% block page_title %}Wallet Management{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+  <!-- TOP METRICS ROW -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+    <div class="bg-white p-6 border border-gray-200 shadow-sm">
+      <p class="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-gray-400">TOTAL SYSTEM WALLETS</p>
+      <p class="text-3xl font-black text-brand-dark mt-2 font-mono">{{ total_wallets_count }}</p>
+    </div>
+
+    <div class="bg-[#E8500A] text-white p-6 border border-[#E8500A] shadow-sm">
+      <p class="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-white/80">TOTAL WALLET LIABILITY</p>
+      <p class="text-3xl font-black text-white mt-2 font-mono">₹{{ total_wallet_balance|floatformat:2 }}</p>
+    </div>
+
+    <div class="bg-white p-6 border border-gray-200 shadow-sm flex flex-col justify-between">
+      <div>
+        <p class="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-gray-400">MANUAL ADJUSTMENT</p>
+        <p class="text-xs text-gray-500 font-mono mt-1">Select a customer below to credit/debit wallet</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CUSTOMER WALLETS OVERVIEW TABLE -->
+  <div class="bg-white border border-gray-200 shadow-sm p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4 mb-6">
+      <h3 class="text-sm font-black tracking-wider uppercase text-brand-dark">CUSTOMER WALLET BALANCES</h3>
+
+      <!-- SEARCH FORM -->
+      <form method="GET" class="flex gap-2">
+        <input type="text" name="search" value="{{ search_q }}" placeholder="Search by name, email, phone..."
+               class="border border-gray-300 px-3 py-1.5 text-xs font-mono focus:border-brand-dark focus:outline-none w-64">
+        <button type="submit" class="bg-brand-dark text-white px-4 py-1.5 text-xs font-bold uppercase tracking-wider hover:bg-black">
+          SEARCH
+        </button>
+      </form>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-gray-200 text-[0.6rem] font-bold tracking-widest text-gray-400 uppercase">
+            <th class="py-3 px-4">CUSTOMER</th>
+            <th class="py-3 px-4">EMAIL</th>
+            <th class="py-3 px-4">PHONE</th>
+            <th class="py-3 px-4">BALANCE</th>
+            <th class="py-3 px-4 text-right">ACTIONS</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 text-xs font-mono">
+          {% for w in wallets %}
+          <tr class="hover:bg-gray-50/80 transition-colors">
+            <td class="py-4 px-4 font-sans font-bold text-brand-dark">
+              {{ w.user.fullname|default:w.user.username }}
+            </td>
+            <td class="py-4 px-4 text-gray-600">
+              {{ w.user.email }}
+            </td>
+            <td class="py-4 px-4 text-gray-600">
+              {{ w.user.mobile_number|default:"N/A" }}
+            </td>
+            <td class="py-4 px-4 font-bold text-brand-dark">
+              ₹{{ w.balance|floatformat:2 }}
+            </td>
+            <td class="py-4 px-4 text-right font-sans">
+              <button onclick="openAdjustModal('{{ w.id }}', '{{ w.user.email }}', '{{ w.balance }}')"
+                      class="bg-brand-dark text-white px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider hover:bg-black transition-colors">
+                MANAGE BALANCE
+              </button>
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="5" class="py-8 text-center text-gray-400 font-sans text-xs">
+              No customer wallets found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- PLATFORM TRANSACTION LEDGER TABLE -->
+  <div class="bg-white border border-gray-200 shadow-sm p-6">
+    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-200 pb-4 mb-6">
+      <h3 class="text-sm font-black tracking-wider uppercase text-brand-dark">WALLET TRANSACTION LEDGER</h3>
+
+      <div class="flex items-center gap-2">
+        <a href="{% url 'admin_wallet' %}"
+           class="px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider border no-underline {% if not filter_type %}bg-brand-dark text-white border-brand-dark{% else %}bg-gray-50 text-gray-600 border-gray-300{% endif %}">
+          ALL
+        </a>
+        <a href="{% url 'admin_wallet' %}?type=CREDIT"
+           class="px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider border no-underline {% if filter_type == 'CREDIT' %}bg-[#E8500A] text-white border-[#E8500A]{% else %}bg-gray-50 text-gray-600 border-gray-300{% endif %}">
+          CREDITS
+        </a>
+        <a href="{% url 'admin_wallet' %}?type=DEBIT"
+           class="px-3 py-1 text-[0.65rem] font-bold uppercase tracking-wider border no-underline {% if filter_type == 'DEBIT' %}bg-brand-dark text-white border-brand-dark{% else %}bg-gray-50 text-gray-600 border-gray-300{% endif %}">
+          DEBITS
+        </a>
+      </div>
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-gray-200 text-[0.6rem] font-bold tracking-widest text-gray-400 uppercase">
+            <th class="py-3 px-4">CODE</th>
+            <th class="py-3 px-4">CUSTOMER</th>
+            <th class="py-3 px-4">PURPOSE</th>
+            <th class="py-3 px-4">DESCRIPTION</th>
+            <th class="py-3 px-4">TIMESTAMP</th>
+            <th class="py-3 px-4 text-right">AMOUNT</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-gray-100 text-xs font-mono">
+          {% for trx in transactions %}
+          <tr class="hover:bg-gray-50/80 transition-colors">
+            <td class="py-3 px-4 font-bold text-gray-700">
+              {{ trx.transaction_code }}
+            </td>
+            <td class="py-3 px-4 font-sans font-bold text-brand-dark">
+              {{ trx.wallet.user.email }}
+            </td>
+            <td class="py-3 px-4">
+              <span class="px-2 py-0.5 text-[0.6rem] font-bold uppercase tracking-wider border {% if trx.transaction_type == 'CREDIT' %}bg-green-50 text-green-700 border-green-200{% else %}bg-gray-100 text-gray-700 border-gray-300{% endif %}">
+                {{ trx.get_purpose_display }}
+              </span>
+            </td>
+            <td class="py-3 px-4 font-sans text-gray-600">
+              {{ trx.description|default:"—" }}
+              {% if trx.order %}
+              <span class="font-mono text-[0.7rem] text-[#E8500A]">({{ trx.order.order_id }})</span>
+              {% endif %}
+            </td>
+            <td class="py-3 px-4 text-gray-500 text-[0.7rem]">
+              {{ trx.created_at|date:"Y-m-d H:i" }}
+            </td>
+            <td class="py-3 px-4 text-right font-bold">
+              {% if trx.transaction_type == 'CREDIT' %}
+              <span class="text-[#E8500A]">+₹{{ trx.amount|floatformat:2 }}</span>
+              {% else %}
+              <span class="text-gray-900">-₹{{ trx.amount|floatformat:2 }}</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% empty %}
+          <tr>
+            <td colspan="6" class="py-8 text-center text-gray-400 font-sans text-xs">
+              No wallet transactions found.
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if page_obj.has_other_pages %}
+    <div class="pt-4 border-t border-gray-100 flex items-center justify-between mt-4">
+      <span class="text-xs text-gray-500 font-mono">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      <div class="flex gap-2">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}"
+           class="px-3 py-1 border border-gray-300 text-xs font-bold uppercase no-underline hover:bg-gray-100">
+          PREVIOUS
+        </a>
+        {% endif %}
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if filter_type %}&type={{ filter_type }}{% endif %}"
+           class="px-3 py-1 border border-gray-300 text-xs font-bold uppercase no-underline hover:bg-gray-100">
+          NEXT
+        </a>
+        {% endif %}
+      </div>
+    </div>
+    {% endif %}
+  </div>
+
+</div>
+
+<!-- ADMIN WALLET ADJUSTMENT MODAL -->
+<div id="adminAdjustModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-50 flex items-center justify-center hidden p-4">
+  <div class="bg-white max-w-md w-full p-6 border border-brand-dark shadow-2xl relative">
+    <button onclick="document.getElementById('adminAdjustModal').classList.add('hidden')"
+            class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark text-xl font-bold">
+      &times;
+    </button>
+
+    <h3 class="text-base font-black tracking-wider uppercase text-brand-dark mb-1">MANAGE USER WALLET</h3>
+    <p id="modalUserEmail" class="text-xs text-gray-500 font-mono mb-4"></p>
+
+    <form id="adjustForm" method="POST" action="">
+      {% csrf_token %}
+      <div class="space-y-4">
+        <div>
+          <label class="block text-[0.6rem] font-bold tracking-widest text-gray-400 uppercase mb-1">ACTION</label>
+          <select name="action" class="w-full border border-gray-300 px-3 py-2 text-xs font-bold font-mono focus:border-brand-dark focus:outline-none">
+            <option value="credit">CREDIT (+) TO WALLET</option>
+            <option value="debit">DEBIT (-) FROM WALLET</option>
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[0.6rem] font-bold tracking-widest text-gray-400 uppercase mb-1">AMOUNT (₹)</label>
+          <input type="number" step="0.01" min="1" name="amount" required placeholder="500.00"
+                 class="w-full border border-gray-300 px-3 py-2 text-xs font-mono focus:border-brand-dark focus:outline-none">
+        </div>
+
+        <div>
+          <label class="block text-[0.6rem] font-bold tracking-widest text-gray-400 uppercase mb-1">REASON / AUDIT NOTE</label>
+          <input type="text" name="reason" placeholder="Refund adjustment / Promotional credit..."
+                 class="w-full border border-gray-300 px-3 py-2 text-xs font-sans focus:border-brand-dark focus:outline-none">
+        </div>
+      </div>
+
+      <div class="flex gap-3 mt-6">
+        <button type="button" onclick="document.getElementById('adminAdjustModal').classList.add('hidden')"
+                class="w-1/2 border border-gray-300 py-2.5 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50">
+          CANCEL
+        </button>
+        <button type="submit"
+                class="w-1/2 bg-brand-dark text-white py-2.5 text-xs font-black uppercase tracking-wider hover:bg-black transition-colors">
+          CONFIRM ADJUSTMENT
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function openAdjustModal(walletId, userEmail, currentBalance) {
+  const modal = document.getElementById('adminAdjustModal');
+  const modalUserEmail = document.getElementById('modalUserEmail');
+  const adjustForm = document.getElementById('adjustForm');
+
+  modalUserEmail.innerText = userEmail + " (Current Balance: ₹" + parseFloat(currentBalance).toFixed(2) + ")";
+  adjustForm.action = "/admin-panel/wallet/" + walletId + "/adjust/";
+  modal.classList.remove('hidden');
+}
+</script>
+{% endblock %}

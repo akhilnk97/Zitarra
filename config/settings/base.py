@@ -31,13 +31,18 @@ INSTALLED_APPS = [
     'user_panel.cart',
     'user_panel.wishlist',
     'user_panel.orders',
+    'user_panel.coupons.apps.UserCouponsConfig',
+    'user_panel.returns.apps.UserReturnsConfig',
+    'user_panel.wallet.apps.UserWalletConfig',
 
     'admin_panel.authentication',
     'admin_panel.dashboard',
     'admin_panel.users',
     'admin_panel.category',
     'admin_panel.products',
+    'admin_panel.coupons.apps.AdminCouponsConfig',
     'admin_panel.orders.apps.AdminOrdersConfig',
+    'admin_panel.returns.apps.AdminReturnsConfig',
 ]
 
 MIDDLEWARE = [
@@ -163,16 +168,21 @@ SESSION_SAVE_EVERY_REQUEST = True
 LOGGING = {
     "version": 1,
     "disable_existing_loggers": False,
+    "formatters": {
+        "verbose": {
+            "format": "[%(asctime)s] [%(levelname)s] [%(name)s] %(message)s",
+            "datefmt": "%Y-%m-%d %H:%M:%S",
+        },
+    },
     "handlers": {
         "console": {
             "class": "logging.StreamHandler",
+            "formatter": "verbose",
         },
     },
-    "loggers": {
-        "allauth": {
-            "handlers": ["console"],
-            "level": "DEBUG",
-        },
+    "root": {
+        "handlers": ["console"],
+        "level": "INFO",
     },
 }
 
@@ -182,4 +192,8 @@ SECURE_CROSS_ORIGIN_OPENER_POLICY = 'same-origin-allow-popups'
 # Razorpay Credentials
 RAZORPAY_KEY_ID = os.getenv('RAZORPAY_KEY_ID', '')
 RAZORPAY_KEY_SECRET = os.getenv('RAZORPAY_KEY_SECRET', '')
+
+# File & Data Upload Limits (25 MB)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 MB (prevents RequestDataTooBig on large image/base64 uploads)
+FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25 MB
 

@@ -7,6 +7,9 @@ from .models import Cart, CartItem
 from admin_panel.products.models import Product, ProductVariant
 from user_panel.wishlist.models import WishlistItem
 from common.services import calculate_order_totals, is_ajax
+from decimal import Decimal
+from user_panel.orders.models import Coupon
+from user_panel.wishlist.models import Wishlist, WishlistItem
 
 
 @user_member_required
@@ -16,13 +19,31 @@ def cart_view(request):
     has_out_of_stock = any(item.is_available and item.stock == 0 for item in items)
     has_unavailable = any(not item.is_available for item in items)
     subtotal = cart.get_subtotal()
-    shipping_cost, tax_amount, total_price = calculate_order_totals(subtotal)
+    applied_coupon_code = request.session.get('applied_coupon')
+    discount_amount = Decimal('0.00')
+    applied_coupon = None
+
+    if applied_coupon_code:
+        coupon = Coupon.objects.filter(code__iexact=applied_coupon_code, is_active=True).first()
+        if coupon:
+            disc = coupon.calculate_discount(subtotal)
+            if disc > Decimal('0.00'):
+                discount_amount = disc
+                applied_coupon = coupon
+            else:
+                request.session.pop('applied_coupon', None)
+        else:
+            request.session.pop('applied_coupon', None)
+
+    shipping_cost, tax_amount, total_price = calculate_order_totals(subtotal, discount_amount)
     context = {
         'cart': cart,
         'items': items,
         'has_out_of_stock': has_out_of_stock,
         'has_unavailable': has_unavailable,
         'subtotal': subtotal,
+        'discount_amount': discount_amount,
+        'applied_coupon': applied_coupon,
         'shipping_cost': shipping_cost,
         'tax_amount': tax_amount,
         'total_price': total_price,
@@ -230,7 +251,7 @@ def move_to_wishlist(request, item_id):
     if variant:
         product_name += f" ({variant.name})"
 
-    from user_panel.wishlist.models import Wishlist, WishlistItem
+
     wishlist, _ = Wishlist.objects.get_or_create(user=request.user)
     WishlistItem.objects.get_or_create(wishlist=wishlist, product=product, variant=variant)
 

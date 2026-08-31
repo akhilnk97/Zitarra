@@ -60,13 +60,20 @@ def admin_orders_view(request):
         orders_qs = orders_qs.filter(order_status=status_filter)
 
 
-    if sort_val == 'Oldest First':
+    sort_raw = request.GET.get('sort', 'Latest First').strip()
+    sort_upper = sort_raw.upper()
+
+    if sort_upper in ['OLDEST', 'OLDEST FIRST']:
+        sort_val = 'Oldest First'
         orders_qs = orders_qs.order_by('created_at')
-    elif sort_val == 'Amount: High to Low':
+    elif sort_upper in ['HIGH_AMOUNT', 'AMOUNT: HIGH TO LOW']:
+        sort_val = 'Amount: High to Low'
         orders_qs = orders_qs.order_by('-total_price', '-created_at')
-    elif sort_val == 'Amount: Low to High':
+    elif sort_upper in ['LOW_AMOUNT', 'AMOUNT: LOW TO HIGH']:
+        sort_val = 'Amount: Low to High'
         orders_qs = orders_qs.order_by('total_price', '-created_at')
     else:
+        sort_val = 'Latest First'
         orders_qs = orders_qs.order_by('-created_at')
 
 
@@ -89,11 +96,11 @@ ALLOWED_TRANSITIONS = {
     'CONFIRMED': ['CONFIRMED', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
     'PROCESSING': ['PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'],
     'SHIPPED': ['SHIPPED', 'DELIVERED', 'CANCELLED'],
-    'DELIVERED': ['DELIVERED', 'RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_PICKUP', 'RETURNED', 'REFUNDED'],
-    'RETURN_REQUESTED': ['RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_PICKUP', 'RETURNED', 'REFUNDED', 'DELIVERED'],
-    'RETURN_APPROVED': ['RETURN_APPROVED', 'RETURN_PICKUP', 'RETURNED', 'REFUNDED'],
-    'RETURN_PICKUP': ['RETURN_PICKUP', 'RETURNED', 'REFUNDED'],
-    'RETURNED': ['RETURNED', 'REFUNDED'],
+    'DELIVERED': ['DELIVERED'],
+    'RETURN_REQUESTED': ['RETURN_REQUESTED'],
+    'RETURN_APPROVED': ['RETURN_APPROVED'],
+    'RETURN_PICKUP': ['RETURN_PICKUP'],
+    'RETURNED': ['RETURNED'],
     'CANCELLED': ['CANCELLED'],
     'REFUNDED': ['REFUNDED'],
 }
@@ -118,6 +125,15 @@ def admin_order_detail_view(request, order_id):
                 item.expected_delivery_date = today
                 item.save(update_fields=['expected_delivery_date'])
 
+
+    STANDARD_STATUS_CHOICES = [
+        ('CONFIRMED', 'Confirmed'),
+        ('PROCESSING', 'Processing'),
+        ('SHIPPED', 'Shipped'),
+        ('DELIVERED', 'Delivered'),
+        ('CANCELLED', 'Cancelled'),
+    ]
+
     current_status = order.order_status
     allowed_codes = ALLOWED_TRANSITIONS.get(current_status, [code for code, _ in STATUS_CHOICES])
     allowed_choices = [(code, label) for code, label in STATUS_CHOICES if code in allowed_codes]
@@ -126,7 +142,7 @@ def admin_order_detail_view(request, order_id):
     context = {
         'order': order,
         'status_choices': allowed_choices,
-        'all_status_choices': STATUS_CHOICES,
+        'all_status_choices': STANDARD_STATUS_CHOICES,
         'is_terminal_status': is_terminal,
     }
     return render(request, 'admin_panel/orders/order_detail.html', context)
@@ -177,6 +193,8 @@ def admin_order_update_status_view(request, order_id):
             if new_status and new_status in allowed_statuses:
                 if new_status == 'CANCELLED' and old_status != 'CANCELLED':
                     order.order_status = 'CANCELLED'
+                    if order.payment_method in ['CASH_ON_DELIVERY', 'COD']:
+                        order.payment_status = 'PENDING'
                     if not order.cancel_reason:
                         order.cancel_reason = 'Cancelled by Admin'
                     order.save()
@@ -190,10 +208,10 @@ def admin_order_update_status_view(request, order_id):
 
                             if item.variant:
                                 item.variant.stock += item.quantity
-                                item.variant.save()
-                            if item.product:
+                                item.variant.save(update_fields=['stock'])
+                            elif item.product:
                                 item.product.stock += item.quantity
-                                item.product.save()
+                                item.product.save(update_fields=['stock'])
 
                     order.recalculate_totals()
                 else:
@@ -205,6 +223,16 @@ def admin_order_update_status_view(request, order_id):
                     elif new_status == 'RETURNED':
                         order.payment_status = 'REFUNDED'
                         order.expected_delivery_date = today
+
+                    # If marking entire order as RETURNED for the first time, restore inventory stock
+                    if new_status == 'RETURNED' and old_status != 'RETURNED':
+                        for item in order.items.exclude(item_status__in=['CANCELLED', 'RETURNED']):
+                            if item.variant:
+                                item.variant.stock += item.quantity
+                                item.variant.save(update_fields=['stock'])
+                            elif item.product:
+                                item.product.stock += item.quantity
+                                item.product.save(update_fields=['stock'])
 
                     # Update all active items to new status and update dates
                     for item in order.items.exclude(item_status='CANCELLED'):
@@ -244,7 +272,6 @@ def admin_order_item_update_status_view(request, order_id, item_id):
             messages.error(request, f"Invalid status transition! Product '{item.product_name}' in '{item.get_item_status_display()}' status cannot be changed to '{dict(STATUS_CHOICES).get(new_status, new_status)}'.")
             return redirect('admin_order_detail', order_id=order_id)
 
-        # Date Validation
         parsed_date = None
         target_status = new_status or item.item_status
         if delivery_date_str:
@@ -283,13 +310,14 @@ def admin_order_item_update_status_view(request, order_id, item_id):
                     else:
                         item.expected_delivery_date = timezone.now().date()
 
-                if new_status == 'CANCELLED' and old_status != 'CANCELLED':
-                    item.cancel_reason = 'Cancelled by Admin'
+                if new_status in ['CANCELLED', 'RETURNED'] and old_status not in ['CANCELLED', 'RETURNED']:
+                    if new_status == 'CANCELLED':
+                        item.cancel_reason = 'Cancelled by Admin'
+
                     if item.variant_id:
                         v = ProductVariant.objects.select_for_update().get(id=item.variant_id)
                         v.stock += item.quantity
                         v.save(update_fields=['stock'])
-
                     elif item.product_id:
                         p = Product.objects.select_for_update().get(id=item.product_id)
                         p.stock += item.quantity
@@ -300,4 +328,7 @@ def admin_order_item_update_status_view(request, order_id, item_id):
             messages.success(request, f"Item '{item.product_name}' updated successfully.")
 
     return redirect('admin_order_detail', order_id=order_id)
+
+
+
 

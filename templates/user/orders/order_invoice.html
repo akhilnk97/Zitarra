@@ -116,7 +116,15 @@
               {{ order.get_payment_method_display|default:order.payment_method|upper }}
             {% endif %}
           </strong></p>
-          <p class="m-0"><span class="text-gray-400">PAYMENT STATUS:</span> <strong class="text-green-600">{{ order.payment_status|upper }}</strong></p>
+          <p class="m-0"><span class="text-gray-400">PAYMENT STATUS:</span> 
+            {% if order.order_status in 'RETURNED,REFUNDED' or order.payment_status == 'REFUNDED' %}
+              <strong class="text-purple-600">REFUNDED</strong>
+            {% elif order.payment_method in 'RAZORPAY,ONLINE' or order.order_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' or order.payment_status in 'PAID,VERIFIED' %}
+              <strong class="text-green-600">PAID</strong>
+            {% else %}
+              <strong class="text-[#E8500A]">PENDING</strong>
+            {% endif %}
+          </p>
           <p class="m-0"><span class="text-gray-400">PLACE OF SUPPLY:</span> <strong class="text-brand-dark">{{ order.shipping_state|upper }}</strong></p>
           <p class="m-0"><span class="text-gray-400">REVERSE CHARGE:</span> <strong class="text-brand-dark">NO</strong></p>
         </div>
@@ -194,8 +202,8 @@
           <span class="font-bold text-brand-dark">₹{{ half_tax|floatformat:2 }}</span>
         </div>
         {% if order.discount_amount > 0 %}
-        <div class="flex justify-between text-green-600 font-bold">
-          <span>DISCOUNT APPLIED:</span>
+        <div class="flex justify-between text-[#E8500A] font-bold">
+          <span>COUPON DISCOUNT {% if order.coupon_code %}({{ order.coupon_code }}){% endif %}:</span>
           <span>-₹{{ order.discount_amount|floatformat:2 }}</span>
         </div>
         {% endif %}
