@@ -437,210 +437,168 @@
         </div>
         <!-- END SPECS SECTION -->
 
-        <!-- REVIEWS SECTION (Static decoration) -->
-        <div id="reviews-section" class="mb-8 pb-8 border-b border-gray-300 scroll-mt-8">
+        <!-- REVIEWS SECTION (Dynamic & Interactive) -->
+        <div id="reviews-section" class="mb-12 pb-10 border-b border-gray-300 scroll-mt-8">
+            
+            <!-- Section Header & Rating Stats Summary -->
+            <div class="bg-gradient-to-br from-[#FAF5EF] to-[#FDF8F5] border border-gray-200 p-6 md:p-8 mb-8 rounded-lg shadow-xs">
+                <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+                    
+                    <!-- Overall Rating Score Box -->
+                    <div class="lg:col-span-4 flex flex-col items-center lg:items-start text-center lg:text-left border-b lg:border-b-0 lg:border-r border-gray-200 pb-6 lg:pb-0 lg:pr-8">
+                        <div class="flex items-center gap-2 mb-2">
+                            <h2 class="text-xs font-black tracking-[0.16em] uppercase text-brand-dark">Customer Reviews & Ratings</h2>
+                        </div>
+                        <div class="flex items-baseline gap-3 my-2">
+                            <span class="text-5xl font-black text-brand-dark tracking-tight">{{ avg_rating|default:"5.0" }}</span>
+                            <span class="text-sm font-bold text-gray-500 uppercase tracking-widest">out of 5.0</span>
+                        </div>
+                        <div class="flex items-center gap-1 text-[#E8500A] text-lg mb-2">
+                            ★ ★ ★ ★ ★
+                        </div>
+                        <p class="text-xs font-semibold text-gray-500 uppercase tracking-wider">Based on {{ total_reviews }} Verified {{ total_reviews|pluralize:"Review,Reviews" }}</p>
+                    </div>
+
+                    <!-- Rating Distribution Progress Bars -->
+                    <div class="lg:col-span-5 flex flex-col gap-2">
+                        {% for item in rating_breakdown %}
+                        <div class="flex items-center gap-3 text-xs">
+                            <span class="font-bold text-gray-700 w-8 text-right shrink-0">{{ item.star }} ★</span>
+                            <div class="flex-1 bg-gray-200 h-2.5 rounded-full overflow-hidden">
+                                <div class="bg-[#E8500A] h-full transition-all duration-500" style="width: {{ item.pct }}%;"></div>
+                            </div>
+                            <span class="font-medium text-gray-500 w-16 text-right shrink-0">{{ item.count }} ({{ item.pct }}%)</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Verified Quality & Recommendation Stat Card -->
+                    <div class="lg:col-span-3 border-l border-gray-200/80 pl-6 flex flex-col justify-center items-center text-center gap-2">
+                        <div class="w-10 h-10 rounded-full bg-emerald-50 border border-emerald-200 flex items-center justify-center text-emerald-600 mb-0.5 shadow-xs">
+                            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                            </svg>
+                        </div>
+                        <h4 class="text-xs font-black uppercase tracking-[0.12em] text-brand-dark m-0">100% Verified Feedback</h4>
+                        <p class="text-[0.62rem] text-gray-500 leading-relaxed uppercase tracking-wider m-0">All reviews & media are submitted exclusively by buyers who completed their delivery.</p>
+                    </div>
+
+
+
+                </div>
+            </div>
+
+            <!-- Reviews Carousel Header & Navigation Controls -->
             <div class="flex justify-between items-center mb-6">
-                <h2 class="text-[0.8rem] font-black tracking-[0.1em] uppercase text-brand-dark">Verified Buyers Reviews</h2>
-                <!-- Arrow Navigation Buttons -->
+                <div class="flex items-center gap-3">
+                    <h3 class="text-xs font-black tracking-[0.14em] uppercase text-brand-dark">Verified Buyer Feedback</h3>
+                </div>
+                <!-- Navigation Arrows -->
                 <div class="flex items-center gap-2">
-                    <button onclick="scrollReviews(-300)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all cursor-pointer shadow-sm active:scale-95 text-lg font-bold leading-none select-none" title="Scroll Left">
+                    <button onclick="scrollReviews(-320)" class="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all cursor-pointer shadow-sm active:scale-95 text-lg font-bold leading-none select-none" title="Scroll Left">
                         ‹
                     </button>
-                    <button onclick="scrollReviews(300)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all cursor-pointer shadow-sm active:scale-95 text-lg font-bold leading-none select-none" title="Scroll Right">
+                    <button onclick="scrollReviews(320)" class="w-9 h-9 rounded-full border border-gray-300 flex items-center justify-center text-gray-700 hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all cursor-pointer shadow-sm active:scale-95 text-lg font-bold leading-none select-none" title="Scroll Right">
                         ›
                     </button>
                 </div>
             </div>
-            <div id="reviews-container" class="overflow-x-auto scroll-smooth flex gap-0 pb-4">
-                <!-- Review Card 1 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Thomas R.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
+
+            <!-- Horizontal Scrolling Cards Container -->
+            <div id="reviews-container" class="overflow-x-auto scroll-smooth flex gap-4 pb-4 snap-x">
+                {% for rev in reviews %}
+                <div class="min-w-[290px] max-w-[290px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 flex flex-col justify-between shadow-xs hover:shadow-md transition-shadow snap-start">
+                    <div>
+                        <!-- Rating Stars -->
+                        <div class="flex items-center justify-between mb-2">
+                            <div class="text-[#E8500A] text-xs font-bold tracking-tight">
+                                {% if rev.rating == 5 %}★★★★★
+                                {% elif rev.rating == 4 %}★★★★<span class="text-gray-300">★</span>
+                                {% elif rev.rating == 3 %}★★★<span class="text-gray-300">★★</span>
+                                {% elif rev.rating == 2 %}★★<span class="text-gray-300">★★★</span>
+                                {% else %}★<span class="text-gray-300">★★★★</span>
+                                {% endif %}
+                            </div>
+                            <span class="text-[0.6rem] font-extrabold text-brand-dark bg-amber-100 text-amber-900 px-1.5 py-0.5 rounded uppercase tracking-wider">{{ rev.rating }}.0 / 5.0</span>
+                        </div>
+
+                        <!-- Reviewer Info & Badge -->
+                        <div class="flex items-center gap-1.5 mb-1.5">
+                            <p class="text-xs font-black uppercase tracking-wide text-brand-dark truncate">{{ rev.reviewer_name }}</p>
+                            {% if rev.is_verified_buyer %}
+                            <span class="flex items-center text-[0.6rem] text-emerald-600 font-bold gap-0.5 shrink-0" title="Verified Purchase">
+                                <svg class="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                                </svg>
+                                Verified
+                            </span>
+                            {% endif %}
+                        </div>
+
+                        <!-- Review Title -->
+                        <p class="text-xs font-black text-gray-800 tracking-tight mb-2 line-clamp-1">{{ rev.title }}</p>
+                        
+                        <!-- Review Comment -->
+                        <p class="text-[0.72rem] text-gray-600 leading-relaxed mb-3 line-clamp-4">{{ rev.comment }}</p>
+
+                        <!-- Attached Media (Image / Video) -->
+                        {% if rev.image or rev.video %}
+                        <div class="flex items-center gap-2 mb-3 pt-2 border-t border-gray-200/60">
+                            {% if rev.image %}
+                            <div onclick="openMediaLightbox('{{ rev.image.url }}', 'image')" class="relative w-14 h-14 rounded overflow-hidden border border-gray-300 cursor-pointer group shrink-0">
+                                <img src="{{ rev.image.url }}" alt="Review Photo" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                                <div class="absolute inset-0 bg-black/30 group-hover:bg-black/10 flex items-center justify-center transition-colors">
+                                    <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/>
+                                    </svg>
+                                </div>
+                            </div>
+                            {% endif %}
+
+                            {% if rev.video %}
+                            <div onclick="openMediaLightbox('{{ rev.video.url }}', 'video')" class="relative w-14 h-14 rounded bg-gray-900 border border-gray-300 cursor-pointer group shrink-0 flex items-center justify-center">
+                                <svg class="w-6 h-6 text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                                </svg>
+                                <span class="absolute bottom-0.5 right-0.5 text-[0.5rem] bg-red-600 text-white font-bold px-1 rounded uppercase">Video</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Footer Date -->
+                    <div class="pt-2 border-t border-gray-200 flex justify-between items-center">
+                        <p class="text-[0.6rem] font-medium text-gray-400 uppercase tracking-wider">{{ rev.created_at|date:"M. d, Y" }}</p>
+                    </div>
+
+                </div>
+                {% empty %}
+                <div class="min-w-[300px] bg-white border border-dashed border-gray-300 p-8 text-center flex flex-col items-center justify-center">
+                    <p class="text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">No reviews yet for this product</p>
+                    <span class="text-xs font-semibold text-gray-400 uppercase">Reviews are submitted by verified delivered buyers</span>
+                </div>
+                {% endfor %}
+
+                <!-- CTA Dark Card at End of Carousel -->
+                <div class="min-w-[270px] max-w-[270px] bg-brand-dark text-white p-6 shrink-0 flex flex-col items-center justify-between border border-brand-dark">
+                    <div class="flex flex-col items-center justify-center my-auto text-center">
+                        <svg class="w-10 h-10 mb-3 opacity-60 text-amber-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
                         </svg>
+                        <p class="text-xs font-black tracking-[0.15em] uppercase mb-2">Verified Purchases Only</p>
+                        <p class="text-[0.62rem] text-gray-300 leading-relaxed mb-4 uppercase tracking-wider">Explore all customer feedback, photos, and videos uploaded by verified buyers.</p>
                     </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Worth Every Penny
-                    </p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Upgraded from a Jupiter and the difference is
-                        night and day. The resonance of the alder body is incredible even unplugged. A lifetime
-                        instrument.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Feb. 08, 2025</p>
+                    <button type="button" onclick="openAllReviewsModal()" class="w-full border-2 border-white text-white text-xs font-black tracking-[0.15em] uppercase py-3 hover:bg-white hover:text-brand-dark transition-all cursor-pointer text-center block">
+                        VIEW MORE
+                    </button>
                 </div>
 
-                <!-- Review Card 2 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Justin M.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">The Sunburst is
-                        Stunning</p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">The 3-color sunburst finish is flawless.
-                        Pickups are super responsive. Deducted one star because the set-up out of the box needed a tiny
-                        tweak.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Jan. 13, 2025</p>
-                </div>
-
-                <!-- Review Card 3 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Sarah K.</p>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Great Sound Quality
-                    </p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Amazing tone and build quality. The maple
-                        shells produce beautiful warm tones. Only complaint is the hardware could be slightly better at
-                        this price.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Nov. 15, 2024</p>
-                </div>
-
-                <!-- Review Card 4 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Mike D.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Professional Grade
-                        Kit</p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Been playing for 20 years and this is the
-                        best kit I've owned. The projection is phenomenal and tuning stability is excellent throughout.
-                    </p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Oct. 30, 2024</p>
-                </div>
-
-                <!-- Review Card 5 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Anna L.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Absolutely Worth It
-                    </p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">This drum kit exceeded all expectations.
-                        Recording quality is studio-grade right out of the box. The finish is immaculate and hardware is
-                        solid.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Sep. 18, 2024</p>
-                </div>
-
-                <!-- Review Card 6 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Chris P.</p>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Solid Build</p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Very solid construction and the maple tone is
-                        warm and punchy. Delivery was fast and well-packaged. Minor setup needed but overall very happy.
-                    </p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Aug. 05, 2024</p>
-                </div>
-
-                <!-- Review Card 7 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">David H.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Perfect for Studio
-                    </p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Used this in multiple recording sessions. The
-                        attack is precise and the sustain is beautiful. Fits perfectly in any mix without EQ
-                        adjustments.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Jul. 22, 2024</p>
-                </div>
-
-                <!-- Review Card 8 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Emily R.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Best Purchase Ever
-                    </p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">After months of research I chose this and I'm
-                        so glad. The warmth and clarity are unmatched. Customer service was also very responsive.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Jun. 10, 2024</p>
-                </div>
-
-                <!-- Review Card 9 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★<span class="text-gray-300">★</span></div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Robert T.</p>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Great Value</p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Solid instrument for the price. The tone is
-                        rich and full. Only downside is the tuning pegs could be smoother but that's a minor issue.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">May. 28, 2024</p>
-                </div>
-
-                <!-- Review Card 10 -->
-                <div class="min-w-[260px] max-w-[260px] bg-[#FDF8F5] border border-gray-200 p-5 shrink-0 border-r-0">
-                    <div class="text-[#E8500A] text-[11px] mb-2">★★★★★</div>
-                    <div class="flex items-center gap-1 mb-1">
-                        <p class="text-[0.64rem] font-black uppercase tracking-wide text-brand-dark">Jessica W.</p>
-                        <svg class="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                            <path fill-rule="evenodd"
-                                d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                                clip-rule="evenodd" />
-                        </svg>
-                    </div>
-                    <p class="text-[0.56rem] font-bold uppercase tracking-widest text-gray-400 mb-3">Exceeded
-                        Expectations</p>
-                    <p class="text-[0.6rem] text-gray-600 leading-relaxed">Bought this for my studio and it's
-                        incredible. The craftsmanship is top-notch and the sound is exactly what I needed. Highly
-                        recommend it.</p>
-                    <p class="text-[0.54rem] text-gray-400 mt-3">Apr. 14, 2024</p>
-                </div>
-
-                <!-- CTA Dark Card -->
-                <div
-                    class="min-w-[260px] max-w-[260px] bg-brand-dark text-white p-8 shrink-0 flex flex-col items-center justify-center text-center border border-brand-dark">
-                    <svg class="w-8 h-8 mb-4 opacity-50" fill="none" stroke="currentColor" stroke-width="1.5"
-                        viewBox="0 0 24 24">
-                        <path
-                            d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931z" />
-                    </svg>
-                    <p class="text-[0.58rem] font-bold tracking-[0.15em] uppercase mb-2">See More Reviews</p>
-                    <p class="text-[0.52rem] text-gray-400 leading-relaxed mb-4 uppercase tracking-wider">Explore 242+
-                        verified owner experiences and technical ratings</p>
-                    <button
-                        class="border border-white text-white text-[0.52rem] font-bold tracking-[0.15em] uppercase px-5 py-2 hover:bg-white hover:text-brand-dark transition-all">View
-                        All</button>
-                </div>
             </div>
         </div>
         <!-- END REVIEWS -->
+
+
 
         <!-- RELATED PRODUCTS -->
         <div class="pb-8">
@@ -1217,5 +1175,267 @@
             }, 300);
         }
     }
+
+    /* --- ALL REVIEWS MODAL FUNCTIONS --- */
+    function openAllReviewsModal() {
+        const modal = document.getElementById('allReviewsModal');
+        if (modal) {
+            document.body.appendChild(modal);
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeAllReviewsModal() {
+        const modal = document.getElementById('allReviewsModal');
+        if (modal) {
+            modal.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+    }
+
+    function filterModalReviews(filterType) {
+        const items = document.querySelectorAll('.modal-review-item');
+        const buttons = document.querySelectorAll('.review-filter-btn');
+
+        buttons.forEach(btn => {
+            if (btn.getAttribute('data-filter') === filterType) {
+                btn.className = 'review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-brand-dark text-white shadow-xs cursor-pointer border-none';
+            } else {
+                btn.className = 'review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer';
+            }
+        });
+
+        items.forEach(item => {
+            const rating = item.getAttribute('data-rating');
+            const hasMedia = item.getAttribute('data-has-media') === 'true';
+
+            if (filterType === 'all') {
+                item.classList.remove('hidden');
+            } else if (filterType === 'media') {
+                if (hasMedia) item.classList.remove('hidden');
+                else item.classList.add('hidden');
+            } else if (filterType === '5' && rating === '5') {
+                item.classList.remove('hidden');
+            } else if (filterType === '4' && rating === '4') {
+                item.classList.remove('hidden');
+            } else if (filterType === '3' && parseInt(rating) <= 3) {
+                item.classList.remove('hidden');
+            } else {
+                item.classList.add('hidden');
+            }
+        });
+    }
+
+    /* --- MEDIA LIGHTBOX & SPLIT VIEW FUNCTIONS (AMAZON / FLIPKART STYLE) --- */
+    function openSplitMediaLightbox(mediaUrl, mediaType, reviewerName, rating, title, comment, dateStr) {
+        const modal = document.getElementById('mediaLightboxModal');
+        const content = document.getElementById('lightboxContent');
+        if (!modal || !content) return;
+
+        let mediaHtml = '';
+        if (mediaType === 'image') {
+            mediaHtml = `<img src="${mediaUrl}" alt="Customer Uploaded Photo" class="max-w-full max-h-[70vh] object-contain rounded-lg shadow-xl mx-auto">`;
+        } else if (mediaType === 'video') {
+            mediaHtml = `<video src="${mediaUrl}" controls autoplay class="max-w-full max-h-[70vh] rounded-lg shadow-xl mx-auto"></video>`;
+        }
+
+        let starsHtml = '';
+        const rInt = parseInt(rating) || 5;
+        for (let i = 1; i <= 5; i++) {
+            if (i <= rInt) starsHtml += '★';
+            else starsHtml += '<span class="text-gray-300">★</span>';
+        }
+
+        content.innerHTML = `
+            <div class="bg-white rounded-xl shadow-2xl overflow-hidden max-w-4xl w-full grid grid-cols-1 md:grid-cols-12 max-h-[85vh] relative border border-gray-200">
+                <button type="button" onclick="closeMediaLightbox()" class="absolute top-3 right-3 text-gray-400 hover:text-black transition-colors text-2xl font-bold bg-white/80 hover:bg-white w-8 h-8 rounded-full flex items-center justify-center cursor-pointer border-none z-20">&times;</button>
+                
+                <!-- Left: Media Showcase -->
+                <div class="md:col-span-7 bg-black p-6 flex items-center justify-center min-h-[300px]">
+                    ${mediaHtml}
+                </div>
+
+                <!-- Right: Associated Review Context -->
+                <div class="md:col-span-5 p-6 flex flex-col justify-between overflow-y-auto bg-gray-50/50">
+                    <div>
+                        <div class="flex items-center gap-2 mb-3">
+                            <div class="text-[#E8500A] text-sm font-bold tracking-tight">${starsHtml}</div>
+                            <span class="text-xs font-black uppercase text-brand-dark">${reviewerName}</span>
+                            <span class="flex items-center text-[0.6rem] text-emerald-600 font-bold gap-0.5" title="Verified Purchase">
+                                <svg class="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+                                Verified Buyer
+                            </span>
+                        </div>
+
+                        <h4 class="text-xs font-black text-gray-900 uppercase tracking-wide mb-2">${title}</h4>
+                        <p class="text-xs text-gray-700 leading-relaxed font-sans">${comment}</p>
+                    </div>
+
+                    <div class="pt-4 border-t border-gray-200 mt-6 flex justify-between items-center text-[0.62rem] text-gray-400 uppercase tracking-wider font-bold">
+                        <span>Submitted: ${dateStr}</span>
+                        <span class="text-brand-dark">Zitarra Verified Media</span>
+                    </div>
+                </div>
+            </div>
+        `;
+
+        document.body.appendChild(modal);
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+    }
+
+    function openMediaLightbox(mediaUrl, mediaType) {
+        openSplitMediaLightbox(mediaUrl, mediaType, 'Verified Customer', '5', 'Customer Upload', 'Uploaded customer media review.', 'Recent');
+    }
+
+    function closeMediaLightbox() {
+        const modal = document.getElementById('mediaLightboxModal');
+        const content = document.getElementById('lightboxContent');
+        if (modal) modal.classList.add('hidden');
+        if (content) content.innerHTML = '';
+        document.body.style.overflow = '';
+    }
 </script>
+
+<!-- ALL REVIEWS MODAL -->
+<div id="allReviewsModal" class="fixed inset-0 z-[99999] hidden bg-black/80 backdrop-blur-md flex items-center justify-center p-4 md:p-6 overflow-y-auto">
+    <div class="bg-white max-w-4xl w-full max-h-[85vh] rounded-xl shadow-2xl border border-gray-200 overflow-hidden flex flex-col my-auto relative">
+        <!-- Modal Header -->
+        <div class="bg-brand-dark text-white px-6 py-4 flex justify-between items-center shrink-0">
+            <div>
+                <h3 class="text-sm font-black uppercase tracking-[0.14em] text-white m-0">Customer Reviews & Uploaded Media</h3>
+                <p class="text-[0.65rem] text-gray-300 uppercase tracking-wider truncate max-w-md m-0 mt-0.5">{{ product.name }} — {{ total_reviews }} Verified Reviews</p>
+            </div>
+            <button type="button" onclick="closeAllReviewsModal()" class="text-gray-400 hover:text-white transition-colors text-2xl font-bold leading-none cursor-pointer bg-transparent border-none">&times;</button>
+        </div>
+
+        <!-- Customer Media Gallery Ribbon (Amazon / Flipkart Style) -->
+        <div class="bg-[#FAF5EF] border-b border-gray-200 px-6 py-3 shrink-0">
+            <div class="flex items-center justify-between mb-2">
+                <h4 class="text-[0.68rem] font-black uppercase tracking-[0.14em] text-brand-dark flex items-center gap-1.5 m-0">
+                    <svg class="w-4 h-4 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    Customer Photos & Videos
+                </h4>
+                <span class="text-[0.58rem] font-bold text-gray-500 uppercase tracking-wider">Click any media to open split review view</span>
+            </div>
+            <div class="flex items-center gap-3 overflow-x-auto pb-1">
+                {% for rev in reviews %}
+                    {% if rev.image %}
+                    <div onclick="openSplitMediaLightbox('{{ rev.image.url }}', 'image', '{{ rev.reviewer_name|escapejs }}', '{{ rev.rating }}', '{{ rev.title|escapejs }}', '{{ rev.comment|escapejs }}', '{{ rev.created_at|date:"M. d, Y" }}')" class="relative w-14 h-14 rounded-md overflow-hidden border-2 border-white shadow-xs hover:shadow-md cursor-pointer group shrink-0">
+                        <img src="{{ rev.image.url }}" alt="Customer Photo" class="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/40 flex items-center justify-center transition-colors">
+                            <svg class="w-4 h-4 text-white opacity-90 group-hover:scale-110 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                        </div>
+                    </div>
+                    {% endif %}
+                    {% if rev.video %}
+                    <div onclick="openSplitMediaLightbox('{{ rev.video.url }}', 'video', '{{ rev.reviewer_name|escapejs }}', '{{ rev.rating }}', '{{ rev.title|escapejs }}', '{{ rev.comment|escapejs }}', '{{ rev.created_at|date:"M. d, Y" }}')" class="relative w-14 h-14 rounded-md bg-gray-900 border-2 border-white shadow-xs hover:shadow-md cursor-pointer group shrink-0 flex items-center justify-center overflow-hidden">
+                        <svg class="w-6 h-6 text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="absolute bottom-0.5 right-0.5 text-[0.45rem] bg-red-600 text-white font-bold px-1 rounded uppercase">Video</span>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Modal Sub-header: Quick Filter Tabs -->
+        <div class="bg-gray-50 border-b border-gray-200 px-6 py-3 flex flex-wrap items-center justify-between gap-3 shrink-0">
+            <div class="flex items-center gap-2 overflow-x-auto">
+                <button type="button" onclick="filterModalReviews('all')" class="review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-brand-dark text-white shadow-xs cursor-pointer border-none" data-filter="all">
+                    All Reviews ({{ total_reviews }})
+                </button>
+                <button type="button" onclick="filterModalReviews('media')" class="review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer" data-filter="media">
+                    With Media
+                </button>
+                <button type="button" onclick="filterModalReviews('5')" class="review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer" data-filter="5">
+                    5 ★
+                </button>
+                <button type="button" onclick="filterModalReviews('4')" class="review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer" data-filter="4">
+                    4 ★
+                </button>
+                <button type="button" onclick="filterModalReviews('3')" class="review-filter-btn px-3 py-1.5 rounded-full text-[0.68rem] font-bold uppercase tracking-wider bg-white text-gray-700 border border-gray-300 hover:bg-gray-100 cursor-pointer" data-filter="3">
+                    3 ★ & below
+                </button>
+            </div>
+            <span class="text-[0.65rem] font-bold text-gray-500 uppercase tracking-wider">Average Rating: <strong class="text-brand-dark">{{ avg_rating }} / 5.0</strong></span>
+        </div>
+
+        <!-- Modal Body (Scrollable) -->
+        <div class="p-6 overflow-y-auto space-y-4 divide-y divide-gray-100 flex-1">
+            {% for rev in reviews %}
+            <div class="modal-review-item pt-4 first:pt-0" data-rating="{{ rev.rating }}" data-has-media="{% if rev.image or rev.video %}true{% else %}false{% endif %}">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-2">
+                    <div class="flex items-center gap-2">
+                        <!-- Rating Stars -->
+                        <div class="text-[#E8500A] text-sm font-bold tracking-tight">
+                            {% if rev.rating == 5 %}★★★★★
+                            {% elif rev.rating == 4 %}★★★★<span class="text-gray-300">★</span>
+                            {% elif rev.rating == 3 %}★★★<span class="text-gray-300">★★</span>
+                            {% elif rev.rating == 2 %}★★<span class="text-gray-300">★★★</span>
+                            {% else %}★<span class="text-gray-300">★★★★</span>
+                            {% endif %}
+                        </div>
+                        <span class="text-xs font-black uppercase text-brand-dark">{{ rev.reviewer_name }}</span>
+                        {% if rev.is_verified_buyer %}
+                        <span class="flex items-center text-[0.6rem] text-emerald-600 font-bold gap-0.5" title="Verified Purchase">
+                            <svg class="w-3.5 h-3.5 text-emerald-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/>
+                            </svg>
+                            Verified Buyer
+                        </span>
+                        {% endif %}
+                    </div>
+                    <span class="text-[0.62rem] text-gray-400 uppercase tracking-wider">{{ rev.created_at|date:"F d, Y" }}</span>
+                </div>
+
+                <!-- Headline -->
+                <p class="text-xs font-black text-gray-900 tracking-tight mb-1">{{ rev.title }}</p>
+
+                <!-- Comment -->
+                <p class="text-xs text-gray-700 leading-relaxed mb-3">{{ rev.comment }}</p>
+
+                <!-- Uploaded Media Thumbnails -->
+                {% if rev.image or rev.video %}
+                <div class="flex items-center gap-3 mt-2 mb-1">
+                    {% if rev.image %}
+                    <div onclick="openSplitMediaLightbox('{{ rev.image.url }}', 'image', '{{ rev.reviewer_name|escapejs }}', '{{ rev.rating }}', '{{ rev.title|escapejs }}', '{{ rev.comment|escapejs }}', '{{ rev.created_at|date:"M. d, Y" }}')" class="relative w-16 h-16 rounded overflow-hidden border border-gray-300 cursor-pointer group shrink-0">
+                        <img src="{{ rev.image.url }}" alt="User Photo" class="w-full h-full object-cover group-hover:scale-110 transition-transform">
+                        <div class="absolute inset-0 bg-black/20 group-hover:bg-black/10 flex items-center justify-center transition-colors">
+                            <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v6m3-3H7"/></svg>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if rev.video %}
+                    <div onclick="openSplitMediaLightbox('{{ rev.video.url }}', 'video', '{{ rev.reviewer_name|escapejs }}', '{{ rev.rating }}', '{{ rev.title|escapejs }}', '{{ rev.comment|escapejs }}', '{{ rev.created_at|date:"M. d, Y" }}')" class="relative w-16 h-16 rounded bg-gray-900 border border-gray-300 cursor-pointer group shrink-0 flex items-center justify-center">
+                        <svg class="w-7 h-7 text-white group-hover:scale-110 transition-transform" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM9.555 7.168A1 1 0 008 8v4a1 1 0 001.555.832l3-2a1 1 0 000-1.664l-3-2z" clip-rule="evenodd"/>
+                        </svg>
+                        <span class="absolute bottom-0.5 right-0.5 text-[0.5rem] bg-red-600 text-white font-bold px-1 rounded uppercase">Video</span>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+            {% empty %}
+            <p class="text-center text-xs text-gray-500 py-8 uppercase tracking-wider">No reviews available</p>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- MEDIA LIGHTBOX MODAL -->
+<div id="mediaLightboxModal" class="fixed inset-0 z-[999999] hidden bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
+
+
+    <button type="button" onclick="closeMediaLightbox()" class="absolute top-4 right-6 text-white text-4xl font-bold hover:text-amber-400 transition-colors cursor-pointer z-50">&times;</button>
+    <div class="max-w-4xl w-full max-h-[85vh] flex items-center justify-center p-2" id="lightboxContent">
+        <!-- Dynamic Content -->
+    </div>
+</div>
 {% endblock %}
+
+

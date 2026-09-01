@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Report PDF — Zitarra</title>
+  <style>
+    @page { size: A4 portrait; margin: 15mm; }
+    body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; color: #1A1A1A; font-size: 11px; margin: 0; padding: 0; }
+    .header { text-align: center; border-b: 2px solid #A33C08; padding-bottom: 12px; margin-bottom: 20px; }
+    .header h1 { margin: 0; font-size: 22px; color: #1A1A1A; letter-spacing: 2px; }
+    .header p { margin: 4px 0 0 0; color: #666; font-size: 11px; }
+    .meta-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; background: #FAF6F3; border: 1px solid #E0D5C9; }
+    .meta-table td { padding: 8px 12px; font-size: 10px; }
+    .metrics-grid { width: 100%; margin-bottom: 20px; }
+    .metrics-card { background: #FAF6F3; border: 1px solid #E0D5C9; padding: 10px; text-align: center; }
+    .metrics-title { font-size: 8px; font-weight: bold; color: #666; text-transform: uppercase; letter-spacing: 1px; }
+    .metrics-val { font-size: 14px; font-weight: bold; color: #A33C08; margin-top: 4px; }
+    .table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+    .table th { background: #1A1A1A; color: #FFFFFF; font-size: 8px; text-transform: uppercase; letter-spacing: 1px; padding: 6px 8px; text-align: left; }
+    .table td { padding: 6px 8px; border-bottom: 1px solid #EEEEEE; font-size: 9px; }
+    .text-right { text-align: right; }
+    .text-center { text-align: center; }
+    .footer { margin-top: 30px; text-align: center; font-size: 9px; color: #999; border-top: 1px solid #EAE3DC; padding-top: 10px; }
+    @media print {
+      .no-print { display: none; }
+    }
+  </style>
+</head>
+<body onload="window.print()">
+
+  <div class="no-print" style="background: #FFF3CD; border: 1px solid #FFEEBA; padding: 10px; margin-bottom: 15px; text-align: center; font-size: 12px; font-weight: bold; color: #856404;">
+    📄 Click "Print" or "Save as PDF" in your browser print dialog to save this document.
+    <button onclick="window.print()" style="margin-left: 15px; padding: 4px 12px; background: #A33C08; color: #FFF; border: none; font-weight: bold; cursor: pointer;">PRINT / SAVE PDF</button>
+  </div>
+
+  <div class="header">
+    <h1>ZITARRA MUSICAL INSTRUMENTS</h1>
+    <p>OFFICIAL SALES REPORT — {{ filter_preset }} SUMMARY</p>
+  </div>
+
+  <table class="meta-table">
+    <tr>
+      <td><strong>Period Preset:</strong> {{ filter_preset }}</td>
+      <td><strong>Date Window:</strong> {{ start_date_str }} to {{ end_date_str }}</td>
+      <td><strong>Printed On:</strong> {{ printed_at }}</td>
+    </tr>
+  </table>
+
+  <table class="metrics-grid">
+    <tr>
+      <td width="20%">
+        <div class="metrics-card">
+          <div class="metrics-title">Total Orders</div>
+          <div class="metrics-val">{{ total_orders }}</div>
+        </div>
+      </td>
+      <td width="20%">
+        <div class="metrics-card">
+          <div class="metrics-title">Net Revenue</div>
+          <div class="metrics-val">₹{{ net_revenue|floatformat:2 }}</div>
+        </div>
+      </td>
+      <td width="20%">
+        <div class="metrics-card">
+          <div class="metrics-title">Avg Order Value</div>
+          <div class="metrics-val">₹{{ avg_order_value|floatformat:2 }}</div>
+        </div>
+      </td>
+      <td width="20%">
+        <div class="metrics-card">
+          <div class="metrics-title">Total Discounts</div>
+          <div class="metrics-val">₹{{ total_discounts|floatformat:2 }}</div>
+        </div>
+      </td>
+      <td width="20%">
+        <div class="metrics-card">
+          <div class="metrics-title">Wallet Revenue</div>
+          <div class="metrics-val">₹{{ wallet_used|floatformat:2 }}</div>
+        </div>
+      </td>
+    </tr>
+  </table>
+
+  <h3 style="font-size: 11px; font-weight: bold; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px; color: #1A1A1A;">Transaction Activity Ledger</h3>
+  <table class="table" style="table-layout: fixed; width: 100%;">
+    <thead>
+      <tr>
+        <th style="width: 12%; text-align: left;">Order ID</th>
+        <th style="width: 16%; text-align: left;">Timestamp</th>
+        <th style="width: 20%; text-align: left;">Customer</th>
+        <th style="width: 12%; text-align: right;">Subtotal</th>
+        <th style="width: 12%; text-align: right;">Discount</th>
+        <th style="width: 12%; text-align: right;">Total Paid</th>
+        <th style="width: 9%; text-align: center;">Payment</th>
+        <th style="width: 7%; text-align: center;">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for order in orders %}
+        <tr>
+          <td style="text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;"><strong>#{{ order.order_id }}</strong></td>
+          <td style="text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ order.created_at|date:"Y-m-d H:i" }}</td>
+          <td style="text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">{{ order.shipping_full_name|default:order.user.username }}</td>
+          <td style="text-align: right;">₹{{ order.subtotal|floatformat:2 }}</td>
+          <td style="text-align: right;">₹{{ order.discount_amount|floatformat:2 }}</td>
+          <td style="text-align: right;"><strong>₹{{ order.total_price|floatformat:2 }}</strong></td>
+          <td style="text-align: center;">{{ order.payment_method }}</td>
+          <td style="text-align: center;">{{ order.get_order_status_display }}</td>
+        </tr>
+      {% empty %}
+        <tr>
+          <td colspan="8" style="text-align: center; padding: 20px;">No transactions available for this period.</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+  <div class="footer">
+    Zitarra Official Financial Record — Confidential Admin Statement — Generated automatically by Zitarra Sales System.
+  </div>
+
+</body>
+</html>

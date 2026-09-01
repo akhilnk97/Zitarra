@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'admin_panel.coupons.apps.AdminCouponsConfig',
     'admin_panel.orders.apps.AdminOrdersConfig',
     'admin_panel.returns.apps.AdminReturnsConfig',
+    'admin_panel.sales.apps.AdminSalesConfig',
 ]
 
 MIDDLEWARE = [

@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from admin_panel.category.models import Category
 
 
@@ -53,6 +54,16 @@ class Product(models.Model):
         return {"status": "in_stock", "label": "In Stock", "is_out": False}
 
 
+    @property
+    def average_rating(self):
+        avg = self.reviews.aggregate(models.Avg('rating'))['rating__avg']
+        return round(avg, 1) if avg else 5.0
+
+    @property
+    def total_reviews_count(self):
+        return self.reviews.count()
+
+
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='products/')
@@ -82,8 +93,6 @@ class ProductVariant(models.Model):
         return {"status": "in_stock", "label": "In Stock", "is_out": False}
 
 
-
-
 class VariantImage(models.Model):
     variant = models.ForeignKey(ProductVariant, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='variants/')
@@ -91,3 +100,24 @@ class VariantImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.variant.name}"
+
+
+class ProductReview(models.Model):
+    product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviews')
+    reviewer_name = models.CharField(max_length=100)
+
+    rating = models.IntegerField(default=5)
+    title = models.CharField(max_length=200)
+    comment = models.TextField()
+    image = models.ImageField(upload_to='reviews/images/', blank=True, null=True)
+    video = models.FileField(upload_to='reviews/videos/', blank=True, null=True)
+    is_verified_buyer = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.reviewer_name} ({self.rating}★) - {self.product.name}"
+

@@ -73,7 +73,8 @@ class Coupon(models.Model):
                 for item in cart_items:
                     item_cat_id = getattr(item.product, 'category_id', None)
                     if item_cat_id in cat_ids:
-                        qualifying_subtotal += Decimal(str(item.get_total_price()))
+                        item_price = item.get_subtotal() if hasattr(item, 'get_subtotal') else getattr(item, 'total_price', Decimal('0.00'))
+                        qualifying_subtotal += Decimal(str(item_price))
         elif self.offer_type == 'PRODUCT_SPECIFIC' and cart_items:
             prod_ids = set(self.applicable_products.values_list('id', flat=True))
             if prod_ids:
@@ -81,7 +82,8 @@ class Coupon(models.Model):
                 for item in cart_items:
                     item_prod_id = getattr(item.product, 'id', None)
                     if item_prod_id in prod_ids:
-                        qualifying_subtotal += Decimal(str(item.get_total_price()))
+                        item_price = item.get_subtotal() if hasattr(item, 'get_subtotal') else getattr(item, 'total_price', Decimal('0.00'))
+                        qualifying_subtotal += Decimal(str(item_price))
 
         if qualifying_subtotal < self.min_purchase or qualifying_subtotal <= Decimal('0.00'):
             return Decimal('0.00')

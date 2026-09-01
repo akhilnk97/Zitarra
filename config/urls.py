@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin-panel/', include('admin_panel.orders.urls')),
     path('admin-panel/', include('admin_panel.coupons.urls')),
     path('admin-panel/', include('admin_panel.returns.urls')),
+    path('admin-panel/', include('admin_panel.sales.urls')),
 ]
 
 if settings.DEBUG:

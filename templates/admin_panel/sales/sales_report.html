@@ -1,0 +1,697 @@
+{% extends 'admin_panel/base/base.html' %}
+{% block title %}Sales Report — Zitarra Admin{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
+
+    <!-- Header Bar -->
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 w-full z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
+
+    <!-- User Profile Header -->
+    <div class="flex items-center gap-3.5">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name|default:request.user.fullname|default:request.user.username|default:"Admin" }}</p>
+      </div>
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar & Workspace Wrapper -->
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    <aside id="admin-sidebar" class="fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
+      <nav class="flex flex-col overflow-y-auto flex-1">
+        
+        <!-- Dashboard -->
+        <a href="{% url 'admin_dashboard' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+          </svg>
+          <span>DASHBOARD</span>
+        </a>
+
+        <!-- Products -->
+        <a href="{% url 'admin_products' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+          </svg>
+          <span>PRODUCTS</span>
+        </a>
+
+        <!-- Order List -->
+        <a href="{% url 'admin_orders' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
+          </svg>
+          <span>ORDER LIST</span>
+        </a>
+
+        <!-- Returns Management -->
+        <a href="{% url 'admin_returns' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 5h.01M12 16h.01M12 12h.01" />
+          </svg>
+          <span>RETURNS MANAGEMENT</span>
+        </a>
+
+        <!-- Users -->
+        <a href="{% url 'admin_users' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
+          </svg>
+          <span>USERS</span>
+        </a>
+
+        <!-- Brands -->
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+          <span>BRANDS</span>
+        </a>
+
+        <!-- Sales Report (ACTIVE) -->
+        <a href="{% url 'admin_sales_report' %}" class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9-1v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z" />
+          </svg>
+          <span>SALES REPORT</span>
+        </a>
+
+        <!-- Coupons -->
+        <a href="{% url 'admin_coupons' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
+          </svg>
+          <span>COUPONS</span>
+        </a>
+
+        <!-- Category -->
+        <a href="{% url 'admin_category' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+          </svg>
+          <span>CATEGORY</span>
+        </a>
+
+        <!-- Banners -->
+        <a href="{% url 'admin_unimplemented' %}" class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
+          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+          </svg>
+          <span>BANNERS</span>
+        </a>
+      </nav>
+
+      <!-- Logout Footer -->
+      <div class="p-6 border-t border-[#e8e8e8]">
+        <form method="POST" action="{% url 'admin_logout' %}">
+          {% csrf_token %}
+          <button type="submit" class="w-full py-3 border border-[#1A1A1A] text-[#1A1A1A] text-[0.62rem] font-bold tracking-[0.18em] uppercase hover:bg-[#1A1A1A] hover:text-white transition-colors flex items-center justify-center gap-2 cursor-pointer bg-transparent">
+            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+            </svg>
+            <span>LOGOUT</span>
+          </button>
+        </form>
+      </div>
+    </aside>
+
+    <!-- Main Workspace Content -->
+    <main class="flex-1 overflow-y-auto p-6 md:p-8 bg-[#fafafa]">
+
+      <!-- Header Title & Export Buttons -->
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+        <div>
+          <h1 class="text-2xl md:text-3xl font-bold tracking-tight text-[#1A1A1A]">Sales Report</h1>
+          <p class="text-xs text-gray-400 mt-1 font-medium">Performance analytics for the current fiscal period.</p>
+        </div>
+
+        <!-- Export Action Buttons -->
+        <div class="flex items-center gap-3">
+          <a href="{% url 'admin_sales_report_excel' %}?preset={{ filter_preset }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}" 
+             class="px-4 py-2 bg-white border border-[#D5C9BE] text-[#1A1A1A] text-xs font-bold uppercase tracking-wider hover:border-[#1A1A1A] transition-colors flex items-center gap-2 shadow-xs no-underline">
+            <svg class="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Excel</span>
+          </a>
+
+          <a href="{% url 'admin_sales_report_pdf' %}?preset={{ filter_preset }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}" target="_blank"
+             class="px-4 py-2 bg-white border border-[#D5C9BE] text-[#1A1A1A] text-xs font-bold uppercase tracking-wider hover:border-[#1A1A1A] transition-colors flex items-center gap-2 shadow-xs no-underline">
+            <svg class="w-4 h-4 text-gray-700" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+            </svg>
+            <span>PDF</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Filter Controls Bar -->
+      <div class="bg-white border border-[#e8e8e8] p-4 mb-6 shadow-xs rounded-lg">
+        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+          
+          <!-- Preset Tabs Links -->
+          <div class="flex flex-wrap items-center gap-1.5 bg-[#FAF6F3] p-1.5 rounded-lg border border-[#E0D5C9]">
+            <a href="?preset=DAILY" 
+              class="px-5 py-2 text-xs font-bold tracking-wider transition-all rounded-md no-underline {% if filter_preset == 'DAILY' %}bg-[#3B82F6] text-white shadow-sm{% else %}bg-transparent text-gray-500 hover:text-black{% endif %}">
+              Daily
+            </a>
+
+            <a href="?preset=WEEKLY" 
+              class="px-5 py-2 text-xs font-bold tracking-wider transition-all rounded-md no-underline {% if filter_preset == 'WEEKLY' %}bg-[#3B82F6] text-white shadow-sm{% else %}bg-transparent text-gray-500 hover:text-black{% endif %}">
+              Weekly
+            </a>
+
+            <a href="?preset=MONTHLY" 
+              class="px-5 py-2 text-xs font-bold tracking-wider transition-all rounded-md no-underline {% if filter_preset == 'MONTHLY' %}bg-[#3B82F6] text-white shadow-sm{% else %}bg-transparent text-gray-500 hover:text-black{% endif %}">
+              Monthly
+            </a>
+
+            <a href="?preset=YEARLY" 
+              class="px-5 py-2 text-xs font-bold tracking-wider transition-all rounded-md no-underline {% if filter_preset == 'YEARLY' %}bg-[#3B82F6] text-white shadow-sm{% else %}bg-transparent text-gray-500 hover:text-black{% endif %}">
+              Yearly
+            </a>
+
+            <button type="button" onclick="toggleCustomDates()" 
+              class="px-5 py-2 text-xs font-bold tracking-wider transition-all rounded-md border-none cursor-pointer flex items-center gap-1.5 {% if filter_preset == 'CUSTOM' %}bg-[#3B82F6] text-white shadow-sm{% else %}bg-transparent text-gray-500 hover:text-black{% endif %}">
+              <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              Custom
+            </button>
+          </div>
+
+          <!-- Custom Date Input Pickers Form -->
+          <form method="GET" action="{% url 'admin_sales_report' %}" id="custom-date-container" class="{% if filter_preset != 'CUSTOM' %}hidden{% endif %} flex flex-wrap items-center gap-3">
+            <input type="hidden" name="preset" value="CUSTOM">
+
+            <div>
+              <label class="block text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 mb-1">Start Date</label>
+              <input type="date" name="start_date" value="{{ start_date_str }}" 
+                class="px-3 py-1.5 bg-[#FAF6F3] border border-[#D5C9BE] text-xs font-mono text-[#1A1A1A] outline-none focus:border-[#3B82F6] rounded">
+            </div>
+
+            <div>
+              <label class="block text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 mb-1">End Date</label>
+              <input type="date" name="end_date" value="{{ end_date_str }}" 
+                class="px-3 py-1.5 bg-[#FAF6F3] border border-[#D5C9BE] text-xs font-mono text-[#1A1A1A] outline-none focus:border-[#3B82F6] rounded">
+            </div>
+
+            <button type="submit" class="self-end px-5 py-2 bg-[#2563EB] text-white text-xs font-bold tracking-wider hover:bg-blue-700 transition-colors cursor-pointer border-none shadow-xs rounded">
+              Generate Report
+            </button>
+          </form>
+
+        </div>
+      </div>
+
+      <!-- 6 Executive KPI Metrics Cards -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3.5 mb-6">
+        
+        <!-- Total Orders Card (Blue) -->
+        <div class="bg-gradient-to-br from-[#3B82F6] to-[#2563EB] text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px] h-[140px]">
+          <div class="flex justify-between items-start mb-2">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+            </div>
+            <span class="text-[0.6rem] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white shrink-0">
+              {% if orders_pct >= 0 %}+{{ orders_pct }}%{% else %}{{ orders_pct }}%{% endif %}
+            </span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[0.58rem] font-extrabold uppercase tracking-widest text-blue-100 block mb-0.5 truncate">TOTAL ORDERS</span>
+            <div class="text-lg xl:text-xl font-black tracking-tight leading-tight truncate" title="{{ total_orders }}">{{ total_orders|default:"0" }}</div>
+          </div>
+        </div>
+
+        <!-- Gross Sales Card (Indigo) -->
+        <div class="bg-gradient-to-br from-[#6366F1] to-[#4F46E5] text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px] h-[140px]">
+          <div class="flex justify-between items-start mb-2">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M12 7h.01M15 7h.01M12 17h.01" />
+              </svg>
+            </div>
+            <span class="text-[0.6rem] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white shrink-0">
+              {% if gross_pct >= 0 %}+{{ gross_pct }}%{% else %}{{ gross_pct }}%{% endif %}
+            </span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[0.58rem] font-extrabold uppercase tracking-widest text-indigo-100 block mb-0.5 truncate">GROSS SALES</span>
+            <div class="text-lg xl:text-xl font-black tracking-tight leading-tight truncate" title="₹{{ gross_sales|floatformat:2 }}">₹{{ gross_sales|floatformat:2 }}</div>
+          </div>
+        </div>
+
+        <!-- Net Revenue Card (Pink/Rose) -->
+        <div class="bg-gradient-to-br from-[#E11D48] to-[#BE123C] text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px] h-[140px]">
+          <div class="flex justify-between items-start mb-2">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <span class="text-[0.6rem] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white shrink-0">
+              {% if revenue_pct >= 0 %}+{{ revenue_pct }}%{% else %}{{ revenue_pct }}%{% endif %}
+            </span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[0.58rem] font-extrabold uppercase tracking-widest text-rose-100 block mb-0.5 truncate">NET REVENUE</span>
+            <div class="text-lg xl:text-xl font-black tracking-tight leading-tight truncate" title="₹{{ net_revenue|floatformat:2 }}">₹{{ net_revenue|floatformat:2 }}</div>
+          </div>
+        </div>
+
+        <!-- Avg Order Value Card (Green) -->
+        <div class="bg-gradient-to-br from-[#10B981] to-[#059669] text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px] h-[140px]">
+          <div class="flex justify-between items-start mb-2">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+              </svg>
+            </div>
+            <span class="text-[0.6rem] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white shrink-0">
+              {% if aov_pct >= 0 %}+{{ aov_pct }}%{% else %}{{ aov_pct }}%{% endif %}
+            </span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[0.58rem] font-extrabold uppercase tracking-widest text-emerald-100 block mb-0.5 truncate">AVG ORDER VALUE</span>
+            <div class="text-lg xl:text-xl font-black tracking-tight leading-tight truncate" title="₹{{ avg_order_value|floatformat:2 }}">₹{{ avg_order_value|floatformat:2 }}</div>
+          </div>
+        </div>
+
+        <!-- Total Discounts Card (Amber/Brown) -->
+        <div class="bg-gradient-to-br from-[#D97706] to-[#B45309] text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px] h-[140px]">
+          <div class="flex justify-between items-start mb-2">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+              </svg>
+            </div>
+            <span class="text-[0.6rem] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white shrink-0">
+              {% if discounts_pct >= 0 %}+{{ discounts_pct }}%{% else %}{{ discounts_pct }}%{% endif %}
+            </span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[0.58rem] font-extrabold uppercase tracking-widest text-amber-100 block mb-0.5 truncate">TOTAL DISCOUNTS</span>
+            <div class="text-lg xl:text-xl font-black tracking-tight leading-tight truncate" title="₹{{ total_discounts|floatformat:2 }}">₹{{ total_discounts|floatformat:2 }}</div>
+          </div>
+        </div>
+
+        <!-- Wallet Used Card (Purple) -->
+        <div class="bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] text-white p-4 rounded-2xl shadow-sm relative overflow-hidden flex flex-col justify-between min-h-[140px] h-[140px]">
+          <div class="flex justify-between items-start mb-2">
+            <div class="w-8 h-8 rounded-xl bg-white/20 flex items-center justify-center shrink-0">
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z" />
+              </svg>
+            </div>
+            <span class="text-[0.6rem] font-extrabold px-2 py-0.5 rounded-full bg-white/20 text-white shrink-0">PAYMENTS</span>
+          </div>
+          <div class="mt-auto">
+            <span class="text-[0.58rem] font-extrabold uppercase tracking-widest text-purple-100 block mb-0.5 truncate">WALLET USED</span>
+            <div class="text-lg xl:text-xl font-black tracking-tight leading-tight truncate" title="₹{{ wallet_used|floatformat:2 }}">₹{{ wallet_used|floatformat:2 }}</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Charts Section -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+        
+        <!-- Sales Projection / Revenue Trend Bar Chart -->
+        <div class="lg:col-span-2 bg-white border border-[#e8e8e8] p-6 rounded-xl shadow-xs flex flex-col justify-between">
+          <div class="flex items-center justify-between mb-6">
+            <h3 class="text-xs font-black tracking-[0.2em] uppercase text-[#1A1A1A]">SALES PROJECTION</h3>
+          </div>
+          <div class="h-64">
+            <canvas id="trendChart"></canvas>
+          </div>
+        </div>
+
+        <!-- Payment Methods Donut Chart -->
+        <div class="bg-white border border-[#e8e8e8] p-6 rounded-xl shadow-xs flex flex-col justify-between">
+          <div>
+            <h3 class="text-base font-bold text-[#1A1A1A] mb-4">Payment Methods</h3>
+            <div class="h-48 relative flex items-center justify-center">
+              <canvas id="paymentChart"></canvas>
+              <!-- Donut Center Badge -->
+              <div class="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
+                <span class="text-lg font-black text-[#1A1A1A] leading-tight">{{ total_pay_count }}</span>
+                <span class="text-[0.6rem] font-bold text-gray-400 uppercase tracking-wider">TXNS</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Payment Legend Colors (Clean Vertical List, No Text Overlap) -->
+          <div class="flex flex-col gap-2.5 mt-4 pt-4 border-t border-gray-100 text-xs">
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#3B82F6] shrink-0"></span>
+                <span class="font-bold text-gray-700">Razorpay (Online)</span>
+              </div>
+              <span class="font-bold font-mono text-[#1A1A1A]">{% if total_pay_count > 0 %}{{ razorpay_pct }}%{% else %}55%{% endif %}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#EC4899] shrink-0"></span>
+                <span class="font-bold text-gray-700">Zitarra Wallet</span>
+              </div>
+              <span class="font-bold font-mono text-[#1A1A1A]">{% if total_pay_count > 0 %}{{ wallet_pct }}%{% else %}25%{% endif %}</span>
+            </div>
+
+            <div class="flex items-center justify-between">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-[#10B981] shrink-0"></span>
+                <span class="font-bold text-gray-700">Cash on Delivery</span>
+              </div>
+              <span class="font-bold font-mono text-[#1A1A1A]">{% if total_pay_count > 0 %}{{ cod_pct }}%{% else %}15%{% endif %}</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Transaction Activity Table -->
+      <div class="bg-white border border-[#e8e8e8] shadow-xs rounded-xl overflow-hidden mb-6">
+        <div class="px-6 py-4 border-b border-[#e8e8e8] flex items-center justify-between bg-white">
+          <h3 class="text-base font-bold text-[#1A1A1A]">Transaction Activity</h3>
+          <span class="text-[0.65rem] font-bold uppercase tracking-widest text-gray-400">
+            Showing {{ transactions.object_list|length }} Transactions
+          </span>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#fafafa] border-b border-[#e8e8e8] text-[0.6rem] font-black uppercase tracking-[0.18em] text-gray-400">
+                <th class="py-3 px-6">Transaction ID</th>
+                <th class="py-3 px-6">Timestamp</th>
+                <th class="py-3 px-6">Entity / Customer</th>
+                <th class="py-3 px-6 text-right">Subtotal</th>
+                <th class="py-3 px-6 text-right">Discount</th>
+                <th class="py-3 px-6 text-right">Value</th>
+                <th class="py-3 px-6 text-center">Payment Method</th>
+                <th class="py-3 px-6 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#e8e8e8] text-xs">
+              {% for order in transactions %}
+                <tr class="hover:bg-gray-50/80 transition-colors">
+                  <td class="py-3.5 px-6 font-mono font-extrabold text-[#1A1A1A]">
+                    <a href="{% url 'admin_order_detail' order.order_id %}" class="hover:text-[#A33C08] text-[#1A1A1A] no-underline">#{{ order.order_id }}</a>
+                  </td>
+
+                  <td class="py-3.5 px-6 font-mono text-gray-500">
+                    {{ order.created_at|date:"Y-m-d H:i:s" }}
+                  </td>
+
+                  <td class="py-3.5 px-6">
+                    <div class="font-bold text-[#1A1A1A]">{{ order.shipping_full_name|default:order.user.username }}</div>
+                    <div class="text-[0.65rem] text-gray-400 font-mono">{{ order.user.email }}</div>
+                  </td>
+
+                  <td class="py-3.5 px-6 text-right font-mono text-gray-600">
+                    ₹{{ order.subtotal|floatformat:2 }}
+                  </td>
+
+                  <td class="py-3.5 px-6 text-right font-mono font-bold text-amber-700">
+                    {% if order.discount_amount > 0 %}-₹{{ order.discount_amount|floatformat:2 }}{% else %}₹0.00{% endif %}
+                  </td>
+
+                  <td class="py-3.5 px-6 text-right font-mono font-black text-blue-600 text-sm">
+                    ₹{{ order.total_price|floatformat:2 }}
+                  </td>
+
+                  <td class="py-3.5 px-6 text-center font-mono">
+                    <span class="px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-wider rounded-md border
+                      {% if order.payment_method == 'RAZORPAY' %}bg-blue-50 text-blue-700 border-blue-200
+                      {% elif order.payment_method == 'WALLET' %}bg-purple-50 text-purple-700 border-purple-200
+                      {% else %}bg-amber-50 text-amber-800 border-amber-200{% endif %}">
+                      {{ order.payment_method }}
+                    </span>
+                  </td>
+
+                  <td class="py-3.5 px-6 text-center">
+                    <span class="px-2.5 py-1 text-[0.62rem] font-bold uppercase tracking-wider rounded-md border
+                      {% if order.order_status == 'DELIVERED' %}bg-emerald-50 text-emerald-700 border-emerald-200
+                      {% elif order.order_status == 'CANCELLED' %}bg-red-50 text-red-700 border-red-200
+                      {% else %}bg-amber-50 text-amber-800 border-amber-200{% endif %}">
+                      {{ order.get_order_status_display }}
+                    </span>
+                  </td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="8" class="py-12 text-center text-gray-400 text-xs font-mono">
+                    No transaction activity found for the selected date range.
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination Controls -->
+        {% if page_obj.has_other_pages %}
+        <div class="px-6 py-4 border-t border-[#e8e8e8] bg-white flex flex-col sm:flex-row items-center justify-between gap-4">
+          
+          <div class="text-xs text-gray-500 font-mono">
+            Showing <span class="font-bold text-[#1A1A1A]">{{ page_obj.start_index }}</span> to <span class="font-bold text-[#1A1A1A]">{{ page_obj.end_index }}</span> of <span class="font-bold text-[#1A1A1A]">{{ page_obj.paginator.count }}</span> transactions
+          </div>
+
+          <div class="flex items-center gap-1.5">
+            <!-- Prev Button -->
+            {% if page_obj.has_previous %}
+            <a href="?preset={{ filter_preset }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}&page={{ page_obj.previous_page_number }}"
+               class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+              PREV
+            </a>
+            {% else %}
+            <span class="px-3.5 py-1.5 bg-[#FAF4EF] border border-[#E2D6CB] text-gray-300 text-xs font-bold select-none cursor-not-allowed">PREV</span>
+            {% endif %}
+
+            <!-- Page Number Links -->
+            {% for page in page_obj.paginator.page_range %}
+              {% if page == page_obj.number %}
+              <span class="w-8 h-8 flex items-center justify-center bg-[#A33C08] border border-[#A33C08] text-white text-xs font-black shadow-xs">{{ page }}</span>
+              {% elif page >= page_obj.number|add:"-2" and page <= page_obj.number|add:"2" %}
+              <a href="?page={{ page }}&preset={{ filter_preset }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}"
+                 class="w-8 h-8 flex items-center justify-center bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+                {{ page }}
+              </a>
+              {% endif %}
+            {% endfor %}
+
+            <!-- Next Button -->
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}&preset={{ filter_preset }}&start_date={{ start_date_str }}&end_date={{ end_date_str }}"
+               class="px-3.5 py-1.5 bg-white border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors text-xs font-bold no-underline">
+              NEXT
+            </a>
+            {% else %}
+            <span class="px-3.5 py-1.5 bg-[#FAF4EF] border border-[#E2D6CB] text-gray-300 text-xs font-bold select-none cursor-not-allowed">NEXT</span>
+            {% endif %}
+          </div>
+
+        </div>
+        {% endif %}
+
+      </div>
+
+    </main>
+  </div>
+</div>
+
+<!-- JS Chart Controls -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    // Sidebar Toggle for Mobile
+    const sidebarBtn = document.getElementById('sidebar-toggle');
+    const sidebarEl = document.getElementById('admin-sidebar');
+    if (sidebarBtn && sidebarEl) {
+      sidebarBtn.addEventListener('click', () => {
+        sidebarEl.classList.toggle('-translate-x-full');
+      });
+    }
+
+    // Chart.js Dual-Axis Trend Visuals (Revenue Bar + Order Count Line)
+    const labels = {{ trend_labels_json|safe }};
+    const grossData = {{ trend_gross_json|safe }};
+    const revenueData = {{ trend_revenue_json|safe }};
+    const ordersData = {{ trend_orders_json|safe }};
+
+    // Active bar color: Zitarra Brand Orange #E8500A for days with sales, #F3F4F6 for zero sales
+    const backgroundColors = revenueData.map(val => val > 0 ? '#E8500A' : '#F3F4F6');
+    const hoverBackgroundColors = revenueData.map(val => val > 0 ? '#C53D00' : '#E5E7EB');
+
+    const ctxTrend = document.getElementById('trendChart')?.getContext('2d');
+    if (ctxTrend && typeof Chart !== 'undefined') {
+      new Chart(ctxTrend, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              type: 'line',
+              label: 'Orders Count',
+              data: ordersData,
+              borderColor: '#3B82F6',
+              backgroundColor: '#3B82F6',
+              borderWidth: 2.5,
+              pointBackgroundColor: '#3B82F6',
+              pointBorderColor: '#FFFFFF',
+              pointBorderWidth: 2,
+              pointRadius: 4.5,
+              pointHoverRadius: 6,
+              tension: 0.3,
+              yAxisID: 'y1',
+              order: 1
+            },
+            {
+              type: 'bar',
+              label: 'Net Revenue (₹)',
+              data: revenueData,
+              backgroundColor: backgroundColors,
+              hoverBackgroundColor: hoverBackgroundColors,
+              borderRadius: 4,
+              maxBarThickness: 45,
+              categoryPercentage: 0.5,
+              barPercentage: 0.6,
+              yAxisID: 'y',
+              order: 2
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { 
+              display: true,
+              position: 'top',
+              align: 'end',
+              labels: {
+                boxWidth: 10,
+                usePointStyle: true,
+                font: { size: 10, family: 'Inter', weight: '700' },
+                color: '#4B5563'
+              }
+            },
+            tooltip: {
+              backgroundColor: '#1A1A1A',
+              titleFont: { family: 'Inter', size: 11, weight: 'bold' },
+              bodyFont: { family: 'Inter', size: 11 },
+              padding: 10,
+              displayColors: true,
+              callbacks: {
+                label: function(context) {
+                  const idx = context.dataIndex;
+                  const gross = grossData[idx] || 0;
+                  const rev = revenueData[idx] || 0;
+                  const ord = ordersData[idx] || 0;
+                  if (context.dataset.type === 'line') {
+                    return ` Orders: ${ord} units`;
+                  }
+                  return ` Net Rev: ₹${rev.toFixed(2)} (Gross: ₹${gross.toFixed(2)})`;
+                }
+              }
+            }
+          },
+          scales: {
+            y: {
+              type: 'linear',
+              position: 'left',
+              beginAtZero: true,
+              grid: { color: '#F3F4F6', drawBorder: false },
+              ticks: { 
+                font: { size: 10, family: 'Inter', weight: '600' }, 
+                color: '#9CA3AF',
+                callback: function(val) {
+                  if (val >= 100000) return '₹' + (val / 100000).toFixed(1) + 'L';
+                  if (val >= 1000) return '₹' + (val / 1000).toFixed(0) + 'k';
+                  return '₹' + val;
+                }
+              }
+            },
+            y1: {
+              type: 'linear',
+              position: 'right',
+              beginAtZero: true,
+              grid: { display: false },
+              ticks: {
+                font: { size: 10, family: 'Inter', weight: '600' },
+                color: '#3B82F6',
+                precision: 0,
+                callback: function(val) {
+                  return val + ' ord';
+                }
+              }
+            },
+            x: {
+              grid: { display: false, drawBorder: false },
+              ticks: { font: { size: 10, weight: '800', family: 'Inter' }, color: '#9CA3AF' }
+            }
+          }
+        }
+      });
+    }
+
+    // Chart.js Payment Donut Chart
+    const ctxPayment = document.getElementById('paymentChart')?.getContext('2d');
+    if (ctxPayment && typeof Chart !== 'undefined') {
+      const rCount = {{ razorpay_count|default:0 }};
+      const wCount = {{ wallet_count|default:0 }};
+      const cCount = {{ cod_count|default:0 }};
+
+      new Chart(ctxPayment, {
+        type: 'doughnut',
+        data: {
+          labels: ['Razorpay (Online)', 'Wallet', 'Cash on Delivery'],
+          datasets: [{
+            data: [rCount, wCount, cCount],
+            backgroundColor: ['#3B82F6', '#EC4899', '#10B981'],
+            borderWidth: 3,
+            borderColor: '#FFFFFF'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '75%',
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+    }
+  });
+
+  function toggleCustomDates() {
+    const container = document.getElementById('custom-date-container');
+    if (container) {
+      container.classList.toggle('hidden');
+    }
+  }
+</script>
+{% endblock %}

@@ -4,8 +4,9 @@ from django.db.models import Q, Max
 import math
 from django.views.decorators.cache import cache_control
 from common.decorators import user_not_blocked
-from admin_panel.products.models import Product
+from admin_panel.products.models import Product, ProductReview
 from admin_panel.category.models import Category
+
 from django.contrib import messages
 from user_panel.wishlist.models import WishlistItem
 from common.services import get_eligible_coupons
@@ -206,6 +207,26 @@ def product_detail_view(request, product_id):
 
     active_coupons = get_eligible_coupons(user=request.user, limit=3)
 
+    # Fetch product reviews and calculate rating stats
+    reviews = product.reviews.all().order_by('-created_at')
+    total_reviews = reviews.count()
+    avg_rating = product.average_rating
+
+    rating_counts = {5: 0, 4: 0, 3: 0, 2: 0, 1: 0}
+    for r in reviews:
+        if r.rating in rating_counts:
+            rating_counts[r.rating] += 1
+
+    rating_breakdown = []
+    for star in [5, 4, 3, 2, 1]:
+        count = rating_counts[star]
+        pct = round((count / total_reviews * 100), 1) if total_reviews > 0 else 0
+        rating_breakdown.append({
+            'star': star,
+            'count': count,
+            'pct': pct,
+        })
+
     context = {
         "product": product,
         "variants": variants,
@@ -217,6 +238,58 @@ def product_detail_view(request, product_id):
         "highlights_list": highlights_list,
         "is_in_wishlist": is_in_wishlist,
         "active_coupons": active_coupons,
+        "reviews": reviews,
+        "total_reviews": total_reviews,
+        "avg_rating": avg_rating,
+        "rating_breakdown": rating_breakdown,
     }
     
     return render(request, "user/shop/product_detail.html", context)
+
+
+@cache_control(no_cache=True, no_store=True, must_revalidate=True)
+def post_review_view(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id)
+        
+        reviewer_name = request.POST.get('reviewer_name', '').strip()
+        if request.user.is_authenticated and not reviewer_name:
+            user_full = getattr(request.user, 'fullname', '') or getattr(request.user, 'username', '')
+            reviewer_name = user_full if user_full else "Verified Customer"
+
+        if not reviewer_name:
+            reviewer_name = "Verified Customer"
+
+        try:
+            rating = int(request.POST.get('rating', 5))
+            if rating < 1 or rating > 5:
+                rating = 5
+        except (ValueError, TypeError):
+            rating = 5
+
+        title = request.POST.get('title', '').strip()
+        comment = request.POST.get('comment', '').strip()
+        image = request.FILES.get('image')
+        video = request.FILES.get('video')
+
+        if not title or not comment:
+            messages.error(request, "Please provide both a review headline and detailed review text.")
+            return redirect(f"/shop/product/{product_id}/#reviews-section")
+
+        ProductReview.objects.create(
+            product=product,
+            user=request.user if request.user.is_authenticated else None,
+            reviewer_name=reviewer_name,
+            rating=rating,
+            title=title,
+            comment=comment,
+            image=image,
+            video=video,
+            is_verified_buyer=True
+        )
+
+        messages.success(request, "Thank you! Your review and rating have been posted successfully.")
+        return redirect(f"/shop/product/{product_id}/#reviews-section")
+    
+    return redirect("shop")
+

@@ -382,12 +382,15 @@
                 <div class="text-base font-black text-brand-dark">
                   ₹{{ item.item_subtotal|floatformat:2 }}
                 </div>
-                {% if item.item_status != 'CANCELLED' %}
-                <button type="button" class="inline-flex items-center gap-1.5 text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors border-none bg-transparent cursor-pointer p-0">
+                {% if item.item_status == 'DELIVERED' and item.product %}
+                <button type="button"
+                        onclick="openOrderReviewModal({{ item.product.id }}, '{{ item.product_name|escapejs }}')"
+                        class="inline-flex items-center gap-1.5 text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors border-none bg-transparent cursor-pointer p-0">
                   <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
                   <span>WRITE A REVIEW</span>
                 </button>
                 {% endif %}
+
               </div>
 
             </div>
@@ -666,8 +669,93 @@
   </div>
 </div>
 
+<!-- WRITE A REVIEW MODAL (Order Detail Page) -->
+<div id="order-review-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[99999] flex items-center justify-center hidden p-4 overflow-y-auto min-h-screen">
+  <div class="bg-white max-w-lg w-full rounded-xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all my-auto">
+    <!-- Modal Header -->
+    <div class="bg-brand-dark text-white px-6 py-4 flex justify-between items-center">
+      <div>
+        <h3 class="text-sm font-black uppercase tracking-[0.14em] text-white m-0">Write a Product Review</h3>
+        <p id="order-review-product-name" class="text-[0.65rem] text-gray-300 uppercase tracking-wider truncate max-w-xs m-0 mt-0.5"></p>
+      </div>
+      <button type="button" onclick="closeOrderReviewModal()" class="text-gray-400 hover:text-white transition-colors text-2xl font-bold leading-none cursor-pointer border-none bg-transparent">&times;</button>
+    </div>
+
+    <!-- Review Form -->
+    <form id="order-review-form" action="" method="POST" enctype="multipart/form-data" class="p-6 space-y-4 m-0">
+      {% csrf_token %}
+
+      <!-- Interactive Star Rating Input -->
+      <div>
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">Overall Star Rating <span class="text-red-500">*</span></label>
+        <div class="flex items-center gap-1" id="orderStarRatingContainer">
+          <input type="hidden" name="rating" id="orderRatingInput" value="5">
+          <button type="button" onclick="setOrderRating(1)" onmouseenter="highlightOrderStars(1)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="1">★</button>
+          <button type="button" onclick="setOrderRating(2)" onmouseenter="highlightOrderStars(2)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="2">★</button>
+          <button type="button" onclick="setOrderRating(3)" onmouseenter="highlightOrderStars(3)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="3">★</button>
+          <button type="button" onclick="setOrderRating(4)" onmouseenter="highlightOrderStars(4)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="4">★</button>
+          <button type="button" onclick="setOrderRating(5)" onmouseenter="highlightOrderStars(5)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="5">★</button>
+          <span id="orderRatingLabel" class="ml-3 text-xs font-bold text-gray-600 uppercase tracking-wider">5.0 - Excellent</span>
+        </div>
+      </div>
+
+      <!-- Reviewer Name -->
+      <div>
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Your Name <span class="text-red-500">*</span></label>
+        <input type="text" name="reviewer_name" value="{% if request.user.is_authenticated %}{{ request.user.fullname|default:request.user.username }}{% endif %}" placeholder="e.g. Rahul Sharma" required class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans">
+      </div>
+
+      <!-- Review Headline -->
+      <div>
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Review Headline <span class="text-red-500">*</span></label>
+        <input type="text" name="title" placeholder="e.g. Exceptional sound resonance & build quality!" required class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans">
+      </div>
+
+      <!-- Review Body -->
+      <div>
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Detailed Review <span class="text-red-500">*</span></label>
+        <textarea name="comment" rows="4" placeholder="Tell us about the tone, craftsmanship, packaging, and playability..." required class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans"></textarea>
+      </div>
+
+      <!-- Upload Photo & Video Fields -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
+        <!-- Image Upload -->
+        <div>
+          <label class="block text-[0.65rem] font-bold uppercase tracking-wider text-gray-600 mb-1">Attach Photo (Optional)</label>
+          <div class="relative border border-dashed border-gray-300 rounded p-2.5 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+            <input type="file" name="image" accept="image/*" onchange="handleOrderFilePreview(this, 'orderImageFileName')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+            <div class="flex flex-col items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <span class="text-[0.62rem] text-gray-500 font-medium truncate max-w-[130px]" id="orderImageFileName">Choose Image</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Upload -->
+        <div>
+          <label class="block text-[0.65rem] font-bold uppercase tracking-wider text-gray-600 mb-1">Attach Video (Optional)</label>
+          <div class="relative border border-dashed border-gray-300 rounded p-2.5 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+            <input type="file" name="video" accept="video/*" onchange="handleOrderFilePreview(this, 'orderVideoFileName')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+            <div class="flex flex-col items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+              <span class="text-[0.62rem] text-gray-500 font-medium truncate max-w-[130px]" id="orderVideoFileName">Choose Video</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Submit Controls -->
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-200">
+        <button type="button" onclick="closeOrderReviewModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors rounded cursor-pointer bg-white">Cancel</button>
+        <button type="submit" class="px-6 py-2.5 bg-brand-dark text-white text-xs font-black uppercase tracking-wider hover:bg-black transition-colors rounded shadow-md cursor-pointer border-none">Submit Review</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- REUSABLE CUSTOM ALERT / WARNING MODAL -->
 <div id="custom-alert-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[999999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
+
   <div class="bg-white max-w-sm w-full p-6 text-center border border-gray-200 shadow-2xl relative my-auto rounded-xs transform transition-all duration-300">
     <button type="button" onclick="closeCustomAlertModal()" class="absolute top-3 right-3 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
     
@@ -865,7 +953,70 @@
     }
   }
 
+  /* --- ORDER REVIEW MODAL FUNCTIONS --- */
+  let currentOrderRating = 5;
+  const orderRatingLabels = {
+    5: "5.0 - Excellent",
+    4: "4.0 - Very Good",
+    3: "3.0 - Good",
+    2: "2.0 - Fair",
+    1: "1.0 - Poor"
+  };
+
+  function openOrderReviewModal(productId, productName) {
+    const form = document.getElementById('order-review-form');
+    if (form) form.action = `/shop/product/${productId}/review/`;
+    const title = document.getElementById('order-review-product-name');
+    if (title) title.textContent = productName;
+    setOrderRating(5);
+    openGlobalModal('order-review-modal');
+  }
+
+  function closeOrderReviewModal() {
+    closeGlobalModal('order-review-modal');
+  }
+
+  function setOrderRating(val) {
+    currentOrderRating = val;
+    const ratingInput = document.getElementById('orderRatingInput');
+    const ratingLabel = document.getElementById('orderRatingLabel');
+    if (ratingInput) ratingInput.value = val;
+    if (ratingLabel) ratingLabel.textContent = orderRatingLabels[val] || `${val}.0`;
+    updateOrderStarVisuals(val);
+  }
+
+  function highlightOrderStars(val) {
+    updateOrderStarVisuals(val);
+  }
+
+  function resetOrderStars() {
+    updateOrderStarVisuals(currentOrderRating);
+  }
+
+  function updateOrderStarVisuals(val) {
+    const starBtns = document.querySelectorAll('#orderStarRatingContainer .order-star-btn');
+    starBtns.forEach(btn => {
+      const btnVal = parseInt(btn.getAttribute('data-value'));
+      if (btnVal <= val) {
+        btn.classList.remove('text-gray-300');
+        btn.classList.add('text-amber-500');
+      } else {
+        btn.classList.remove('text-amber-500');
+        btn.classList.add('text-gray-300');
+      }
+    });
+  }
+
+  function handleOrderFilePreview(input, labelId) {
+    const file = input.files[0];
+    const label = document.getElementById(labelId);
+    if (file && label) {
+      label.textContent = file.name;
+    }
+  }
+
   document.addEventListener('DOMContentLoaded', function() {
+
     const returnSuccessModal = document.getElementById('return-success-modal');
     if (returnSuccessModal) {
       document.body.appendChild(returnSuccessModal);
