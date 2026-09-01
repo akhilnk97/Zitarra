@@ -444,122 +444,104 @@
   </div>
 </div>
 
-<!-- Custom Delete Confirmation Modal -->
+<!-- Custom Delete Confirmation Modal (Matching Brand design) -->
 <div id="deleteConfirmModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
-  <div class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[420px] p-6 flex flex-col shadow-2xl rounded-sm">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-      <div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      </div>
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden p-4 transition-opacity duration-200">
+  <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans flex flex-col">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
       <div>
-        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]">Delete Variant</h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Confirmation Required</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 class="text-xl font-black uppercase text-[#1A1A1A] tracking-tight m-0">Delete Variant</h3>
       </div>
+      <button type="button" onclick="closeDeleteModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <p class="text-[0.65rem] font-semibold text-gray-600 mb-6 leading-relaxed" id="deleteModalText">
+    <p class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed" id="deleteModalText">
       Are you sure you want to delete this variant?
     </p>
 
-    <div class="flex justify-end gap-3">
+    <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
       <button type="button" onclick="closeDeleteModal()"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">
+        class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
         Cancel
       </button>
       <button type="button" onclick="submitDeleteForm()"
-        class="bg-red-600 text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-red-700 transition-colors cursor-pointer shadow-sm">
+        class="px-6 py-3 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-wider hover:bg-red-700 cursor-pointer shadow-md font-sans">
         Delete
       </button>
     </div>
   </div>
 </div>
 
-<!-- Custom Toggle Status Confirmation Modal -->
+<!-- Custom Toggle Status Confirmation Modal (Matching Brand design) -->
 <div id="toggleStatusModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
-  <div class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[420px] p-6 flex flex-col shadow-2xl rounded-sm">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-        </svg>
-      </div>
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden p-4 transition-opacity duration-200">
+  <div class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans flex flex-col">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
       <div>
-        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]" id="toggleModalTitle">Toggle
-          Variant Status</h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Confirmation Required</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 class="text-xl font-black uppercase text-[#1A1A1A] tracking-tight m-0" id="toggleModalTitle">Toggle Variant Status</h3>
       </div>
+      <button type="button" onclick="closeToggleModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <p class="text-[0.65rem] font-semibold text-gray-600 mb-6 leading-relaxed" id="toggleModalText">
+    <p class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed" id="toggleModalText">
       Are you sure you want to change the status of this variant?
     </p>
 
-    <div class="flex justify-end gap-3">
+    <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
       <button type="button" onclick="closeToggleModal()"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">
+        class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
         Cancel
       </button>
       <button type="button" onclick="submitToggleForm()" id="toggleConfirmBtn"
-        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-brand-rust transition-colors cursor-pointer shadow-sm">
+        class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">
         Confirm
       </button>
     </div>
   </div>
 </div>
 
-<!-- Cropper Modal -->
+<!-- Cropper Modal (Matching Brand design) -->
 <div id="cropperModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
-  <div class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[460px] p-6 flex flex-col shadow-2xl rounded-sm">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden p-4 transition-opacity duration-200">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative border border-gray-100 font-sans flex flex-col">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
       <div>
-        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]">Crop Variant Image</h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Media Studio</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">MEDIA STUDIO</p>
+        <h3 class="text-xl font-black uppercase tracking-tight text-[#1A1A1A] m-0">Crop Variant Image</h3>
       </div>
+      <button type="button" onclick="cancelCrop()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <div class="w-full h-[280px] bg-black overflow-hidden relative border border-gray-200">
+    <div class="w-full h-[280px] bg-black overflow-hidden relative border border-gray-200 rounded-xl">
       <img id="cropperImage" class="max-w-full max-h-full block mx-auto" />
     </div>
 
     <!-- Aspect Ratio Selectors -->
-    <div class="flex justify-between items-center mt-4 border-b border-gray-100 pb-3">
+    <div class="flex justify-between items-center mt-4 border-b border-gray-100 pb-4">
       <span class="text-[0.52rem] font-bold text-gray-400 uppercase tracking-widest">Aspect Ratio</span>
       <div class="flex gap-1.5" id="ratioSelectorContainer">
         <button type="button" onclick="setAspectRatio(1)"
-          class="ratio-btn border border-[#A33C08] bg-[#A33C08] text-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">1:1</button>
+          class="ratio-btn border border-[#A33C08] bg-[#A33C08] text-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer">1:1</button>
         <button type="button" onclick="setAspectRatio(4/3)"
-          class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">4:3</button>
+          class="ratio-btn border border-gray-200 text-gray-600 bg-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:bg-gray-50">4:3</button>
         <button type="button" onclick="setAspectRatio(16/9)"
-          class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">16:9</button>
+          class="ratio-btn border border-gray-200 text-gray-600 bg-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:bg-gray-50">16:9</button>
         <button type="button" onclick="setAspectRatio(NaN)"
-          class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">Free</button>
+          class="ratio-btn border border-gray-200 text-gray-600 bg-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:bg-gray-50">Free</button>
       </div>
     </div>
 
-    <div class="flex justify-end gap-3 mt-4">
+    <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
       <button type="button" onclick="cancelCrop()"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
+        class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">Cancel</button>
       <button type="button" onclick="saveCrop()"
-        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-[#863005] transition-colors cursor-pointer shadow-sm">Apply
-        Crop</button>
+        class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">Apply Crop</button>
     </div>
   </div>
 </div>
+
 
 <script>
   let cropper = null;

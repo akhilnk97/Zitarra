@@ -9,6 +9,8 @@ from common.decorators import admin_required
 from common.services import save_base64_image
 from .models import Product, ProductImage, ProductVariant, VariantImage
 from admin_panel.category.models import Category
+from admin_panel.brands.models import Brand
+
 
 
 @admin_required
@@ -170,8 +172,10 @@ def admin_product_add_view(request):
         return redirect('admin_products')  
     
     categories = Category.objects.filter(is_deleted=False, is_active=True)
+    brands = Brand.objects.filter(is_deleted=False, status='ACTIVE').order_by('name')
     return render(request, 'admin_panel/products/add_product.html', {
         'categories': categories,
+        'brands': brands,
         'admin_name': request.user.fullname
     })
 
@@ -240,9 +244,11 @@ def admin_product_edit_view(request, product_id):
         return redirect("admin_products")
 
     categories = Category.objects.filter(is_active=True)
+    brands = Brand.objects.filter(is_deleted=False, status='ACTIVE').order_by('name')
     return render(request, "admin_panel/products/edit_product.html", {
         "product": product,
         "categories": categories,
+        "brands": brands,
         "admin_name": request.user.fullname
     })
 

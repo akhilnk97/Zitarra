@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'admin_panel.orders.apps.AdminOrdersConfig',
     'admin_panel.returns.apps.AdminReturnsConfig',
     'admin_panel.sales.apps.AdminSalesConfig',
+    'admin_panel.brands.apps.AdminBrandsConfig',
 ]
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

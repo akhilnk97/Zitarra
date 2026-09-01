@@ -36,135 +36,12 @@
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
     <!-- Sidebar -->
-    <aside id="admin-sidebar"
-      class="fixed inset-y-0 left-0 z-50 w-[220px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
-            <nav class="flex flex-col overflow-y-auto flex-1">
-
-        <!-- Dashboard -->
-        <a href="{% url 'admin_dashboard' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16" height="16" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-          <span>DASHBOARD</span>
-        </a>
-
-        <!-- Products -->
-        <a href="{% url 'admin_products' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-          <span>PRODUCTS</span>
-        </a>
-
-        <!-- Order List -->
-        <a href="{% url 'admin_orders' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-          <span>ORDER LIST</span>
-        </a>
-
-        <!-- Returns Management -->
-        <a href="{% url 'admin_returns' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 5h.01M12 16h.01M12 12h.01" />
-          </svg>
-          <span>RETURNS MANAGEMENT</span>
-        </a>
-
-        <!-- Users -->
-        <a href="{% url 'admin_users' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span>USERS</span>
-        </a>
-
-        <!-- Brands -->
-        <a href="{% url 'admin_unimplemented' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          <span>BRANDS</span>
-        </a>
-
-        <!-- Sales Report -->
-        <a href="{% url 'admin_sales_report' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9-1v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z" />
-          </svg>
-          <span>SALES REPORT</span>
-        </a>
-
-        <!-- Coupons -->
-        <a href="{% url 'admin_coupons' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-          </svg>
-          <span>COUPONS</span>
-        </a>
-
-        <!-- Category (Active) -->
-        <a href="{% url 'admin_category' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-white" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-          <span>CATEGORY</span>
-        </a>
-
-        <!-- Banners -->
-        <a href="{% url 'admin_unimplemented' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span>BANNERS</span>
-        </a>
-
-      </nav>
-      <div class="p-6">
-        <a href="{% url 'admin_logout' %}"
-          class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.6rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span>LOGOUT</span>
-        </a>
-      </div>
-    </aside>
+    <!-- Shared Admin Sidebar Navigation -->
+    {% include 'admin_panel/includes/sidebar.html' with active_page='category' %}
 
     <!-- Main Content -->
-    <main class="flex-1 bg-white overflow-y-auto scroll-smooth px-10 pb-8 relative">
+    <main class="flex-1 bg-[#FDFBF9] overflow-y-auto scroll-smooth px-10 pb-8 relative">
+
 
       <!-- Page Title -->
       <div class="pt-8 mb-1">
@@ -332,43 +209,48 @@
         </div>
       </div>
 
-      <!-- Footer Action Row (Pagination) -->
-      <div class="flex justify-between items-center mt-8 pt-6 border-t border-[#e8e8e8] select-none shrink-0">
-        <div class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-400 uppercase">
-          PAGE {{ categories.number }} OF {{ categories.paginator.num_pages }}
-        </div>
+      <!-- Footer Action Row (Pagination matching Brand design) -->
+      <div class="px-6 py-4 border-t border-gray-200/60 bg-white flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 w-full select-none mt-8 rounded-2xl">
+
+        <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-[0.2em] m-0">
+          SHOWING {{ categories.start_index|stringformat:"02d" }} - {{ categories.end_index|stringformat:"02d" }} &nbsp;/&nbsp; {{ categories.paginator.count|stringformat:"02d" }} TOTAL CATEGORIES
+        </p>
 
         <!-- Paginator -->
-        <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2">
           {% if categories.has_previous %}
           <a href="?page={{ categories.previous_page_number }}&search={{ search_query }}&sort={{ sort_val }}"
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">PREV</a>
+             class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+            &lsaquo;
+          </a>
           {% else %}
-          <span
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">PREV</span>
+          <span class="w-10 h-10 flex items-center justify-center rounded-2xl bg-gray-100/70 text-gray-300 text-xs font-bold cursor-not-allowed">
+            &lsaquo;
+          </span>
           {% endif %}
 
-          <div class="flex items-center gap-2">
-            {% for num in categories.paginator.page_range %}
+          {% for num in categories.paginator.page_range %}
             {% if categories.number == num %}
-            <span
-              class="w-7 h-7 bg-[#1A1A1A] text-white flex items-center justify-center text-[0.62rem] font-bold select-none cursor-default">
+            <span class="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#A33C08] text-white text-xs font-black shadow-sm">
               {{ num|stringformat:"02d" }}
             </span>
-            {% elif num > categories.number|add:"-3" and num < categories.number|add:"3" %} <a
-              href="?page={{ num }}&search={{ search_query }}&sort={{ sort_val }}"
-              class="w-7 h-7 border border-transparent text-gray-500 hover:border-gray-200 flex items-center justify-center text-[0.62rem] font-bold no-underline transition-all duration-250">
-              {{ num|stringformat:"02d" }}</a>
-              {% endif %}
-              {% endfor %}
-          </div>
+            {% elif num > categories.number|add:"-3" and num < categories.number|add:"3" %}
+            <a href="?page={{ num }}&search={{ search_query }}&sort={{ sort_val }}"
+               class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+              {{ num|stringformat:"02d" }}
+            </a>
+            {% endif %}
+          {% endfor %}
 
           {% if categories.has_next %}
           <a href="?page={{ categories.next_page_number }}&search={{ search_query }}&sort={{ sort_val }}"
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-500 hover:text-[#1A1A1A] no-underline uppercase transition-colors duration-200">NEXT</a>
+             class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+            &rsaquo;
+          </a>
           {% else %}
-          <span
-            class="text-[0.52rem] font-bold tracking-[0.18em] text-gray-300 uppercase select-none cursor-not-allowed">NEXT</span>
+          <span class="w-10 h-10 flex items-center justify-center rounded-2xl bg-gray-100/70 text-gray-300 text-xs font-bold cursor-not-allowed">
+            &rsaquo;
+          </span>
           {% endif %}
         </div>
       </div>
@@ -379,55 +261,39 @@
 
 <!-- Add Category Modal -->
 <div id="addCategoryModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
   <div id="addCategoryModalContent"
-    class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[460px] p-6 md:p-8 flex flex-col shadow-2xl rounded-sm transform scale-95 transition-transform duration-250">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-5">
-      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
-        </svg>
-      </div>
+    class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-6">
       <div>
-        <h3 class="text-[0.72rem] font-black tracking-[0.14em] uppercase text-[#1A1A1A]">Add New Category</h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Inventory Management</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">INVENTORY MANAGEMENT</p>
+        <h3 class="text-xl font-black uppercase text-[#1A1A1A] tracking-tight m-0">Add New Category</h3>
       </div>
+      <button type="button" onclick="closeAddModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <form method="POST" enctype="multipart/form-data">
+    <form method="POST" enctype="multipart/form-data" class="space-y-4">
       {% csrf_token %}
-      <div class="mb-4">
-        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-1.5">Category
-          Name</label>
-        <input type="text" name="name" required placeholder="E.G. ACOUSTIC GUITARS"
-          class="w-full border border-gray-300 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-wider text-brand-dark bg-white outline-none focus:border-brand-rust transition-colors" />
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">Category Name *</label>
+        <input type="text" name="name" required placeholder="e.g. ACOUSTIC GUITARS"
+          class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans" />
       </div>
-      <div class="mb-4">
-        <label
-          class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-1.5">Description (Max 500 chars)</label>
-        <textarea name="description" rows="3" maxlength="500" placeholder="SHORT CATEGORY DESCRIPTION..."
-          class="w-full border border-gray-300 px-3 py-2 text-[0.65rem] font-semibold uppercase tracking-wider text-brand-dark bg-white outline-none focus:border-brand-rust transition-colors resize-none"></textarea>
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">Description (Max 500 chars)</label>
+        <textarea name="description" rows="3" maxlength="500" placeholder="Brief category description..."
+          class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors resize-none font-sans"></textarea>
       </div>
-      <div class="mb-6">
-        <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-1.5">Category
-          Image</label>
-        <label
-          class="flex items-center gap-3 border border-dashed border-gray-300 px-4 py-3 cursor-pointer hover:border-brand-rust transition-colors bg-[#fafafa]">
-          <svg class="w-4 h-4 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span class="text-[0.58rem] font-bold uppercase tracking-wider text-gray-400">Upload Image</span>
-          <input type="file" name="image" class="hidden" accept="image/*" />
-        </label>
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">Category Image</label>
+        <input type="file" name="image" accept="image/*"
+          class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer font-sans" />
       </div>
-      <div class="flex items-center justify-end gap-3">
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
         <button type="button" onclick="closeAddModal()"
-          class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">Cancel</button>
+          class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">Cancel</button>
         <button type="submit"
-          class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#863005] transition-colors cursor-pointer border-none shadow-sm">Add
-          Category</button>
+          class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">Add Category</button>
       </div>
     </form>
   </div>
@@ -435,85 +301,70 @@
 
 <!-- Delete Category Modal -->
 <div id="deleteCategoryModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
   <div id="deleteCategoryModalContent"
-    class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[420px] p-6 flex flex-col shadow-2xl rounded-sm transform scale-95 transition-transform duration-250">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-      <div class="w-8 h-8 rounded-full bg-red-50 text-red-600 flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-        </svg>
-      </div>
+    class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
       <div>
-        <h3 class="text-[0.72rem] font-black tracking-[0.12em] uppercase text-[#1A1A1A] leading-none">Delete Category
-        </h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400 mt-1">Confirmation Required</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 class="text-xl font-black uppercase text-[#1A1A1A] tracking-tight m-0">Delete Category</h3>
       </div>
+      <button type="button" onclick="closeDeleteCategoryModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <p class="text-[0.65rem] font-semibold text-gray-600 mb-6 leading-relaxed" id="deleteCategoryModalText">
+    <p class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed" id="deleteCategoryModalText">
       Are you sure you want to delete this category? This action cannot be undone.
     </p>
 
-    <div class="flex items-center justify-end gap-3">
+    <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
       <button type="button" onclick="closeDeleteCategoryModal()"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
+        class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
         Cancel
       </button>
       <button type="button" onclick="submitDeleteCategoryForm()"
-        class="bg-red-600 text-white px-5 py-2 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-red-700 transition-colors cursor-pointer border-none shadow-sm">
+        class="px-6 py-3 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-wider hover:bg-red-700 cursor-pointer shadow-md font-sans">
         Delete Category
       </button>
     </div>
   </div>
 </div>
 
-<!-- Toggle Offer Confirmation Modal -->
+
+<!-- Toggle Offer Confirmation Modal (Matching Brand design) -->
 <div id="toggleOfferModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 opacity-0 pointer-events-none transition-opacity duration-250">
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
   <div id="toggleOfferModalContent"
-    class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[440px] p-6 flex flex-col shadow-2xl rounded-sm transform scale-95 transition-transform duration-250">
+    class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+      <div>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 class="text-xl font-black uppercase tracking-tight text-[#1A1A1A] m-0">Confirm Offer Toggle</h3>
+      </div>
+      <button type="button" onclick="closeOfferToggleModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+
     <form id="toggleOfferForm" method="POST" action="">
       {% csrf_token %}
-      <!-- Header -->
-      <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-        <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
-          <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.5 1.5 0 002.122 0l4.319-4.319a1.5 1.5 0 000-2.122L11.16 3.659A1.5 1.5 0 009.568 3z" />
-            <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
-          </svg>
-        </div>
-        <div>
-          <h3 class="text-[0.72rem] font-black tracking-[0.12em] uppercase text-[#1A1A1A] leading-none">Confirm Offer
-            Toggle</h3>
-          <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400 mt-1">Confirmation Required</p>
-        </div>
-      </div>
-
       <!-- Content -->
-      <p class="text-[0.65rem] font-semibold text-gray-600 leading-relaxed mb-2">You are about to change the promotional
-        status for:</p>
-      <p id="toggleOfferCategoryName" class="text-[0.75rem] font-black uppercase tracking-wide text-[#1A1A1A] mb-3"></p>
-      <p class="text-[0.65rem] font-semibold text-gray-600 leading-relaxed mb-6">Are you sure you want to <span
-          id="toggleOfferStatusText" class="font-bold text-[#A33C08]"></span> the offer for this category?</p>
+      <p class="text-xs font-semibold text-gray-600 leading-relaxed mb-2">You are about to change the promotional status for:</p>
+      <p id="toggleOfferCategoryName" class="text-sm font-black uppercase tracking-wide text-[#1A1A1A] mb-3"></p>
+      <p class="text-xs font-semibold text-gray-600 leading-relaxed mb-6">Are you sure you want to <span id="toggleOfferStatusText" class="font-bold text-[#A33C08]"></span> the offer for this category?</p>
 
       <!-- Buttons -->
-      <div class="flex items-center justify-end gap-3">
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
         <button type="button" onclick="closeOfferToggleModal()"
-          class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold tracking-wider uppercase text-gray-500 hover:border-[#1A1A1A] hover:text-[#1A1A1A] transition-all bg-white cursor-pointer">
+          class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
           Cancel
         </button>
         <button type="submit"
-          class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold tracking-wider uppercase hover:bg-[#863005] transition-colors cursor-pointer border-none shadow-sm">
+          class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">
           Confirm
         </button>
       </div>
     </form>
   </div>
 </div>
+
 
 <script>
   function openAddModal() {

@@ -39,136 +39,11 @@
   <!-- Sidebar + Content -->
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
-    <!-- Sidebar -->
-    <aside id="admin-sidebar"
-      class="fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
-            <nav class="flex flex-col overflow-y-auto flex-1">
-
-        <!-- Dashboard -->
-        <a href="{% url 'admin_dashboard' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16" height="16" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-          <span>DASHBOARD</span>
-        </a>
-
-        <!-- Products (Active) -->
-        <a href="{% url 'admin_products' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-white" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-          <span>PRODUCTS</span>
-        </a>
-
-        <!-- Order List -->
-        <a href="{% url 'admin_orders' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-          <span>ORDER LIST</span>
-        </a>
-
-        <!-- Returns Management -->
-        <a href="{% url 'admin_returns' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 5h.01M12 16h.01M12 12h.01" />
-          </svg>
-          <span>RETURNS MANAGEMENT</span>
-        </a>
-
-        <!-- Users -->
-        <a href="{% url 'admin_users' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span>USERS</span>
-        </a>
-
-        <!-- Brands -->
-        <a href="{% url 'admin_unimplemented' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          <span>BRANDS</span>
-        </a>
-
-        <!-- Sales Report -->
-        <a href="{% url 'admin_sales_report' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9-1v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z" />
-          </svg>
-          <span>SALES REPORT</span>
-        </a>
-
-        <!-- Coupons -->
-        <a href="{% url 'admin_coupons' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-          </svg>
-          <span>COUPONS</span>
-        </a>
-
-        <!-- Category -->
-        <a href="{% url 'admin_category' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-          <span>CATEGORY</span>
-        </a>
-
-        <!-- Banners -->
-        <a href="{% url 'admin_unimplemented' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span>BANNERS</span>
-        </a>
-
-      </nav>
-      <div class="p-6">
-        <a href="{% url 'admin_logout' %}"
-          class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.62rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all no-underline text-center">
-          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span>LOGOUT</span>
-        </a>
-      </div>
-    </aside>
+    <!-- Sidebar -->    <!-- Admin Sidebar Navigation -->
+    {% include 'admin_panel/includes/sidebar.html' with active_page='products' %}
 
     <!-- Main Content: full width form -->
-    <main class="flex-1 bg-white flex flex-col h-full overflow-hidden">
+    <main class="flex-1 bg-[#FDFBF9] flex flex-col h-full overflow-hidden">
       <form id="add_product_form" method="POST" enctype="multipart/form-data" class="flex flex-col h-full">
         {% csrf_token %}
 
@@ -255,14 +130,11 @@
                   class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white appearance-none cursor-pointer transition-colors duration-200 rounded-none focus:border-brand-rust pr-10"
                   required>
                   <option value="">Select Brand</option>
-                  <option value="Fender">FENDER</option>
-                  <option value="Casio">CASIO</option>
-                  <option value="Roland">ROLAND</option>
-                  <option value="Yamaha">YAMAHA</option>
-                  <option value="Kadence">KADENCE</option>
-                  <option value="Zitarra">ZITARRA</option>
-                  <option value="Zitarra Exclusive">ZITARRA EXCLUSIVE</option>
+                  {% for b in brands %}
+                  <option value="{{ b.name }}">{{ b.name|upper }}</option>
+                  {% endfor %}
                 </select>
+
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
                   <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                     <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
@@ -382,52 +254,46 @@
   </div>
 </div>
 
-<!-- Cropper Modal -->
+<!-- Cropper Modal (Matching Brand design) -->
 <div id="cropperModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
-  <div class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[460px] p-6 flex flex-col shadow-2xl rounded-sm">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-          stroke-width="1.8">
-          <path stroke-linecap="round" stroke-linejoin="round"
-            d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-        </svg>
-      </div>
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden p-4 transition-opacity duration-200">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative border border-gray-100 font-sans flex flex-col">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
       <div>
-        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]">Crop Product Image</h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Media Studio</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">MEDIA STUDIO</p>
+        <h3 class="text-xl font-black uppercase tracking-tight text-[#1A1A1A] m-0">Crop Product Image</h3>
       </div>
+      <button type="button" onclick="cancelCrop()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <div class="w-full h-[280px] bg-black overflow-hidden relative border border-gray-200">
+    <div class="w-full h-[280px] bg-black overflow-hidden relative border border-gray-200 rounded-xl">
       <img id="cropperImage" class="max-w-full max-h-full block mx-auto" />
     </div>
 
     <!-- Aspect Ratio Selectors -->
-    <div class="flex justify-between items-center mt-4 border-b border-gray-100 pb-3">
+    <div class="flex justify-between items-center mt-4 border-b border-gray-100 pb-4">
       <span class="text-[0.52rem] font-bold text-gray-400 uppercase tracking-widest">Aspect Ratio</span>
       <div class="flex gap-1.5" id="ratioSelectorContainer">
         <button type="button" onclick="setAspectRatio(1)"
-          class="ratio-btn border border-[#A33C08] bg-[#A33C08] text-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">1:1</button>
+          class="ratio-btn border border-[#A33C08] bg-[#A33C08] text-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer">1:1</button>
         <button type="button" onclick="setAspectRatio(4/3)"
-          class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">4:3</button>
+          class="ratio-btn border border-gray-200 text-gray-600 bg-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:bg-gray-50">4:3</button>
         <button type="button" onclick="setAspectRatio(16/9)"
-          class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">16:9</button>
+          class="ratio-btn border border-gray-200 text-gray-600 bg-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:bg-gray-50">16:9</button>
         <button type="button" onclick="setAspectRatio(NaN)"
-          class="ratio-btn border border-[#dcdcdc] text-gray-500 bg-white px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider rounded-sm transition-all">Free</button>
+          class="ratio-btn border border-gray-200 text-gray-600 bg-white px-3 py-1.5 text-[0.58rem] font-black uppercase tracking-wider rounded-xl transition-all cursor-pointer hover:bg-gray-50">Free</button>
       </div>
     </div>
 
-    <div class="flex justify-end gap-3 mt-4">
+    <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-100">
       <button type="button" onclick="cancelCrop()"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">Cancel</button>
+        class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">Cancel</button>
       <button type="button" onclick="saveCrop()"
-        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-[#863005] transition-colors cursor-pointer shadow-sm">Apply
-        Crop</button>
+        class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">Apply Crop</button>
     </div>
   </div>
 </div>
+
 
 <script>
   let cropper = null;

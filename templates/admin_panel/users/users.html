@@ -41,137 +41,8 @@
   <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
     <!-- Sidebar Navigation (Sticky) -->
-    <aside id="admin-sidebar"
-      class="fixed inset-y-0 left-0 z-50 w-[260px] bg-white border-r border-[#e8e8e8] flex flex-col justify-between shrink-0 h-full overflow-hidden transform -translate-x-full md:translate-x-0 md:relative transition-transform duration-300 ease-in-out">
-
-      <nav class="flex flex-col overflow-y-auto flex-1">
-
-        <!-- Dashboard -->
-        <a href="{% url 'admin_dashboard' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v4a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
-          </svg>
-          <span>DASHBOARD</span>
-        </a>
-
-        <!-- Products -->
-        <a href="{% url 'admin_products' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-          </svg>
-          <span>PRODUCTS</span>
-        </a>
-
-        <!-- Order List -->
-        <a href="{% url 'admin_orders' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01" />
-          </svg>
-          <span>ORDER LIST</span>
-        </a>
-
-        <!-- Returns Management -->
-        <a href="{% url 'admin_returns' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M16 15v-6a4 4 0 00-4-4H4m0 0l4-4m-4 4l4 4m6 5h.01M12 16h.01M12 12h.01" />
-          </svg>
-          <span>RETURNS MANAGEMENT</span>
-        </a>
-
-        <!-- Users (Active) -->
-        <a href="{% url 'admin_users' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] bg-[#A33C08] text-white text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-white" width="16" height="16" fill="none" viewBox="0 0 24 24"
-            stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
-          <span>USERS</span>
-        </a>
-
-        <!-- Brands -->
-        <a href="{% url 'admin_unimplemented' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
-          </svg>
-          <span>BRANDS</span>
-        </a>
-
-        <!-- Sales Report -->
-        <a href="{% url 'admin_sales_report' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10a2 2 0 01-2 2h-2a2 2 0 01-2-2zm9-1v-4a2 2 0 00-2-2h-2a2 2 0 00-2 2v4a2 2 0 002 2h2a2 2 0 002-2z" />
-          </svg>
-          <span>SALES REPORT</span>
-        </a>
-
-        <!-- Coupons -->
-        <a href="{% url 'admin_coupons' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M15 5v2m0 4v2m0 4v2M5 5a2 2 0 00-2 2v3a2 2 0 110 4v3a2 2 0 002 2h14a2 2 0 002-2v-3a2 2 0 110-4V7a2 2 0 00-2-2H5z" />
-          </svg>
-          <span>COUPONS</span>
-        </a>
-
-        <!-- Category -->
-        <a href="{% url 'admin_category' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
-          </svg>
-          <span>CATEGORY</span>
-        </a>
-
-        <!-- Banners -->
-        <a href="{% url 'admin_unimplemented' %}"
-          class="group flex items-center gap-3.5 px-8 py-[19px] text-gray-500 hover:text-[#1A1A1A] hover:bg-gray-50 text-[0.62rem] font-bold tracking-[0.18em] uppercase transition-colors no-underline border-b border-[#e8e8e8]">
-          <svg class="w-4 h-4 shrink-0 text-gray-400 group-hover:text-[#1A1A1A] transition-colors" width="16"
-            height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-          </svg>
-          <span>BANNERS</span>
-        </a>
-
-      </nav>
-
-      <!-- Logout Button Container -->
-      <div class="p-6">
-        <a href="{% url 'admin_logout' %}"
-          class="border border-[#1A1A1A] flex items-center justify-center gap-2.5 text-[0.62rem] font-bold tracking-[0.2em] uppercase py-3.5 px-6 text-[#1A1A1A] w-full hover:bg-[#1a1a1a] hover:text-white transition-all duration-250 no-underline text-center">
-          <svg class="w-3.5 h-3.5" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-            stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-          </svg>
-          <span>LOGOUT</span>
-        </a>
-      </div>
-
-    </aside>    <!-- Main Content Area -->
+    <!-- Shared Admin Sidebar Navigation -->
+    {% include 'admin_panel/includes/sidebar.html' with active_page='users' %}    <!-- Main Content Area -->
     <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-[#FDFBF9]">
       <div class="max-w-7xl mx-auto space-y-8">
 
@@ -367,36 +238,42 @@
 
             </tbody>
           </table>
-
-          <!-- Footer Action Row (Pagination) -->
+          <!-- Footer Action Row (Pagination matching Brand design) -->
           {% if page_obj.has_other_pages %}
-          <div class="px-6 py-4 border-t border-[#EAE3DC] bg-[#FAF6F3] flex flex-wrap items-center justify-between gap-4">
-            <span class="text-xs font-bold text-gray-500 uppercase tracking-wider">
-              SHOWING <span class="text-[#1A1A1A] font-black">{{ page_obj.start_index }}</span> TO <span class="text-[#1A1A1A] font-black">{{ page_obj.end_index }}</span> OF <span class="text-[#1A1A1A] font-black">{{ page_obj.paginator.count }}</span> USERS
-            </span>
+          <div class="px-6 py-4 border-t border-gray-200/60 bg-white flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 w-full select-none">
+
+            <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-[0.2em] m-0">
+              SHOWING {{ page_obj.start_index|stringformat:"02d" }} - {{ page_obj.end_index|stringformat:"02d" }} &nbsp;/&nbsp; {{ page_obj.paginator.count|stringformat:"02d" }} TOTAL USERS
+            </p>
             
-            <div class="flex items-center gap-1.5">
+            <div class="flex items-center gap-2">
               {% if page_obj.has_previous %}
               <a href="?page={{ page_obj.previous_page_number }}&filter={{ filter_val }}&search={{ search_query }}&sort={{ sort_val }}"
-                 class="px-3 py-1.5 border border-[#E0D5C9] bg-white text-[#1A1A1A] hover:bg-[#A33C08] hover:text-white transition-colors text-xs font-bold uppercase no-underline rounded-xs">
-                &laquo; PREV
+                 class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+                &lsaquo;
               </a>
+              {% else %}
+              <span class="w-10 h-10 flex items-center justify-center rounded-2xl bg-gray-100/70 text-gray-300 text-xs font-bold cursor-not-allowed">&lsaquo;</span>
               {% endif %}
 
               {% for p in page_obj.paginator.page_range %}
                 {% if page_obj.number == p %}
-                <span class="px-3 py-1.5 bg-[#A33C08] text-white text-xs font-black rounded-xs">{{ p }}</span>
-                {% else %}
+                <span class="w-10 h-10 flex items-center justify-center rounded-2xl bg-[#A33C08] text-white text-xs font-black shadow-sm">{{ p|stringformat:"02d" }}</span>
+                {% elif p > page_obj.number|add:-3 and p < page_obj.number|add:3 %}
                 <a href="?page={{ p }}&filter={{ filter_val }}&search={{ search_query }}&sort={{ sort_val }}"
-                   class="px-3 py-1.5 border border-[#E0D5C9] bg-white text-[#1A1A1A] hover:bg-[#A33C08] hover:text-white transition-colors text-xs font-bold no-underline rounded-xs">{{ p }}</a>
+                   class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+                  {{ p|stringformat:"02d" }}
+                </a>
                 {% endif %}
               {% endfor %}
 
               {% if page_obj.has_next %}
               <a href="?page={{ page_obj.next_page_number }}&filter={{ filter_val }}&search={{ search_query }}&sort={{ sort_val }}"
-                 class="px-3 py-1.5 border border-[#E0D5C9] bg-white text-[#1A1A1A] hover:bg-[#A33C08] hover:text-white transition-colors text-xs font-bold uppercase no-underline rounded-xs">
-                NEXT &raquo;
+                 class="w-10 h-10 flex items-center justify-center rounded-2xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+                &rsaquo;
               </a>
+              {% else %}
+              <span class="w-10 h-10 flex items-center justify-center rounded-2xl bg-gray-100/70 text-gray-300 text-xs font-bold cursor-not-allowed">&rsaquo;</span>
               {% endif %}
             </div>
           </div>
@@ -425,31 +302,27 @@
 
 <!-- Custom Confirmation Modal Overlay for User Status -->
 <div id="confirmModal"
-  class="fixed inset-0 bg-[#1A1A1A]/60 backdrop-blur-[2px] flex items-center justify-center hidden z-50 transition-opacity duration-200">
-  <div id="confirmModalContent" class="bg-white border border-[#e8e8e8] w-[90vw] max-w-[420px] p-6 flex flex-col shadow-2xl rounded-sm transform scale-95 transition-transform duration-250">
-    <div class="flex items-center gap-3 border-b border-gray-100 pb-3 mb-4">
-      <div class="w-8 h-8 rounded-full bg-orange-50 text-[#A33C08] flex items-center justify-center shrink-0">
-        <svg class="w-4.5 h-4.5 text-[#A33C08]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-        </svg>
-      </div>
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
+  <div id="confirmModalContent" class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
       <div>
-        <h3 class="text-[0.72rem] font-black uppercase tracking-wider text-[#1a1a1a]">User Status Update</h3>
-        <p class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">Confirmation Required</p>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 class="text-xl font-black uppercase tracking-wider text-[#1a1a1a] m-0">User Status Update</h3>
       </div>
+      <button type="button" onclick="closeModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
     
-    <p class="text-[0.65rem] font-semibold text-gray-600 mb-6 leading-relaxed" id="modalMessage">
+    <p class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed" id="modalMessage">
       Are you sure you want to perform this action?
     </p>
 
-    <div class="flex justify-end gap-3">
-      <button id="modalCancel" type="button"
-        class="border border-[#dcdcdc] px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider text-gray-500 bg-white hover:bg-gray-50 transition-colors cursor-pointer">
+    <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+      <button id="modalCancel" type="button" onclick="closeModal()"
+        class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
         Cancel
       </button>
       <button id="modalConfirm" type="button"
-        class="bg-[#A33C08] text-white px-5 py-2 text-[0.6rem] font-bold uppercase tracking-wider hover:bg-brand-rust transition-colors cursor-pointer shadow-sm">
+        class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">
         Confirm
       </button>
     </div>
