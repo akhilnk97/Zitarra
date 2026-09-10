@@ -1,0 +1,197 @@
+{% extends 'user/base/base.html' %}
+{% load static %}
+
+{% block title %}Contact Us — Zitarra Concierge{% endblock %}
+
+{% block navbar %}
+  {% include 'user/partials/navbar_home.html' %}
+{% endblock %}
+
+{% block content %}
+
+<!-- 1. TOP HERO TITLE SECTION -->
+<section class="bg-white py-14 lg:py-18 text-center border-b border-gray-200 select-none">
+  <div class="max-w-4xl mx-auto px-4">
+    <span class="inline-block text-[0.65rem] font-black tracking-[0.25em] uppercase text-[#A33C08] mb-3">
+      CLIENT RELATIONS
+    </span>
+    <h1 class="text-5xl sm:text-6xl lg:text-7xl font-black uppercase tracking-tight text-brand-dark leading-none m-0">
+      CONCIERGE<br class="hidden sm:inline"> SUPPORT
+    </h1>
+  </div>
+</section>
+
+<!-- 2. ASYMMETRIC 2-COLUMN SPLIT WORKSPACE -->
+<section class="grid grid-cols-1 lg:grid-cols-12 border-b border-gray-200 bg-white">
+  
+  <!-- LEFT COLUMN: QUICK HELP CARDS + STUDIO INSTRUMENT MEDIA (4 Cols) -->
+  <div class="lg:col-span-4 border-b lg:border-b-0 lg:border-r border-gray-200 flex flex-col justify-between bg-[#FFF8F6]">
+    
+    <div class="divide-y divide-gray-200">
+      
+      <!-- Box 1: Order Status -->
+      <a href="{% url 'my_orders' %}" class="p-8 lg:p-10 flex flex-col justify-between min-h-[210px] relative group hover:bg-[#F5ECE6] transition-colors no-underline block">
+        <div class="flex items-center justify-between mb-6">
+          <svg class="w-6 h-6 text-brand-dark group-hover:text-[#A33C08] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M21 7.5l-9-5.25L3 7.5m18 0l-9 5.25m9-5.25v9l-9 5.25M3 7.5l9 5.25M3 7.5v9l9 5.25m0-9v9" />
+          </svg>
+          <svg class="w-4 h-4 text-brand-dark group-hover:text-[#A33C08] transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-black uppercase tracking-[0.18em] text-brand-dark mb-2">ORDER STATUS</h3>
+          <p class="text-xs text-[#5A4136] leading-relaxed font-medium m-0">
+            Track your technical equipment and delivery updates in real-time.
+          </p>
+        </div>
+      </a>
+
+      <!-- Box 2: Warranty & Service -->
+      <div class="p-8 lg:p-10 flex flex-col justify-between min-h-[210px] relative group hover:bg-[#F5ECE6] transition-colors cursor-pointer">
+        <div class="flex items-center justify-between mb-6">
+          <svg class="w-6 h-6 text-brand-dark group-hover:text-[#A33C08] transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 01-1.043 3.296 3.745 3.745 0 01-3.296 1.043A3.745 3.745 0 0112 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 01-3.296-1.043 3.745 3.745 0 01-1.043-3.296A3.745 3.745 0 013 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 011.043-3.296 3.746 3.746 0 013.296-1.043A3.746 3.746 0 0112 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 013.296 1.043 3.746 3.746 0 011.043 3.296A3.745 3.745 0 0121 12z" />
+          </svg>
+          <svg class="w-4 h-4 text-brand-dark group-hover:text-[#A33C08] transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 19.5l15-15m0 0H8.25m11.25 0v11.25" />
+          </svg>
+        </div>
+        <div>
+          <h3 class="text-sm font-black uppercase tracking-[0.18em] text-brand-dark mb-2">WARRANTY</h3>
+          <p class="text-xs text-[#5A4136] leading-relaxed font-medium m-0">
+            Review protection plans or initiate a technical service request for your hardware.
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Box 3: Musical Instrument & Studio Media -->
+    <div class="relative h-[240px] lg:h-[260px] bg-gray-950 overflow-hidden shrink-0 border-t border-gray-200">
+      <img src="https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=900&q=90" alt="Musical Studio Equipment"
+           class="w-full h-full object-cover object-center block" />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none"></div>
+    </div>
+
+  </div>
+
+  <!-- RIGHT COLUMN: CONCIERGE INQUIRY FORM (8 Cols) -->
+  <div class="lg:col-span-8 p-8 md:p-14 lg:p-18 flex flex-col justify-center bg-white">
+    <div class="max-w-2xl">
+      
+      <h2 class="text-3xl md:text-4xl font-black uppercase tracking-tight text-brand-dark mb-3">
+        CONTACT US
+      </h2>
+      <p class="text-xs md:text-sm text-[#5A4136] leading-relaxed mb-10 font-medium">
+        Our concierge team provides specialized assistance for technical specifications and premium acquisition.
+      </p>
+
+      {% if messages %}
+      <div class="mb-8 space-y-2">
+        {% for message in messages %}
+        <div class="p-4 text-xs font-bold uppercase tracking-wider rounded-xl shadow-xs flex items-center justify-between {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
+          <span>{{ message }}</span>
+          <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-black font-bold text-sm bg-transparent border-none cursor-pointer">&times;</button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+
+      <form method="POST" action="{% url 'contact' %}" class="space-y-9">
+        {% csrf_token %}
+
+        <!-- Row 1: Name & Email -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-8 md:gap-10">
+          <div>
+            <label class="block text-[0.62rem] font-black uppercase tracking-[0.22em] text-gray-400 mb-2">IDENTIFIER_FULL_NAME</label>
+            <input type="text" name="full_name" required placeholder="ENTRY REQUIRED"
+                   value="{{ request.user.fullname|default:'' }}"
+                   class="w-full bg-transparent border-b-2 border-gray-300 py-3 text-xs font-black uppercase tracking-wider text-[#1A1A1A] focus:outline-none focus:border-[#A33C08] transition-colors font-sans">
+          </div>
+
+          <div>
+            <label class="block text-[0.62rem] font-black uppercase tracking-[0.22em] text-gray-400 mb-2">COMMUNICATION_EMAIL</label>
+            <input type="email" name="email" required placeholder="USER@DOMAIN.COM"
+                   value="{{ request.user.email|default:'' }}"
+                   class="w-full bg-transparent border-b-2 border-gray-300 py-3 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#A33C08] transition-colors font-sans">
+          </div>
+        </div>
+
+        <!-- Row 2: Service Category Dropdown -->
+        <div>
+          <label class="block text-[0.62rem] font-black uppercase tracking-[0.22em] text-gray-400 mb-2">SERVICE_CATEGORY</label>
+          <select name="category" class="w-full bg-transparent border-b-2 border-gray-900 py-3 text-xs font-black uppercase tracking-wider text-[#1A1A1A] focus:outline-none focus:border-[#A33C08] cursor-pointer font-sans appearance-none">
+            <option value="TECHNICAL_SPECIFICATIONS">TECHNICAL_SPECIFICATIONS</option>
+            <option value="CUSTOM_ORDER_INQUIRY">CUSTOM_ORDER_INQUIRY</option>
+            <option value="WARRANTY_AND_SERVICE">WARRANTY_AND_SERVICE</option>
+            <option value="GENERAL_CONCIERGE">GENERAL_CONCIERGE</option>
+          </select>
+        </div>
+
+        <!-- Row 3: Query Details Textarea -->
+        <div>
+          <label class="block text-[0.62rem] font-black uppercase tracking-[0.22em] text-gray-400 mb-2">QUERY_DETAILS</label>
+          <textarea name="details" rows="3" required placeholder="DESCRIBE YOUR TECHNICAL REQUIREMENTS..."
+                    class="w-full bg-transparent border-b-2 border-gray-900 py-3 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#A33C08] transition-colors resize-none font-sans"></textarea>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button type="submit"
+                  class="inline-flex items-center gap-3 bg-[#A33C08] text-white text-xs font-black tracking-[0.22em] uppercase px-10 py-4 rounded-full shadow-lg hover:bg-black transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 border-none cursor-pointer">
+            <span>SUBMIT INQUIRY</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </button>
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+</section>
+
+<!-- 3. HQ LOCATION & STUDIO SECTION -->
+<section class="grid grid-cols-1 md:grid-cols-2 min-h-[440px] bg-[#0A0A0A] text-white">
+  
+  <!-- Left HQ Address Column -->
+  <div class="p-10 md:p-14 lg:p-18 flex flex-col justify-center bg-[#0A0A0A]">
+    <div class="max-w-md">
+      <span class="inline-block text-[0.62rem] font-bold text-gray-400 tracking-[0.25em] uppercase mb-4">
+        HQ_LOCATION
+      </span>
+      <h2 class="text-3xl md:text-4xl font-black uppercase tracking-tight text-white mb-3">
+        KOCHI, KERALA
+      </h2>
+      <p class="text-xs text-gray-400 font-medium leading-relaxed uppercase mb-8">
+        TOWER B, ZITARRA HQ, MG ROAD<br>KOCHI, KERALA — 682016 INDIA
+      </p>
+
+      <div class="flex items-center gap-6">
+        <a href="https://maps.google.com/?q=MG+Road+Kochi+Kerala" target="_blank"
+           class="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white border-b-2 border-white pb-1 hover:text-[#A33C08] hover:border-[#A33C08] transition-colors no-underline">
+          VIEW ON MAP
+        </a>
+        <a href="tel:+919072253248"
+           class="text-[0.6rem] font-black uppercase tracking-[0.2em] text-white border-b-2 border-white pb-1 hover:text-[#A33C08] hover:border-[#A33C08] transition-colors no-underline">
+          CALL TECHNICAL
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Right Acoustic Studio Media -->
+  <div class="relative bg-gray-950 overflow-hidden min-h-[280px] md:min-h-full">
+    <img src="https://images.unsplash.com/photo-1598488035139-bdbb2231ce04?w=1000&q=90" alt="Acoustic Studio HQ"
+         class="w-full h-full object-cover object-center block" />
+  </div>
+
+</section>
+
+{% include 'user/partials/footer.html' %}
+
+{% endblock %}
+

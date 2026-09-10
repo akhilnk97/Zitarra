@@ -21,6 +21,7 @@ urlpatterns = [
     path('',             include('user_panel.coupons.urls')),
     path('',             include('user_panel.returns.urls')),
     path('',             include('user_panel.wallet.urls')),
+    path('',             include('user_panel.banners.urls')),
     path('admin-panel/', include('admin_panel.authentication.urls')),
     path('admin-panel/', include('admin_panel.dashboard.urls')),
     path('admin-panel/', include('admin_panel.users.urls')),
@@ -31,7 +32,9 @@ urlpatterns = [
     path('admin-panel/', include('admin_panel.returns.urls')),
     path('admin-panel/', include('admin_panel.sales.urls')),
     path('admin-panel/', include('admin_panel.brands.urls')),
+    path('admin-panel/', include('admin_panel.banners.urls')),
 ]
+
 
 
 if settings.DEBUG:

@@ -3,7 +3,74 @@
 
 {% block content %}
 
-<!-- HERO -->
+<!-- HERO BANNER (Luxury Sliding Carousel with Physics-Based Smooth Transition) -->
+{% if hero_banners %}
+<section id="hero-banner-section" class="relative bg-[#FFF8F6] min-h-[640px] lg:h-[720px] overflow-hidden border-b border-gray-200/80 group select-none">
+  <!-- Sliding Carousel Track -->
+  <div id="hero-track" class="flex h-full w-full transition-transform duration-700 ease-[cubic-bezier(0.25,1,0.5,1)]" style="will-change: transform;">
+    {% for b in hero_banners %}
+    <div class="hero-slide w-full h-full flex-shrink-0 grid grid-cols-1 md:grid-cols-2 items-stretch" data-index="{{ forloop.counter0 }}">
+      
+      <!-- Left Content Column -->
+      <div class="flex flex-col justify-center px-8 md:px-16 lg:px-20 py-12 bg-[#FFF8F6] z-10 box-border">
+        <div class="max-w-xl">
+
+          <!-- Main Title -->
+          <h1 class="hero-anim-item hero-title text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black uppercase tracking-tight text-brand-dark leading-[1.05] mb-6 break-words transition-all duration-700 delay-150 transform {% if not forloop.first %}translate-y-4 opacity-0{% else %}translate-y-0 opacity-100{% endif %}">
+            {{ b.clean_title }}
+          </h1>
+
+          <!-- Description -->
+          <p class="hero-anim-item hero-desc text-sm md:text-base text-[#5A4136] leading-relaxed max-w-md mb-8 font-medium transition-all duration-700 delay-250 transform {% if not forloop.first %}translate-y-4 opacity-0{% else %}translate-y-0 opacity-100{% endif %}">
+            Explore handcrafted precision instruments and exclusive seasonal offers available across Zitarra.
+          </p>
+
+          <!-- CTA Button -->
+          <div class="hero-anim-item hero-cta transition-all duration-700 delay-350 transform {% if not forloop.first %}translate-y-4 opacity-0 scale-95{% else %}translate-y-0 opacity-100 scale-100{% endif %}">
+            <a href="{% url 'track_banner_click' b.id %}"
+               class="inline-flex items-center gap-3 bg-[#A33C08] text-white text-xs font-black tracking-[0.2em] uppercase px-8 py-4 no-underline rounded-full shadow-xl hover:bg-black transition-all duration-300 transform hover:-translate-y-0.5 active:translate-y-0 self-start group/btn">
+              <span>EXPLORE CAMPAIGN</span>
+              <svg class="w-4 h-4 transform group-hover/btn:translate-x-1 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+              </svg>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Image Column (Ken Burns Zoom Effect) -->
+      <div class="relative h-[380px] md:h-full bg-gray-950 overflow-hidden">
+        <a href="{% url 'track_banner_click' b.id %}" class="block w-full h-full relative overflow-hidden">
+          <img src="{{ b.image.url }}" alt="{{ b.title }}"
+               class="hero-banner-img w-full h-full object-cover object-center block transition-transform duration-[6000ms] ease-out transform {% if forloop.first %}scale-108{% else %}scale-100{% endif %}" />
+          <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none md:hidden"></div>
+        </a>
+      </div>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  {% if hero_banners|length > 1 %}
+  <!-- Bottom-Left Carousel Navigation Controls -->
+  <div id="hero-nav-controls" class="absolute bottom-8 left-8 md:left-16 z-30 flex items-center gap-4 select-none">
+    <button onclick="prevHeroSlide()" aria-label="Previous Slide" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-700 flex items-center justify-center hover:bg-black hover:text-white transition-colors cursor-pointer shadow-sm font-bold text-sm">
+      &lsaquo;
+    </button>
+    <div class="flex items-center gap-2">
+      {% for b in hero_banners %}
+      <span onclick="goToHeroSlide({{ forloop.counter0 }})" class="hero-dot w-3 h-3 rounded-full cursor-pointer transition-all duration-300 {% if forloop.first %}bg-[#A33C08] w-8{% else %}bg-gray-300 hover:bg-gray-400{% endif %}"></span>
+      {% endfor %}
+    </div>
+    <button onclick="nextHeroSlide()" aria-label="Next Slide" class="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm border border-gray-200 text-gray-700 flex items-center justify-center hover:bg-black hover:text-white transition-colors cursor-pointer shadow-sm font-bold text-sm">
+      &rsaquo;
+    </button>
+  </div>
+  {% endif %}
+
+</section>
+{% else %}
+<!-- FALLBACK STATIC HERO -->
 <section class="grid grid-cols-2 h-[780px] overflow-hidden items-stretch opacity-0 translate-y-4 transition-all duration-500 ease-out [&.vis]:opacity-100 [&.vis]:translate-y-0 rv">
   <div class="flex flex-col justify-center px-12 bg-[#FFF8F6] h-[780px]">
     <h1 class="text-[60px] font-bold uppercase leading-none text-brand-dark mb-5">Engineered<br>For<br>Precision</h1>
@@ -15,6 +82,7 @@
     <div class="absolute inset-0 bg-[#64370a]/18 pointer-events-none"></div>
   </div>
 </section>
+{% endif %}
 
 <!-- BRANDS -->
 <div class="flex items-center justify-around h-[93.8px] px-8 border-t border-b border-gray-200 bg-white max-w-[1280px] w-full mx-auto">
@@ -118,38 +186,161 @@
 
 <script>
 function sp(el){document.querySelectorAll('.fpill').forEach(p=>p.classList.remove('active'));el.classList.add('active')}
-document.getElementById('nlf').addEventListener('submit',function(e){e.preventDefault();const v=document.getElementById('nle').value.trim();if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){document.getElementById('nle').style.borderColor='#ef4444';return;}const b=this.querySelector('button');b.textContent='✓ Subscribed';b.style.background='#16a34a';b.disabled=true;});
+const nlfEl = document.getElementById('nlf');
+if (nlfEl) {
+  nlfEl.addEventListener('submit', function(e){
+    e.preventDefault();
+    const nle = document.getElementById('nle');
+    const v = nle ? nle.value.trim() : '';
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)){
+      if (nle) nle.style.borderColor='#ef4444';
+      return;
+    }
+    const b = this.querySelector('button');
+    if (b) {
+      b.textContent='✓ Subscribed';
+      b.style.background='#16a34a';
+      b.disabled=true;
+    }
+  });
+}
 const ob=new IntersectionObserver(en=>{en.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')});},{threshold:0.1});
 document.querySelectorAll('.rv').forEach(el=>ob.observe(el));
-/* Nav active on click + scroll-spy */
-const navLinks = document.querySelectorAll('.n-links a');
-navLinks.forEach(link => {
-  link.addEventListener('click', () => {
-    navLinks.forEach(l => l.classList.remove('act'));
-    link.classList.add('act');
-  });
-});
-const sections = [
-  { id:'about',   el: document.getElementById('nav-about') },
-  { id:'contact', el: document.getElementById('nav-contact') },
-];
-const homeLink = document.getElementById('nav-home');
-
 window.addEventListener('scroll',()=>{
   const scrolled = window.scrollY > 10;
-  document.getElementById('nav').classList.toggle('scrolled', scrolled);
-  document.getElementById('nav').style.boxShadow = scrolled ? '' : 'none';
-
-  /* scroll-spy */
-  const y = window.scrollY + 80;
-  let active = homeLink;
-  sections.forEach(s => {
-    const sec = document.getElementById(s.id);
-    if (sec && sec.offsetTop <= y) active = s.el;
-  });
-  navLinks.forEach(l => l.classList.remove('act'));
-  if (active) active.classList.add('act');
+  const nav = document.getElementById('nav');
+  if (nav) {
+    nav.classList.toggle('scrolled', scrolled);
+    nav.style.boxShadow = scrolled ? '' : 'none';
+  }
 }, { passive: true });
+
+
+  /* Hero Carousel Controls (Smooth Sliding Track, Touch Swipe & Resilient Autoplay) */
+  let currentHeroIdx = 0;
+  let heroTimer = null;
+  const AUTOPLAY_INTERVAL = 4000;
+  const heroSection = document.getElementById('hero-banner-section');
+  const heroTrack = document.getElementById('hero-track');
+  const heroSlides = document.querySelectorAll('.hero-slide');
+  const heroDots = document.querySelectorAll('.hero-dot');
+  const heroNavControls = document.getElementById('hero-nav-controls');
+
+  function showHeroSlide(idx) {
+    if (!heroSlides.length || !heroTrack) return;
+
+    // Wrap index cyclically
+    const total = heroSlides.length;
+    currentHeroIdx = ((idx % total) + total) % total;
+
+    // Smooth horizontal slide translation
+    heroTrack.style.transform = `translateX(-${currentHeroIdx * 100}%)`;
+
+    // Staggered text & image animations
+    heroSlides.forEach((slide, i) => {
+      const img = slide.querySelector('.hero-banner-img');
+      const title = slide.querySelector('.hero-title');
+      const desc = slide.querySelector('.hero-desc');
+      const cta = slide.querySelector('.hero-cta');
+
+      if (i === currentHeroIdx) {
+        if (img) img.classList.add('scale-108');
+        if (title) { title.classList.remove('translate-y-4', 'opacity-0'); title.classList.add('translate-y-0', 'opacity-100'); }
+        if (desc) { desc.classList.remove('translate-y-4', 'opacity-0'); desc.classList.add('translate-y-0', 'opacity-100'); }
+        if (cta) { cta.classList.remove('translate-y-4', 'opacity-0', 'scale-95'); cta.classList.add('translate-y-0', 'opacity-100', 'scale-100'); }
+      } else {
+        if (img) img.classList.remove('scale-108');
+        if (title) { title.classList.remove('translate-y-0', 'opacity-100'); title.classList.add('translate-y-4', 'opacity-0'); }
+        if (desc) { desc.classList.remove('translate-y-0', 'opacity-100'); desc.classList.add('translate-y-4', 'opacity-0'); }
+        if (cta) { cta.classList.remove('translate-y-0', 'opacity-100'); cta.classList.add('translate-y-4', 'opacity-0', 'scale-95'); }
+      }
+    });
+
+    heroDots.forEach((dot, i) => {
+      if (i === currentHeroIdx) {
+        dot.className = "hero-dot w-8 h-3 rounded-full cursor-pointer transition-all duration-300 bg-[#A33C08]";
+      } else {
+        dot.className = "hero-dot w-3 h-3 rounded-full cursor-pointer transition-all duration-300 bg-gray-300 hover:bg-gray-400";
+      }
+    });
+  }
+
+  function nextHeroSlide(isAuto = false) {
+    if (!heroSlides.length) return;
+    showHeroSlide(currentHeroIdx + 1);
+    if (!isAuto) startHeroTimer();
+  }
+
+  function prevHeroSlide() {
+    if (!heroSlides.length) return;
+    showHeroSlide(currentHeroIdx - 1);
+    startHeroTimer();
+  }
+
+  function goToHeroSlide(idx) {
+    showHeroSlide(idx);
+    startHeroTimer();
+  }
+
+  // Explicit window bindings for inline HTML onclick handlers
+  window.nextHeroSlide = nextHeroSlide;
+  window.prevHeroSlide = prevHeroSlide;
+  window.goToHeroSlide = goToHeroSlide;
+
+  function startHeroTimer() {
+    if (heroTimer) clearInterval(heroTimer);
+    if (heroSlides && heroSlides.length > 1) {
+      heroTimer = setInterval(() => {
+        nextHeroSlide(true);
+      }, AUTOPLAY_INTERVAL);
+    }
+  }
+
+  function stopHeroTimer() {
+    if (heroTimer) {
+      clearInterval(heroTimer);
+      heroTimer = null;
+    }
+  }
+
+  // Only pause when actively hovering control buttons/dots, and resume immediately when mouse departs
+  if (heroNavControls) {
+    heroNavControls.addEventListener('mouseenter', stopHeroTimer);
+    heroNavControls.addEventListener('mouseleave', startHeroTimer);
+  }
+
+  // Clean background tab handling (pause when tab hidden, restart when visible)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      stopHeroTimer();
+    } else {
+      startHeroTimer();
+    }
+  });
+
+  // Touch Swipe Support for Mobile Devices
+  let touchStartX = 0;
+  let touchEndX = 0;
+  if (heroSection) {
+    heroSection.addEventListener('touchstart', (e) => {
+      touchStartX = e.changedTouches[0].screenX;
+    }, { passive: true });
+
+    heroSection.addEventListener('touchend', (e) => {
+      touchEndX = e.changedTouches[0].screenX;
+      const threshold = 40;
+      if (touchEndX < touchStartX - threshold) {
+        nextHeroSlide(); // Swiped left -> next slide
+      } else if (touchEndX > touchStartX + threshold) {
+        prevHeroSlide(); // Swiped right -> prev slide
+      }
+    }, { passive: true });
+  }
+
+  if (heroSlides && heroSlides.length > 0) {
+    showHeroSlide(0);
+    startHeroTimer();
+  }
 </script>
 
 {% endblock %}

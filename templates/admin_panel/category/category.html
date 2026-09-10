@@ -124,23 +124,7 @@
                 src="{% if category.image %}{{ category.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
                 alt="{{ category.name }}"
                 class="w-full h-full object-cover grayscale transition-all duration-300 group-hover:grayscale-0" />
-              <div class="absolute bottom-0 left-0">
-                {% if category.is_offer_active %}
-                {% if category.discount > 0 %}
-                <span
-                  class="bg-[#E8500A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">ACTIVE
-                  OFFER: {{ category.discount }}% OFF</span>
-                {% else %}
-                <span
-                  class="bg-[#E8500A] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">OFFER
-                  ENABLED</span>
-                {% endif %}
-                {% else %}
-                <span
-                  class="bg-[#9ca3af] text-white text-[0.44rem] font-extrabold tracking-[0.14em] uppercase px-2 py-1">OFFER
-                  DISABLED</span>
-                {% endif %}
-              </div>
+
             </div>
             <!-- Card body — fixed remaining height -->
             <div class="px-5 pt-4 pb-4 flex flex-col h-[160px]">
@@ -159,17 +143,7 @@
                 {{ category.description }}</p>
               <!-- Action buttons pinned to bottom with top border -->
               <div class="flex items-center justify-center gap-2 pt-3 mt-auto shrink-0 border-t border-[#e8e8e8]">
-                <!-- Offer Toggle Button (Triggers Confirmation Modal) -->
-                <button type="button"
-                  onclick="openOfferToggleModal('{{ category.id }}', '{{ category.name }}', {{ category.is_offer_active|yesno:'true,false' }})"
-                  class="w-[34px] h-[34px] border flex items-center justify-center cursor-pointer bg-white transition-all duration-150 {% if category.is_offer_active %}text-[#E8500A] border-[#E8500A] hover:bg-orange-50{% else %}text-gray-400 border-[#e8e8e8] hover:border-[#1A1A1A] hover:text-[#1A1A1A]{% endif %}"
-                  title="{% if category.is_offer_active %}Disable Offer{% else %}Enable Offer{% endif %}">
-                  <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                    <path stroke-linecap="round" stroke-linejoin="round"
-                      d="M9.568 3H5.25A2.25 2.25 0 003 5.25v4.318c0 .597.237 1.17.659 1.591l9.581 9.581a1.5 1.5 0 002.122 0l4.319-4.319a1.5 1.5 0 000-2.122L11.16 3.659A1.5 1.5 0 009.568 3z" />
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 6h.008v.008H6V6z" />
-                  </svg>
-                </button>
+
 
                 <!-- Delete button with custom confirmation modal -->
                 <form method="POST" action="{% url 'admin_delete_category' category.id %}" class="inline">
@@ -327,46 +301,7 @@
       </button>
     </div>
   </div>
-</div>
-
-
-<!-- Toggle Offer Confirmation Modal (Matching Brand design) -->
-<div id="toggleOfferModal"
-  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
-  <div id="toggleOfferModalContent"
-    class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
-    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
-      <div>
-        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
-        <h3 class="text-xl font-black uppercase tracking-tight text-[#1A1A1A] m-0">Confirm Offer Toggle</h3>
-      </div>
-      <button type="button" onclick="closeOfferToggleModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
-    </div>
-
-    <form id="toggleOfferForm" method="POST" action="">
-      {% csrf_token %}
-      <!-- Content -->
-      <p class="text-xs font-semibold text-gray-600 leading-relaxed mb-2">You are about to change the promotional status for:</p>
-      <p id="toggleOfferCategoryName" class="text-sm font-black uppercase tracking-wide text-[#1A1A1A] mb-3"></p>
-      <p class="text-xs font-semibold text-gray-600 leading-relaxed mb-6">Are you sure you want to <span id="toggleOfferStatusText" class="font-bold text-[#A33C08]"></span> the offer for this category?</p>
-
-      <!-- Buttons -->
-      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
-        <button type="button" onclick="closeOfferToggleModal()"
-          class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
-          Cancel
-        </button>
-        <button type="submit"
-          class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans">
-          Confirm
-        </button>
-      </div>
-    </form>
-  </div>
-</div>
-
-
-<script>
+</div><script>
   function openAddModal() {
     const m = document.getElementById('addCategoryModal'), c = document.getElementById('addCategoryModalContent');
     m.classList.remove('hidden', 'pointer-events-none');
@@ -410,34 +345,9 @@
     }
   }
 
-  function openOfferToggleModal(id, name, isOfferActive) {
-    document.getElementById('toggleOfferCategoryName').textContent = name;
-    document.getElementById('toggleOfferStatusText').textContent = isOfferActive ? 'DISABLE' : 'ENABLE';
-    document.getElementById('toggleOfferForm').action = "/admin-panel/category/toggle-offer/" + id + "/";
-    const m = document.getElementById('toggleOfferModal'), c = document.getElementById('toggleOfferModalContent');
-    m.classList.remove('hidden', 'pointer-events-none');
-    setTimeout(() => {
-      m.classList.remove('opacity-0');
-      m.classList.add('opacity-100');
-      c.classList.remove('scale-95');
-      c.classList.add('scale-100');
-    }, 10);
-  }
-
-  function closeOfferToggleModal() {
-    const m = document.getElementById('toggleOfferModal'), c = document.getElementById('toggleOfferModalContent');
-    m.classList.remove('opacity-100');
-    m.classList.add('opacity-0');
-    c.classList.remove('scale-100');
-    c.classList.add('scale-95');
-    setTimeout(() => {
-      m.classList.add('hidden', 'pointer-events-none');
-    }, 250);
-  }
-
   document.getElementById('addCategoryModal').addEventListener('click', function (e) { if (e.target === this) closeAddModal(); });
   document.getElementById('deleteCategoryModal').addEventListener('click', function (e) { if (e.target === this) closeDeleteCategoryModal(); });
-  document.getElementById('toggleOfferModal').addEventListener('click', function (e) { if (e.target === this) closeOfferToggleModal(); });
+
 
   // Auto-hide alert messages after 3 seconds
   document.addEventListener('DOMContentLoaded', () => {

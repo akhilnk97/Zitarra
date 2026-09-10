@@ -1,0 +1,518 @@
+{% extends 'admin_panel/dashboard/dashboard.html' %}
+{% load static %}
+
+{% block title %}Banners Management — Zitarra Admin{% endblock %}
+
+{% block content %}
+<!-- Top Header -->
+<header class="h-[70px] bg-white border-b border-[#e8e8e8] px-8 flex items-center justify-between shrink-0">
+  <div class="flex items-center gap-4">
+    <button id="sidebar-toggle" class="md:hidden text-gray-600 hover:text-black">
+      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+    <a href="{% url 'admin_dashboard' %}" class="no-underline">
+      <h1 class="text-xl font-bold tracking-widest text-[#1A1A1A] uppercase m-0">ZITARRA</h1>
+    </a>
+  </div>
+
+  <div class="flex items-center gap-6">
+    <div class="flex items-center gap-3">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name|default:request.user.fullname|default:"Admin" }}</p>
+      </div>
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Main Workspace Container -->
+<div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+  <!-- Shared Admin Sidebar Navigation -->
+  {% include 'admin_panel/includes/sidebar.html' with active_page='banners' %}
+
+  <!-- Main Workspace Canvas -->
+  <main class="flex-1 bg-[#FDFBF9] overflow-y-auto scroll-smooth p-6 lg:p-10 relative">
+
+
+    <!-- Top Description Header -->
+    <div class="mb-8 border-b border-gray-200 pb-6">
+      <div class="flex items-center gap-2 mb-2">
+        <h1 class="text-2xl font-black tracking-tight text-[#1A1A1A] uppercase m-0">BANNERS</h1>
+        <span class="text-2xl font-bold tracking-tight text-[#A33C08] uppercase">MANAGEMENT</span>
+      </div>
+      <p class="text-xs text-gray-500 max-w-2xl leading-relaxed m-0 font-medium">
+        Deploy high-impact editorial assets and promotional canvases across the Zitarra global infrastructure. Manage global visibility and scheduling.
+      </p>
+    </div>
+
+    <!-- 2-Column Split Workspace Container -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+
+      <!-- LEFT PANEL: NEW BANNER ASSET FORM (Col 5) -->
+      <div class="lg:col-span-5 bg-white border border-[#E8E8E8] rounded-3xl p-8 shadow-xs self-start">
+        <div class="flex items-center gap-2.5 mb-6">
+          <span class="w-2 h-2 rounded-full bg-[#A33C08]"></span>
+          <h2 class="text-xs font-black uppercase tracking-[0.18em] text-[#1A1A1A] m-0">NEW BANNER ASSET</h2>
+        </div>
+
+        <form id="addBannerForm" action="{% url 'add_banner' %}" method="POST" enctype="multipart/form-data" class="space-y-5">
+          {% csrf_token %}
+
+          <!-- Title -->
+          <div>
+            <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">BANNER TITLE</label>
+            <input type="text" name="title" required placeholder="WINTER_COLLECTION_24"
+                   class="w-full bg-transparent border-b-2 border-gray-900 py-2 text-xs font-black uppercase tracking-wider text-[#1A1A1A] focus:outline-none focus:border-[#A33C08] transition-colors font-sans">
+          </div>
+
+          <!-- Target URL -->
+          <div>
+            <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">TARGET URL</label>
+            <input type="text" name="target_url" required placeholder="/shop/new-arrivals"
+                   class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-600 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+          </div>
+
+          <!-- Display Mode & Priority -->
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">DISPLAY MODE</label>
+              <select name="display_mode" class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-bold uppercase text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] cursor-pointer font-sans">
+                <option value="HERO_SLIDER">HERO_SLIDER</option>
+                <option value="PROMO_STRIP">PROMO_STRIP</option>
+              </select>
+            </div>
+
+            <div>
+              <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">PRIORITY</label>
+              <input type="number" name="priority" value="1" min="1" max="99" required
+                     class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-black uppercase text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+            </div>
+          </div>
+
+          <!-- Expiration Date (Optional) -->
+          <div>
+            <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">EXPIRATION DATE (OPTIONAL)</label>
+            <input type="date" name="end_date"
+                   class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+            <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
+          </div>
+
+          <!-- Drag & Drop Upload Zone -->
+          <div class="pt-2">
+            <label class="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#A33C08] hover:bg-orange-50/30 transition-all group">
+              <svg class="w-8 h-8 text-gray-300 group-hover:text-[#A33C08] transition-colors mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+              </svg>
+              <p class="text-[0.62rem] font-black uppercase tracking-wider text-gray-500 m-0 mb-1 group-hover:text-[#1A1A1A]">DROP HI-RES ASSET OR CLICK TO BROWSE</p>
+              <span class="text-[0.5rem] font-bold text-gray-400 uppercase tracking-widest">RECOMMENDED: 2400X1200PX (EDITORIAL STANDARD)</span>
+              <input type="file" name="image" accept="image/*" required class="hidden" onchange="previewImage(this)">
+            </label>
+            <div id="imagePreviewContainer" class="mt-3 hidden">
+              <img id="imagePreview" src="" alt="Preview" class="w-full h-24 object-cover rounded-xl border border-gray-200">
+            </div>
+          </div>
+
+          <!-- Submit Button -->
+          <button type="submit"
+                  class="w-full bg-[#A33C08] text-white py-4 px-6 rounded-xl text-xs font-black uppercase tracking-[0.18em] hover:bg-[#852f05] transition-colors cursor-pointer shadow-md flex items-center justify-center gap-3">
+            <span>ADD NEW BANNER</span>
+            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3"/>
+            </svg>
+          </button>
+
+        </form>
+      </div>
+
+      <!-- RIGHT PANEL: BANNER DIRECTORY LIST (Col 7) -->
+      <div class="lg:col-span-7 flex flex-col bg-white border border-[#E8E8E8] rounded-3xl overflow-hidden shadow-xs">
+        <!-- Directory Header with Status Counter Pills (Sticky) -->
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between shrink-0 bg-white sticky top-0 z-10">
+          <h2 class="text-xs font-black uppercase tracking-[0.18em] text-[#1A1A1A] m-0">BANNER DIRECTORY</h2>
+          <div class="flex items-center gap-2">
+            <span class="px-3 py-1 bg-[#1A1A1A] text-white text-[0.58rem] font-black uppercase tracking-wider rounded-xs">ACTIVE: {{ active_count|stringformat:"02d" }}</span>
+            <span class="px-3 py-1 bg-gray-100 text-gray-600 text-[0.58rem] font-black uppercase tracking-wider rounded-xs border border-gray-200">DRAFT: {{ draft_count|stringformat:"02d" }}</span>
+          </div>
+        </div>
+
+        <!-- Directory Cards List -->
+        <div class="divide-y divide-gray-100 overflow-y-auto flex-1 max-h-[640px] scroll-smooth pr-1">
+          {% for banner in banners %}
+
+            <div class="p-6 flex flex-col sm:flex-row items-center gap-6 hover:bg-gray-50/50 transition-colors">
+              
+              <!-- Banner Media Preview with Badge -->
+              <div class="w-full sm:w-44 h-36 bg-gray-900 rounded-xl overflow-hidden relative shrink-0 border border-gray-200 group">
+                <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="w-full h-full object-cover">
+                <span class="absolute bottom-2 left-2 px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-widest rounded-xs shadow-sm
+                  {% if banner.status == 'PUBLISHED' %}bg-[#A33C08] text-white
+                  {% else %}bg-gray-200 text-gray-700{% endif %}">
+                  {% if banner.status == 'PUBLISHED' %}LIVE_NOW{% else %}DRAFT{% endif %}
+                </span>
+              </div>
+
+              <!-- Banner Details & Controls -->
+              <div class="flex-1 w-full flex flex-col justify-between h-full">
+                <div class="flex items-start justify-between gap-4 mb-2">
+                  <div>
+                    <h3 class="text-sm font-black uppercase tracking-wider text-[#1A1A1A] m-0 mb-1">{{ banner.title }}</h3>
+                    <p class="text-[0.58rem] font-bold text-gray-400 uppercase tracking-widest m-0">
+                      ID: BNR_{{ banner.id|stringformat:"05d" }} &nbsp;/&nbsp; PRIORITY: {{ banner.priority|stringformat:"02d" }} &nbsp;/&nbsp; MODE: {{ banner.display_mode }}
+                    </p>
+                  </div>
+
+                  <!-- Action Buttons (Edit / Delete) -->
+                  <div class="flex items-center gap-2 shrink-0">
+                    <button type="button" onclick="openEditBannerModal('{{ banner.id }}', '{{ banner.title|escapejs }}', '{{ banner.target_url|escapejs }}', '{{ banner.display_mode }}', '{{ banner.priority }}', '{{ banner.status }}', '{{ banner.end_date|date:'Y-m-d'|default:'' }}')"
+                            class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:border-black transition-colors cursor-pointer bg-white" title="Edit Banner">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>
+                      </svg>
+                    </button>
+                    <a href="{% url 'delete_banner' banner.id %}" onclick="return confirm('Are you sure you want to delete this banner asset?')"
+                       class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-red-500 hover:bg-red-50 hover:border-red-300 transition-colors no-underline bg-white" title="Delete Banner">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0"/>
+                      </svg>
+                    </a>
+                  </div>
+                </div>
+
+                <!-- Info Metrics Line -->
+                <div class="mt-3 flex items-center justify-between text-[0.58rem] font-bold uppercase tracking-wider text-gray-500">
+                  <div class="flex items-center gap-4">
+                    <span>📅 EXPIRES: {% if banner.end_date %}{{ banner.end_date|date:"d.b.Y" }}{% if banner.end_date < now %} <strong class="text-red-500 font-black">(EXPIRED)</strong>{% endif %}{% else %}ACTIVE / INDEFINITE{% endif %}</span>
+                    <span>🎯 CTR: {{ banner.ctr_percentage }}% <span class="text-gray-400 font-normal">({{ banner.clicks_count }} clicks / {{ banner.impressions_count }} views)</span></span>
+                  </div>
+
+                  <!-- Status Toggle Switch -->
+                  <div class="flex items-center gap-2">
+                    <span class="text-[0.52rem] font-black text-gray-400 uppercase tracking-widest">{{ banner.status }}</span>
+                    <a href="{% url 'toggle_banner_status' banner.id %}" class="relative inline-block w-10 h-5 no-underline">
+                      <span class="absolute cursor-pointer top-0 left-0 right-0 bottom-0 rounded-full transition-all duration-300 before:absolute before:content-[''] before:h-3.5 before:w-3.5 before:left-[3px] before:bottom-[3px] before:bg-white before:rounded-full before:transition-all before:duration-300
+                        {% if banner.status == 'PUBLISHED' %}bg-[#A33C08] before:translate-x-[20px]{% else %}bg-gray-300{% endif %}"></span>
+                    </a>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+            {% empty %}
+            <div class="p-16 text-center text-gray-400">
+              <svg class="w-12 h-12 mx-auto text-gray-300 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 15.75l5.159-5.159a2.25 2.25 0 013.182 0l5.159 5.159m-1.5-1.5l1.409-1.409a2.25 2.25 0 013.182 0l2.909 2.909m-18 3.75h16.5a1.5 1.5 0 001.5-1.5V6a1.5 1.5 0 00-1.5-1.5H3.75A1.5 1.5 0 002.25 6v12a1.5 1.5 0 001.5 1.5zm10.5-11.25h.008v.008h-.008V8.25zm.375 0a.375.375 0 11-.75 0 .375.375 0 01.75 0z"/>
+              </svg>
+              <p class="text-xs font-black uppercase tracking-wider text-gray-500 m-0">NO BANNERS DEPLOYED YET</p>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Directory Pagination Footer -->
+        <div class="px-6 py-4 border-t border-gray-200/70 bg-white flex flex-col sm:flex-row items-center justify-between gap-4 shrink-0 w-full select-none">
+          <p class="text-[0.65rem] font-bold text-gray-400 uppercase tracking-[0.2em] m-0">
+            SHOWING {{ banners.start_index|default:0|stringformat:"02d" }} - {{ banners.end_index|default:0|stringformat:"02d" }} &nbsp;/&nbsp; {{ banners.paginator.count|default:0|stringformat:"02d" }} TOTAL BANNERS
+          </p>
+
+          {% if banners.paginator.num_pages > 1 %}
+          <!-- Paginator Controls -->
+          <div class="flex items-center gap-2">
+            {% if banners.has_previous %}
+            <a href="?page={{ banners.previous_page_number }}"
+               class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+              &lsaquo;
+            </a>
+            {% else %}
+            <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-100/70 text-gray-300 text-xs font-bold cursor-not-allowed">
+              &lsaquo;
+            </span>
+            {% endif %}
+
+            {% for num in banners.paginator.page_range %}
+              {% if banners.number == num %}
+              <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-[#A33C08] text-white text-xs font-black shadow-sm">
+                {{ num|stringformat:"02d" }}
+              </span>
+              {% elif num > banners.number|add:"-3" and num < banners.number|add:"3" %}
+              <a href="?page={{ num }}"
+                 class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+                {{ num|stringformat:"02d" }}
+              </a>
+              {% endif %}
+            {% endfor %}
+
+            {% if banners.has_next %}
+            <a href="?page={{ banners.next_page_number }}"
+               class="w-8 h-8 flex items-center justify-center rounded-xl bg-white border border-gray-200 text-gray-700 hover:bg-black hover:text-white transition-colors no-underline text-xs font-bold shadow-xs">
+              &rsaquo;
+            </a>
+            {% else %}
+            <span class="w-8 h-8 flex items-center justify-center rounded-xl bg-gray-100/70 text-gray-300 text-xs font-bold cursor-not-allowed">
+              &rsaquo;
+            </span>
+            {% endif %}
+          </div>
+          {% endif %}
+        </div>
+
+      </div>
+
+    </div>
+
+  </main>
+</div>
+
+<!-- EDIT BANNER MODAL -->
+<div id="editBannerModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl relative border border-gray-100 font-sans">
+    <div class="flex items-center justify-between mb-6 pb-4 border-b border-gray-100">
+      <div>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">BANNERS MANAGEMENT</p>
+        <h2 class="text-xl font-black text-[#1A1A1A] uppercase tracking-tight m-0">MODIFY BANNER</h2>
+      </div>
+      <button type="button" onclick="closeEditBannerModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+
+    <form id="editBannerForm" method="POST" action="" enctype="multipart/form-data" class="space-y-4">
+      {% csrf_token %}
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BANNER TITLE *</label>
+        <input type="text" id="edit_title" name="title" required
+               class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+      </div>
+
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">TARGET URL</label>
+        <input type="text" id="edit_target_url" name="target_url"
+               class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">DISPLAY MODE</label>
+          <select id="edit_display_mode" name="display_mode" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+            <option value="HERO_SLIDER">HERO_SLIDER</option>
+            <option value="PROMO_STRIP">PROMO_STRIP</option>
+
+          </select>
+        </div>
+
+        <div>
+          <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">PRIORITY</label>
+          <input type="number" id="edit_priority" name="priority" min="1" max="99"
+                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        </div>
+      </div>
+
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">STATUS</label>
+        <select id="edit_status" name="status" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+          <option value="PUBLISHED">PUBLISHED (LIVE NOW)</option>
+          <option value="DRAFT">DRAFT (INACTIVE)</option>
+        </select>
+      </div>
+
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">EXPIRATION DATE (OPTIONAL)</label>
+        <input type="date" id="edit_end_date" name="end_date"
+               class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
+      </div>
+
+      <div>
+        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">REPLACE IMAGE ASSET (OPTIONAL)</label>
+        <input type="file" name="image" accept="image/*"
+               class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer font-sans">
+      </div>
+
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+        <button type="button" onclick="closeEditBannerModal()"
+                class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
+          CANCEL
+        </button>
+        <button type="submit"
+                class="px-6 py-3 rounded-xl bg-black text-white text-xs font-black uppercase tracking-wider hover:bg-gray-800 cursor-pointer shadow-md font-sans">
+          UPDATE BANNER
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- PRIORITY CONFLICT CONFIRMATION MODAL -->
+<div id="priorityConflictModal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[10000] flex items-center justify-center p-4 hidden">
+  <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl relative border border-gray-100 font-sans">
+    <div class="flex items-center gap-3 mb-4">
+      <div class="w-10 h-10 rounded-full bg-amber-50 border border-amber-200 text-amber-600 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
+      </div>
+      <div>
+        <p class="text-[0.6rem] font-bold tracking-[0.2em] uppercase text-amber-600 m-0">PRIORITY CONFLICT DETECTED</p>
+        <h3 class="text-base font-black text-[#1A1A1A] uppercase tracking-tight m-0">Auto-Reorder Banners?</h3>
+      </div>
+    </div>
+
+    <p id="priorityConflictMessage" class="text-xs text-gray-600 leading-relaxed mb-6 font-medium">
+      <!-- Dynamic conflict details inserted here -->
+    </p>
+
+    <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
+      <button type="button" onclick="closePriorityConflictModal()"
+              class="px-5 py-2.5 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans transition-colors">
+        Cancel
+      </button>
+      <button type="button" id="confirmAutoReorderBtn" onclick="executeAutoReorderSubmission()"
+              class="px-5 py-2.5 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans transition-all flex items-center gap-2">
+        <span>Confirm & Reorder</span>
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12h15m0 0l-6.75-6.75M19.5 12l-6.75 6.75"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Banners data for real-time priority collision detection
+  const bannersData = [
+    {% for b in all_banners %}
+    {
+      id: {{ b.id }},
+      title: "{{ b.clean_title|escapejs }}",
+      display_mode: "{{ b.display_mode }}",
+      priority: {{ b.priority }}
+    }{% if not forloop.last %},{% endif %}
+    {% endfor %}
+  ];
+
+  let pendingFormToSubmit = null;
+
+  function checkPriorityConflict(form, excludeId = null) {
+    const displayMode = form.querySelector('[name="display_mode"]').value;
+    const priority = parseInt(form.querySelector('[name="priority"]').value);
+
+    // Find if another banner in the same mode has this priority
+    const conflict = bannersData.find(b => b.display_mode === displayMode && b.priority === priority && b.id !== excludeId);
+
+    if (conflict) {
+      pendingFormToSubmit = form;
+      const modal = document.getElementById('priorityConflictModal');
+      const msgEl = document.getElementById('priorityConflictMessage');
+
+      msgEl.innerHTML = `Priority <strong class="text-[#A33C08]">#${priority}</strong> is already assigned to <strong class="text-black">"${conflict.title}"</strong> in <strong>${displayMode}</strong>.<br><br>Do you want to automatically reorder? Existing Priority <strong>${priority}</strong> will shift to <strong>${priority + 1}</strong>, and all subsequent banners will shift down accordingly.`;
+
+      modal.classList.remove('hidden');
+      return true; // Conflict found, submission intercepted
+    }
+
+    return false; // No conflict, proceed
+  }
+
+  function closePriorityConflictModal() {
+    document.getElementById('priorityConflictModal').classList.add('hidden');
+    pendingFormToSubmit = null;
+  }
+
+  function executeAutoReorderSubmission() {
+    if (!pendingFormToSubmit) return;
+
+    // Add hidden input auto_reorder=true
+    let hiddenInput = pendingFormToSubmit.querySelector('input[name="auto_reorder"]');
+    if (!hiddenInput) {
+      hiddenInput = document.createElement('input');
+      hiddenInput.type = 'hidden';
+      hiddenInput.name = 'auto_reorder';
+      pendingFormToSubmit.appendChild(hiddenInput);
+    }
+    hiddenInput.value = 'true';
+
+    // Disable button to prevent double submit
+    const btn = document.getElementById('confirmAutoReorderBtn');
+    btn.disabled = true;
+    btn.innerText = 'Reordering...';
+
+    pendingFormToSubmit.submit();
+  }
+
+  // Intercept Add Banner Form submit
+  const addForm = document.getElementById('addBannerForm');
+  if (addForm) {
+    addForm.addEventListener('submit', function(e) {
+      // If auto_reorder is already set, let it submit
+      if (this.querySelector('input[name="auto_reorder"]')?.value === 'true') return;
+
+      if (checkPriorityConflict(this)) {
+        e.preventDefault();
+      }
+    });
+  }
+
+  // Intercept Edit Banner Form submit
+  const editForm = document.getElementById('editBannerForm');
+  if (editForm) {
+    editForm.addEventListener('submit', function(e) {
+      // If auto_reorder is already set, let it submit
+      if (this.querySelector('input[name="auto_reorder"]')?.value === 'true') return;
+
+      const currentId = parseInt(this.getAttribute('data-banner-id') || '0');
+      if (checkPriorityConflict(this, currentId)) {
+        e.preventDefault();
+      }
+    });
+  }
+
+  function previewImage(input) {
+    if (input.files && input.files[0]) {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('imagePreview').src = e.target.result;
+        document.getElementById('imagePreviewContainer').classList.remove('hidden');
+      }
+      reader.readAsDataURL(input.files[0]);
+    }
+  }
+
+  function openEditBannerModal(id, title, targetUrl, displayMode, priority, status, endDate = '') {
+    const modal = document.getElementById('editBannerModal');
+    const form = document.getElementById('editBannerForm');
+    form.action = `/admin-panel/banners/edit/${id}/`;
+    form.setAttribute('data-banner-id', id);
+
+    // Remove any leftover auto_reorder input from prior attempts
+    const existingAutoReorder = form.querySelector('input[name="auto_reorder"]');
+    if (existingAutoReorder) existingAutoReorder.remove();
+
+    document.getElementById('edit_title').value = title;
+    document.getElementById('edit_target_url').value = targetUrl;
+    document.getElementById('edit_display_mode').value = displayMode;
+    document.getElementById('edit_priority').value = priority;
+    document.getElementById('edit_status').value = status;
+    document.getElementById('edit_end_date').value = endDate || '';
+
+    modal.classList.remove('hidden');
+  }
+
+  function closeEditBannerModal() {
+    document.getElementById('editBannerModal').classList.add('hidden');
+  }
+
+  // Sidebar toggle JS
+  const sidebarToggleBtn = document.getElementById('sidebar-toggle');
+  const adminSidebar = document.getElementById('admin-sidebar');
+  if (sidebarToggleBtn && adminSidebar) {
+    sidebarToggleBtn.addEventListener('click', () => {
+      adminSidebar.classList.toggle('-translate-x-full');
+    });
+  }
+</script>
+{% endblock %}

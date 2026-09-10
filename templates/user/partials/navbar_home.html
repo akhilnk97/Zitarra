@@ -1,4 +1,41 @@
+{% if promo_strips %}
+<div class="bg-[#A33C08] text-white text-[0.62rem] font-extrabold tracking-[0.18em] uppercase py-2 px-4 text-center select-none flex items-center justify-center relative overflow-hidden h-8">
+  <div id="promo-strip-container" class="w-full max-w-4xl mx-auto relative h-full flex items-center justify-center">
+    {% for ps in promo_strips %}
+    <div class="promo-strip-slide absolute inset-0 flex items-center justify-center transition-all duration-500 ease-in-out {% if not forloop.first %}opacity-0 translate-y-3 pointer-events-none{% else %}opacity-100 translate-y-0 pointer-events-auto{% endif %}">
+      <a href="{% url 'track_banner_click' ps.id %}" class="text-white no-underline hover:underline flex items-center justify-center gap-2.5">
+        <span>🚀 {{ ps.clean_title }}</span>
+        <span class="bg-white text-[#A33C08] px-2.5 py-0.5 rounded-full text-[0.55rem] font-black shadow-xs hover:bg-black hover:text-white transition-colors">EXPLORE →</span>
+      </a>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+{% if promo_strips|length > 1 %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  let promoIdx = 0;
+  const promoSlides = document.querySelectorAll('.promo-strip-slide');
+  if (promoSlides.length > 1) {
+    setInterval(() => {
+      promoSlides[promoIdx].classList.remove('opacity-100', 'translate-y-0', 'pointer-events-auto');
+      promoSlides[promoIdx].classList.add('opacity-0', '-translate-y-3', 'pointer-events-none');
+      
+      promoIdx = (promoIdx + 1) % promoSlides.length;
+      
+      promoSlides[promoIdx].classList.remove('opacity-0', 'translate-y-3', '-translate-y-3', 'pointer-events-none');
+      promoSlides[promoIdx].classList.add('opacity-100', 'translate-y-0', 'pointer-events-auto');
+    }, 4500);
+  }
+});
+</script>
+{% endif %}
+{% endif %}
+
+
 <header id="nav"
+
   class="sticky top-0 z-[200] bg-white border-b border-gray-200 flex items-center justify-between px-8 h-[60px] transition-all duration-300 group [&.scrolled]:bg-[#0a0a0a]/70 [&.scrolled]:border-transparent [&.scrolled]:backdrop-blur-[18px]">
 
   <!-- Logo (left) -->
@@ -14,10 +51,12 @@
       class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if request.path == '/home/' or request.path == '/' %}act{% endif %}">Home</a>
     <a href="/shop/" id="nav-shop"
       class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/shop/' in request.path %}act{% endif %}">Shop</a>
-    <a href="/home/#about" id="nav-about"
-      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A]">About Us</a>
-    <a href="/home/#contact" id="nav-contact"
-      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A]">Contact Us</a>
+    <a href="{% url 'about' %}" id="nav-about"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/about/' in request.path %}act{% endif %}">About Us</a>
+
+    <a href="{% url 'contact' %}" id="nav-contact"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/contact/' in request.path %}act{% endif %}">Contact Us</a>
+
   </nav>
 
   <!-- Right side: Search bar + Icons -->

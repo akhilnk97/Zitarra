@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'user_panel.coupons.apps.UserCouponsConfig',
     'user_panel.returns.apps.UserReturnsConfig',
     'user_panel.wallet.apps.UserWalletConfig',
+    'user_panel.banners.apps.UserBannersConfig',
 
     'admin_panel.authentication',
     'admin_panel.dashboard',
@@ -45,6 +46,7 @@ INSTALLED_APPS = [
     'admin_panel.returns.apps.AdminReturnsConfig',
     'admin_panel.sales.apps.AdminSalesConfig',
     'admin_panel.brands.apps.AdminBrandsConfig',
+    'admin_panel.banners.apps.AdminBannersConfig',
 ]
 
 

@@ -14,10 +14,12 @@
       class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if request.path == '/home/' or request.path == '/' %}act{% endif %}">Home</a>
     <a href="/shop/" id="nav-shop"
       class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/shop/' in request.path %}act{% endif %}">Shop</a>
-    <a href="/home/#about" id="nav-about"
-      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A]">About Us</a>
-    <a href="/home/#contact" id="nav-contact"
-      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A]">Contact Us</a>
+    <a href="{% url 'about' %}" id="nav-about"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/about/' in request.path %}act{% endif %}">About Us</a>
+
+    <a href="{% url 'contact' %}" id="nav-contact"
+      class="text-[0.68rem] font-bold tracking-[0.14em] uppercase text-brand-dark no-underline relative pb-[3px] transition-colors duration-250 hover:text-[#E8500A] group-[.scrolled]:text-gray-400 [&.act]:text-[#E8500A] [&.act]:after:content-[''] [&.act]:after:absolute [&.act]:after:bottom-0 [&.act]:after:left-0 [&.act]:after:w-full [&.act]:after:h-[2px] [&.act]:after:bg-[#E8500A] {% if '/contact/' in request.path %}act{% endif %}">Contact Us</a>
+
   </nav>
 
   <!-- Right side: Search bar + Icons -->
