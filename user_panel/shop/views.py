@@ -1,6 +1,6 @@
 from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.db.models import Q, Max
+from django.db.models import Q, Min, Max
 import math
 from django.views.decorators.cache import cache_control
 from common.decorators import user_not_blocked
@@ -36,6 +36,7 @@ def shop_view(request):
     category_id = request.GET.get('category', '').strip()
     sort_by = request.GET.get('sort', '').strip()
     selected_brands = request.GET.get('brand', '').strip()
+    min_price = request.GET.get('min_price', '').strip()
     max_price = request.GET.get('max_price', '').strip()
 
     if search_query:
@@ -57,12 +58,24 @@ def shop_view(request):
             brand_queries |= Q(brand__iexact=b)
         products_list = products_list.filter(brand_queries)
 
+    has_price_filter = False
+    if min_price:
+        try:
+            min_val = float(min_price)
+            if min_val > 0:
+                products_list = products_list.filter(price__gte=min_val)
+                has_price_filter = True
+        except ValueError:
+            min_price = ''
 
     if max_price:
         try:
-            products_list = products_list.filter(price__lte=float(max_price))
+            max_val = float(max_price)
+            if max_val < max_slider_val:
+                products_list = products_list.filter(price__lte=max_val)
+                has_price_filter = True
         except ValueError:
-            pass
+            max_price = ''
 
         
     if sort_by == 'price_asc':
@@ -104,7 +117,7 @@ def shop_view(request):
             .values_list('product_id', flat=True)
         )
 
-    filter_applied = bool(category_id or selected_brands or max_price)
+    filter_applied = bool(category_id or selected_brands or has_price_filter)
 
     context = {
         "page_obj": page_obj,
@@ -114,7 +127,9 @@ def shop_view(request):
         "category_id": category_id,
         "selected_brand": selected_brands,
         "selected_brands_list": selected_brands_list,
+        "min_price": min_price or 0,
         "max_price": max_price or max_slider_val,
+        "has_price_filter": has_price_filter,
         "max_slider_val": max_slider_val,
         "filter_applied": filter_applied,
         "sort_by": sort_by,

@@ -57,7 +57,7 @@ class Product(models.Model):
     @property
     def average_rating(self):
         avg = self.reviews.aggregate(models.Avg('rating'))['rating__avg']
-        return round(avg, 1) if avg else 5.0
+        return round(avg, 1) if avg is not None else None
 
     @property
     def total_reviews_count(self):

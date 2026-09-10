@@ -5,6 +5,70 @@
 
 {% block extra_head %}
 <div class="hidden grid-cols-1 grid-cols-3 ml-[-320px]"></div>
+<style>
+  .dual-slider-track {
+    position: relative;
+    width: 100%;
+    height: 24px;
+  }
+  .dual-slider-track input[type="range"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 24px;
+    margin: 0;
+    padding: 0;
+    pointer-events: none;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    outline: none;
+  }
+  .dual-slider-track input[type="range"]::-webkit-slider-runnable-track {
+    height: 4px;
+    background: transparent;
+    border-radius: 9999px;
+  }
+  .dual-slider-track input[type="range"]::-webkit-slider-thumb {
+    pointer-events: auto;
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    margin-top: -6px;
+    border-radius: 50%;
+    background: #E8500A;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    cursor: grab;
+    position: relative;
+    z-index: 10;
+    transition: transform 0.1s ease, background-color 0.15s ease;
+  }
+  .dual-slider-track input[type="range"]::-webkit-slider-thumb:active {
+    cursor: grabbing;
+    transform: scale(1.2);
+    background: #c94008;
+  }
+  .dual-slider-track input[type="range"]::-moz-range-track {
+    height: 4px;
+    background: transparent;
+    border-radius: 9999px;
+  }
+  .dual-slider-track input[type="range"]::-moz-range-thumb {
+    pointer-events: auto;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: #E8500A;
+    border: 2px solid #FFFFFF;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35);
+    cursor: grab;
+    position: relative;
+    z-index: 10;
+  }
+</style>
 {% endblock %}
 
 {% block content %}
@@ -64,15 +128,39 @@
         </div>
       </div>
 
-      <!-- Price Range -->
-      <div class="px-6 py-5 border-b border-gray-300">
-        <h3 class="text-xs font-black tracking-[0.2em] uppercase text-brand-dark mb-4">Price Range</h3>
-        <input type="range" name="max_price" id="price-range" min="0" max="{{ max_slider_val }}" value="{{ max_price }}"
-          class="w-full cursor-pointer accent-[#E8500A]"
-          oninput="document.getElementById('price-val').textContent='₹'+Number(this.value).toLocaleString()" />
-        <div class="flex justify-between text-xs font-bold text-gray-600 mt-2.5">
-          <span>₹0</span>
-          <span id="price-val">₹{{ max_price }}</span>
+      <!-- Price Range (Dual Slider) -->
+      <div class="px-6 py-5 border-b border-gray-300 select-none">
+        <div class="flex items-center justify-between mb-3">
+          <h3 class="text-xs font-black tracking-[0.2em] uppercase text-brand-dark m-0">Price Range</h3>
+          {% if has_price_filter %}
+          <button type="button" onclick="resetPriceRange()" class="text-[0.6rem] font-bold text-[#E8500A] hover:underline uppercase tracking-wider bg-transparent border-none p-0 cursor-pointer">Clear</button>
+          {% endif %}
+        </div>
+
+        <div class="dual-slider-track">
+          <!-- Background Base Track -->
+          <div class="absolute left-0 top-[10px] w-full h-1 bg-gray-300 rounded-full"></div>
+          <!-- Selected Range Highlight Track -->
+          <div id="slider-highlight" class="absolute top-[10px] h-1 bg-[#E8500A] rounded-full"></div>
+          
+          <!-- Min Handle (Start Value) -->
+          <input type="range" name="min_price" id="range-min" min="0" max="{{ max_slider_val }}" step="100" value="{{ min_price }}" />
+          
+          <!-- Max Handle (End Value) -->
+          <input type="range" name="max_price" id="range-max" min="0" max="{{ max_slider_val }}" step="100" value="{{ max_price }}" />
+        </div>
+
+        <div class="flex justify-between text-xs font-bold text-gray-600 mt-2">
+          <span id="price-min-val">₹{{ min_price }}</span>
+          <span id="price-max-val">₹{{ max_price }}</span>
+        </div>
+
+        <!-- Quick Price Presets -->
+        <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-200">
+          <button type="button" onclick="setPresetPriceRange(0, 10000)" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">Under ₹10k</button>
+          <button type="button" onclick="setPresetPriceRange(10000, 50000)" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">₹10k - ₹50k</button>
+          <button type="button" onclick="setPresetPriceRange(50000, 150000)" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">₹50k - ₹1.5L</button>
+          <button type="button" onclick="setPresetPriceRange(150000, {{ max_slider_val }})" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">Above ₹1.5L</button>
         </div>
       </div>
 
@@ -157,7 +245,7 @@
         <p class="text-[0.64rem] font-bold uppercase tracking-wider text-brand-dark">
           Search Results for: <span class="text-[#E8500A]">"{{ search_query }}"</span>
         </p>
-        <a href="?{% if category_id %}category={{ category_id }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if selected_brand %}brand={{ selected_brand }}&{% endif %}{% if max_price %}max_price={{ max_price }}{% endif %}"
+        <a href="?{% if category_id %}category={{ category_id }}&{% endif %}{% if sort_by %}sort={{ sort_by }}&{% endif %}{% if selected_brand %}brand={{ selected_brand }}&{% endif %}{% if min_price %}min_price={{ min_price }}&{% endif %}{% if max_price %}max_price={{ max_price }}{% endif %}"
           class="text-[0.58rem] font-black uppercase tracking-widest text-red-500 hover:text-red-700 transition-colors no-underline">
           Cancel Search &times;
         </a>
@@ -183,22 +271,22 @@
             <select onchange="location = this.value;"
               class="text-[0.68rem] border border-gray-300 px-3 py-1.5 outline-none text-brand-dark font-sans font-bold cursor-pointer focus:border-[#E8500A] bg-white whitespace-nowrap min-w-[210px] uppercase tracking-wider">
               <option
-                value="?sort=newest{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+                value="?sort=newest{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
                 {% if sort_by == 'newest' or not sort_by %}selected{% endif %} class="whitespace-nowrap py-1">Newest First
               </option>
               <option
-                value="?sort=price_asc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+                value="?sort=price_asc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
                 {% if sort_by == 'price_asc' %}selected{% endif %} class="whitespace-nowrap py-1">Price: Low to High
               </option>
               <option
-                value="?sort=price_desc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+                value="?sort=price_desc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
                 {% if sort_by == 'price_desc' %}selected{% endif %} class="whitespace-nowrap py-1">Price: High to Low
               </option>
               <option
-                value="?sort=name_asc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+                value="?sort=name_asc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
                 {% if sort_by == 'name_asc' %}selected{% endif %} class="whitespace-nowrap py-1">A to Z</option>
               <option
-                value="?sort=name_desc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+                value="?sort=name_desc{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
                 {% if sort_by == 'name_desc' %}selected{% endif %} class="whitespace-nowrap py-1">Z to A</option>
             </select>
           </div>
@@ -241,7 +329,18 @@
               class="no-underline block hover:text-[#E8500A] transition-colors">
               <p class="text-[0.75rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-snug mb-2">{{ product.name }}</p>
             </a>
-            <div class="text-[#E8500A] text-[11px] tracking-[1px] mb-2">★★★★★</div>
+            {% if product.average_rating %}
+            <div class="flex items-center gap-1 mb-2">
+              <span class="text-[#E8500A] text-[11px] tracking-[1px]">★</span>
+              <span class="text-[0.62rem] font-bold text-[#1A1A1A]">{{ product.average_rating|floatformat:1 }}</span>
+              <span class="text-[0.58rem] text-gray-400">({{ product.total_reviews_count }})</span>
+            </div>
+            {% else %}
+            <div class="flex items-center gap-1 mb-2 text-[0.6rem] font-medium text-gray-400">
+              <span class="text-gray-300 text-[10px]">★</span>
+              <span>No reviews</span>
+            </div>
+            {% endif %}
 
 
             <div class="flex items-center gap-2 w-full mt-auto">
@@ -364,7 +463,7 @@
       <div class="flex items-center justify-center gap-1.5 mt-8">
         <!-- Previous Page -->
         {% if page_obj.has_previous %}
-        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+        <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
           class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">&lsaquo;</a>
         {% else %}
         <span class="w-8 h-8 flex items-center justify-center border border-gray-200 text-[0.64rem] font-bold text-gray-300 bg-white select-none">&lsaquo;</span>
@@ -375,14 +474,14 @@
           {% if page_obj.number == num %}
           <span class="w-8 h-8 flex items-center justify-center border border-brand-dark bg-brand-dark text-white text-[0.64rem] font-bold select-none">{{ num }}</span>
           {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
-          <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+          <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
             class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">{{ num }}</a>
           {% endif %}
         {% endfor %}
 
         <!-- Next Page -->
         {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
           class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">&rsaquo;</a>
         {% else %}
         <span class="w-8 h-8 flex items-center justify-center border border-gray-200 text-[0.64rem] font-bold text-gray-300 bg-white select-none">&rsaquo;</span>
@@ -476,15 +575,79 @@
     });
   }
 
+  const rMin = document.getElementById('range-min');
+  const rMax = document.getElementById('range-max');
+  const highlight = document.getElementById('slider-highlight');
+  const minText = document.getElementById('price-min-val');
+  const maxText = document.getElementById('price-max-val');
+  const maxLimit = {{ max_slider_val|default:10000 }};
+  const minGap = 100;
+
+  function updateDualSlider(e) {
+    if (!rMin || !rMax) return;
+    let minVal = parseInt(rMin.value) || 0;
+    let maxVal = parseInt(rMax.value) || maxLimit;
+
+    if (maxVal - minVal < minGap) {
+      if (e && e.target === rMin) {
+        rMin.value = maxVal - minGap;
+        minVal = maxVal - minGap;
+      } else if (e && e.target === rMax) {
+        rMax.value = minVal + minGap;
+        maxVal = minVal + minGap;
+      }
+    }
+
+    // Dynamic z-index so the closer thumb can always be grabbed smoothly
+    if (minVal > (maxLimit * 0.7)) {
+      rMin.style.zIndex = '20';
+      rMax.style.zIndex = '10';
+    } else {
+      rMin.style.zIndex = '10';
+      rMax.style.zIndex = '20';
+    }
+
+    const pMin = (minVal / maxLimit) * 100;
+    const pMax = 100 - (maxVal / maxLimit) * 100;
+
+    if (highlight) {
+      highlight.style.left = pMin + '%';
+      highlight.style.right = pMax + '%';
+    }
+
+    if (minText) minText.textContent = '₹' + Number(minVal).toLocaleString();
+    if (maxText) maxText.textContent = '₹' + Number(maxVal).toLocaleString();
+  }
+
+  if (rMin && rMax) {
+    rMin.addEventListener('input', updateDualSlider);
+    rMax.addEventListener('input', updateDualSlider);
+    updateDualSlider();
+  }
+
+  function setPresetPriceRange(minVal, maxVal) {
+    if (rMin) rMin.value = minVal;
+    if (rMax) rMax.value = maxVal;
+    updateDualSlider();
+  }
+
+  function resetPriceRange() {
+    if (rMin) rMin.value = 0;
+    if (rMax) rMax.value = maxLimit;
+    updateDualSlider();
+    document.getElementById('filter-form').submit();
+  }
+
   function resetFilters() {
     document.getElementById('filter-category').value = '';
     document.getElementById('filter-brand').value = '';
-    document.getElementById('price-range').value = '{{ max_slider_val }}';
-    document.getElementById('price-val').textContent = '₹' + Number('{{ max_slider_val }}').toLocaleString();
+    if (rMin) rMin.value = 0;
+    if (rMax) rMax.value = maxLimit;
+    updateDualSlider();
 
     selectCategory('');
     document.querySelectorAll('.brand-btn').forEach(btn => {
-      btn.className = 'brand-btn py-[5px] text-[0.56rem] font-bold tracking-widest uppercase border border-gray-400 text-gray-600 bg-white hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all text-center cursor-pointer';
+      btn.className = 'brand-btn py-2 text-[0.66rem] font-bold tracking-widest uppercase border border-gray-400 text-gray-700 bg-white hover:bg-brand-dark hover:text-white hover:border-brand-dark transition-all text-center cursor-pointer';
     });
 
     // Reset filters and navigate to clean shop URL
