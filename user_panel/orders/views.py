@@ -240,16 +240,17 @@ def place_order_view(request):
                 discount_amount=item_disc,
             )
         
-        # Deduct stock safely with locked rows for COD
+        # Deduct stock safely with locked rows for COD and WALLET
         for item in items:
             if item.variant_id:
                 variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
                 variant.stock -= item.quantity
-                variant.save(update_fields=['stock'])
+                variant.save(update_fields=['stock', 'updated_at'])
+                variant.product.sync_stock_from_variants()
             elif item.product_id:
                 product = Product.objects.select_for_update().get(id=item.product_id)
                 product.stock -= item.quantity
-                product.save(update_fields=['stock'])
+                product.save(update_fields=['stock', 'updated_at'])
 
         cart.items.all().delete()
         process_referral_reward_on_first_order(request.user)
@@ -257,7 +258,7 @@ def place_order_view(request):
         if is_ajax(request):
             return JsonResponse({
                 'status': 'success',
-                'payment_method': 'CASH_ON_DELIVERY',
+                'payment_method': 'WALLET' if is_wallet_payment else 'CASH_ON_DELIVERY',
                 'redirect_url': reverse('order_success', args=[order.order_id])
             })
 
@@ -589,11 +590,12 @@ def cancel_order_item_view(request, order_id, item_id):
         if item.variant_id:
             variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
             variant.stock += item.quantity
-            variant.save(update_fields=['stock'])
+            variant.save(update_fields=['stock', 'updated_at'])
+            variant.product.sync_stock_from_variants()
         elif item.product_id:
             product = Product.objects.select_for_update().get(id=item.product_id)
             product.stock += item.quantity
-            product.save(update_fields=['stock'])
+            product.save(update_fields=['stock', 'updated_at'])
 
         # Instant Wallet refund if item/order was paid
         if order_item.order.payment_status == 'PAID' or order_item.order.payment_method in ['RAZORPAY', 'WALLET']:
@@ -617,16 +619,25 @@ def cancel_order_item_view(request, order_id, item_id):
 
 @user_member_required
 def order_invoice_view(request, order_id):
-
+    
     order = get_object_or_404(
         Order.objects.prefetch_related('items__product', 'items__variant'),
         order_id=order_id,
         user=request.user
     )
     half_tax = round(order.tax_amount / Decimal('2.0'), 2)
+
+    # Calculate M.R.P. subtotal and offer/coupon savings
+    gross_mrp_subtotal = sum((item.mrp * item.quantity for item in order.items.all()), Decimal('0.00'))
+    total_offer_savings = sum((item.total_offer_discount for item in order.items.all()), Decimal('0.00'))
+    total_savings = total_offer_savings + (order.discount_amount or Decimal('0.00'))
+
     context = {
         'order': order,
         'half_tax': half_tax,
+        'gross_mrp_subtotal': gross_mrp_subtotal,
+        'total_offer_savings': total_offer_savings,
+        'total_savings': total_savings,
     }
     return render(request, 'user/orders/order_invoice.html', context)
 
@@ -683,10 +694,12 @@ def cancel_order_view(request, order_id):
                         # Restore stock
                         if item.variant:
                             item.variant.stock += item.quantity
-                            item.variant.save(update_fields=['stock'])
+                            item.variant.save(update_fields=['stock', 'updated_at'])
+                            if item.product:
+                                item.product.sync_stock_from_variants()
                         elif item.product:
                             item.product.stock += item.quantity
-                            item.product.save(update_fields=['stock'])
+                            item.product.save(update_fields=['stock', 'updated_at'])
 
                 order.recalculate_totals()
 
@@ -959,11 +972,12 @@ def verify_razorpay_payment_view(request):
                 if item.variant_id:
                     variant = ProductVariant.objects.select_for_update().get(id=item.variant_id)
                     variant.stock -= item.quantity
-                    variant.save(update_fields=['stock'])
+                    variant.save(update_fields=['stock', 'updated_at'])
+                    variant.product.sync_stock_from_variants()
                 elif item.product_id:
                     product = Product.objects.select_for_update().get(id=item.product_id)
                     product.stock -= item.quantity
-                    product.save(update_fields=['stock'])
+                    product.save(update_fields=['stock', 'updated_at'])
 
             # Clear cart
             cart.items.all().delete()

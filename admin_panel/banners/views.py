@@ -3,7 +3,8 @@ from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.utils import timezone
 from common.decorators import admin_required
-from .models import Banner
+from .models import Banner, ShopShowcase
+from admin_panel.products.models import Product
 from django.utils.dateparse import parse_date
 from datetime import time, datetime
 
@@ -25,7 +26,7 @@ def admin_banners_view(request):
         banners_page = paginator.page(paginator.num_pages)
 
     context = {
-        'admin_name': getattr(request.user, 'fullname', None) or getattr(request.user, 'username', 'Admin'),
+        'admin_name': getattr(request.user, 'fullname', 'Admin'),
         'banners': banners_page,
         'all_banners': banners_list,
         'active_count': active_count,
@@ -216,3 +217,67 @@ def delete_banner_view(request, banner_id):
     banner.save()
     messages.success(request, f"Banner '{banner.title}' removed successfully.")
     return redirect('admin_banners')
+
+
+@admin_required
+def admin_showcases_view(request):
+    showcases = ShopShowcase.objects.all().select_related('product')
+    showcase_dict = {s.slot: s for s in showcases}
+    products = Product.objects.filter(is_deleted=False, is_active=True).order_by('name')
+
+    context = {
+        'admin_name': getattr(request.user, 'fullname', 'Admin'),
+        'hero_left': showcase_dict.get('HERO_LEFT'),
+        'hero_right': showcase_dict.get('HERO_RIGHT'),
+        'grid_spotlight': showcase_dict.get('GRID_SPOTLIGHT'),
+        'sidebar_promo': showcase_dict.get('SIDEBAR_PROMO'),
+        'products': products,
+    }
+    return render(request, 'admin_panel/banners/showcases.html', context)
+
+
+@admin_required
+def edit_showcase_view(request, showcase_id):
+    showcase = get_object_or_404(ShopShowcase, id=showcase_id)
+    if request.method == 'POST':
+        product_id = request.POST.get('product_id')
+        badge_text = request.POST.get('badge_text', '').strip()
+        custom_title = request.POST.get('custom_title', '').strip()
+        subtitle = request.POST.get('subtitle', '').strip()
+        button_label = request.POST.get('button_label', '').strip()
+        banner_image = request.FILES.get('banner_image')
+        is_active = request.POST.get('is_active') == 'true' or request.POST.get('is_active') == 'on'
+
+        if product_id:
+            try:
+                selected_prod = Product.objects.get(id=product_id, is_deleted=False)
+                showcase.product = selected_prod
+            except Product.DoesNotExist:
+                pass
+
+        if badge_text:
+            showcase.badge_text = badge_text
+        showcase.custom_title = custom_title
+        showcase.subtitle = subtitle
+        if button_label:
+            showcase.button_label = button_label
+        if banner_image:
+            showcase.banner_image = banner_image
+
+        if showcase.slot == 'GRID_SPOTLIGHT':
+            showcase.spec_1_label = request.POST.get('spec_1_label', 'Wattage').strip()
+            showcase.spec_1_value = request.POST.get('spec_1_value', '').strip()
+            showcase.spec_2_label = request.POST.get('spec_2_label', 'Speakers').strip()
+            showcase.spec_2_value = request.POST.get('spec_2_value', '').strip()
+            showcase.spec_3_label = request.POST.get('spec_3_label', 'Valves').strip()
+            showcase.spec_3_value = request.POST.get('spec_3_value', '').strip()
+            showcase.spec_4_label = request.POST.get('spec_4_label', 'Inputs').strip()
+            showcase.spec_4_value = request.POST.get('spec_4_value', '').strip()
+
+        showcase.is_active = is_active
+        showcase.save()
+        messages.success(request, f"Showcase slot '{showcase.get_slot_display()}' updated successfully!")
+        return redirect('admin_showcases')
+
+    return redirect('admin_showcases')
+

@@ -11,6 +11,7 @@
     width: 100%;
     height: 24px;
   }
+
   .dual-slider-track input[type="range"] {
     position: absolute;
     left: 0;
@@ -25,11 +26,13 @@
     background: transparent;
     outline: none;
   }
+
   .dual-slider-track input[type="range"]::-webkit-slider-runnable-track {
     height: 4px;
     background: transparent;
     border-radius: 9999px;
   }
+
   .dual-slider-track input[type="range"]::-webkit-slider-thumb {
     pointer-events: auto;
     -webkit-appearance: none;
@@ -46,16 +49,19 @@
     z-index: 10;
     transition: transform 0.1s ease, background-color 0.15s ease;
   }
+
   .dual-slider-track input[type="range"]::-webkit-slider-thumb:active {
     cursor: grabbing;
     transform: scale(1.2);
     background: #c94008;
   }
+
   .dual-slider-track input[type="range"]::-moz-range-track {
     height: 4px;
     background: transparent;
     border-radius: 9999px;
   }
+
   .dual-slider-track input[type="range"]::-moz-range-thumb {
     pointer-events: auto;
     width: 16px;
@@ -133,7 +139,8 @@
         <div class="flex items-center justify-between mb-3">
           <h3 class="text-xs font-black tracking-[0.2em] uppercase text-brand-dark m-0">Price Range</h3>
           {% if has_price_filter %}
-          <button type="button" onclick="resetPriceRange()" class="text-[0.6rem] font-bold text-[#E8500A] hover:underline uppercase tracking-wider bg-transparent border-none p-0 cursor-pointer">Clear</button>
+          <button type="button" onclick="resetPriceRange()"
+            class="text-[0.6rem] font-bold text-[#E8500A] hover:underline uppercase tracking-wider bg-transparent border-none p-0 cursor-pointer">Clear</button>
           {% endif %}
         </div>
 
@@ -142,12 +149,14 @@
           <div class="absolute left-0 top-[10px] w-full h-1 bg-gray-300 rounded-full"></div>
           <!-- Selected Range Highlight Track -->
           <div id="slider-highlight" class="absolute top-[10px] h-1 bg-[#E8500A] rounded-full"></div>
-          
+
           <!-- Min Handle (Start Value) -->
-          <input type="range" name="min_price" id="range-min" min="0" max="{{ max_slider_val }}" step="100" value="{{ min_price }}" />
-          
+          <input type="range" name="min_price" id="range-min" min="0" max="{{ max_slider_val }}" step="100"
+            value="{{ min_price }}" />
+
           <!-- Max Handle (End Value) -->
-          <input type="range" name="max_price" id="range-max" min="0" max="{{ max_slider_val }}" step="100" value="{{ max_price }}" />
+          <input type="range" name="max_price" id="range-max" min="0" max="{{ max_slider_val }}" step="100"
+            value="{{ max_price }}" />
         </div>
 
         <div class="flex justify-between text-xs font-bold text-gray-600 mt-2">
@@ -157,10 +166,18 @@
 
         <!-- Quick Price Presets -->
         <div class="flex flex-wrap gap-1.5 mt-3 pt-3 border-t border-gray-200">
-          <button type="button" onclick="setPresetPriceRange(0, 10000)" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">Under ₹10k</button>
-          <button type="button" onclick="setPresetPriceRange(10000, 50000)" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">₹10k - ₹50k</button>
-          <button type="button" onclick="setPresetPriceRange(50000, 150000)" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">₹50k - ₹1.5L</button>
-          <button type="button" onclick="setPresetPriceRange(150000, {{ max_slider_val }})" class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">Above ₹1.5L</button>
+          <button type="button" onclick="setPresetPriceRange(0, 10000)"
+            class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">Under
+            ₹10k</button>
+          <button type="button" onclick="setPresetPriceRange(10000, 50000)"
+            class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">₹10k
+            - ₹50k</button>
+          <button type="button" onclick="setPresetPriceRange(50000, 150000)"
+            class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">₹50k
+            - ₹1.5L</button>
+          <button type="button" onclick="setPresetPriceRange(150000, {{ max_slider_val }})"
+            class="px-2 py-1 text-[0.56rem] font-bold uppercase tracking-wider bg-white hover:bg-brand-dark hover:text-white text-gray-700 transition-all border border-gray-300 cursor-pointer rounded-xs active:scale-[0.96]">Above
+            ₹1.5L</button>
         </div>
       </div>
 
@@ -180,12 +197,38 @@
       <div class="flex-grow"></div>
 
       <!-- Special Offer (bottom) -->
-      <div class="bg-brand-dark text-white px-6 py-6 text-center mb-8 mx-4 rounded-xs">
-        <p class="text-xs font-black tracking-[0.2em] uppercase text-[#E8500A] mb-2">Special Offer</p>
-        <p class="text-lg font-black uppercase leading-tight mb-4">Vintage<br>Reissue 1964</p>
-        <a href="#"
-          class="inline-block bg-[#E8500A] text-white text-xs font-bold tracking-[0.2em] uppercase px-6 py-2.5 hover:bg-[#c94008] transition-colors no-underline">Discover</a>
+      {% if sidebar_promo_showcase %}
+      <div class="bg-brand-dark text-white px-6 py-6 text-center mb-8 mx-4 rounded-xs relative overflow-hidden group">
+        {% if sidebar_promo_showcase.display_image_url %}
+        <img src="{{ sidebar_promo_showcase.display_image_url }}" alt="{{ sidebar_promo_showcase.display_title }}"
+          class="absolute inset-0 w-full h-full object-cover object-center opacity-20 pointer-events-none group-hover:scale-105 transition-transform duration-500" />
+        {% endif %}
+        <div class="relative z-10">
+          <p class="text-[0.62rem] font-black tracking-[0.2em] uppercase text-[#E8500A] mb-1.5">
+            {{ sidebar_promo_showcase.badge_text|default:"Special Offer" }}
+          </p>
+          <p class="text-base font-black uppercase leading-tight mb-2 tracking-tight">
+            {{ sidebar_promo_showcase.display_title }}
+          </p>
+          {% if sidebar_promo_showcase.subtitle %}
+          <p class="text-gray-400 text-[0.62rem] tracking-wider uppercase mb-3.5">
+            {{ sidebar_promo_showcase.subtitle }}
+          </p>
+          {% elif sidebar_promo_showcase.product.has_discount %}
+          <p class="text-white text-xs font-black tracking-wide uppercase mb-3.5">
+            ₹{{ sidebar_promo_showcase.product.discounted_price|floatformat:2 }}
+            <span class="line-through text-gray-500 font-normal text-[0.62rem] ml-1">₹{{ sidebar_promo_showcase.product.price|floatformat:2 }}</span>
+          </p>
+          {% else %}
+          <div class="mb-3.5"></div>
+          {% endif %}
+          <a href="{% url 'product_detail' sidebar_promo_showcase.product.id %}"
+            class="inline-block bg-[#E8500A] text-white text-[0.65rem] font-bold tracking-[0.2em] uppercase px-6 py-2.5 hover:bg-[#c94008] hover:shadow-md transition-all no-underline cursor-pointer active:scale-95">
+            {{ sidebar_promo_showcase.button_label|default:"Discover" }}
+          </a>
+        </div>
       </div>
+      {% endif %}
     </form>
   </aside>
 
@@ -195,46 +238,75 @@
     {% if filter_applied %}style="margin-left: 320px;" {% endif %}>
 
     <!-- HERO BANNER (two panels side by side) -->
+    {% if hero_left_showcase or hero_right_showcase %}
     <div class="flex flex-col sm:flex-row bg-[#111] min-h-[300px]">
 
-      <!-- Left panel: Fender -->
+      {% if hero_left_showcase %}
+      <!-- Left panel: Hero Left Showcase -->
       <div
         class="relative flex-1 overflow-hidden flex items-end p-8 bg-[linear-gradient(135deg,#0a0a0a_60%,#1c1005_100%)]">
-        <img src="https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=900&q=85" alt="Fender Stratocaster"
+        <img
+          src="{% if hero_left_showcase.banner_image %}{{ hero_left_showcase.banner_image.url }}{% elif hero_left_showcase.product.images.first %}{{ hero_left_showcase.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=900&q=85{% endif %}"
+          alt="{{ hero_left_showcase.display_title }}"
           class="absolute inset-0 w-full h-full object-cover object-center opacity-60 mix-blend-luminosity" />
         <div class="relative z-10">
           <span
-            class="inline-block bg-[#E8500A] text-white text-[0.5rem] font-black tracking-[0.22em] uppercase px-3 py-[3px] mb-4">Top
-            Seller</span>
-          <h1 class="text-[3rem] font-black uppercase text-white mb-3 tracking-tight drop-shadow-lg leading-[0.9]">
-            Fender<br>Stratocas<br>ter</h1>
-          <p class="text-gray-400 text-[0.6rem] tracking-widest uppercase mb-5">American Professional II / ₹1,69,900.00
+            class="inline-block bg-[#E8500A] text-white text-[0.5rem] font-black tracking-[0.22em] uppercase px-3 py-[3px] mb-4">
+            {{ hero_left_showcase.badge_text|default:"Top Seller" }}
+          </span>
+          <h1 class="text-[2.3rem] font-black uppercase leading-tight text-white mb-3 tracking-tight">
+            {{ hero_left_showcase.display_title }}
+          </h1>
+          <p class="text-gray-400 text-[0.6rem] tracking-widest uppercase mb-5">
+            {% if hero_left_showcase.subtitle %}
+            {{ hero_left_showcase.subtitle }}
+            {% elif hero_left_showcase.product %}
+            {{ hero_left_showcase.product.brand|default:"Zitarra" }} / ₹{{
+            hero_left_showcase.product.price|floatformat:2 }}
+            {% endif %}
           </p>
-          <a href="#"
-            class="inline-block bg-white text-brand-dark text-[0.58rem] font-bold tracking-[0.18em] uppercase px-6 py-[9px] hover:bg-[#E8500A] hover:text-white transition-all">Shop
-            Model</a>
+          <a href="{% url 'product_detail' hero_left_showcase.product.id %}"
+            class="inline-block bg-white text-brand-dark text-[0.58rem] font-bold tracking-[0.18em] uppercase px-6 py-[9px] hover:bg-[#E8500A] hover:text-white transition-all no-underline shadow-xs cursor-pointer">
+            {{ hero_left_showcase.button_label|default:"Shop Model" }}
+          </a>
         </div>
       </div>
+      {% endif %}
 
-      <!-- Right panel: Casio -->
+      {% if hero_right_showcase %}
+      <!-- Right panel: Hero Right Showcase -->
       <div
         class="relative flex-1 overflow-hidden flex items-end p-8 bg-[linear-gradient(135deg,#181818_0%,#0d0d0d_100%)]">
-        <img src="https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=900&q=85" alt="Casio Privia PX-S7000"
+        <img
+          src="{% if hero_right_showcase.banner_image %}{{ hero_right_showcase.banner_image.url }}{% elif hero_right_showcase.product.images.first %}{{ hero_right_showcase.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?w=900&q=85{% endif %}"
+          alt="{{ hero_right_showcase.display_title }}"
           class="absolute inset-0 w-full h-full object-cover object-center opacity-35" />
         <div class="relative z-10 w-full">
           <span
-            class="inline-block border border-white/30 text-white/60 text-[0.5rem] font-bold tracking-[0.22em] uppercase px-3 py-[3px] mb-4">Featured</span>
-          <h2 class="text-[2.3rem] font-black uppercase leading-tight text-white mb-3 tracking-tight">Casio
-            Privia<br>PX-S7000</h2>
-          <p class="text-gray-500 text-[0.6rem] tracking-widest uppercase mb-5">Premium Digital Console / ₹2,49,900.00
+            class="inline-block border border-white/30 text-white/60 text-[0.5rem] font-bold tracking-[0.22em] uppercase px-3 py-[3px] mb-4">
+            {{ hero_right_showcase.badge_text|default:"Featured" }}
+          </span>
+          <h2 class="text-[2.3rem] font-black uppercase leading-tight text-white mb-3 tracking-tight">
+            {{ hero_right_showcase.display_title }}
+          </h2>
+          <p class="text-gray-500 text-[0.6rem] tracking-widest uppercase mb-5">
+            {% if hero_right_showcase.subtitle %}
+            {{ hero_right_showcase.subtitle }}
+            {% elif hero_right_showcase.product %}
+            {{ hero_right_showcase.product.brand|default:"Zitarra" }} / ₹{{
+            hero_right_showcase.product.price|floatformat:2 }}
+            {% endif %}
           </p>
-          <a href="#"
-            class="inline-block bg-[#E8500A] text-white text-[0.58rem] font-bold tracking-[0.18em] uppercase px-6 py-[9px] hover:bg-[#c94008] transition-all">View
-            Specs</a>
+          <a href="{% url 'product_detail' hero_right_showcase.product.id %}"
+            class="inline-block bg-[#E8500A] text-white text-[0.58rem] font-bold tracking-[0.18em] uppercase px-6 py-[9px] hover:bg-[#c94008] transition-all no-underline shadow-xs cursor-pointer">
+            {{ hero_right_showcase.button_label|default:"View Specs" }}
+          </a>
         </div>
       </div>
+      {% endif %}
 
     </div>
+    {% endif %}
 
     <!-- PRODUCT AREA -->
     <main class="flex-1 px-6 py-6 bg-[#fafafa]">
@@ -311,6 +383,12 @@
                 OUT OF STOCK
               </span>
               {% endif %}
+              {% if product.has_discount %}
+              <span
+                class="absolute top-2 left-2 bg-[#A33C08] text-white text-[0.48rem] font-black tracking-widest uppercase px-2 py-0.5 z-10 shadow-sm">
+                {{ product.discount_percent }}% OFF
+              </span>
+              {% endif %}
               <!-- Product image with smooth zoom hover -->
               <img
                 src="{% if product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=500&q=80{% endif %}"
@@ -323,7 +401,14 @@
             <div class="flex items-center justify-between mb-2">
               <!-- Dynamically mapped brand -->
               <p class="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-gray-400">{{ product.brand }}</p>
-              <p class="text-[0.85rem] font-black text-[#E8500A]">₹{{ product.price|floatformat:2 }}</p>
+              <div class="text-right">
+                {% if product.has_discount %}
+                <span class="text-[0.68rem] text-gray-400 line-through font-bold mr-1">₹{{ product.display_base_price|floatformat:2 }}</span>
+                <span class="text-[0.85rem] font-black text-[#E8500A]">₹{{ product.discounted_price|floatformat:2 }}</span>
+                {% else %}
+                <span class="text-[0.85rem] font-black text-[#E8500A]">₹{{ product.display_base_price|floatformat:2 }}</span>
+                {% endif %}
+              </div>
             </div>
             <a href="{% url 'product_detail' product.id %}"
               class="no-underline block hover:text-[#E8500A] transition-colors">
@@ -333,7 +418,6 @@
             <div class="flex items-center gap-1 mb-2">
               <span class="text-[#E8500A] text-[11px] tracking-[1px]">★</span>
               <span class="text-[0.62rem] font-bold text-[#1A1A1A]">{{ product.average_rating|floatformat:1 }}</span>
-              <span class="text-[0.58rem] text-gray-400">({{ product.total_reviews_count }})</span>
             </div>
             {% else %}
             <div class="flex items-center gap-1 mb-2 text-[0.6rem] font-medium text-gray-400">
@@ -352,7 +436,8 @@
               {% else %}
               <form action="{% url 'add_to_cart' product.id %}" method="POST" class="flex-1 shop-card-form">
                 {% csrf_token %}
-                <input type="hidden" name="variant_id" class="shop-card-variant-id" value="">
+                <input type="hidden" name="variant_id" class="shop-card-variant-id"
+                  value="{{ product.primary_variant_id }}">
                 <button type="submit"
                   class="w-full border border-brand-dark text-brand-dark text-[0.6rem] font-bold tracking-[0.15em] uppercase py-2 hover:bg-brand-dark hover:text-white transition-all cursor-pointer">
                   Add to Cart
@@ -385,25 +470,37 @@
           </div>
         </div>
 
-        {% if forloop.counter == 4 %}
+        {% if forloop.counter == 4 and grid_spotlight_showcase %}
         <!-- Card 4 — Wide featured product (spans all 3 columns) -->
         <div
           class="col-span-2 sm:col-span-3 lg:col-span-4 bg-white border border-gray-200 flex flex-col sm:flex-row items-center p-6 gap-8 group transition-all duration-300 hover:shadow-[0_12px_40px_rgba(0,0,0,0.06)] hover:border-brand-dark min-h-[240px]">
 
           <!-- Image Container -->
-          <div class="w-[240px] h-[190px] shrink-0 bg-transparent flex items-center justify-center overflow-hidden">
-            <img src="/media/vox_ac30.png" alt="VOX AC30"
+          <a href="{% url 'product_detail' grid_spotlight_showcase.product.id %}"
+            class="w-[240px] h-[190px] shrink-0 bg-transparent flex items-center justify-center overflow-hidden cursor-pointer">
+            <img
+              src="{% if grid_spotlight_showcase.display_image_url %}{{ grid_spotlight_showcase.display_image_url }}{% else %}/media/vox_ac30.png{% endif %}"
+              alt="{{ grid_spotlight_showcase.display_title }}"
               class="max-w-full max-h-full object-contain group-hover:scale-105 transition-transform duration-500 ease-out" />
-          </div>
+          </a>
 
           <!-- Specs Container -->
           <div class="flex flex-1 items-center justify-between gap-6 px-4">
 
             <!-- Column 1: Model Specs -->
             <div class="flex flex-col min-w-[140px] text-left">
-              <p class="text-[0.56rem] font-black tracking-[0.18em] uppercase text-[#A04100] mb-2.5">Model Specs</p>
-              <h4 class="text-[1.1rem] font-black uppercase text-brand-dark leading-tight mb-2">VOX AC30<br>CUSTOM</h4>
-              <p class="text-[0.65rem] text-gray-400 font-bold leading-normal">Classic British Tube<br>Tone</p>
+              <p class="text-[0.56rem] font-black tracking-[0.18em] uppercase text-[#A04100] mb-2.5">
+                {{ grid_spotlight_showcase.badge_text|default:"Model Specs" }}
+              </p>
+              <a href="{% url 'product_detail' grid_spotlight_showcase.product.id %}" class="no-underline">
+                <h4
+                  class="text-[1.1rem] font-black uppercase text-brand-dark leading-tight mb-2 hover:text-[#E8500A] transition-colors">
+                  {{ grid_spotlight_showcase.display_title }}
+                </h4>
+              </a>
+              <p class="text-[0.65rem] text-gray-400 font-bold leading-normal">
+                {{ grid_spotlight_showcase.subtitle|default:"Classic British Tube Tone" }}
+              </p>
             </div>
 
             <!-- Vertical Separator 1 -->
@@ -412,12 +509,12 @@
             <!-- Column 2: Wattage & Speakers -->
             <div class="flex flex-col min-w-[140px] text-left gap-4">
               <div>
-                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">Wattage</p>
-                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">30 Watts RMS</p>
+                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">{{ grid_spotlight_showcase.spec_1_label|default:"Wattage" }}</p>
+                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">{{ grid_spotlight_showcase.spec_1_value|default:"30 Watts RMS" }}</p>
               </div>
               <div>
-                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">Speakers</p>
-                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">2 X 12" Celestion</p>
+                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">{{ grid_spotlight_showcase.spec_2_label|default:"Speakers" }}</p>
+                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">{{ grid_spotlight_showcase.spec_2_value|default:"2 X 12\" Celestion" }}</p>
               </div>
             </div>
 
@@ -427,22 +524,29 @@
             <!-- Column 3: Valves & Inputs -->
             <div class="flex flex-col min-w-[140px] text-left gap-4">
               <div>
-                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">Valves</p>
-                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">4 X EL84</p>
+                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">{{ grid_spotlight_showcase.spec_3_label|default:"Valves" }}</p>
+                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">{{ grid_spotlight_showcase.spec_3_value|default:"4 X EL84" }}</p>
               </div>
               <div>
-                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">Inputs</p>
-                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">Normal & Top<br>Boost</p>
+                <p class="text-[0.52rem] font-bold uppercase text-gray-400 tracking-wider mb-0.5">{{ grid_spotlight_showcase.spec_4_label|default:"Inputs" }}</p>
+                <p class="text-[0.72rem] font-black text-brand-dark uppercase tracking-wide">{{ grid_spotlight_showcase.spec_4_value|default:"Normal & Top Boost" }}</p>
               </div>
             </div>
 
             <!-- Column 4: Price & Action -->
             <div class="flex flex-col items-end gap-3.5 ml-auto">
-              <p class="text-[1.8rem] font-black text-brand-dark tracking-tight leading-none">₹1,19,900.00</p>
-              <button
-                class="bg-[#A04100] text-white text-[0.62rem] font-bold tracking-[0.16em] uppercase px-6 py-3 hover:bg-[#803300] transition-colors border border-black cursor-pointer font-sans">
-                Configure & Buy
-              </button>
+              <div class="text-right">
+                {% if grid_spotlight_showcase.product and grid_spotlight_showcase.product.has_discount %}
+                <p class="text-[1.8rem] font-black text-brand-dark tracking-tight leading-none">₹{{ grid_spotlight_showcase.product.discounted_price|floatformat:2 }}</p>
+                <p class="text-[0.7rem] text-gray-400 line-through font-bold mt-1">₹{{ grid_spotlight_showcase.product.price|floatformat:2 }}</p>
+                {% elif grid_spotlight_showcase.product %}
+                <p class="text-[1.8rem] font-black text-brand-dark tracking-tight leading-none">₹{{ grid_spotlight_showcase.product.price|floatformat:2 }}</p>
+                {% endif %}
+              </div>
+              <a href="{% url 'product_detail' grid_spotlight_showcase.product.id %}"
+                class="bg-[#A04100] text-white text-[0.62rem] font-bold tracking-[0.16em] uppercase px-6 py-3 hover:bg-[#803300] transition-colors border border-black cursor-pointer font-sans no-underline inline-block text-center">
+                {{ grid_spotlight_showcase.button_label|default:"Configure & Buy" }}
+              </a>
             </div>
 
           </div>
@@ -466,26 +570,30 @@
         <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
           class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">&lsaquo;</a>
         {% else %}
-        <span class="w-8 h-8 flex items-center justify-center border border-gray-200 text-[0.64rem] font-bold text-gray-300 bg-white select-none">&lsaquo;</span>
+        <span
+          class="w-8 h-8 flex items-center justify-center border border-gray-200 text-[0.64rem] font-bold text-gray-300 bg-white select-none">&lsaquo;</span>
         {% endif %}
 
         <!-- Pages -->
         {% for num in page_obj.paginator.page_range %}
-          {% if page_obj.number == num %}
-          <span class="w-8 h-8 flex items-center justify-center border border-brand-dark bg-brand-dark text-white text-[0.64rem] font-bold select-none">{{ num }}</span>
-          {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %}
-          <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
-            class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">{{ num }}</a>
+        {% if page_obj.number == num %}
+        <span
+          class="w-8 h-8 flex items-center justify-center border border-brand-dark bg-brand-dark text-white text-[0.64rem] font-bold select-none">{{ num }}</span>
+        {% elif num >= page_obj.number|add:-2 and num <= page_obj.number|add:2 %} <a
+          href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+          class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">
+          {{ num }}</a>
           {% endif %}
-        {% endfor %}
+          {% endfor %}
 
-        <!-- Next Page -->
-        {% if page_obj.has_next %}
-        <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
-          class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">&rsaquo;</a>
-        {% else %}
-        <span class="w-8 h-8 flex items-center justify-center border border-gray-200 text-[0.64rem] font-bold text-gray-300 bg-white select-none">&rsaquo;</span>
-        {% endif %}
+          <!-- Next Page -->
+          {% if page_obj.has_next %}
+          <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if category_id %}&category={{ category_id }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}{% if selected_brand %}&brand={{ selected_brand }}{% endif %}{% if min_price %}&min_price={{ min_price }}{% endif %}{% if max_price %}&max_price={{ max_price }}{% endif %}"
+            class="w-8 h-8 flex items-center justify-center border border-gray-300 text-[0.64rem] font-bold text-gray-500 hover:border-brand-dark hover:text-brand-dark transition-all bg-white no-underline">&rsaquo;</a>
+          {% else %}
+          <span
+            class="w-8 h-8 flex items-center justify-center border border-gray-200 text-[0.64rem] font-bold text-gray-300 bg-white select-none">&rsaquo;</span>
+          {% endif %}
       </div>
       {% endif %}
 

@@ -197,6 +197,47 @@ class OrderItem(models.Model):
     def is_terminal(self):
         return self.item_status in ['CANCELLED', 'RETURNED']
 
+    @property
+    def mrp(self):
+        if self.variant and self.variant.price:
+            return self.variant.price
+        if self.product and self.product.price:
+            return self.product.price
+        return self.price
+
+    @property
+    def has_offer_discount(self):
+        return self.mrp > self.price
+
+    @property
+    def offer_discount_amount(self):
+        if self.mrp > self.price:
+            return self.mrp - self.price
+        return Decimal('0.00')
+
+    @property
+    def total_offer_discount(self):
+        return self.offer_discount_amount * self.quantity
+
+    @property
+    def offer_details(self):
+        if not self.has_offer_discount:
+            return None
+        if self.product:
+            eff = self.product.get_effective_discount()
+            if eff.get('has_discount'):
+                return {
+                    'percentage': eff.get('discount_percentage'),
+                    'name': eff.get('offer_name'),
+                    'type': eff.get('offer_type'),
+                }
+        pct = round(((self.mrp - self.price) / self.mrp) * Decimal('100'))
+        return {
+            'percentage': pct,
+            'name': 'Promotional Offer',
+            'type': 'PRODUCT',
+        }
+
     class Meta:
         ordering = ['id']
 

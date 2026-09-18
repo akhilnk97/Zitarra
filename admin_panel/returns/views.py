@@ -153,11 +153,13 @@ def admin_return_action_view(request, item_id):
                 if item.variant_id:
                     v = ProductVariant.objects.select_for_update().get(id=item.variant_id)
                     v.stock += item.quantity
-                    v.save(update_fields=['stock'])
+                    v.save(update_fields=['stock', 'updated_at'])
+                    if v.product:
+                        v.product.sync_stock_from_variants()
                 elif item.product_id:
                     p = Product.objects.select_for_update().get(id=item.product_id)
                     p.stock += item.quantity
-                    p.save(update_fields=['stock'])
+                    p.save(update_fields=['stock', 'updated_at'])
 
                 net_item_price = max(Decimal('0.00'), item.item_subtotal - item.discount_amount)
                 item_tax = round(net_item_price * Decimal('0.05'), 2)

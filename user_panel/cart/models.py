@@ -45,13 +45,45 @@ class CartItem(models.Model):
             return self.variant.stock
         return self.product.stock
 
-    def get_unit_price(self):
+    def get_base_unit_price(self):
         if self.variant and self.variant.price:
             return self.variant.price
         return self.product.price
 
+    @property
+    def effective_discount(self):
+        return self.product.get_effective_discount()
+
+    @property
+    def has_discount(self):
+        return self.effective_discount['has_discount']
+
+    @property
+    def discount_percent(self):
+        return self.effective_discount['discount_percentage']
+
+    @property
+    def offer_type(self):
+        return self.effective_discount['offer_type']
+
+    @property
+    def offer_name(self):
+        return self.effective_discount['offer_name']
+
+    def get_unit_price(self):
+        from decimal import Decimal
+        base = Decimal(str(self.get_base_unit_price()))
+        eff = self.effective_discount
+        if eff['has_discount']:
+            disc_amt = (base * Decimal(str(eff['discount_percentage']))) / Decimal('100')
+            return round(base - disc_amt, 2)
+        return base
+
     def get_subtotal(self):
         return self.get_unit_price() * self.quantity
+
+    def get_original_subtotal(self):
+        return self.get_base_unit_price() * self.quantity
 
     def __str__(self):
         variant_str = f" ({self.variant.name})" if self.variant else ""

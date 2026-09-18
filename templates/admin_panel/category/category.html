@@ -128,7 +128,7 @@
             </div>
             <!-- Card body — fixed remaining height -->
             <div class="px-5 pt-4 pb-4 flex flex-col h-[160px]">
-              <div class="flex items-start justify-between mb-2">
+              <div class="flex items-start justify-between mb-1.5">
                 <h3 class="text-[0.82rem] font-black uppercase leading-tight text-[#1A1A1A] flex-1 pr-2">{{ category.name }}</h3>
                 <a href="{% url 'admin_edit_category' category.id %}"
                   class="text-[#E8500A] hover:text-[#c94008] transition-colors shrink-0 mt-0.5" title="Edit">
@@ -138,6 +138,22 @@
                   </svg>
                 </a>
               </div>
+              {% if category.is_offer_valid %}
+              <div class="mb-1.5 flex items-center justify-between">
+                {% if category.is_active %}
+                <span class="text-[0.52rem] font-black uppercase tracking-wider text-emerald-700 bg-emerald-50 border border-emerald-200 px-1.5 py-0.5">
+                  Offer: {{ category.discount }}% OFF
+                </span>
+                {% if category.expiry_date %}
+                <span class="text-[0.48rem] text-gray-400 font-bold">Exp: {{ category.expiry_date|date:"d M Y" }}</span>
+                {% endif %}
+                {% else %}
+                <span class="text-[0.50rem] font-bold uppercase tracking-wider text-gray-500 bg-gray-100 border border-gray-200 px-1.5 py-0.5">
+                  Offer Paused ({{ category.discount }}% OFF)
+                </span>
+                {% endif %}
+              </div>
+              {% endif %}
               <p
                 class="text-[0.56rem] font-bold uppercase tracking-wide text-gray-500 leading-relaxed flex-1 overflow-hidden">
                 {{ category.description }}</p>

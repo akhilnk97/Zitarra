@@ -168,13 +168,17 @@
               <tr class="hover:bg-[#FAF6F3] transition-colors">
                 <!-- Image -->
                 <td class="py-3 px-5 text-center" style="vertical-align: middle;">
-                  <img
-                    src="{% if product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
-                    alt="{{ product.name }}" class="w-11 h-11 object-cover mx-auto border border-[#E0D5C9] rounded-xs shrink-0" />
+                  <a href="{% url 'admin_product_detail' product.id %}" class="inline-block hover:opacity-85 transition-opacity" title="View Product Details">
+                    <img
+                      src="{% if product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
+                      alt="{{ product.name }}" class="w-11 h-11 object-cover mx-auto border border-[#E0D5C9] rounded-xs shrink-0" />
+                  </a>
                 </td>
                 <!-- Product Name -->
                 <td class="py-3 px-5 text-left" style="vertical-align: middle;">
-                  <span class="text-xs font-bold text-[#1A1A1A] uppercase tracking-wide truncate max-w-[260px] block">{{ product.name }}</span>
+                  <a href="{% url 'admin_product_detail' product.id %}" class="no-underline group block" title="View Product Details">
+                    <span class="text-xs font-bold text-[#1A1A1A] group-hover:text-[#A33C08] transition-colors uppercase tracking-wide truncate max-w-[260px] block">{{ product.name }}</span>
+                  </a>
                 </td>
                 <td class="py-3 px-5 text-center" style="vertical-align: middle;">
                   <span class="text-[0.62rem] text-gray-600 font-bold uppercase tracking-wider">{{ product.category.name|upper }}</span>
@@ -202,6 +206,15 @@
                 <!-- Action -->
                 <td class="py-3 px-5 text-center" style="vertical-align: middle;">
                   <div class="flex items-center justify-center gap-2">
+
+                    <!-- View details icon button -->
+                    <a href="{% url 'admin_product_detail' product.id %}"
+                      class="w-7 h-7 rounded-full border border-[#D5C9BE] text-[#332A24] hover:bg-[#1A1A1A] hover:text-white hover:border-[#1A1A1A] transition-colors inline-flex items-center justify-center no-underline" title="View Product Details">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                      </svg>
+                    </a>
 
                     <!-- Edit icon button -->
                     <a href="{% url 'admin_product_edit' product.id %}"

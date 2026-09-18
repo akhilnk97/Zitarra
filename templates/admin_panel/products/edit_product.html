@@ -155,22 +155,19 @@
           <!-- Row 3.5: Product Offer -->
           <div class="mb-6">
             <div class="flex items-center justify-between mb-[7px]">
-              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Product
-                Offer</label>
-              <a href="{% url 'admin_unimplemented' %}"
-                class="text-[0.5rem] font-bold tracking-widest text-[#A33C08] hover:underline uppercase no-underline">Manage
-                Offers ?</a>
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Product Offer</label>
+              <a href="{% url 'admin_offers' %}"
+                class="text-[0.5rem] font-bold tracking-widest text-[#A33C08] hover:underline uppercase no-underline">Manage Offers ?</a>
             </div>
             <div class="relative">
-              <select name="offer"
+              <select name="offer_id"
                 class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white appearance-none cursor-pointer transition-colors duration-200 rounded-none focus:border-brand-rust pr-10">
-                <option value="">Select Offer</option>
-                <option value="NEWYEAR_SPECIAL_15" {% if product.offer == "NEWYEAR_SPECIAL_15" %}selected{% endif %}>
-                  NEWYEAR_SPECIAL_15 (15% OFF)</option>
-                <option value="WELCOME10" {% if product.offer == "WELCOME10" %}selected{% endif %}>WELCOME10 (10% OFF)
+                <option value="">No Promotional Offer (Standard Price)</option>
+                {% for off in active_offers %}
+                <option value="{{ off.id }}" {% if product.product_offer_id == off.id or product.offer == off.name %}selected{% endif %}>
+                  {{ off.name }} ({{ off.discount_percentage }}% OFF)
                 </option>
-                <option value="ZITARRA10" {% if product.offer == "ZITARRA10" %}selected{% endif %}>ZITARRA10 (10% OFF)
-                </option>
+                {% endfor %}
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -181,6 +178,37 @@
           </div>
 
           <!-- Row 4: Price + Stock -->
+          {% if product.has_active_variants %}
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
+            <div>
+              <div class="flex items-center justify-between mb-[7px]">
+                <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Base Display Price</label>
+                <span class="text-[0.45rem] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 uppercase tracking-wider border border-emerald-200">Auto-Synced From Variants</span>
+              </div>
+              <div class="flex items-center border border-[#e2e2e2] bg-[#FAF8F5]">
+                <span class="px-3 text-[0.7rem] font-bold text-gray-400 border-r border-[#e2e2e2] py-[11px]">₹</span>
+                <input type="text" readonly
+                  class="flex-1 px-3 py-[11px] text-[0.7rem] font-bold text-[#1A1A1A] outline-none bg-transparent cursor-not-allowed"
+                  value="{{ product.price }}" title="Price is managed independently on each variant below" />
+              </div>
+              <p class="text-[0.45rem] font-medium text-gray-400 uppercase tracking-wider mt-1.5">
+                Set independently per variant in the color variants table below.
+              </p>
+            </div>
+            <div>
+              <div class="flex items-center justify-between mb-[7px]">
+                <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Total Stock</label>
+                <span class="text-[0.45rem] font-mono font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 uppercase tracking-wider border border-emerald-200">Sum of All Variants</span>
+              </div>
+              <input type="text" readonly
+                class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-[#1A1A1A] outline-none bg-[#FAF8F5] cursor-not-allowed"
+                value="{{ product.total_stock }} Units" title="Total inventory automatically summed across all active variants" />
+              <p class="text-[0.45rem] font-medium text-gray-400 uppercase tracking-wider mt-1.5">
+                Stock is tracked independently per variant in the table below.
+              </p>
+            </div>
+          </div>
+          {% else %}
           <div class="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-6">
             <div>
               <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block mb-[7px]">Regular
@@ -200,6 +228,79 @@
                 class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white transition-colors duration-200 rounded-none focus:border-brand-rust"
                 value="{{ product.stock }}" placeholder="0" min="0" required />
             </div>
+          </div>
+          {% endif %}
+
+          <!-- Row 4.5: Color Variants Overview -->
+          <div class="mb-8 bg-white border border-[#e2e2e2] p-5 md:p-6 shadow-xs">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-100 pb-4 mb-4">
+              <div>
+                <div class="flex items-center gap-2 mb-1">
+                  <span class="w-2 h-2 rounded-full bg-[#A33C08]"></span>
+                  <h3 class="text-[0.68rem] font-black uppercase tracking-[0.16em] text-[#1A1A1A]">Color Variants ({{ variants.count }})</h3>
+                </div>
+                <p class="text-[0.55rem] font-medium text-gray-500 tracking-wider uppercase">
+                  Each purchasable variant holds independent stock, SKU, price, and color-specific images.
+                </p>
+              </div>
+              <a href="{% url 'admin_product_variants' product.id %}"
+                class="inline-flex items-center gap-2 bg-[#FAF8F5] border border-[#A33C08] text-[#A33C08] text-[0.60rem] font-black tracking-widest uppercase px-4 py-2 hover:bg-[#A33C08] hover:text-white transition-all no-underline shrink-0">
+                <span>Manage Color Variants</span>
+                <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                </svg>
+              </a>
+            </div>
+
+            {% if variants.exists %}
+            <div class="overflow-x-auto">
+              <table class="w-full text-left border-collapse min-w-[450px]">
+                <thead>
+                  <tr class="border-b border-gray-100 text-[0.50rem] font-black tracking-widest uppercase text-gray-400">
+                    <th class="py-2 px-3 text-center w-12">Swatch</th>
+                    <th class="py-2 px-3">Color / Finish</th>
+                    <th class="py-2 px-3">SKU</th>
+                    <th class="py-2 px-3 text-right">Price</th>
+                    <th class="py-2 px-3 text-right">Stock</th>
+                    <th class="py-2 px-3 text-center w-20">Status</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-50 text-[0.65rem]">
+                  {% for var in variants %}
+                  <tr class="hover:bg-gray-50/70 transition-colors">
+                    <td class="py-2.5 px-3 text-center align-middle">
+                      <div class="w-5 h-5 rounded-full border border-black/10 mx-auto shadow-xs" style="background-color: {{ var.color_code }};"></div>
+                    </td>
+                    <td class="py-2.5 px-3 font-bold uppercase text-[#1A1A1A] align-middle">
+                      {{ var.name }}
+                    </td>
+                    <td class="py-2.5 px-3 font-mono font-bold uppercase text-gray-600 align-middle">
+                      {{ var.sku|default:"—" }}
+                    </td>
+                    <td class="py-2.5 px-3 font-bold text-right text-[#1A1A1A] align-middle">
+                      ₹{{ var.effective_price|floatformat:2 }}
+                    </td>
+                    <td class="py-2.5 px-3 font-bold text-right align-middle {% if var.stock > 0 %}text-emerald-700{% else %}text-red-600{% endif %}">
+                      {{ var.stock }}
+                    </td>
+                    <td class="py-2.5 px-3 text-center align-middle">
+                      {% if var.is_active %}
+                      <span class="inline-block text-[0.45rem] font-black uppercase tracking-widest text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5">Active</span>
+                      {% else %}
+                      <span class="inline-block text-[0.45rem] font-black uppercase tracking-widest text-gray-400 bg-gray-50 border border-gray-200 px-2 py-0.5">Disabled</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% else %}
+            <div class="py-6 text-center bg-[#FAF8F5] border border-dashed border-gray-200">
+              <p class="text-[0.60rem] font-bold text-gray-400 uppercase tracking-widest mb-2">No color variants created yet for this product.</p>
+              <a href="{% url 'admin_product_variants' product.id %}" class="text-[0.58rem] font-black text-[#A33C08] uppercase tracking-widest hover:underline">+ Add First Color Variant</a>
+            </div>
+            {% endif %}
           </div>
 
           <!-- Row 5: Product Images -->

@@ -136,34 +136,53 @@
     <div class="my-6 overflow-x-auto">
       <table class="w-full text-left border-collapse text-xs">
         <thead>
-          <tr class="bg-gray-100 border-y border-gray-300 text-[0.55rem] font-bold uppercase tracking-wider text-gray-600">
-            <th class="py-3 px-3 w-10 text-center">#</th>
-            <th class="py-3 px-3">DESCRIPTION OF GOODS</th>
-            <th class="py-3 px-3 text-center">HSN CODE</th>
-            <th class="py-3 px-3 text-center">QTY</th>
-            <th class="py-3 px-3 text-right">UNIT PRICE</th>
-            <th class="py-3 px-3 text-right">GST (18%)</th>
-            <th class="py-3 px-3 text-right">AMOUNT (₹)</th>
+          <tr class="bg-gray-100 border-y border-gray-300 text-[0.58rem] font-bold uppercase tracking-wider text-gray-600">
+            <th class="py-3 px-2 w-8 text-center whitespace-nowrap">#</th>
+            <th class="py-3 px-4">DESCRIPTION OF GOODS</th>
+            <th class="py-3 px-3 text-center w-12 whitespace-nowrap">QTY</th>
+            <th class="py-3 px-3 text-right whitespace-nowrap">M.R.P.</th>
+            <th class="py-3 px-3 text-right whitespace-nowrap">OFFER DISCOUNT</th>
+            <th class="py-3 px-3 text-right whitespace-nowrap">NET PRICE</th>
+            <th class="py-3 px-3 text-center w-14 whitespace-nowrap">GST</th>
+            <th class="py-3 px-4 text-right whitespace-nowrap">AMOUNT (₹)</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 font-mono text-xs">
           {% for item in order.items.all %}
           <tr class="{% if item.item_status == 'CANCELLED' %}bg-red-50/50 text-gray-400{% endif %}">
-            <td class="py-3.5 px-3 text-center font-bold text-gray-400">0{{ forloop.counter }}</td>
-            <td class="py-3.5 px-3 font-sans">
-              <p class="font-bold text-brand-dark uppercase m-0 leading-tight">{{ item.product_name }}</p>
-              {% if item.variant_name %}
-              <p class="text-[0.58rem] font-bold text-gray-500 uppercase m-0 mt-0.5">FINISH: {{ item.variant_name }}</p>
-              {% endif %}
+            <td class="py-4 px-2 text-center font-bold text-gray-400 align-top">0{{ forloop.counter }}</td>
+            <td class="py-4 px-4 font-sans align-top">
+              <p class="font-bold text-brand-dark uppercase m-0 leading-snug">{{ item.product_name }}</p>
+              <p class="text-[0.58rem] text-gray-500 font-mono uppercase m-0 mt-1">
+                HSN: 9202.90.00{% if item.variant_name %} &bull; FINISH: {{ item.variant_name }}{% endif %}
+              </p>
               {% if item.item_status == 'CANCELLED' %}
               <span class="inline-block bg-red-100 text-red-600 text-[0.5rem] font-bold px-1.5 py-0.5 uppercase mt-1">CANCELLED</span>
               {% endif %}
             </td>
-            <td class="py-3.5 px-3 text-center text-gray-500">9202.90.00</td>
-            <td class="py-3.5 px-3 text-center font-bold">0{{ item.quantity }}</td>
-            <td class="py-3.5 px-3 text-right">₹{{ item.price|floatformat:2 }}</td>
-            <td class="py-3.5 px-3 text-right text-gray-500">18%</td>
-            <td class="py-3.5 px-3 text-right font-bold text-brand-dark">₹{{ item.item_subtotal|floatformat:2 }}</td>
+            <td class="py-4 px-3 text-center font-bold align-top whitespace-nowrap">0{{ item.quantity }}</td>
+            <td class="py-4 px-3 text-right align-top whitespace-nowrap">
+              {% if item.has_offer_discount %}
+              <span class="text-gray-400">₹{{ item.mrp|floatformat:2 }}</span>
+              {% else %}
+              <span class="text-gray-700">₹{{ item.price|floatformat:2 }}</span>
+              {% endif %}
+            </td>
+            <td class="py-4 px-3 text-right align-top whitespace-nowrap">
+              {% if item.has_offer_discount %}
+              <div class="text-[#E8500A] font-bold leading-tight">
+                <span>{{ item.offer_details.percentage }}% OFF</span>
+                {% if item.offer_details.name %}
+                <span class="block text-[0.52rem] text-gray-400 uppercase font-normal">({{ item.offer_details.name }})</span>
+                {% endif %}
+              </div>
+              {% else %}
+              <span class="text-gray-400">&mdash;</span>
+              {% endif %}
+            </td>
+            <td class="py-4 px-3 text-right font-bold text-brand-dark align-top whitespace-nowrap">₹{{ item.price|floatformat:2 }}</td>
+            <td class="py-4 px-3 text-center text-gray-500 align-top whitespace-nowrap">18%</td>
+            <td class="py-4 px-4 text-right font-bold text-brand-dark align-top whitespace-nowrap">₹{{ item.item_subtotal|floatformat:2 }}</td>
           </tr>
           {% endfor %}
         </tbody>
@@ -171,7 +190,7 @@
     </div>
 
     <!-- CALCULATION & TOTALS BREAKDOWN -->
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-4 border-t-2 border-brand-dark">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 pt-6 border-t-2 border-brand-dark">
       
       <!-- TERMS & STAMP -->
       <div class="text-[0.58rem] text-gray-500 space-y-2">
@@ -185,6 +204,16 @@
 
       <!-- FINANCIAL TOTALS TABLE -->
       <div class="space-y-2 text-xs font-mono">
+        {% if total_offer_savings > 0 %}
+        <div class="flex justify-between text-gray-500">
+          <span>GROSS M.R.P. TOTAL:</span>
+          <span class="font-medium">₹{{ gross_mrp_subtotal|floatformat:2 }}</span>
+        </div>
+        <div class="flex justify-between text-[#E8500A] font-bold">
+          <span>PROMOTIONAL OFFER SAVINGS:</span>
+          <span>-₹{{ total_offer_savings|floatformat:2 }}</span>
+        </div>
+        {% endif %}
         <div class="flex justify-between text-gray-600">
           <span>SUBTOTAL (EXCL. TAX):</span>
           <span class="font-bold text-brand-dark">₹{{ order.subtotal|floatformat:2 }}</span>
@@ -208,7 +237,7 @@
         </div>
         {% endif %}
         
-        <div class="border-t-2 border-brand-dark pt-3 mt-2 flex justify-between items-baseline text-sm font-sans font-black uppercase">
+        <div class="border-t-2 border-brand-dark pt-3 mt-3 flex justify-between items-baseline text-sm font-sans font-black uppercase">
           <span class="text-brand-dark tracking-wider">TOTAL INVOICE AMOUNT:</span>
           <span class="text-xl font-black text-[#E8500A]">₹{{ order.total_price|floatformat:2 }}</span>
         </div>

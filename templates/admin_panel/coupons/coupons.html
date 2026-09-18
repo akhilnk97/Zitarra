@@ -275,18 +275,16 @@
                     <div class="flex items-center justify-center gap-2">
                       
                       <!-- Toggle Status Button -->
-                      <form method="POST" action="{% url 'admin_toggle_coupon_status' coupon.id %}" class="inline">
-                        {% csrf_token %}
-                        <button type="submit"
-                          title="{% if coupon.is_active %}Disable Coupon{% else %}Activate Coupon{% endif %}"
-                          class="w-7 h-7 rounded-full border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors inline-flex items-center justify-center cursor-pointer">
-                          {% if coupon.is_active %}
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
-                          {% else %}
-                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
-                          {% endif %}
-                        </button>
-                      </form>
+                      <button type="button"
+                        onclick="openToggleCouponModal('{{ coupon.id }}', '{{ coupon.code|escapejs }}', {% if coupon.is_active %}true{% else %}false{% endif %})"
+                        title="{% if coupon.is_active %}Disable Coupon{% else %}Activate Coupon{% endif %}"
+                        class="w-7 h-7 rounded-full border border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors inline-flex items-center justify-center cursor-pointer">
+                        {% if coupon.is_active %}
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+                        {% else %}
+                          <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+                        {% endif %}
+                      </button>
 
                       <!-- Edit Button -->
                       <button type="button" onclick="openEditCouponModal('{{ coupon.id }}', '{{ coupon.code }}', '{{ coupon.campaign_name }}', '{{ coupon.offer_type }}', '{{ coupon.discount_type }}', '{{ coupon.discount_value }}', '{{ coupon.min_purchase }}', '{{ coupon.max_discount|default:'' }}', '{{ coupon.usage_limit|default:'' }}', '{{ coupon.usage_limit_per_user|default:1 }}', '{{ coupon.is_first_order_only|lower }}', '{{ coupon.valid_from|date:'Y-m-d\TH:i' }}', '{{ coupon.valid_to|date:'Y-m-d\TH:i' }}', '{{ coupon.is_active|lower }}', [{% for c in coupon.applicable_categories.all %}{{ c.id }}{% if not forloop.last %},{% endif %}{% endfor %}], [{% for p in coupon.applicable_products.all %}{{ p.id }}{% if not forloop.last %},{% endif %}{% endfor %}])"
@@ -574,6 +572,38 @@
         class="flex-1 bg-red-600 text-white text-xs font-bold uppercase tracking-wider py-3 hover:bg-red-700 transition-colors border-none cursor-pointer">
         Delete
       </button>
+    </form>
+  </div>
+</div>
+
+<!-- TOGGLE COUPON CONFIRMATION MODAL (Styled like Users page modal) -->
+<div id="toggle-coupon-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[999999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4 select-none">
+  <div id="toggle-coupon-modal-content" class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+      <div>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 id="toggle-coupon-title" class="text-xl font-black uppercase tracking-wider text-[#1a1a1a] m-0">Coupon Status Update</h3>
+      </div>
+      <button type="button" onclick="closeToggleCouponModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+    
+    <p id="toggle-coupon-desc" class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed">
+      Are you sure you want to change the status of this coupon?
+    </p>
+    
+    <form id="toggle-coupon-form" method="POST" class="m-0">
+      {% csrf_token %}
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+        <button type="button" onclick="closeToggleCouponModal()"
+          class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
+          Cancel
+        </button>
+        <button id="toggle-coupon-submit-btn" type="submit"
+          class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans border-none">
+          Confirm
+        </button>
+      </div>
     </form>
   </div>
 </div>
@@ -871,5 +901,54 @@
       }, 300);
     }
   }
+
+  function openToggleCouponModal(id, code, isActive) {
+    const modal = document.getElementById('toggle-coupon-modal');
+    const content = document.getElementById('toggle-coupon-modal-content');
+    const form = document.getElementById('toggle-coupon-form');
+    const title = document.getElementById('toggle-coupon-title');
+    const desc = document.getElementById('toggle-coupon-desc');
+    const submitBtn = document.getElementById('toggle-coupon-submit-btn');
+
+    form.action = `/admin-panel/coupons/${id}/toggle/`;
+
+    if (isActive) {
+      title.textContent = 'Disable Coupon?';
+      desc.innerHTML = `Are you sure you want to disable coupon <strong class="text-[#1a1a1a] font-mono">${code}</strong>? Customers will no longer be able to apply this discount at checkout.`;
+      submitBtn.textContent = 'Confirm Disable';
+      submitBtn.className = 'px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans border-none';
+    } else {
+      title.textContent = 'Activate Coupon?';
+      desc.innerHTML = `Are you sure you want to activate coupon <strong class="text-[#1a1a1a] font-mono">${code}</strong>? Customers will immediately be able to redeem this discount at checkout.`;
+      submitBtn.textContent = 'Confirm Activate';
+      submitBtn.className = 'px-6 py-3 rounded-xl bg-emerald-700 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-800 cursor-pointer shadow-md font-sans border-none';
+    }
+
+    modal.classList.remove('hidden');
+    modal.classList.remove('pointer-events-none');
+    setTimeout(() => {
+      modal.classList.remove('opacity-0');
+      content.classList.remove('scale-95');
+    }, 10);
+  }
+
+  function closeToggleCouponModal() {
+    const modal = document.getElementById('toggle-coupon-modal');
+    const content = document.getElementById('toggle-coupon-modal-content');
+    if (modal && content) {
+      modal.classList.add('opacity-0');
+      content.classList.add('scale-95');
+      setTimeout(() => {
+        modal.classList.add('hidden');
+        modal.classList.add('pointer-events-none');
+      }, 250);
+    }
+  }
+
+  // Close toggle modal when clicking backdrop
+  window.addEventListener('click', (e) => {
+    const toggleModal = document.getElementById('toggle-coupon-modal');
+    if (e.target === toggleModal) closeToggleCouponModal();
+  });
 </script>
 {% endblock %}

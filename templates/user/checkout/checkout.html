@@ -249,7 +249,7 @@
         <div class="mt-8">
           <button type="submit" id="submit-order-btn"
             class="w-full bg-[#E8500A] text-white text-[0.75rem] font-black tracking-[0.25em] uppercase py-5 hover:bg-[#c94008] transition-colors flex items-center justify-center gap-4 border-none cursor-pointer shadow-md">
-            <span>Compleate Purchase</span>
+            <span>Complete Purchase</span>
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="3" viewBox="0 0 24 24">
               <path d="M5 12h14M12 5l7 7-7 7" />
             </svg>
@@ -279,18 +279,34 @@
             <div class="flex items-center gap-4 bg-white p-3 border border-gray-200">
               <div class="w-16 h-16 bg-[#111111] shrink-0 flex items-center justify-center overflow-hidden">
                 <img
-                  src="{% if item.product.images.all %}{{ item.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
+                  src="{% if item.variant and item.variant.images.first %}{{ item.variant.images.first.image.url }}{% elif item.product.images.first %}{{ item.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
                   alt="{{ item.product.name }}" class="w-full h-full object-cover" />
               </div>
               <div class="flex-1 text-left">
-                <h5 class="text-[0.78rem] font-black uppercase tracking-wider text-brand-dark m-0 leading-tight">{{ item.product.name }}{% if item.variant %} {{ item.variant.name }}{% endif %}</h5>
+                <h5 class="text-[0.78rem] font-black uppercase tracking-wider text-brand-dark m-0 leading-tight">{{ item.product.name }}</h5>
+                {% if item.variant %}
+                <div class="flex items-center gap-1.5 mt-0.5">
+                  <span class="w-2 h-2 rounded-full border border-gray-300 shrink-0" style="background-color: {{ item.variant.color_code }};"></span>
+                  <span class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-600 font-mono">COLOR: {{ item.variant.name }}</span>
+                </div>
+                {% endif %}
                 <div class="flex items-center gap-3 mt-1 text-[0.6rem] font-mono text-gray-500 uppercase">
                   <span>Count: 0{{ item.quantity }}_Unit</span>
                   <span class="text-green-600 font-bold">In_Stock</span>
                 </div>
+                {% if item.has_discount %}
+                <div class="mt-1">
+                  <span class="inline-block px-1.5 py-0.5 text-[0.48rem] font-black uppercase tracking-wider bg-[#FDEEE9] text-[#A33C08] border border-[#F5D5C8]">
+                    {{ item.discount_percent }}% OFF ({{ item.offer_name|default:"OFFER" }})
+                  </span>
+                </div>
+                {% endif %}
                 <p class="text-[0.58rem] font-mono text-gray-400 uppercase mt-0.5">{{ item.product.brand|default:"ZITARRA" }}</p>
               </div>
               <div class="text-right">
+                {% if item.has_discount %}
+                <p class="text-[0.68rem] text-gray-400 line-through font-bold m-0">₹{{ item.get_original_subtotal|floatformat:2 }}</p>
+                {% endif %}
                 <p class="text-[0.88rem] font-black text-brand-dark m-0">₹{{ item.get_subtotal|floatformat:2 }}</p>
               </div>
             </div>
@@ -352,18 +368,8 @@
                 </button>
               </div>
 
-              <!-- Coupon Input Form -->
-              <div id="coupon-input-container" class="{% if applied_coupon %}hidden{% endif %} flex gap-2">
-                <input type="text" id="checkout-coupon-input" placeholder="Enter Code (e.g. ZITARRA10)"
-                  class="flex-1 bg-white border border-gray-300 px-3 py-2 text-[0.7rem] font-mono uppercase focus:outline-none focus:border-[#E8500A] transition-colors" />
-                <button type="button" onclick="event.preventDefault(); handleCouponApply();"
-                  class="bg-brand-dark text-white text-[0.6rem] font-black uppercase tracking-widest px-4 py-2 hover:bg-[#E8500A] transition-colors border-none cursor-pointer">
-                  Apply
-                </button>
-              </div>
-              
               <!-- Available Coupons Dropdown Select -->
-              <div id="available-coupons-dropdown-wrapper" class="{% if applied_coupon %}hidden{% endif %} mt-3">
+              <div id="available-coupons-dropdown-wrapper" class="{% if applied_coupon %}hidden{% endif %}">
                 <div class="relative">
                   <select id="available-coupons-select" onchange="onCouponSelectChange(this)"
                     class="w-full bg-[#FFFBF9] border border-dashed border-[#E8500A] px-3.5 py-2.5 text-[0.65rem] font-mono font-bold uppercase text-[#A04100] outline-none cursor-pointer appearance-none transition-colors hover:bg-[#FFF3EC]">
@@ -388,6 +394,16 @@
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
                   </div>
                 </div>
+              </div>
+
+              <!-- Coupon Input Form -->
+              <div id="coupon-input-container" class="{% if applied_coupon %}hidden{% endif %} flex gap-2 mt-3">
+                <input type="text" id="checkout-coupon-input" placeholder="Enter Code (e.g. ZITARRA10)"
+                  class="flex-1 bg-white border border-gray-300 px-3 py-2 text-[0.7rem] font-mono uppercase focus:outline-none focus:border-[#E8500A] transition-colors" />
+                <button type="button" onclick="event.preventDefault(); handleCouponApply();"
+                  class="bg-brand-dark text-white text-[0.6rem] font-black uppercase tracking-widest px-4 py-2 hover:bg-[#E8500A] transition-colors border-none cursor-pointer">
+                  Apply
+                </button>
               </div>
             </div>
 

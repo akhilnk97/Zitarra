@@ -27,26 +27,26 @@
             <div class="w-full md:w-1/2 md:pr-12 md:border-r border-gray-300">
                 <div id="main-image-container"
                     class="bg-[#f7f7f5] border border-gray-200 mb-4 flex items-center justify-center h-[400px] overflow-hidden relative">
-                    <!-- Dynamically loads first product image or falls back to unsplash image if none exist -->
+                    <!-- Dynamically loads first variant/product image or falls back to unsplash image if none exist -->
                     <img id="main-image"
-                        src="{% if product.images.all %}{{ product.images.first.image.url }}{% elif variants and variants.0.images.all %}{{ variants.0.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85{% endif %}"
+                        src="{% if variants and variants.0.images.all %}{{ variants.0.images.first.image.url }}{% elif product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85{% endif %}"
                         alt="{{ product.name }}"
                         class="max-h-[360px] max-w-[90%] w-auto h-auto object-contain cursor-zoom-in transition-opacity duration-200" />
                 </div>
                 <!-- Thumbnails list -->
                 <div class="flex justify-center gap-3" id="thumbnails-container">
-                    {% if product.images.all %}
-                    {% for img in product.images.all %}
-                    <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
-                        onclick="changeImage(this,'{{ img.image.url }}')">
-                        <img src="{{ img.image.url }}" class="w-full h-full object-contain" />
-                    </div>
-                    {% endfor %}
-                    {% elif variants and variants.0.images.all %}
+                    {% if variants and variants.0.images.all %}
                     {% for img_obj in variants.0.images.all %}
                     <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
                         onclick="changeImage(this,'{{ img_obj.image.url }}')">
                         <img src="{{ img_obj.image.url }}" class="w-full h-full object-contain" />
+                    </div>
+                    {% endfor %}
+                    {% elif product.images.all %}
+                    {% for img in product.images.all %}
+                    <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
+                        onclick="changeImage(this,'{{ img.image.url }}')">
+                        <img src="{{ img.image.url }}" class="w-full h-full object-contain" />
                     </div>
                     {% endfor %}
                     {% endif %}
@@ -93,12 +93,12 @@
                 <div class="flex items-center gap-4 pb-5 border-b border-gray-300">
                     {% if has_discount %}
                     <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{{ discounted_price|floatformat:2 }}</p>
-                    <p class="text-[1.05rem] text-gray-400 line-through" id="original-price-display">₹{{ product.price|floatformat:2 }}</p>
+                    <p class="text-[1.05rem] text-gray-400 line-through" id="original-price-display">₹{{ product_price|default:product.price|floatformat:2 }}</p>
                     <span id="discount-badge"
                         class="bg-[#A33C08] text-white text-[0.58rem] font-bold tracking-[0.15em] uppercase px-3 py-[4px]">SAVE
                         {{ discount_pct }}%</span>
                     {% else %}
-                    <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{{ product.price|floatformat:2 }}</p>
+                    <p class="text-[2rem] font-bold text-brand-dark" id="price-display">₹{{ product_price|default:product.price|floatformat:2 }}</p>
                     {% endif %}
                 </div>
 
@@ -168,52 +168,55 @@
 
                         <!-- Finish / Color Choices (Dynamic or fallbacks) -->
                         <div class="flex flex-col gap-2.5" id="finish-selection-container">
-                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500">Select Finish:
-                                <span id="selected-finish-name" class="text-brand-dark font-extrabold ml-1">Natural Wood</span>
+                            <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500">Color:
+                                <span id="selected-finish-name" class="text-brand-dark font-extrabold ml-1">
+                                    {% if first_available %}{{ first_available.name }}{% elif variants %}{{ variants.0.name }}{% else %}Standard{% endif %}
+                                </span>
                             </p>
                             <div class="flex gap-3">
-                                <!-- Base / Default Product Swatch Circle (First) -->
-                                <div class="color-option active ring-2 ring-white ring-offset-2 ring-brand-dark w-9 h-9 rounded-full bg-[#d4a574] cursor-pointer transition-all duration-200"
-                                    data-variant-id="base"
-                                    data-name="Natural Wood"
-                                    data-price="{{ product.price|floatformat:2 }}"
-                                    data-discounted-price="{{ discounted_price|floatformat:2 }}"
-                                    data-stock="{{ product.stock }}"
-                                    data-stock-label="{{ product.stock_info.label }}"
-                                    data-stock-status="{{ product.stock_info.status }}"
-                                    data-is-out="{{ product.stock_info.is_out|yesno:'true,false' }}"
-                                    data-images="{% for img in product.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
-
                                 {% if variants %}
-                                {% for var in variants %}
-                                <div class="color-option border border-black/15 w-9 h-9 rounded-full cursor-pointer transition-all duration-200"
-                                    style="background-color: {{ var.color_code }};"
-                                    data-variant-id="{{ var.id }}"
-                                    data-name="{{ var.name }}"
-                                    data-price="{{ var.display_price|floatformat:2 }}"
-                                    data-discounted-price="{{ var.display_discounted|floatformat:2 }}"
-                                    data-stock="{{ var.stock }}"
-                                    data-stock-label="{{ var.stock_info.label }}"
-                                    data-stock-status="{{ var.stock_info.status }}"
-                                    data-is-out="{{ var.stock_info.is_out|yesno:'true,false' }}"
-                                    data-images="{% for img in var.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
-                                {% endfor %}
+                                    {% for var in variants %}
+                                    <div class="color-option {% if first_available and var.id == first_available.id or not first_available and forloop.first %}active ring-2 ring-white ring-offset-2 ring-brand-dark{% else %}border border-black/15{% endif %} w-9 h-9 rounded-full cursor-pointer transition-all duration-200"
+                                        style="background-color: {{ var.color_code }};"
+                                        data-variant-id="{{ var.id }}"
+                                        data-name="{{ var.name }}"
+                                        data-sku="{{ var.sku|default:'' }}"
+                                        data-price="{{ var.display_price|floatformat:2 }}"
+                                        data-discounted-price="{{ var.display_discounted|floatformat:2 }}"
+                                        data-stock="{{ var.stock }}"
+                                        data-stock-label="{{ var.stock_info.label }}"
+                                        data-stock-status="{{ var.stock_info.status }}"
+                                        data-is-out="{{ var.stock_info.is_out|yesno:'true,false' }}"
+                                        data-images="{% for img in var.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="color-option active ring-2 ring-white ring-offset-2 ring-brand-dark w-9 h-9 rounded-full bg-[#d4a574] cursor-pointer transition-all duration-200"
+                                        data-variant-id="base"
+                                        data-name="Standard"
+                                        data-sku=""
+                                        data-price="{{ product.price|floatformat:2 }}"
+                                        data-discounted-price="{{ discounted_price|floatformat:2 }}"
+                                        data-stock="{{ product.stock }}"
+                                        data-stock-label="{{ product.stock_info.label }}"
+                                        data-stock-status="{{ product.stock_info.status }}"
+                                        data-is-out="{{ product.stock_info.is_out|yesno:'true,false' }}"
+                                        data-images="{% for img in product.images.all %}{{ img.image.url }}{% if not forloop.last %},{% endif %}{% endfor %}"></div>
                                 {% endif %}
                             </div>
                         </div>
 
                         <!-- Buttons -->
                         <div class="flex flex-col gap-3">
-                            {% with initial_item=product %}
+                            {% with initial_item=first_available|default:product %}
                             <form action="{% url 'add_to_cart' product.id %}" method="POST" class="w-full flex flex-col gap-3">
                                 {% csrf_token %}
-                                <input type="hidden" name="variant_id" id="selected-variant-id" value="base">
+                                <input type="hidden" name="variant_id" id="selected-variant-id" value="{% if first_available and first_available.id %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
                                 <!-- Quantity Selector Control -->
                                 <div class="flex items-center justify-between border border-gray-200 bg-[#FAF8F5] px-3 py-2 select-none">
                                     <span class="text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500">Quantity </span>
                                     <div class="flex items-center border border-gray-300 bg-white">
                                         <button type="button" onclick="decreaseQuantity()" class="w-7 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-black text-xs transition-colors cursor-pointer select-none">−</button>
-                                        <input id="quantity-input" type="number" name="quantity" value="{% if initial_item.stock_info.is_out %}0{% else %}1{% endif %}" min="1" data-max-stock="{% if product.stock < 5 %}{{ product.stock }}{% else %}5{% endif %}" max="{% if product.stock < 5 %}{{ product.stock }}{% else %}5{% endif %}" readonly class="w-8 h-6 text-center text-xs font-bold text-brand-dark focus:outline-none bg-transparent">
+                                        <input id="quantity-input" type="number" name="quantity" value="{% if initial_item.stock_info.is_out %}0{% else %}1{% endif %}" min="1" data-max-stock="{% if initial_item.stock < 5 %}{{ initial_item.stock }}{% else %}5{% endif %}" max="{% if initial_item.stock < 5 %}{{ initial_item.stock }}{% else %}5{% endif %}" readonly class="w-8 h-6 text-center text-xs font-bold text-brand-dark focus:outline-none bg-transparent">
                                         <button type="button" onclick="increaseQuantity()" class="w-7 h-6 flex items-center justify-center text-gray-600 hover:bg-gray-100 font-black text-xs transition-colors cursor-pointer select-none">+</button>
                                     </div>
                                 </div>
@@ -382,7 +385,7 @@
         <!-- END PRODUCT SECTION -->
 
         <!-- SPECS / SHIPPING / RETURN — 3 column layout -->
-        <div class="grid grid-cols-3 divide-x divide-gray-300 border border-gray-300 mb-8 bg-[#FDF8F5]">
+        <div id="specs" class="grid grid-cols-3 divide-x divide-gray-300 border border-gray-300 mb-8 bg-[#FDF8F5] scroll-mt-24">
 
             <!-- Manufacturer Specs -->
             <div class="p-6 cursor-pointer hover:bg-black/5 transition-colors group/spec" onclick="openSpecsModal()">
@@ -407,7 +410,7 @@
                     </div>
                     <div class="flex gap-4">
                         <p class="text-[0.65rem] font-bold uppercase tracking-wider text-gray-400 w-20 shrink-0">Finish</p>
-                        <p class="text-[0.65rem] text-gray-700 font-semibold uppercase break-words min-w-0 flex-1" id="specs-finish-val">{% if variants %}Default Finish{% else %}Natural Wood{% endif %}</p>
+                        <p class="text-[0.65rem] text-gray-700 font-semibold uppercase break-words min-w-0 flex-1" id="specs-finish-val">{% if first_available %}{{ first_available.name }}{% elif variants %}{{ variants.0.name }}{% else %}Standard{% endif %}</p>
                     </div>
                 </div>
             </div>
@@ -683,7 +686,7 @@
         </div>
         <div class="flex border-b border-gray-100 pb-2.5 gap-4">
             <span class="font-bold text-gray-500 w-32 shrink-0">Finish Option</span>
-            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words" id="modal-specs-finish-val">{% if variants %}Default Finish{% else %}Natural Wood{% endif %}</span>
+            <span class="text-gray-900 font-semibold flex-1 min-w-0 break-words" id="modal-specs-finish-val">{% if first_available %}{{ first_available.name }}{% elif variants %}{{ variants.0.name }}{% else %}Standard{% endif %}</span>
         </div>
         <div class="flex border-b border-gray-100 pb-2.5 gap-4">
             <span class="font-bold text-gray-500 w-32 shrink-0">Stock Availability</span>
@@ -735,18 +738,26 @@
 
 <!-- Modal Overlay -->
 <div id="info-modal-overlay"
-    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden transition-opacity duration-300 opacity-0 flex items-center justify-center p-4">
+    class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] hidden transition-opacity duration-300 opacity-0 flex items-center justify-center p-4">
     <!-- Modal Content Container -->
     <div id="info-modal-content"
-        class="bg-white border border-gray-200 max-w-lg w-full p-8 shadow-2xl relative transition-transform duration-300 scale-95 flex flex-col gap-5">
+        class="bg-white border border-gray-200 max-w-lg w-full p-8 shadow-2xl relative transition-transform duration-300 scale-95 flex flex-col gap-5 rounded-sm">
         <!-- Close Button -->
-        <button onclick="closeInfoModal()"
-            class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark transition-colors cursor-pointer text-2xl leading-none">&times;</button>
+        <button type="button" onclick="closeInfoModal()"
+            class="absolute top-4 right-4 text-gray-400 hover:text-brand-dark transition-colors cursor-pointer text-2xl leading-none" title="Close">&times;</button>
         <!-- Dynamic Modal Header -->
         <h3 id="info-modal-title"
-            class="text-[0.78rem] font-black tracking-[0.16em] uppercase text-brand-dark border-b border-gray-200 pb-3">
+            class="text-[0.78rem] font-black tracking-[0.16em] uppercase text-brand-dark border-b border-gray-200 pb-3 m-0">
         </h3>
         <!-- Dynamic Modal Body -->
+        <div id="info-modal-body" class="text-xs text-gray-700 leading-relaxed max-h-[65vh] overflow-y-auto pr-2"></div>
+        <!-- Modal Footer -->
+        <div class="pt-3 border-t border-gray-100 flex justify-end">
+            <button type="button" onclick="closeInfoModal()"
+                class="bg-brand-dark text-white hover:bg-black text-[0.62rem] font-bold tracking-[0.16em] uppercase px-5 py-2.5 transition-colors cursor-pointer">
+                Close
+            </button>
+        </div>
     </div>
 </div>
 
@@ -1043,44 +1054,73 @@
         const modalBody = document.getElementById('info-modal-body');
         const content = document.getElementById('info-modal-content');
 
-        modalTitle.innerHTML = title;
-        modalBody.innerHTML = bodyHtml;
+        if (modalTitle) modalTitle.innerHTML = title;
+        if (modalBody) modalBody.innerHTML = bodyHtml;
 
-        overlay.classList.remove('hidden');
-        setTimeout(() => {
-            overlay.classList.remove('opacity-0');
-            content.classList.remove('scale-95');
-        }, 50);
+        if (overlay && content) {
+            overlay.classList.remove('hidden');
+            setTimeout(() => {
+                overlay.classList.remove('opacity-0');
+                content.classList.remove('scale-95');
+            }, 20);
+        }
     }
 
     function closeInfoModal() {
         const overlay = document.getElementById('info-modal-overlay');
         const content = document.getElementById('info-modal-content');
+        if (!overlay || !content) return;
 
         overlay.classList.add('opacity-0');
         content.classList.add('scale-95');
         setTimeout(() => {
             overlay.classList.add('hidden');
-        }, 300);
+        }, 250);
     }
 
-    document.getElementById('info-modal-overlay').addEventListener('click', function (e) {
-        if (e.target === this) {
-            closeInfoModal();
-        }
-    });
+    const infoModalOverlay = document.getElementById('info-modal-overlay');
+    if (infoModalOverlay) {
+        infoModalOverlay.addEventListener('click', function (e) {
+            if (e.target === this) {
+                closeInfoModal();
+            }
+        });
+    }
 
     function openSpecsModal() {
-        openInfoModal("Manufacturer Specifications", document.getElementById("specs-content-raw").innerHTML);
+        const el = document.getElementById("specs-content-raw");
+        if (el) {
+            openInfoModal("Manufacturer Specifications", el.innerHTML);
+        }
     }
 
     function openShippingModal() {
-        openInfoModal("Shipping & Packaging", document.getElementById("shipping-content-raw").innerHTML);
+        const el = document.getElementById("shipping-content-raw");
+        if (el) {
+            openInfoModal("Shipping & Packaging", el.innerHTML);
+        }
     }
 
     function openReturnModal() {
-        openInfoModal("Returns & Refund Policy", document.getElementById("return-content-raw").innerHTML);
+        const el = document.getElementById("return-content-raw");
+        if (el) {
+            openInfoModal("Returns & Refund Policy", el.innerHTML);
+        }
     }
+
+    // Sync initial active variant with specs finish labels on load
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeColorOpt = document.querySelector('.color-option.active');
+        if (activeColorOpt) {
+            const initName = activeColorOpt.getAttribute('data-name');
+            if (initName) {
+                const sf = document.getElementById('specs-finish-val');
+                if (sf) sf.textContent = initName;
+                const msf = document.getElementById('modal-specs-finish-val');
+                if (msf) msf.textContent = initName;
+            }
+        }
+    });
 
     // Image Hover-Zoom Magnifier Logic (Ultra-compatible CSS Background Zoom)
     const zoomContainer = document.getElementById('main-image-container');

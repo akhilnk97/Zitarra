@@ -6,6 +6,7 @@ from django.views.decorators.cache import cache_control
 from common.decorators import user_not_blocked
 from admin_panel.products.models import Product, ProductReview
 from admin_panel.category.models import Category
+from admin_panel.banners.models import ShopShowcase
 
 from django.contrib import messages
 from user_panel.wishlist.models import WishlistItem
@@ -107,6 +108,19 @@ def shop_view(request):
     except EmptyPage:
         page_obj = paginator.page(paginator.num_pages)
 
+    for product in page_obj:
+        active_vars = product.variants.filter(is_active=True, is_deleted=False)
+        primary_var = active_vars.first()
+        base_price = primary_var.price if (primary_var and primary_var.price) else product.price
+        product.primary_variant_id = primary_var.id if primary_var else ""
+        product.display_base_price = base_price
+        eff = product.get_effective_discount()
+        product.has_discount = eff['has_discount']
+        product.discount_percent = eff['discount_percentage']
+        product.offer_type = eff['offer_type']
+        product.offer_name = eff['offer_name']
+        product.discounted_price = product.get_discounted_price(base_price)
+
     categories = Category.objects.filter(is_deleted=False, is_active=True)
 
     user_wishlist_product_ids = set()
@@ -118,6 +132,39 @@ def shop_view(request):
         )
 
     filter_applied = bool(category_id or selected_brands or has_price_filter)
+
+    showcases = {
+        s.slot: s for s in ShopShowcase.objects.filter(is_active=True, product__is_deleted=False, product__is_active=True).select_related('product')
+    }
+    hero_left_showcase = showcases.get('HERO_LEFT')
+    hero_right_showcase = showcases.get('HERO_RIGHT')
+    grid_spotlight_showcase = showcases.get('GRID_SPOTLIGHT')
+    sidebar_promo_showcase = showcases.get('SIDEBAR_PROMO')
+
+    for sc in [hero_left_showcase, hero_right_showcase, grid_spotlight_showcase, sidebar_promo_showcase]:
+        if sc and sc.product:
+            eff = sc.product.get_effective_discount()
+            sc.product.has_discount = eff['has_discount']
+            sc.product.discounted_price = sc.product.get_discounted_price()
+
+    fender_product = hero_left_showcase.product if hero_left_showcase else Product.objects.filter(
+        Q(name__icontains='Stratocaster') | Q(name__icontains='Fender Player'),
+        is_deleted=False, is_active=True
+    ).first()
+
+    casio_product = hero_right_showcase.product if hero_right_showcase else Product.objects.filter(
+        Q(name__icontains='Casio') | Q(name__icontains='Privia'),
+        is_deleted=False, is_active=True
+    ).first()
+
+    vox_product = grid_spotlight_showcase.product if grid_spotlight_showcase else Product.objects.filter(
+        Q(name__icontains='VOX') | Q(name__icontains='AC30'),
+        is_deleted=False, is_active=True
+    ).first()
+    if vox_product and not hasattr(vox_product, 'discounted_price'):
+        eff_vox = vox_product.get_effective_discount()
+        vox_product.has_discount = eff_vox['has_discount']
+        vox_product.discounted_price = vox_product.get_discounted_price()
 
     context = {
         "page_obj": page_obj,
@@ -134,6 +181,13 @@ def shop_view(request):
         "filter_applied": filter_applied,
         "sort_by": sort_by,
         "user_wishlist_product_ids": user_wishlist_product_ids,
+        "fender_product": fender_product,
+        "casio_product": casio_product,
+        "vox_product": vox_product,
+        "hero_left_showcase": hero_left_showcase,
+        "hero_right_showcase": hero_right_showcase,
+        "grid_spotlight_showcase": grid_spotlight_showcase,
+        "sidebar_promo_showcase": sidebar_promo_showcase,
     }
 
     return render(request, "user/shop/shop.html", context)
@@ -156,35 +210,37 @@ def product_detail_view(request, product_id):
 
 
     category = product.category
-    has_discount = category.is_offer_active and category.discount > 0
-    discount_price = product.price
-    discount_pct = 0
+    eff = product.get_effective_discount()
+    has_discount = eff['has_discount']
+    discount_pct = eff['discount_percentage']
+    offer_type = eff['offer_type']
+    offer_name = eff['offer_name']
+
+    # Fetch active variants
+    variants = product.variants.filter(is_active=True, is_deleted=False)
+
+    # Determine initial item to feature on page load (prefer in-stock variant)
+    if variants.exists():
+        first_available = variants.filter(stock__gt=0).first() or variants.first()
+    else:
+        first_available = product
+
+    # Initial price defaults to first_available variant if available, otherwise product
+    primary_item = first_available
+    display_base_price = float(primary_item.price) if (primary_item and getattr(primary_item, 'price', None)) else float(product.price)
 
     if has_discount:
-        discount_pct = category.discount
-        discount_amount = (product.price * discount_pct) / 100
-        discount_price = product.price - discount_amount
+        discount_price = display_base_price - (display_base_price * discount_pct / 100)
     else:
-        # 15% discount for UI representation matching
-        has_discount = True
-        discount_pct = 15
-        discount_price = product.price
-        # Calculate original price dynamically e.g. 3499.00 / 0.85 = 4116.47 rounded to -> 4120.00
-        product.price = math.ceil((float(product.price) / 0.85) / 10) * 10
+        discount_price = display_base_price
 
-    # Fetch active variants and calculate original and discounted prices
-    variants = product.variants.filter(is_active=True, is_deleted=False)
     for var in variants:
-        if var.price:
-            if category.is_offer_active and category.discount > 0:
-                var.display_price = float(var.price)
-                var.display_discounted = var.display_price - (var.display_price * discount_pct / 100)
-            else:
-                var.display_price = math.ceil((float(var.price) / 0.85) / 10) * 10
-                var.display_discounted = float(var.price)
+        v_price = float(var.price) if var.price else float(product.price)
+        var.display_price = v_price
+        if has_discount:
+            var.display_discounted = v_price - (v_price * discount_pct / 100)
         else:
-            var.display_price = float(product.price)
-            var.display_discounted = float(discount_price)
+            var.display_discounted = v_price
 
     related_products = Product.objects.filter(
         category=category,
@@ -210,15 +266,6 @@ def product_detail_view(request, product_id):
     is_in_wishlist = False
     if request.user.is_authenticated:
         is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product).exists()
-
-    # Determine initial item to feature on page load (prefer in-stock item)
-    first_available = None
-    if product.stock > 0:
-        first_available = product
-    elif variants.filter(stock__gt=0).exists():
-        first_available = variants.filter(stock__gt=0).first()
-    else:
-        first_available = product
 
     active_coupons = get_eligible_coupons(user=request.user, limit=3)
 
@@ -248,6 +295,7 @@ def product_detail_view(request, product_id):
         "first_available": first_available,
         "has_discount": has_discount,
         "discount_pct": discount_pct,
+        "product_price": display_base_price,
         "discounted_price": discount_price,
         "related_products": related_products,
         "highlights_list": highlights_list,

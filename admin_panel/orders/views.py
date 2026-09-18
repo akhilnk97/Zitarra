@@ -208,10 +208,12 @@ def admin_order_update_status_view(request, order_id):
 
                             if item.variant:
                                 item.variant.stock += item.quantity
-                                item.variant.save(update_fields=['stock'])
+                                item.variant.save(update_fields=['stock', 'updated_at'])
+                                if item.product:
+                                    item.product.sync_stock_from_variants()
                             elif item.product:
                                 item.product.stock += item.quantity
-                                item.product.save(update_fields=['stock'])
+                                item.product.save(update_fields=['stock', 'updated_at'])
 
                     order.recalculate_totals()
                 else:
@@ -229,10 +231,12 @@ def admin_order_update_status_view(request, order_id):
                         for item in order.items.exclude(item_status__in=['CANCELLED', 'RETURNED']):
                             if item.variant:
                                 item.variant.stock += item.quantity
-                                item.variant.save(update_fields=['stock'])
+                                item.variant.save(update_fields=['stock', 'updated_at'])
+                                if item.product:
+                                    item.product.sync_stock_from_variants()
                             elif item.product:
                                 item.product.stock += item.quantity
-                                item.product.save(update_fields=['stock'])
+                                item.product.save(update_fields=['stock', 'updated_at'])
 
                     # Update all active items to new status and update dates
                     for item in order.items.exclude(item_status='CANCELLED'):
@@ -317,11 +321,13 @@ def admin_order_item_update_status_view(request, order_id, item_id):
                     if item.variant_id:
                         v = ProductVariant.objects.select_for_update().get(id=item.variant_id)
                         v.stock += item.quantity
-                        v.save(update_fields=['stock'])
+                        v.save(update_fields=['stock', 'updated_at'])
+                        if v.product:
+                            v.product.sync_stock_from_variants()
                     elif item.product_id:
                         p = Product.objects.select_for_update().get(id=item.product_id)
                         p.stock += item.quantity
-                        p.save(update_fields=['stock'])
+                        p.save(update_fields=['stock', 'updated_at'])
 
             item.save()
             item.order.recalculate_totals()

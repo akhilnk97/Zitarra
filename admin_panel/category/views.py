@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
+from django.utils import timezone
 from datetime import datetime
 
 from common.decorators import admin_required
@@ -45,6 +46,8 @@ def admin_category_view(request):
 
 @admin_required
 def admin_add_category_view(request):
+    today = timezone.now().date()
+    today_str = today.strftime("%Y-%m-%d")
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
@@ -56,15 +59,15 @@ def admin_add_category_view(request):
 
         if not name:
             messages.error(request, "Category name is required.")
-            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         if Category.objects.filter(name__iexact=name, is_deleted=False).exists():
             messages.error(request, f"A category named '{name}' already exists.")
-            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         if len(description) > 500:
             messages.error(request, "Category description cannot exceed 500 characters.")
-            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         try:
             discount = int(discount_str) if discount_str else 0
@@ -72,15 +75,23 @@ def admin_add_category_view(request):
                 raise ValueError
         except ValueError:
             messages.error(request, "Discount must be a number between 0 and 100.")
-            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         expiry_date = None
         if expiry_date_str:
-            try:
-                expiry_date = datetime.strptime(expiry_date_str, "%d-%m-%Y").date()
-            except ValueError:
-                messages.error(request, "Expiry date must be in DD-MM-YYYY format.")
-                return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+            for fmt in ("%Y-%m-%d", "%d-%m-%Y"):
+                try:
+                    expiry_date = datetime.strptime(expiry_date_str, fmt).date()
+                    break
+                except ValueError:
+                    continue
+            if not expiry_date:
+                messages.error(request, "Campaign expiry date must be a valid date.")
+                return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+
+            if expiry_date < today:
+                messages.error(request, "Campaign expiry date cannot be in the past.")
+                return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         Category.objects.create(
             name=name,
@@ -93,13 +104,14 @@ def admin_add_category_view(request):
         messages.success(request, f"Category '{name}' created successfully.")
         return redirect("admin_category")
 
-    return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname})
+    return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
 
 @admin_required
 def admin_edit_category_view(request, category_id):
-
     category = get_object_or_404(Category, id=category_id, is_deleted=False)
+    today = timezone.now().date()
+    today_str = today.strftime("%Y-%m-%d")
 
     if request.method == "POST":
         name = request.POST.get("name", "").strip()
@@ -111,15 +123,15 @@ def admin_edit_category_view(request, category_id):
 
         if not name:
             messages.error(request, "Category name is required.")
-            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
             
         if Category.objects.filter(name__iexact=name, is_deleted=False).exclude(id=category.id).exists():
             messages.error(request, f"A category named '{name}' already exists.")
-            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
 
         if len(description) > 500:
             messages.error(request, "Category description cannot exceed 500 characters.")
-            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
     
         try:
             discount = int(discount_str) if discount_str else 0
@@ -127,16 +139,23 @@ def admin_edit_category_view(request, category_id):
                 raise ValueError
         except ValueError:
             messages.error(request, "Discount must be a number between 0 and 100.")
-            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
 
         expiry_date = None
         if expiry_date_str:
-            try:
-                expiry_date = datetime.strptime(expiry_date_str, "%d-%m-%Y").date()
-            except ValueError:
-                messages.error(request, "Expiry date must be in DD-MM-YYYY format.")
-                return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category})
-    
+            for fmt in ("%Y-%m-%d", "%d-%m-%Y"):
+                try:
+                    expiry_date = datetime.strptime(expiry_date_str, fmt).date()
+                    break
+                except ValueError:
+                    continue
+            if not expiry_date:
+                messages.error(request, "Campaign expiry date must be a valid date.")
+                return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+
+            if expiry_date < today and expiry_date != category.expiry_date:
+                messages.error(request, "Campaign expiry date cannot be in the past.")
+                return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
         
         category.name = name
         category.description = description
@@ -152,6 +171,7 @@ def admin_edit_category_view(request, category_id):
     context = {
         "admin_name": request.user.fullname,
         "category": category,
+        "today_str": today_str,
     }
     return render(request, "admin_panel/category/edit_category.html", context)
 

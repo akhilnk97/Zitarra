@@ -10,6 +10,8 @@ from common.decorators import admin_required
 from user_panel.authentication.models import User
 from user_panel.orders.models import Order, OrderItem
 from admin_panel.products.models import Product
+from admin_panel.category.models import Category
+from admin_panel.offers.models import ProductOffer
 
 
 def get_dashboard_chart_data(preset, curr_tz):
@@ -158,13 +160,17 @@ def admin_dashboard_view(request):
     except EmptyPage:
         recent_orders = paginator.page(paginator.num_pages)
 
+    active_prod_offers = ProductOffer.objects.filter(is_active=True).count()
+    active_cat_offers = Category.objects.filter(is_deleted=False, is_active=True, is_offer_active=True, discount__gt=0).count()
+    active_offers = active_prod_offers + active_cat_offers
+
     context = {
         "total_users": total_users,
         "total_orders": total_orders,
         "total_products": total_products,
         "total_sales": total_sales,
         "pending_returns": pending_returns,
-        "active_offers": 0,
+        "active_offers": active_offers,
         "recent_orders": recent_orders,
         "status_filter": status_filter,
         "sort_by": sort_by,

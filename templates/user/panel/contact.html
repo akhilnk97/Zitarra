@@ -87,17 +87,6 @@
         Our concierge team provides specialized assistance for technical specifications and premium acquisition.
       </p>
 
-      {% if messages %}
-      <div class="mb-8 space-y-2">
-        {% for message in messages %}
-        <div class="p-4 text-xs font-bold uppercase tracking-wider rounded-xl shadow-xs flex items-center justify-between {% if message.tags == 'error' %}bg-red-50 text-red-700 border border-red-200{% else %}bg-emerald-50 text-emerald-700 border border-emerald-200{% endif %}">
-          <span>{{ message }}</span>
-          <button onclick="this.parentElement.remove()" class="text-gray-400 hover:text-black font-bold text-sm bg-transparent border-none cursor-pointer">&times;</button>
-        </div>
-        {% endfor %}
-      </div>
-      {% endif %}
-
       <form method="POST" action="{% url 'contact' %}" class="space-y-9">
         {% csrf_token %}
 

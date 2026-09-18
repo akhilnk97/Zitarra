@@ -1,4 +1,6 @@
 import base64
+import math
+import json
 from django.shortcuts import render, redirect, get_object_or_404
 from django.core.files.base import ContentFile
 from django.contrib import messages
@@ -10,6 +12,7 @@ from common.services import save_base64_image
 from .models import Product, ProductImage, ProductVariant, VariantImage
 from admin_panel.category.models import Category
 from admin_panel.brands.models import Brand
+from admin_panel.offers.models import ProductOffer
 
 
 
@@ -131,17 +134,47 @@ def admin_product_add_view(request):
                         "img_list": img_list,
                         "is_base64": is_base64
                     })  
+        if not parsed_variants:
+            # If no manual variant added, automatically create the primary variant so every product is a variant
+            try:
+                auto_price = float(request.POST.get("price", 0) or 0)
+            except ValueError:
+                auto_price = 0.0
+            try:
+                auto_stock = int(request.POST.get("stock", 0) or 0)
+            except ValueError:
+                auto_stock = 0
+
+            parsed_variants.append({
+                "name": "Standard Edition",
+                "color_code": "#1A1A1A",
+                "price": auto_price,
+                "stock": auto_stock,
+                "img_list": cropped_images_data,
+                "is_base64": True
+            })
+
+        # Sync product price and stock from variants
+        primary_var_price = parsed_variants[0]["price"] if parsed_variants[0]["price"] else request.POST.get("price")
+        total_var_stock = sum(v["stock"] for v in parsed_variants)
+
+        offer_val = request.POST.get("offer_id") or request.POST.get("offer")
+        product_offer = None
+        if offer_val and str(offer_val).isdigit():
+            product_offer = ProductOffer.objects.filter(id=offer_val, is_active=True).first()
+
         with transaction.atomic():
             product = Product.objects.create(
                 name=request.POST.get("name"),
                 description=request.POST.get("description"),
-                price=request.POST.get("price"),
-                stock=request.POST.get("stock"),
+                price=primary_var_price,
+                stock=total_var_stock,
                 category=category,
                 is_active="is_active" in request.POST,
                 highlights=request.POST.get("highlights", "").strip(),
                 brand=request.POST.get("brand", "").strip(),
-                offer=request.POST.get("offer", "").strip()
+                offer=product_offer.name if product_offer else (request.POST.get("offer", "").strip() or None),
+                product_offer=product_offer
             )
 
             # Save Main Product Images using save_base64_image
@@ -173,9 +206,11 @@ def admin_product_add_view(request):
     
     categories = Category.objects.filter(is_deleted=False, is_active=True)
     brands = Brand.objects.filter(is_deleted=False, status='ACTIVE').order_by('name')
+    active_offers = ProductOffer.objects.filter(is_active=True).order_by('name')
     return render(request, 'admin_panel/products/add_product.html', {
         'categories': categories,
         'brands': brands,
+        'active_offers': active_offers,
         'admin_name': request.user.fullname
     })
 
@@ -222,14 +257,29 @@ def admin_product_edit_view(request, product_id):
         with transaction.atomic():
             product.name = request.POST.get("name")
             product.description = request.POST.get("description")
-            product.price = request.POST.get("price")
-            product.stock = request.POST.get("stock")
+            if not product.has_active_variants:
+                product.price = request.POST.get("price") or product.price
+                product.stock = request.POST.get("stock") or product.stock
             product.category = category
             product.is_active = "is_active" in request.POST
             product.highlights = request.POST.get("highlights", "").strip()
             product.brand = request.POST.get("brand", "").strip()
-            product.offer = request.POST.get("offer", "").strip()
+            
+            offer_val = request.POST.get("offer_id") or request.POST.get("offer")
+            if offer_val and str(offer_val).isdigit():
+                product.product_offer = ProductOffer.objects.filter(id=offer_val, is_active=True).first()
+                product.offer = product.product_offer.name if product.product_offer else ""
+            else:
+                product.product_offer = None
+                product.offer = ""
+
             product.save()
+
+            if product.has_active_variants:
+                product.sync_stock_from_variants()
+                primary_var = product.variants.filter(is_active=True, is_deleted=False).first()
+                if primary_var and primary_var.price:
+                    Product.objects.filter(id=product.id).update(price=primary_var.price)
 
             # Handle updating or adding new images if any are uploaded
             if cropped_images_data:
@@ -245,10 +295,14 @@ def admin_product_edit_view(request, product_id):
 
     categories = Category.objects.filter(is_active=True)
     brands = Brand.objects.filter(is_deleted=False, status='ACTIVE').order_by('name')
+    active_offers = ProductOffer.objects.filter(is_active=True).order_by('name')
+    variants = product.variants.filter(is_deleted=False).order_by('id')
     return render(request, "admin_panel/products/edit_product.html", {
         "product": product,
+        "variants": variants,
         "categories": categories,
         "brands": brands,
+        "active_offers": active_offers,
         "admin_name": request.user.fullname
     })
 
@@ -264,6 +318,160 @@ def admin_product_delete_view(request, product_id):
 
 
 @admin_required
+def admin_product_detail_view(request, product_id):
+    product = get_object_or_404(Product, id=product_id, is_deleted=False)
+    variants = product.variants.filter(is_deleted=False).order_by('id')
+    active_variants = variants.filter(is_active=True)
+    images = list(product.images.all())
+
+    # Fallback to first variant or active variant (every product is viewed as a variant)
+    initial_variant = active_variants.first() or variants.first()
+
+    # Sync product.price in DB to variant price if out of sync
+    if initial_variant and initial_variant.price and product.price != initial_variant.price:
+        Product.objects.filter(id=product.id).update(price=initial_variant.price)
+        product.price = initial_variant.price
+
+    # Collect all visual assets (product images + variant images)
+    all_visual_assets = []
+    for img in images:
+        all_visual_assets.append({
+            'url': img.image.url,
+            'title': f"{product.name} Main",
+            'type': 'Product'
+        })
+    for var in variants:
+        for v_img in var.images.all():
+            all_visual_assets.append({
+                'url': v_img.image.url,
+                'title': f"{var.name}",
+                'type': 'Variant'
+            })
+
+    # Highlights & Specs parsing
+    highlights_list = []
+    if product.highlights:
+        highlights_list = [line.strip() for line in product.highlights.splitlines() if line.strip()]
+
+    # Calculate pricing based on initial variant (no base product pricing)
+    category = product.category
+    has_discount = False
+    discount_pct = 0
+
+    if initial_variant and initial_variant.price:
+        var_price = float(initial_variant.price)
+    else:
+        var_price = float(product.price)
+
+    original_mrp = var_price
+    final_price = var_price
+
+    if category and getattr(category, 'is_offer_active', False) and getattr(category, 'discount', 0) > 0:
+        has_discount = True
+        discount_pct = category.discount
+        final_price = round(original_mrp - (original_mrp * discount_pct / 100), 2)
+
+    # Reviews
+    reviews = product.reviews.all().order_by('-created_at')
+    total_reviews = reviews.count()
+    avg_rating = product.average_rating
+    latest_review = reviews.first()
+
+    # Generate professional SKU
+    brand_code = (product.brand or 'ZTR').replace(' ', '').upper()[:4]
+    cat_code = (category.name or 'GEN').replace(' ', '').upper()[:2]
+    base_sku = f"{brand_code}-{cat_code}-{product.created_at.year if product.created_at else '2026'}-{product.id:04d}"
+    initial_sku = f"{base_sku}-V{initial_variant.id:02d}" if initial_variant else base_sku
+
+    # Initial image & visual assets
+    initial_image = None
+    initial_variant_images = []
+    if initial_variant and initial_variant.images.exists():
+        initial_variant_images = [img.image.url for img in initial_variant.images.all()]
+        initial_image = initial_variant_images[0]
+    elif images:
+        initial_image = images[0].image.url
+    else:
+        initial_image = 'https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800&q=80'
+
+    # Build rich variant dataset for interactive client-side switching
+    base_image_urls = [img.image.url for img in images]
+    if not base_image_urls:
+        base_image_urls = ['https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=800&q=80']
+
+    variants_dict = {}
+    for var in variants:
+        v_imgs = [v_img.image.url for v_img in var.images.all()]
+        if not v_imgs:
+            v_imgs = base_image_urls
+
+        v_price = float(var.price) if var.price else float(product.price)
+        if has_discount and discount_pct > 0:
+            var_mrp = v_price
+            var_final = round(v_price - (v_price * discount_pct / 100), 2)
+        else:
+            var_mrp = v_price
+            var_final = v_price
+
+        var_sku = f"{base_sku}-V{var.id:02d}"
+
+        variants_dict[str(var.id)] = {
+            'id': str(var.id),
+            'name': var.name,
+            'color_code': var.color_code,
+            'stock': var.stock,
+            'is_active': var.is_active,
+            'final_price': var_final,
+            'original_mrp': var_mrp,
+            'has_discount': has_discount,
+            'discount_pct': discount_pct,
+            'sku': var_sku,
+            'images': v_imgs,
+            'title': f"{product.name} — {var.name}",
+        }
+
+    context = {
+        "product": product,
+        "variants": variants,
+        "active_variants": active_variants,
+        "initial_variant": initial_variant,
+        "initial_sku": initial_sku,
+        "initial_image": initial_image,
+        "initial_variant_images": initial_variant_images,
+        "images": images,
+        "all_visual_assets": all_visual_assets,
+        "highlights_list": highlights_list,
+        "original_mrp": original_mrp,
+        "final_price": final_price,
+        "has_discount": has_discount,
+        "discount_pct": discount_pct,
+        "reviews": reviews,
+        "total_reviews": total_reviews,
+        "avg_rating": avg_rating,
+        "latest_review": latest_review,
+        "sku": initial_sku,
+        "variants_json": json.dumps(variants_dict),
+        "admin_name": getattr(request.user, 'fullname', '') or getattr(request.user, 'username', '') or 'Admin',
+    }
+    return render(request, "admin_panel/products/product_detail.html", context)
+
+
+@admin_required
+def admin_product_toggle_view(request, product_id):
+    if request.method == "POST":
+        product = get_object_or_404(Product, id=product_id, is_deleted=False)
+        product.is_active = not product.is_active
+        product.save()
+        status_str = "listed and active" if product.is_active else "unlisted and hidden"
+        messages.success(request, f"Product '{product.name}' is now {status_str}!")
+        next_url = request.POST.get('next') or request.META.get('HTTP_REFERER')
+        if next_url and 'products' in next_url:
+            return redirect(next_url)
+        return redirect('admin_product_detail', product_id=product.id)
+    return redirect('admin_products')
+
+
+@admin_required
 def admin_product_variants_view(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_deleted=False)
     if request.method == "POST":
@@ -271,6 +479,7 @@ def admin_product_variants_view(request, product_id):
         color_code = request.POST.get("color_code", "").strip()
         price = request.POST.get("price", "").strip()
         stock = request.POST.get("stock", "").strip()
+        sku = request.POST.get("sku", "").strip() or None
 
         if not name or not color_code or not stock:
             messages.error(request, "Please fill in all required fields.")
@@ -295,6 +504,11 @@ def admin_product_variants_view(request, product_id):
         else:
             price = None
 
+        if sku:
+            if ProductVariant.objects.filter(sku__iexact=sku).exists():
+                messages.error(request, f"SKU '{sku}' is already in use. Please enter a unique SKU or leave it blank.")
+                return redirect('admin_product_variants', product_id=product.id)
+
         # EXTRACT IMAGES (Base64 cropped strings or standard files)
         variant_images_data = request.POST.getlist("images")
         is_base64 = len(variant_images_data) > 0
@@ -310,7 +524,8 @@ def admin_product_variants_view(request, product_id):
                 name=name,
                 color_code=color_code,
                 price=price,
-                stock=stock
+                stock=stock,
+                sku=sku
             )
 
             for i, img in enumerate(img_list):
@@ -321,6 +536,10 @@ def admin_product_variants_view(request, product_id):
 
                 if image_file:
                     VariantImage.objects.create(variant=variant, image=image_file)
+
+            product.sync_stock_from_variants()
+            if price and (not product.price or product.price <= 0):
+                Product.objects.filter(id=product.id).update(price=price)
 
         messages.success(request, "Product variant added successfully!")
         return redirect('admin_product_variants', product_id=product.id)
@@ -339,6 +558,7 @@ def admin_variant_delete_view(request, variant_id):
         variant = get_object_or_404(ProductVariant, id=variant_id, is_deleted=False)
         variant.is_deleted = True
         variant.save()
+        variant.product.sync_stock_from_variants()
         messages.success(request, "Product variant deleted successfully!")
         return redirect('admin_product_variants', product_id=variant.product.id)
     return redirect('admin_products')
@@ -352,6 +572,7 @@ def admin_variant_edit_view(request, variant_id):
         color_code = request.POST.get("color_code", "").strip()
         price = request.POST.get("price", "").strip()
         stock = request.POST.get("stock", "").strip()
+        sku = request.POST.get("sku", "").strip() or None
 
         if not name or not color_code or stock == "":
             messages.error(request, "Please fill in all required fields.")
@@ -376,6 +597,11 @@ def admin_variant_edit_view(request, variant_id):
         else:
             price = None
 
+        if sku:
+            if ProductVariant.objects.filter(sku__iexact=sku).exclude(id=variant.id).exists():
+                messages.error(request, f"SKU '{sku}' is already in use by another variant.")
+                return redirect('admin_product_variants', product_id=variant.product.id)
+
         with transaction.atomic():
             # Validate final image count before applying changes
             delete_image_ids = request.POST.getlist("delete_image_ids")
@@ -393,6 +619,8 @@ def admin_variant_edit_view(request, variant_id):
             variant.color_code = color_code
             variant.price = price
             variant.stock = stock
+            if sku:
+                variant.sku = sku
             variant.save()
 
             # Delete specific variant images if requested by admin
@@ -423,6 +651,8 @@ def admin_variant_edit_view(request, variant_id):
                     if image_file:
                         VariantImage.objects.create(variant=variant, image=image_file)
 
+            variant.product.sync_stock_from_variants()
+
         messages.success(request, f"Variant '{variant.name}' updated successfully!")
         return redirect('admin_product_variants', product_id=variant.product.id)
 
@@ -452,6 +682,7 @@ def admin_variant_toggle_view(request, variant_id):
         variant = get_object_or_404(ProductVariant, id=variant_id, is_deleted=False)
         variant.is_active = not variant.is_active
         variant.save()
+        variant.product.sync_stock_from_variants()
         status_str = "enabled" if variant.is_active else "disabled"
         messages.success(request, f"Product variant '{variant.name}' has been {status_str} successfully!")
         return redirect('admin_product_variants', product_id=variant.product.id)

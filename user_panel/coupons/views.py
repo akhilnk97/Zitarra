@@ -19,31 +19,6 @@ User = get_user_model()
 def apply_coupon_view(request):
     if request.method != 'POST':
         return redirect('checkout')
-
-    c1, _ = Coupon.objects.get_or_create(
-        code='ZITARRA10',
-        defaults={'discount_type': 'PERCENTAGE', 'discount_value': Decimal('10.00'), 'min_purchase': Decimal('0.00'), 'is_active': True}
-    )
-    if not c1.is_active:
-        c1.is_active = True
-        c1.save(update_fields=['is_active'])
-
-    c2, _ = Coupon.objects.get_or_create(
-        code='WELCOME20',
-        defaults={'discount_type': 'PERCENTAGE', 'discount_value': Decimal('20.00'), 'min_purchase': Decimal('2000.00'), 'max_discount': Decimal('2000.00'), 'is_first_order_only': True, 'is_active': True}
-    )
-    if not c2.is_active:
-        c2.is_active = True
-        c2.save(update_fields=['is_active'])
-
-    c3, _ = Coupon.objects.get_or_create(
-        code='FLAT500',
-        defaults={'discount_type': 'FIXED', 'discount_value': Decimal('500.00'), 'min_purchase': Decimal('3000.00'), 'is_active': True}
-    )
-    if not c3.is_active:
-        c3.is_active = True
-        c3.save(update_fields=['is_active'])
-
     def return_response(status, msg, **extra):
         if is_ajax(request):
             data = {'status': status, 'message': msg}

@@ -147,19 +147,17 @@
           <!-- Row 3.5: Product Offer -->
           <div class="mb-6">
             <div class="flex items-center justify-between mb-[7px]">
-              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Product
-                Offer</label>
-              <a href="{% url 'admin_unimplemented' %}"
-                class="text-[0.5rem] font-bold tracking-widest text-[#A33C08] hover:underline uppercase no-underline">Manage
-                Offers ?</a>
+              <label class="text-[0.48rem] font-bold uppercase tracking-[0.18em] text-gray-400 block">Product Offer</label>
+              <a href="{% url 'admin_offers' %}"
+                class="text-[0.5rem] font-bold tracking-widest text-[#A33C08] hover:underline uppercase no-underline">Manage Offers ?</a>
             </div>
             <div class="relative">
-              <select name="offer"
+              <select name="offer_id"
                 class="w-full border border-[#e2e2e2] py-[11px] px-[14px] text-[0.7rem] font-semibold uppercase tracking-[0.06em] text-brand-dark outline-none bg-white appearance-none cursor-pointer transition-colors duration-200 rounded-none focus:border-brand-rust pr-10">
-                <option value="">Select Offer</option>
-                <option value="NEWYEAR_SPECIAL_15">NEWYEAR_SPECIAL_15 (15% OFF)</option>
-                <option value="WELCOME10">WELCOME10 (10% OFF)</option>
-                <option value="ZITARRA10">ZITARRA10 (10% OFF)</option>
+                <option value="">No Promotional Offer (Standard Price)</option>
+                {% for off in active_offers %}
+                <option value="{{ off.id }}">{{ off.name }} ({{ off.discount_percentage }}% OFF)</option>
+                {% endfor %}
               </select>
               <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-gray-400">
                 <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -223,8 +221,7 @@
             <div class="flex items-center justify-between mb-6">
               <div class="flex items-center gap-3">
                 <span class="w-2.5 h-2.5 bg-[#A33C08] shrink-0"></span>
-                <h2 class="text-[0.65rem] font-black tracking-[0.18em] uppercase text-[#1A1A1A]">Product Variants
-                  (Optional)</h2>
+                <h2 class="text-[0.65rem] font-black tracking-[0.18em] uppercase text-[#1A1A1A]">Product Variants</h2>
               </div>
               <button type="button" onclick="addVariantRow()"
                 class="border border-[#A33C08] text-[#A33C08] hover:bg-[#A33C08] hover:text-white transition-all text-[0.52rem] font-black uppercase tracking-widest px-3.5 py-2 active:scale-95 cursor-pointer select-none">

@@ -119,11 +119,13 @@
                   </div>
                   <div>
                     <label
+                      for="categoryExpiryDate"
                       class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Campaign
                       Expiry Date</label>
-                    <input type="text" name="expiry_date"
-                      class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none"
-                      placeholder="DD-MM-YYYY" />
+                    <input type="date" name="expiry_date" id="categoryExpiryDate"
+                      min="{{ today_str }}"
+                      class="w-full border border-gray-300 px-3.5 py-[9px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none cursor-pointer" />
+                    <p id="expiryDateError" class="text-[0.6rem] font-bold text-red-600 mt-1 hidden"></p>
                   </div>
                 </div>
 
@@ -255,6 +257,47 @@
 
   // Auto-hide alert messages after 3 seconds
   document.addEventListener('DOMContentLoaded', () => {
+    // Campaign Expiry Date Validation & Restriction
+    const today = '{{ today_str|default:"" }}' || new Date().toISOString().split('T')[0];
+    const expiryInput = document.getElementById('categoryExpiryDate');
+    const errorEl = document.getElementById('expiryDateError');
+    if (expiryInput) {
+      if (!expiryInput.min || expiryInput.min < today) {
+        expiryInput.min = today;
+      }
+
+      function checkDate() {
+        const val = expiryInput.value;
+        if (val && val < today) {
+          if (errorEl) {
+            errorEl.textContent = "Campaign expiry date cannot be in the past.";
+            errorEl.classList.remove('hidden');
+          }
+          expiryInput.classList.add('border-red-500');
+          return false;
+        } else {
+          if (errorEl) errorEl.classList.add('hidden');
+          expiryInput.classList.remove('border-red-500');
+          return true;
+        }
+      }
+
+      expiryInput.addEventListener('input', checkDate);
+      expiryInput.addEventListener('change', checkDate);
+
+      const form = expiryInput.closest('form');
+      if (form) {
+        form.addEventListener('submit', function (e) {
+          if (!checkDate()) {
+            e.preventDefault();
+            showCustomAlert("CAMPAIGN EXPIRY DATE CANNOT BE IN THE PAST!");
+            expiryInput.focus();
+            return false;
+          }
+        });
+      }
+    }
+
     setTimeout(() => {
       document.querySelectorAll('.msg-alert').forEach(el => {
         el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';

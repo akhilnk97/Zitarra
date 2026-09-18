@@ -1,39 +1,38 @@
-{% extends 'admin_panel/dashboard/dashboard.html' %}
+{% extends 'admin_panel/base/base.html' %}
 {% load static %}
 
 {% block title %}Banners Management — Zitarra Admin{% endblock %}
 
 {% block content %}
-<!-- Top Header -->
-<header class="h-[70px] bg-white border-b border-[#e8e8e8] px-8 flex items-center justify-between shrink-0">
-  <div class="flex items-center gap-4">
-    <button id="sidebar-toggle" class="md:hidden text-gray-600 hover:text-black">
-      <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
-      </svg>
-    </button>
-    <a href="{% url 'admin_dashboard' %}" class="no-underline">
-      <h1 class="text-xl font-bold tracking-widest text-[#1A1A1A] uppercase m-0">ZITARRA</h1>
-    </a>
-  </div>
+<div class="w-full h-screen flex flex-col bg-[#fafafa] font-sans overflow-hidden">
 
-  <div class="flex items-center gap-6">
-    <div class="flex items-center gap-3">
+  <!-- Header Bar -->
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 w-full z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
+
+    <!-- User Profile Header -->
+    <div class="flex items-center gap-3.5">
       <div class="text-right select-none">
         <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
-        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name|default:request.user.fullname|default:"Admin" }}</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name|default:request.user.fullname|default:request.user.username|default:"Admin" }}</p>
       </div>
-      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500">
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
         <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
           <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
         </svg>
       </div>
     </div>
-  </div>
-</header>
+  </header>
 
-<!-- Main Workspace Container -->
-<div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+  <!-- Main Workspace Container -->
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
 
   <!-- Shared Admin Sidebar Navigation -->
   {% include 'admin_panel/includes/sidebar.html' with active_page='banners' %}
@@ -41,6 +40,16 @@
   <!-- Main Workspace Canvas -->
   <main class="flex-1 bg-[#FDFBF9] overflow-y-auto scroll-smooth p-6 lg:p-10 relative">
 
+
+    <!-- Navigation Tabs: Home Banners vs Shop Showcases -->
+    <div class="flex items-center gap-6 border-b border-gray-200 mb-6">
+      <a href="{% url 'admin_banners' %}" class="pb-3 text-xs font-black uppercase tracking-wider no-underline transition-colors border-b-2 border-[#A33C08] text-[#A33C08]">
+        Home Page Banners
+      </a>
+      <a href="{% url 'admin_showcases' %}" class="pb-3 text-xs font-black uppercase tracking-wider no-underline transition-colors border-b-2 border-transparent text-gray-400 hover:text-gray-700">
+        Shop Featured Showcases (3 Slots)
+      </a>
+    </div>
 
     <!-- Top Description Header -->
     <div class="mb-8 border-b border-gray-200 pb-6">
@@ -268,6 +277,7 @@
     </div>
 
   </main>
+</div>
 </div>
 
 <!-- EDIT BANNER MODAL -->

@@ -1,0 +1,1132 @@
+{% extends 'admin_panel/base/base.html' %}
+{% block title %}Offers Ledger — Zitarra Admin{% endblock %}
+
+{% block content %}
+<style>
+  /* Explicitly disable resizing on all description textareas */
+  textarea, #add-description, #edit-description {
+    resize: none !important;
+  }
+</style>
+<div class="w-full h-screen flex flex-col bg-[#FDFBF9] font-sans overflow-hidden">
+
+  <!-- Top Header Bar -->
+  <header class="bg-white border-b border-[#e8e8e8] flex items-center justify-between px-4 md:px-8 h-[70px] shrink-0 w-full z-10">
+    <div class="flex items-center gap-4">
+      <button id="sidebar-toggle" class="md:hidden text-gray-500 hover:text-[#1A1A1A] focus:outline-none cursor-pointer" title="Toggle Menu">
+        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+        </svg>
+      </button>
+      <a href="{% url 'admin_dashboard' %}" class="text-[1.2rem] font-black tracking-[0.25em] uppercase text-[#1A1A1A] no-underline">ZITARRA</a>
+    </div>
+
+    <!-- User Profile Header -->
+    <div class="flex items-center gap-3.5">
+      <div class="text-right select-none">
+        <p class="text-[0.48rem] font-extrabold tracking-[0.2em] uppercase text-gray-400 leading-none mb-1.5">ADMIN ACCESS</p>
+        <p class="text-[0.75rem] font-bold text-[#1A1A1A] leading-none">{{ admin_name|default:request.user.fullname|default:request.user.username|default:"Admin" }}</p>
+      </div>
+      <div class="w-9 h-9 rounded-full border border-gray-200 flex items-center justify-center bg-gray-50 text-gray-500 hover:border-[#1A1A1A] transition-colors cursor-pointer">
+        <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+        </svg>
+      </div>
+    </div>
+  </header>
+
+  <!-- Sidebar & Main Layout -->
+  <div class="flex flex-1 flex-row h-[calc(100vh-70px)] overflow-hidden">
+
+    <!-- Sidebar Navigation -->
+    {% include 'admin_panel/includes/sidebar.html' with active_page='offers' %}
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-black/40 z-40 hidden md:hidden"></div>
+
+    <!-- Main Content Canvas -->
+    <main class="flex-1 overflow-y-auto p-4 md:p-6 flex flex-col gap-5 text-left bg-[#FDFBF9]">
+
+      <!-- PAGE HEADER: TITLE + ACTION BUTTONS -->
+      <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE3DC] shrink-0">
+        <div>
+          <h1 class="text-3xl md:text-4xl font-black uppercase tracking-tight text-[#1A1A1A] m-0 leading-none">PRODUCT OFFERS LEDGER</h1>
+          <div class="w-16 h-1 bg-[#A33C08] mt-3"></div>
+        </div>
+
+        <!-- Action Controls -->
+        <div class="flex items-center gap-3">
+          <!-- Filter Toggle Button -->
+          <button type="button" onclick="toggleFilterPanel()" class="px-5 py-2.5 bg-white border border-[#D5C9BE] text-[#332A24] text-[0.6rem] font-bold uppercase tracking-[0.16em] hover:border-[#A33C08] hover:text-[#A33C08] transition-colors cursor-pointer flex items-center gap-2 shadow-xs">
+            <svg class="w-3.5 h-3.5 text-[#332A24]" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+            <span>FILTER</span>
+          </button>
+
+          <!-- Sort Form -->
+          <form action="{% url 'admin_offers' %}" method="GET" class="inline-flex items-center">
+            {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
+            {% if status_filter %}<input type="hidden" name="status" value="{{ status_filter }}">{% endif %}
+            <div class="relative">
+              <select name="sort" onchange="this.form.submit()" class="appearance-none bg-[#A33C08] text-white px-6 py-2.5 pr-8 text-[0.6rem] font-black uppercase tracking-[0.16em] cursor-pointer outline-none border-none hover:bg-black transition-colors shadow-xs">
+                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>SORT: NEWEST</option>
+                <option value="discount_desc" {% if sort_by == 'discount_desc' %}selected{% endif %}>SORT: HIGHEST DISCOUNT</option>
+                <option value="discount_asc" {% if sort_by == 'discount_asc' %}selected{% endif %}>SORT: LOWEST DISCOUNT</option>
+                <option value="name_asc" {% if sort_by == 'name_asc' %}selected{% endif %}>SORT: NAME (A - Z)</option>
+                <option value="oldest" {% if sort_by == 'oldest' %}selected{% endif %}>SORT: OLDEST</option>
+              </select>
+              <svg class="w-3 h-3 text-white absolute right-3 top-3 pointer-events-none" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+              </svg>
+            </div>
+          </form>
+
+          <!-- Add Offer Button -->
+          <button type="button" onclick="openAddOfferModal()" class="px-6 py-2.5 bg-[#1A1A1A] text-white text-[0.6rem] font-black uppercase tracking-[0.18em] hover:bg-[#A33C08] transition-colors cursor-pointer flex items-center gap-2 shadow-xs border-none">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+            <span>ADD PRODUCT OFFER</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- METRICS SUMMARY CARDS -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 shrink-0">
+        <div class="bg-white border border-[#EAE3DC] p-5 shadow-xs flex items-center justify-between">
+          <div>
+            <p class="text-[0.52rem] font-extrabold uppercase tracking-[0.18em] text-gray-400 mb-1">TOTAL PRODUCT OFFERS</p>
+            <p class="text-2xl font-black text-[#1A1A1A] leading-none">{{ total_offers }}</p>
+          </div>
+          <div class="w-10 h-10 bg-[#FAF6F3] rounded-full flex items-center justify-center text-[#A33C08]">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-white border border-[#EAE3DC] p-5 shadow-xs flex items-center justify-between">
+          <div>
+            <p class="text-[0.52rem] font-extrabold uppercase tracking-[0.18em] text-gray-400 mb-1">ACTIVE CAMPAIGNS</p>
+            <p class="text-2xl font-black text-emerald-600 leading-none">{{ active_offers }}</p>
+          </div>
+          <div class="w-10 h-10 bg-emerald-50 rounded-full flex items-center justify-center text-emerald-600">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+
+        <div class="bg-white border border-[#EAE3DC] p-5 shadow-xs flex items-center justify-between">
+          <div>
+            <p class="text-[0.52rem] font-extrabold uppercase tracking-[0.18em] text-gray-400 mb-1">EXPIRING WITHIN 7 DAYS</p>
+            <p class="text-2xl font-black text-amber-600 leading-none">{{ expiring_soon }}</p>
+          </div>
+          <div class="w-10 h-10 bg-amber-50 rounded-full flex items-center justify-center text-amber-600">
+            <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- SEARCH & STATUS FILTER PANEL -->
+      <div id="filter-panel" class="{% if not search_query and not status_filter %}hidden{% endif %} bg-white border border-[#EAE3DC] p-5 shadow-xs transition-all shrink-0">
+        <form action="{% url 'admin_offers' %}" method="GET" class="flex flex-col gap-4">
+          {% if sort_by %}<input type="hidden" name="sort" value="{{ sort_by }}">{% endif %}
+          
+          <div class="flex items-center gap-2">
+            <div class="relative flex-1">
+              <input type="text" name="search" value="{{ search_query }}" placeholder="SEARCH BY OFFER NAME OR DESCRIPTION..."
+                     class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2.5 pl-10 pr-4 text-xs font-sans uppercase text-[#1A1A1A] placeholder-gray-400 outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+              <svg class="w-4 h-4 text-gray-400 absolute left-3.5 top-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
+            <button type="submit" class="px-6 py-2.5 bg-[#A33C08] text-white text-[0.62rem] font-bold uppercase tracking-wider hover:bg-black transition-colors cursor-pointer border-none">
+              SEARCH
+            </button>
+            {% if search_query or status_filter %}
+            <a href="{% url 'admin_offers' %}" class="px-4 py-2.5 bg-gray-100 text-gray-600 text-[0.62rem] font-bold uppercase tracking-wider hover:bg-gray-200 transition-colors no-underline">
+              RESET
+            </a>
+            {% endif %}
+          </div>
+
+          <!-- Filter Pills -->
+          <div class="flex flex-wrap items-center gap-2 pt-2 border-t border-[#F0EBE6]">
+            <span class="text-[0.52rem] font-black uppercase tracking-[0.16em] text-gray-400 mr-2">STATUS:</span>
+            <a href="{% url 'admin_offers' %}?{% if search_query %}search={{ search_query }}&{% endif %}{% if sort_by %}sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 text-[0.58rem] font-bold uppercase tracking-wider border no-underline transition-colors {% if not status_filter %}bg-[#1A1A1A] text-white border-[#1A1A1A]{% else %}bg-white text-gray-600 border-gray-200 hover:border-gray-400{% endif %}">
+              ALL
+            </a>
+            <a href="{% url 'admin_offers' %}?status=ACTIVE{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 text-[0.58rem] font-bold uppercase tracking-wider border no-underline transition-colors {% if status_filter == 'ACTIVE' %}bg-emerald-600 text-white border-emerald-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-gray-400{% endif %}">
+              ACTIVE
+            </a>
+            <a href="{% url 'admin_offers' %}?status=SCHEDULED{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 text-[0.58rem] font-bold uppercase tracking-wider border no-underline transition-colors {% if status_filter == 'SCHEDULED' %}bg-blue-600 text-white border-blue-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-gray-400{% endif %}">
+              SCHEDULED
+            </a>
+            <a href="{% url 'admin_offers' %}?status=DISABLED{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 text-[0.58rem] font-bold uppercase tracking-wider border no-underline transition-colors {% if status_filter == 'DISABLED' %}bg-gray-700 text-white border-gray-700{% else %}bg-white text-gray-600 border-gray-200 hover:border-gray-400{% endif %}">
+              DISABLED
+            </a>
+            <a href="{% url 'admin_offers' %}?status=EXPIRED{% if search_query %}&search={{ search_query }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 text-[0.58rem] font-bold uppercase tracking-wider border no-underline transition-colors {% if status_filter == 'EXPIRED' %}bg-red-600 text-white border-red-600{% else %}bg-white text-gray-600 border-gray-200 hover:border-gray-400{% endif %}">
+              EXPIRED
+            </a>
+          </div>
+        </form>
+      </div>
+
+      <!-- OFFERS TABLE -->
+      <div class="bg-white border border-[#EAE3DC] shadow-xs overflow-hidden flex flex-col flex-1">
+        <div class="overflow-x-auto flex-1">
+          <table class="w-full text-left border-collapse">
+            <thead>
+              <tr class="bg-[#FAF6F3] border-b border-[#EAE3DC]">
+                <th class="py-3.5 px-5 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24]">OFFER CAMPAIGN</th>
+                <th class="py-3.5 px-4 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24]">DISCOUNT</th>
+                <th class="py-3.5 px-4 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24]">ASSIGNED PRODUCTS</th>
+                <th class="py-3.5 px-4 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24]">VALIDITY WINDOW</th>
+                <th class="py-3.5 px-4 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24] text-center">STATUS</th>
+                <th class="py-3.5 px-4 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24] text-center">ACTIVE TOGGLE</th>
+                <th class="py-3.5 px-5 text-[0.55rem] font-extrabold uppercase tracking-[0.2em] text-[#332A24] text-right">ACTIONS</th>
+              </tr>
+            </thead>
+            <tbody class="divide-y divide-[#F0EBE6]">
+              {% for offer in offers %}
+              <tr class="hover:bg-[#FCF9F7] transition-colors group">
+                <!-- Name & Description -->
+                <td class="py-4 px-5 align-middle">
+                  <div class="flex items-center gap-3">
+                    <div class="w-8 h-8 bg-[#FAF2ED] text-[#A33C08] flex items-center justify-center font-black text-xs shrink-0 border border-[#F0DFD5]">
+                      %
+                    </div>
+                    <div>
+                      <p class="text-[0.78rem] font-black uppercase text-[#1A1A1A] tracking-[0.04em] leading-tight mb-0.5">{{ offer.name }}</p>
+                      <p class="text-[0.58rem] text-gray-500 font-medium leading-snug line-clamp-1 max-w-xs">{{ offer.description|default:"No description provided." }}</p>
+                    </div>
+                  </div>
+                </td>
+
+                <!-- Discount -->
+                <td class="py-4 px-4 align-middle">
+                  <span class="inline-flex items-center px-3 py-1 bg-[#FDEEE9] text-[#A33C08] border border-[#F5D5C8] text-[0.68rem] font-black tracking-wider">
+                    {{ offer.discount_percentage }}% OFF
+                  </span>
+                </td>
+
+                <!-- Assigned Products -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="flex flex-col">
+                    <span class="text-[0.68rem] font-bold text-[#1A1A1A]">{{ offer.products_count }} Product{{ offer.products_count|pluralize }}</span>
+                    {% if offer.products_count > 0 %}
+                    <span class="text-[0.52rem] text-gray-400 font-medium line-clamp-1 max-w-[200px]" title="{% for p in offer.products.all %}{{ p.name }}{% if not forloop.last %}, {% endif %}{% endfor %}">
+                      {% for p in offer.products.all|slice:":2" %}
+                        {{ p.name }}{% if not forloop.last %}, {% endif %}
+                      {% endfor %}
+                      {% if offer.products_count > 2 %}...{% endif %}
+                    </span>
+                    {% else %}
+                    <span class="text-[0.52rem] text-amber-600 font-bold uppercase tracking-wider">Unassigned</span>
+                    {% endif %}
+                  </div>
+                </td>
+
+                <!-- Validity Window -->
+                <td class="py-4 px-4 align-middle">
+                  <div class="text-[0.6rem] font-semibold text-gray-600 flex flex-col gap-0.5">
+                    <span>From: {{ offer.start_date|date:"d M Y"|default:"Immediate" }}</span>
+                    <span>To: <strong class="text-[#1A1A1A]">{{ offer.end_date|date:"d M Y"|default:"No Expiry" }}</strong></span>
+                  </div>
+                </td>
+
+                <!-- Status Badge -->
+                <td class="py-4 px-4 align-middle text-center">
+                  {% if offer.status_code == 'ACTIVE' %}
+                    <span class="inline-block px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider bg-emerald-100 text-emerald-700 border border-emerald-300">ACTIVE</span>
+                  {% elif offer.status_code == 'SCHEDULED' %}
+                    <span class="inline-block px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider bg-blue-100 text-blue-700 border border-blue-300">SCHEDULED</span>
+                  {% elif offer.status_code == 'DISABLED' %}
+                    <span class="inline-block px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider bg-gray-100 text-gray-600 border border-gray-300">DISABLED</span>
+                  {% else %}
+                    <span class="inline-block px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-wider bg-red-100 text-red-700 border border-red-300">EXPIRED</span>
+                  {% endif %}
+                </td>
+
+                <!-- Active Toggle Button (Round Style) -->
+                <td class="py-4 px-4 align-middle text-center">
+                  <button type="button"
+                    onclick='openToggleOfferModal({{ offer.id }}, "{{ offer.name|escapejs }}", {% if offer.is_active %}true{% else %}false{% endif %})'
+                    title="{% if offer.is_active %}Click to Disable Offer{% else %}Click to Enable Offer{% endif %}"
+                    class="w-7 h-7 rounded-full border transition-colors inline-flex items-center justify-center cursor-pointer {% if offer.is_active %}border-[#D5C9BE] text-[#332A24] hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08]{% else %}border-red-200 text-red-600 bg-red-50 hover:bg-red-600 hover:text-white hover:border-red-600{% endif %}">
+                    {% if offer.is_active %}
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+                      </svg>
+                    {% else %}
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/>
+                      </svg>
+                    {% endif %}
+                  </button>
+                </td>
+
+                <!-- Actions -->
+                <td class="py-4 px-5 align-middle text-right">
+                  <div class="inline-flex items-center gap-1.5">
+                    <!-- Edit Button -->
+                    <button type="button"
+                      onclick='openEditOfferModal({{ offer.id }}, "{{ offer.name|escapejs }}", "{{ offer.description|escapejs }}", {{ offer.discount_percentage }}, "{{ offer.start_date|date:"Y-m-d"|default:"" }}", "{{ offer.end_date|date:"Y-m-d"|default:"" }}", {% if offer.is_active %}true{% else %}false{% endif %}, [{% for p in offer.products.all %}{{ p.id }}{% if not forloop.last %},{% endif %}{% endfor %}])'
+                      class="w-7 h-7 rounded-full border border-[#D5C9BE] bg-white text-gray-700 hover:bg-[#A33C08] hover:text-white hover:border-[#A33C08] transition-colors inline-flex items-center justify-center cursor-pointer shadow-2xs"
+                      title="Edit Offer">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                      </svg>
+                    </button>
+
+                    <!-- Delete Button -->
+                    <button type="button"
+                      onclick='openDeleteOfferModal({{ offer.id }}, "{{ offer.name|escapejs }}")'
+                      class="w-7 h-7 rounded-full border border-[#D5C9BE] bg-white text-gray-700 hover:bg-red-600 hover:text-white hover:border-red-600 transition-colors inline-flex items-center justify-center cursor-pointer shadow-2xs"
+                      title="Delete Offer">
+                      <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                      </svg>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+              {% empty %}
+              <tr>
+                <td colspan="7" class="py-12 text-center text-gray-400">
+                  <div class="flex flex-col items-center justify-center gap-2">
+                    <svg class="w-10 h-10 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <p class="text-sm font-bold uppercase tracking-wider text-gray-500">No product offers found</p>
+                    <p class="text-xs text-gray-400">Click "ADD PRODUCT OFFER" above to launch your first promotional offer.</p>
+                  </div>
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <!-- PAGINATION BAR -->
+        {% if page_obj.has_other_pages %}
+        <div class="p-4 border-t border-[#EAE3DC] bg-[#FAF6F3] flex items-center justify-between shrink-0">
+          <span class="text-[0.6rem] font-bold uppercase tracking-wider text-gray-500">
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+          </span>
+          <div class="flex items-center gap-1.5">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 bg-white border border-[#D5C9BE] text-[#1A1A1A] text-xs font-bold hover:bg-[#A33C08] hover:text-white transition-colors no-underline">Prev</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+              {% if page_obj.number == num %}
+                <span class="px-3 py-1 bg-[#A33C08] text-white text-xs font-bold border border-[#A33C08]">{{ num }}</span>
+              {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <a href="?page={{ num }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+                   class="px-3 py-1 bg-white border border-[#D5C9BE] text-[#1A1A1A] text-xs font-bold hover:bg-gray-100 transition-colors no-underline">{{ num }}</a>
+              {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}{% if status_filter %}&status={{ status_filter }}{% endif %}{% if sort_by %}&sort={{ sort_by }}{% endif %}"
+               class="px-3 py-1 bg-white border border-[#D5C9BE] text-[#1A1A1A] text-xs font-bold hover:bg-[#A33C08] hover:text-white transition-colors no-underline">Next</a>
+            {% endif %}
+          </div>
+        </div>
+        {% endif %}
+      </div>
+
+    </main>
+  </div>
+</div><!-- ================= ADD OFFER MODAL ================= -->
+<div id="add-offer-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white border border-[#EAE3DC] w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl animate-fade-in">
+    <!-- Modal Header -->
+    <div class="px-6 py-4 border-b border-[#EAE3DC] flex items-center justify-between bg-[#FAF6F3]">
+      <div>
+        <h3 class="text-lg font-black uppercase tracking-tight text-[#1A1A1A] m-0">CREATE PRODUCT OFFER</h3>
+        <p class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-[#A33C08] mt-0.5">LAUNCH A PRODUCT DISCOUNT CAMPAIGN</p>
+      </div>
+      <button type="button" onclick="closeAddOfferModal()" class="text-gray-400 hover:text-[#1A1A1A] cursor-pointer">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <!-- Modal Form -->
+    <form id="add-offer-form" action="{% url 'admin_add_offer' %}" method="POST" onsubmit="return validateAddOfferForm(event)" class="p-6 overflow-y-auto flex flex-col gap-4 text-left">
+      {% csrf_token %}
+
+      <div>
+        <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Offer Name *</label>
+        <input type="text" name="name" id="add-name" required placeholder="E.G. NEWYEAR_SPECIAL_15 OR STRING_FEST" maxlength="100"
+               class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-bold uppercase text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+        <p id="add-name-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Discount Percentage (%) *</label>
+          <div class="relative">
+            <input type="number" name="discount_percentage" id="add-discount" min="1" max="99" step="1" required placeholder="15"
+                   class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-bold text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+            <span class="absolute right-3 top-2 text-xs font-bold text-gray-400">%</span>
+          </div>
+          <p id="add-discount-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+        <div class="flex items-center pt-6">
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_active" checked class="w-4 h-4 accent-[#A33C08] cursor-pointer">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#1A1A1A]">Is Active Immediately</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Start Date (Optional)</label>
+          <input type="date" name="start_date" id="add-start-date" min="{{ today_str }}"
+                 oninput="syncDateConstraints('add')" onchange="syncDateConstraints('add')"
+                 class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-sans text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all cursor-pointer">
+          <p id="add-start-date-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+        <div>
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Expiry Date (Optional)</label>
+          <input type="date" name="end_date" id="add-end-date" min="{{ today_str }}"
+                 oninput="syncDateConstraints('add')" onchange="syncDateConstraints('add')"
+                 class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-sans text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all cursor-pointer">
+          <p id="add-end-date-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block">Description (Optional)</label>
+          <span id="add-description-counter" class="text-[0.5rem] font-bold text-gray-400">0/500</span>
+        </div>
+        <textarea name="description" id="add-description" rows="3" maxlength="500" placeholder="Campaign details, customer messaging..."
+                  oninput="updateCharCounter('add')"
+                  style="resize: none !important;"
+                  class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-medium text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all resize-none"></textarea>
+        <p id="add-description-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+      </div>
+
+      <!-- Assign Products -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block">Assign Products (Select Applicable)</label>
+          <div class="flex items-center gap-2">
+            <span id="add-products-count" class="text-[0.55rem] font-bold text-[#A33C08] tracking-wider uppercase">0 SELECTED</span>
+            <span class="text-gray-300">|</span>
+            <button type="button" onclick="clearOfferProductSelection('add')" class="text-[0.52rem] font-bold text-gray-500 hover:text-[#A33C08] uppercase cursor-pointer transition-colors">Clear</button>
+          </div>
+        </div>
+
+        <!-- Product Search Box -->
+        <div class="relative mb-2">
+          <input type="text" id="add-product-search" placeholder="Search products by name or category..."
+                 oninput="filterOfferProducts('add')"
+                 class="w-full pl-8 pr-8 py-1.5 bg-[#FAF6F3] border border-[#E0D5C9] text-xs font-medium text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <button type="button" id="add-product-search-clear" onclick="clearOfferProductSearch('add')"
+                  class="absolute right-2.5 top-1 text-gray-400 hover:text-gray-700 hidden cursor-pointer text-sm font-bold leading-none p-1">
+            &times;
+          </button>
+        </div>
+
+        <!-- Product Checklist -->
+        <div id="add-products-container" class="max-h-44 overflow-y-auto border border-[#E0D5C9] p-2 bg-[#FAF6F3] flex flex-col gap-1 divide-y divide-gray-200/50">
+          {% for p in all_products %}
+          <label class="add-product-item flex items-center justify-between py-1 px-1.5 cursor-pointer hover:bg-white text-left select-none transition-colors"
+                 data-product-name="{{ p.name|lower }}"
+                 data-category-name="{{ p.category.name|lower|default:'' }}">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="products" value="{{ p.id }}" class="add-product-checkbox accent-[#A33C08] cursor-pointer"
+                     onchange="updateOfferProductCount('add')">
+              <span class="text-[0.68rem] font-bold text-[#1A1A1A] uppercase">{{ p.name }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              {% if p.category %}
+              <span class="text-[0.55rem] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-1.5 py-0.5 rounded-2xs">{{ p.category.name }}</span>
+              {% endif %}
+              <span class="text-[0.65rem] text-gray-500 font-mono font-bold">₹{{ p.price }}</span>
+            </div>
+          </label>
+          {% empty %}
+          <p class="text-xs text-gray-400 text-center py-4 m-0">No active products found.</p>
+          {% endfor %}
+          <p id="add-products-empty" class="text-xs text-gray-400 text-center py-4 m-0 hidden">No products matching search.</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-4 border-t border-[#EAE3DC] flex items-center justify-end gap-3 mt-2">
+        <button type="button" onclick="closeAddOfferModal()" class="px-5 py-2 border border-[#D5C9BE] text-gray-600 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 cursor-pointer">
+          CANCEL
+        </button>
+        <button type="submit" class="px-6 py-2 bg-[#A33C08] text-white text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors cursor-pointer border-none">
+          CREATE OFFER
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= EDIT OFFER MODAL ================= -->
+<div id="edit-offer-modal" class="fixed inset-0 bg-black/60 z-50 hidden flex items-center justify-center p-4">
+  <div class="bg-white border border-[#EAE3DC] w-full max-w-xl max-h-[90vh] flex flex-col shadow-2xl animate-fade-in">
+    <div class="px-6 py-4 border-b border-[#EAE3DC] flex items-center justify-between bg-[#FAF6F3]">
+      <div>
+        <h3 class="text-lg font-black uppercase tracking-tight text-[#1A1A1A] m-0">EDIT PRODUCT OFFER</h3>
+        <p class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-[#A33C08] mt-0.5" id="edit-modal-subtitle">UPDATE OFFER PARAMETERS</p>
+      </div>
+      <button type="button" onclick="closeEditOfferModal()" class="text-gray-400 hover:text-[#1A1A1A] cursor-pointer">
+        <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+
+    <form id="edit-offer-form" method="POST" onsubmit="return validateEditOfferForm(event)" class="p-6 overflow-y-auto flex flex-col gap-4 text-left">
+      {% csrf_token %}
+
+      <div>
+        <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Offer Name *</label>
+        <input type="text" name="name" id="edit-name" required maxlength="100"
+               class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-bold uppercase text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+        <p id="edit-name-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Discount Percentage (%) *</label>
+          <div class="relative">
+            <input type="number" name="discount_percentage" id="edit-discount" min="1" max="99" step="1" required
+                   class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-bold text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+            <span class="absolute right-3 top-2 text-xs font-bold text-gray-400">%</span>
+          </div>
+          <p id="edit-discount-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+        <div class="flex items-center pt-6">
+          <label class="inline-flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="is_active" id="edit-active" class="w-4 h-4 accent-[#A33C08] cursor-pointer">
+            <span class="text-xs font-bold uppercase tracking-wider text-[#1A1A1A]">Is Active</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Start Date (Optional)</label>
+          <input type="date" name="start_date" id="edit-start-date" min="{{ today_str }}"
+                 oninput="syncDateConstraints('edit')" onchange="syncDateConstraints('edit')"
+                 class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-sans text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all cursor-pointer">
+          <p id="edit-start-date-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+        <div>
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block mb-1">Expiry Date (Optional)</label>
+          <input type="date" name="end_date" id="edit-end-date" min="{{ today_str }}"
+                 oninput="syncDateConstraints('edit')" onchange="syncDateConstraints('edit')"
+                 class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-sans text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all cursor-pointer">
+          <p id="edit-end-date-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+      </div>
+
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block">Description (Optional)</label>
+          <span id="edit-description-counter" class="text-[0.5rem] font-bold text-gray-400">0/500</span>
+        </div>
+        <textarea name="description" id="edit-description" rows="3" maxlength="500"
+                  oninput="updateCharCounter('edit')"
+                  style="resize: none !important;"
+                  class="w-full bg-[#FAF6F3] border border-[#E0D5C9] py-2 px-3 text-xs font-medium text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all resize-none"></textarea>
+        <p id="edit-description-error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+      </div>
+
+      <!-- Assign Products -->
+      <div>
+        <div class="flex items-center justify-between mb-1.5">
+          <label class="text-[0.55rem] font-bold uppercase tracking-[0.16em] text-gray-500 block">Assigned Products</label>
+          <div class="flex items-center gap-2">
+            <span id="edit-products-count" class="text-[0.55rem] font-bold text-[#A33C08] tracking-wider uppercase">0 SELECTED</span>
+            <span class="text-gray-300">|</span>
+            <button type="button" onclick="clearOfferProductSelection('edit')" class="text-[0.52rem] font-bold text-gray-500 hover:text-[#A33C08] uppercase cursor-pointer transition-colors">Clear</button>
+          </div>
+        </div>
+
+        <!-- Product Search Box -->
+        <div class="relative mb-2">
+          <input type="text" id="edit-product-search" placeholder="Search products by name or category..."
+                 oninput="filterOfferProducts('edit')"
+                 class="w-full pl-8 pr-8 py-1.5 bg-[#FAF6F3] border border-[#E0D5C9] text-xs font-medium text-[#1A1A1A] outline-none focus:border-[#A33C08] focus:bg-white transition-all">
+          <svg class="w-3.5 h-3.5 text-gray-400 absolute left-2.5 top-2.5 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+          </svg>
+          <button type="button" id="edit-product-search-clear" onclick="clearOfferProductSearch('edit')"
+                  class="absolute right-2.5 top-1 text-gray-400 hover:text-gray-700 hidden cursor-pointer text-sm font-bold leading-none p-1">
+            &times;
+          </button>
+        </div>
+
+        <!-- Product Checklist -->
+        <div id="edit-products-container" class="max-h-44 overflow-y-auto border border-[#E0D5C9] p-2 bg-[#FAF6F3] flex flex-col gap-1 divide-y divide-gray-200/50">
+          {% for p in all_products %}
+          <label class="edit-product-item flex items-center justify-between py-1 px-1.5 cursor-pointer hover:bg-white text-left select-none transition-colors"
+                 data-product-name="{{ p.name|lower }}"
+                 data-category-name="{{ p.category.name|lower|default:'' }}">
+            <div class="flex items-center gap-2">
+              <input type="checkbox" name="products" value="{{ p.id }}" class="edit-product-checkbox accent-[#A33C08] cursor-pointer"
+                     onchange="updateOfferProductCount('edit')">
+              <span class="text-[0.68rem] font-bold text-[#1A1A1A] uppercase">{{ p.name }}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              {% if p.category %}
+              <span class="text-[0.55rem] font-bold text-gray-400 uppercase tracking-wider bg-gray-100 px-1.5 py-0.5 rounded-2xs">{{ p.category.name }}</span>
+              {% endif %}
+              <span class="text-[0.65rem] text-gray-500 font-mono font-bold">₹{{ p.price }}</span>
+            </div>
+          </label>
+          {% endfor %}
+          <p id="edit-products-empty" class="text-xs text-gray-400 text-center py-4 m-0 hidden">No products matching search.</p>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="pt-4 border-t border-[#EAE3DC] flex items-center justify-end gap-3 mt-2">
+        <button type="button" onclick="closeEditOfferModal()" class="px-5 py-2 border border-[#D5C9BE] text-gray-600 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 cursor-pointer">
+          CANCEL
+        </button>
+        <button type="submit" class="px-6 py-2 bg-[#A33C08] text-white text-xs font-bold uppercase tracking-wider hover:bg-black transition-colors cursor-pointer border-none">
+          SAVE CHANGES
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= DELETE CONFIRMATION MODAL ================= -->
+<div id="delete-offer-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
+  <div id="delete-offer-modal-content" class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+      <div>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 class="text-xl font-black uppercase tracking-wider text-[#1a1a1a] m-0">Delete Offer</h3>
+      </div>
+      <button type="button" onclick="closeDeleteOfferModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+    
+    <p class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed">
+      Are you sure you want to delete <strong id="delete-offer-name" class="text-[#1a1a1a]"></strong>? Any linked products will revert to standard pricing or category offers.
+    </p>
+
+    <form id="delete-offer-form" method="POST" class="m-0">
+      {% csrf_token %}
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+        <button type="button" onclick="closeDeleteOfferModal()"
+          class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
+          Cancel
+        </button>
+        <button type="submit"
+          class="px-6 py-3 rounded-xl bg-red-600 text-white text-xs font-black uppercase tracking-wider hover:bg-red-700 cursor-pointer shadow-md font-sans border-none">
+          Confirm Delete
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ================= TOGGLE OFFER CONFIRMATION MODAL ================= -->
+<div id="toggle-offer-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[9999] flex items-center justify-center hidden opacity-0 pointer-events-none transition-opacity duration-250 p-4">
+  <div id="toggle-offer-modal-content" class="bg-white rounded-3xl max-w-md w-full p-8 shadow-2xl relative border border-gray-100 font-sans transform scale-95 transition-transform duration-250">
+    <div class="flex items-center justify-between border-b border-gray-100 pb-4 mb-4">
+      <div>
+        <p class="text-[0.62rem] font-bold tracking-[0.2em] uppercase text-gray-400 m-0">CONFIRMATION REQUIRED</p>
+        <h3 id="toggle-offer-title" class="text-xl font-black uppercase tracking-wider text-[#1a1a1a] m-0">Offer Status Update</h3>
+      </div>
+      <button type="button" onclick="closeToggleOfferModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
+    </div>
+    
+    <p id="toggle-offer-desc" class="text-xs font-semibold text-gray-600 mb-6 leading-relaxed">
+      Are you sure you want to change the status of this offer?
+    </p>
+    
+    <form id="toggle-offer-form" method="POST" class="m-0">
+      {% csrf_token %}
+      <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
+        <button type="button" onclick="closeToggleOfferModal()"
+          class="px-6 py-3 rounded-xl border border-gray-200 text-xs font-bold uppercase tracking-wider text-gray-600 hover:bg-gray-50 cursor-pointer font-sans">
+          Cancel
+        </button>
+        <button id="toggle-offer-submit-btn" type="submit"
+          class="px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans border-none">
+          Confirm
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+const TODAY_STR = "{{ today_str|default:'' }}";
+let editOriginalStartDate = null;
+
+function getTodayString() {
+  const d = new Date();
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  const clientToday = `${year}-${month}-${day}`;
+  if (TODAY_STR && TODAY_STR > clientToday) return TODAY_STR;
+  return clientToday;
+}
+
+function syncDateConstraints(prefix) {
+  const today = getTodayString();
+  const startInput = document.getElementById(`${prefix}-start-date`);
+  const endInput = document.getElementById(`${prefix}-end-date`);
+  if (!startInput || !endInput) return;
+
+  // 1. Enforce min attribute on start date
+  if (prefix === 'edit' && editOriginalStartDate && editOriginalStartDate < today && startInput.value === editOriginalStartDate) {
+    startInput.min = editOriginalStartDate;
+  } else {
+    startInput.min = today;
+  }
+
+  // 2. Enforce min attribute on expiry date (must be at least today, and at least start date)
+  const minExpiry = (startInput.value && startInput.value > today) ? startInput.value : today;
+  endInput.min = minExpiry;
+
+  // 3. Real-time validation checks for start date
+  if (startInput.value) {
+    if (prefix === 'edit' && editOriginalStartDate && startInput.value === editOriginalStartDate) {
+      // Untouched existing start date
+      clearFieldError(`${prefix}-start-date`);
+    } else if (startInput.value < today) {
+      showFieldError(`${prefix}-start-date`, "Start date cannot be in the past.");
+    } else {
+      clearFieldError(`${prefix}-start-date`);
+    }
+  } else {
+    clearFieldError(`${prefix}-start-date`);
+  }
+
+  // 4. Real-time validation checks for expiry date
+  if (endInput.value) {
+    if (endInput.value < today) {
+      showFieldError(`${prefix}-end-date`, "Expiry date cannot be in the past.");
+    } else if (startInput.value && endInput.value < startInput.value) {
+      showFieldError(`${prefix}-end-date`, "Expiry date cannot be earlier than start date.");
+    } else {
+      clearFieldError(`${prefix}-end-date`);
+    }
+  } else {
+    clearFieldError(`${prefix}-end-date`);
+  }
+}
+
+function updateCharCounter(prefix) {
+  const textarea = document.getElementById(`${prefix}-description`);
+  const counter = document.getElementById(`${prefix}-description-counter`);
+  if (textarea && counter) {
+    const len = textarea.value.length;
+    counter.textContent = `${len}/500`;
+    if (len > 500) {
+      counter.classList.add('text-red-600');
+      showFieldError(`${prefix}-description`, "Description cannot exceed 500 characters.");
+    } else {
+      counter.classList.remove('text-red-600');
+      clearFieldError(`${prefix}-description`);
+    }
+  }
+}
+
+function showFieldError(fieldId, message) {
+  const errorEl = document.getElementById(`${fieldId}-error`);
+  const inputEl = document.getElementById(fieldId);
+  if (errorEl) {
+    errorEl.textContent = message;
+    errorEl.classList.remove('hidden');
+  }
+  if (inputEl) {
+    inputEl.classList.add('border-red-500', 'bg-red-50/20');
+    inputEl.classList.remove('border-[#E0D5C9]');
+  }
+}
+
+function clearFieldError(fieldId) {
+  const errorEl = document.getElementById(`${fieldId}-error`);
+  const inputEl = document.getElementById(fieldId);
+  if (errorEl) {
+    errorEl.textContent = '';
+    errorEl.classList.add('hidden');
+  }
+  if (inputEl) {
+    inputEl.classList.remove('border-red-500', 'bg-red-50/20');
+    inputEl.classList.add('border-[#E0D5C9]');
+  }
+}
+
+function validateOfferForm(prefix) {
+  let isValid = true;
+  let firstInvalidEl = null;
+  const today = getTodayString();
+
+  // Clear previous errors
+  [`${prefix}-name`, `${prefix}-discount`, `${prefix}-start-date`, `${prefix}-end-date`, `${prefix}-description`].forEach(id => clearFieldError(id));
+
+  // 1. Offer Name Validation
+  const nameInput = document.getElementById(`${prefix}-name`);
+  const nameVal = nameInput ? nameInput.value.trim() : '';
+  if (!nameVal) {
+    showFieldError(`${prefix}-name`, "Offer name is required.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = nameInput;
+  } else if (nameVal.length < 3) {
+    showFieldError(`${prefix}-name`, "Offer name must be at least 3 characters long.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = nameInput;
+  } else if (nameVal.length > 100) {
+    showFieldError(`${prefix}-name`, "Offer name cannot exceed 100 characters.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = nameInput;
+  } else if (!/^[A-Za-z0-9_\-\s%]+$/.test(nameVal)) {
+    showFieldError(`${prefix}-name`, "Only letters, numbers, spaces, underscores, hyphens, and % are allowed.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = nameInput;
+  }
+
+  // 2. Discount Percentage Validation
+  const discountInput = document.getElementById(`${prefix}-discount`);
+  const discountVal = discountInput ? discountInput.value.trim() : '';
+  const discountNum = Number(discountVal);
+  if (!discountVal) {
+    showFieldError(`${prefix}-discount`, "Discount percentage is required.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = discountInput;
+  } else if (isNaN(discountNum) || !Number.isInteger(discountNum)) {
+    showFieldError(`${prefix}-discount`, "Discount must be a whole number.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = discountInput;
+  } else if (discountNum < 1 || discountNum > 99) {
+    showFieldError(`${prefix}-discount`, "Discount must be between 1% and 99%.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = discountInput;
+  }
+
+  // 3. Start Date Validation (No Past Dates)
+  const startDateInput = document.getElementById(`${prefix}-start-date`);
+  const startDateVal = startDateInput ? startDateInput.value : '';
+  if (startDateVal) {
+    const isUntouchedEditStart = (prefix === 'edit' && editOriginalStartDate && startDateVal === editOriginalStartDate);
+    if (!isUntouchedEditStart && startDateVal < today) {
+      showFieldError(`${prefix}-start-date`, "Start date cannot be in the past.");
+      isValid = false;
+      if (!firstInvalidEl) firstInvalidEl = startDateInput;
+    }
+  }
+
+  // 4. Expiry Date Validation (No Past Dates & must be >= Start Date)
+  const endDateInput = document.getElementById(`${prefix}-end-date`);
+  const endDateVal = endDateInput ? endDateInput.value : '';
+  if (endDateVal) {
+    if (endDateVal < today) {
+      showFieldError(`${prefix}-end-date`, "Expiry date cannot be in the past.");
+      isValid = false;
+      if (!firstInvalidEl) firstInvalidEl = endDateInput;
+    } else if (startDateVal && endDateVal < startDateVal) {
+      showFieldError(`${prefix}-end-date`, "Expiry date cannot be earlier than start date.");
+      isValid = false;
+      if (!firstInvalidEl) firstInvalidEl = endDateInput;
+    }
+  }
+
+  // 5. Description Validation (Max 500 chars)
+  const descInput = document.getElementById(`${prefix}-description`);
+  const descVal = descInput ? descInput.value : '';
+  if (descVal && descVal.length > 500) {
+    showFieldError(`${prefix}-description`, "Description cannot exceed 500 characters.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = descInput;
+  }
+
+  if (!isValid && firstInvalidEl) {
+    firstInvalidEl.focus();
+  }
+
+  return isValid;
+}
+
+function validateAddOfferForm(e) {
+  if (!validateOfferForm('add')) {
+    e.preventDefault();
+    return false;
+  }
+  return true;
+}
+
+function validateEditOfferForm(e) {
+  if (!validateOfferForm('edit')) {
+    e.preventDefault();
+    return false;
+  }
+  return true;
+}
+
+function toggleFilterPanel() {
+  const panel = document.getElementById('filter-panel');
+  panel.classList.toggle('hidden');
+}
+
+// ================= PRODUCT SEARCH & SELECTION HELPERS =================
+function filterOfferProducts(prefix) {
+  const searchInput = document.getElementById(`${prefix}-product-search`);
+  const clearBtn = document.getElementById(`${prefix}-product-search-clear`);
+  const emptyMsg = document.getElementById(`${prefix}-products-empty`);
+  const query = (searchInput ? searchInput.value : '').toLowerCase().trim();
+
+  if (clearBtn) {
+    clearBtn.classList.toggle('hidden', !query);
+  }
+
+  const items = document.querySelectorAll(`.${prefix}-product-item`);
+  let visibleCount = 0;
+
+  items.forEach(item => {
+    const prodName = item.getAttribute('data-product-name') || '';
+    const catName = item.getAttribute('data-category-name') || '';
+    if (!query || prodName.includes(query) || catName.includes(query)) {
+      item.style.display = 'flex';
+      visibleCount++;
+    } else {
+      item.style.display = 'none';
+    }
+  });
+
+  if (emptyMsg) {
+    emptyMsg.classList.toggle('hidden', visibleCount > 0);
+  }
+}
+
+function clearOfferProductSearch(prefix) {
+  const searchInput = document.getElementById(`${prefix}-product-search`);
+  if (searchInput) {
+    searchInput.value = '';
+    filterOfferProducts(prefix);
+    searchInput.focus();
+  }
+}
+
+function updateOfferProductCount(prefix) {
+  const count = document.querySelectorAll(`.${prefix}-product-checkbox:checked`).length;
+  const el = document.getElementById(`${prefix}-products-count`);
+  if (el) {
+    el.textContent = `${count} SELECTED`;
+  }
+}
+
+function clearOfferProductSelection(prefix) {
+  const checkboxes = document.querySelectorAll(`.${prefix}-product-checkbox`);
+  checkboxes.forEach(cb => {
+    cb.checked = false;
+  });
+  updateOfferProductCount(prefix);
+}
+
+function openAddOfferModal() {
+  const today = getTodayString();
+  const form = document.getElementById('add-offer-form');
+  if (form) form.reset();
+
+  const startDate = document.getElementById('add-start-date');
+  const endDate = document.getElementById('add-end-date');
+  if (startDate) {
+    startDate.min = today;
+    startDate.value = '';
+  }
+  if (endDate) {
+    endDate.min = today;
+    endDate.value = '';
+  }
+
+  // Reset errors and counters
+  ['add-name', 'add-discount', 'add-start-date', 'add-end-date', 'add-description'].forEach(id => clearFieldError(id));
+  updateCharCounter('add');
+
+  // Reset product search and selection
+  clearOfferProductSearch('add');
+  document.querySelectorAll('.add-product-checkbox').forEach(cb => { cb.checked = false; });
+  updateOfferProductCount('add');
+
+  document.getElementById('add-offer-modal').classList.remove('hidden');
+}
+
+function closeAddOfferModal() {
+  document.getElementById('add-offer-modal').classList.add('hidden');
+}
+
+function openEditOfferModal(id, name, description, discount, startDate, endDate, isActive, assignedProductIds) {
+  const form = document.getElementById('edit-offer-form');
+  form.action = `/admin-panel/offers/${id}/edit/`;
+  document.getElementById('edit-name').value = name;
+  document.getElementById('edit-description').value = description;
+  document.getElementById('edit-discount').value = discount;
+  document.getElementById('edit-start-date').value = startDate;
+  document.getElementById('edit-end-date').value = endDate;
+  document.getElementById('edit-active').checked = isActive;
+  document.getElementById('edit-modal-subtitle').textContent = `EDITING: ${name}`;
+
+  editOriginalStartDate = startDate || null;
+
+  const today = getTodayString();
+  const startDateInput = document.getElementById('edit-start-date');
+  const endDateInput = document.getElementById('edit-end-date');
+  
+  if (startDateInput) {
+    startDateInput.min = (startDate && startDate < today) ? startDate : today;
+  }
+  if (endDateInput) {
+    endDateInput.min = startDate ? (startDate > today ? startDate : today) : today;
+  }
+
+  // Reset errors and counters
+  ['edit-name', 'edit-discount', 'edit-start-date', 'edit-end-date', 'edit-description'].forEach(id => clearFieldError(id));
+  updateCharCounter('edit');
+
+  // Reset product search and set checkboxes
+  clearOfferProductSearch('edit');
+  const checkboxes = document.querySelectorAll('.edit-product-checkbox');
+  checkboxes.forEach(cb => {
+    cb.checked = assignedProductIds.includes(parseInt(cb.value));
+  });
+  updateOfferProductCount('edit');
+
+  document.getElementById('edit-offer-modal').classList.remove('hidden');
+}
+
+function closeEditOfferModal() {
+  document.getElementById('edit-offer-modal').classList.add('hidden');
+}
+
+function openDeleteOfferModal(id, name) {
+  const modal = document.getElementById('delete-offer-modal');
+  const content = document.getElementById('delete-offer-modal-content');
+
+  document.getElementById('delete-offer-form').action = `/admin-panel/offers/${id}/delete/`;
+  document.getElementById('delete-offer-name').textContent = name;
+
+  modal.classList.remove('hidden');
+  modal.classList.remove('pointer-events-none');
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+    content.classList.remove('scale-95');
+  }, 10);
+}
+
+function closeDeleteOfferModal() {
+  const modal = document.getElementById('delete-offer-modal');
+  const content = document.getElementById('delete-offer-modal-content');
+
+  modal.classList.add('opacity-0');
+  content.classList.add('scale-95');
+
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    modal.classList.add('pointer-events-none');
+  }, 250);
+}
+
+function openToggleOfferModal(id, name, isActive) {
+  const modal = document.getElementById('toggle-offer-modal');
+  const content = document.getElementById('toggle-offer-modal-content');
+  const form = document.getElementById('toggle-offer-form');
+  const title = document.getElementById('toggle-offer-title');
+  const desc = document.getElementById('toggle-offer-desc');
+  const submitBtn = document.getElementById('toggle-offer-submit-btn');
+
+  form.action = `/admin-panel/offers/${id}/toggle/`;
+
+  if (isActive) {
+    title.textContent = 'Disable Offer?';
+    desc.innerHTML = `Are you sure you want to disable <strong class="text-[#1a1a1a]">${name}</strong>? Any linked products will revert to standard pricing or category offers.`;
+    submitBtn.textContent = 'Confirm Disable';
+    submitBtn.className = 'px-6 py-3 rounded-xl bg-[#A33C08] text-white text-xs font-black uppercase tracking-wider hover:bg-[#852f05] cursor-pointer shadow-md font-sans border-none';
+  } else {
+    title.textContent = 'Enable Offer?';
+    desc.innerHTML = `Are you sure you want to enable <strong class="text-[#1a1a1a]">${name}</strong>? Linked products will immediately begin receiving this discount.`;
+    submitBtn.textContent = 'Confirm Enable';
+    submitBtn.className = 'px-6 py-3 rounded-xl bg-emerald-700 text-white text-xs font-black uppercase tracking-wider hover:bg-emerald-800 cursor-pointer shadow-md font-sans border-none';
+  }
+
+  // Display and trigger fade-in transition matching Users page
+  modal.classList.remove('hidden');
+  modal.classList.remove('pointer-events-none');
+  setTimeout(() => {
+    modal.classList.remove('opacity-0');
+    content.classList.remove('scale-95');
+  }, 10);
+}
+
+function closeToggleOfferModal() {
+  const modal = document.getElementById('toggle-offer-modal');
+  const content = document.getElementById('toggle-offer-modal-content');
+
+  modal.classList.add('opacity-0');
+  content.classList.add('scale-95');
+
+  setTimeout(() => {
+    modal.classList.add('hidden');
+    modal.classList.add('pointer-events-none');
+  }, 250);
+}
+
+// Close modals when clicking outside
+window.addEventListener('click', (e) => {
+  const toggleModal = document.getElementById('toggle-offer-modal');
+  if (e.target === toggleModal) closeToggleOfferModal();
+  const deleteModal = document.getElementById('delete-offer-modal');
+  if (e.target === deleteModal) closeDeleteOfferModal();
+});
+
+// Attach real-time input listeners to clear errors on typing
+document.addEventListener('DOMContentLoaded', () => {
+  ['add', 'edit'].forEach(prefix => {
+    syncDateConstraints(prefix);
+
+    const nameInput = document.getElementById(`${prefix}-name`);
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        if (nameInput.value.trim().length >= 3) clearFieldError(`${prefix}-name`);
+      });
+    }
+
+    const discountInput = document.getElementById(`${prefix}-discount`);
+    if (discountInput) {
+      discountInput.addEventListener('input', () => {
+        const val = Number(discountInput.value);
+        if (!isNaN(val) && val >= 1 && val <= 99) clearFieldError(`${prefix}-discount`);
+      });
+    }
+
+    const startDateInput = document.getElementById(`${prefix}-start-date`);
+    if (startDateInput) {
+      startDateInput.addEventListener('input', () => syncDateConstraints(prefix));
+      startDateInput.addEventListener('change', () => syncDateConstraints(prefix));
+    }
+
+    const endDateInput = document.getElementById(`${prefix}-end-date`);
+    if (endDateInput) {
+      endDateInput.addEventListener('input', () => syncDateConstraints(prefix));
+      endDateInput.addEventListener('change', () => syncDateConstraints(prefix));
+    }
+  });
+});
+</script>
+{% endblock %}

@@ -120,7 +120,7 @@
       <div class="flex border-b border-gray-200 flex-col sm:flex-row px-8 py-6 gap-6 items-center sm:items-start {% if not item.is_available %}bg-red-50/50{% endif %}">
         <div class="w-[140px] h-[140px] shrink-0 bg-[#f7f7f7] border border-gray-200 overflow-hidden relative">
           <img
-            src="{% if item.product.images.all %}{{ item.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
+            src="{% if item.variant and item.variant.images.first %}{{ item.variant.images.first.image.url }}{% elif item.product.images.first %}{{ item.product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1510915361894-db8b60106cb1?w=400&q=80{% endif %}"
             alt="{{ item.product.name }}" class="w-full h-full object-cover {% if not item.is_available %}grayscale opacity-60{% endif %}" />
           {% if not item.is_available %}
           <div class="absolute inset-0 bg-black/40 flex items-center justify-center p-2 text-center">
@@ -131,8 +131,24 @@
         <div class="flex-1 flex flex-col justify-between min-h-[140px] w-full">
           <div class="flex justify-between items-start">
             <div class="text-left">
-              <p class="text-[0.88rem] font-black uppercase tracking-[0.06em] text-brand-dark mb-1">{{ item.product.name }}{% if item.variant %} {{ item.variant.name }}{% endif %}</p>
+              <p class="text-[0.88rem] font-black uppercase tracking-[0.06em] text-brand-dark mb-1">{{ item.product.name }}</p>
+              {% if item.variant %}
+              <div class="flex items-center gap-2 mb-1.5">
+                <span class="w-2.5 h-2.5 rounded-full border border-gray-300 shrink-0" style="background-color: {{ item.variant.color_code }};"></span>
+                <span class="text-[0.62rem] font-bold uppercase tracking-wider text-gray-600">COLOR: {{ item.variant.name }}</span>
+                {% if item.variant.sku %}
+                <span class="text-[0.52rem] font-mono text-gray-400">• SKU: {{ item.variant.sku }}</span>
+                {% endif %}
+              </div>
+              {% endif %}
               <p class="text-[0.62rem] font-bold uppercase tracking-widest text-gray-400">Seller: Zitarra Official / {{ item.product.brand|default:"Zitarra" }}</p>
+              {% if item.has_discount %}
+              <div class="mt-1 flex items-center gap-2">
+                <span class="inline-block px-2 py-0.5 text-[0.52rem] font-black uppercase tracking-wider bg-[#FDEEE9] text-[#A33C08] border border-[#F5D5C8]">
+                  {{ item.discount_percent }}% OFF ({{ item.offer_name|default:"PROMOTIONAL OFFER" }})
+                </span>
+              </div>
+              {% endif %}
               {% if not item.is_available %}
               <span class="inline-block mt-1 px-2.5 py-1 text-[0.6rem] font-black uppercase tracking-wider bg-red-100 border border-red-300 text-red-700 rounded-sm">
                 Product Not Available
@@ -143,7 +159,12 @@
               <span class="inline-block mt-1 px-2 py-0.5 text-[0.55rem] font-bold uppercase bg-amber-100 text-amber-700">Only {{ item.stock }} Left</span>
               {% endif %}
             </div>
-            <p id="item-subtotal-{{ item.id }}" class="text-[0.98rem] font-black {% if not item.is_available %}text-gray-400 line-through{% else %}text-brand-dark{% endif %} whitespace-nowrap">₹{{ item.get_subtotal|floatformat:2 }}</p>
+            <div class="text-right">
+              {% if item.has_discount and item.is_available %}
+              <p class="text-[0.72rem] font-bold text-gray-400 line-through">₹{{ item.get_original_subtotal|floatformat:2 }}</p>
+              {% endif %}
+              <p id="item-subtotal-{{ item.id }}" class="text-[0.98rem] font-black {% if not item.is_available %}text-gray-400 line-through{% else %}text-brand-dark{% endif %} whitespace-nowrap">₹{{ item.get_subtotal|floatformat:2 }}</p>
+            </div>
           </div>
 
           <div class="flex items-center justify-between mt-4">

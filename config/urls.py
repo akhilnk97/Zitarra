@@ -29,6 +29,7 @@ urlpatterns = [
     path('admin-panel/', include('admin_panel.products.urls')),
     path('admin-panel/', include('admin_panel.orders.urls')),
     path('admin-panel/', include('admin_panel.coupons.urls')),
+    path('admin-panel/', include('admin_panel.offers.urls')),
     path('admin-panel/', include('admin_panel.returns.urls')),
     path('admin-panel/', include('admin_panel.sales.urls')),
     path('admin-panel/', include('admin_panel.brands.urls')),

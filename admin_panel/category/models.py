@@ -17,3 +17,13 @@ class Category(models.Model):
 
     def __str__(self):
         return self.name
+
+    @property
+    def is_offer_valid(self):
+        if not self.is_offer_active or not self.discount or self.discount <= 0:
+            return False
+        if self.expiry_date:
+            from django.utils import timezone
+            if self.expiry_date < timezone.now().date():
+                return False
+        return True

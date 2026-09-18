@@ -74,28 +74,18 @@ def add_to_cart(request, product_id):
         except ProductVariant.DoesNotExist:
             variant = None
 
-    # Fallback to nearest variant if base product stock is 0 or if selected variant is out of stock
-    if variant:
-        if variant.stock == 0:
-            alt_variant = ProductVariant.objects.filter(
-                product=product, is_active=True, is_deleted=False, stock__gt=0
-            ).order_by('id').first()
-            if alt_variant:
-                variant = alt_variant
-            elif product.stock > 0:
-                variant = None
-    else:
-        if product.stock == 0:
-            alt_variant = ProductVariant.objects.filter(
-                product=product, is_active=True, is_deleted=False, stock__gt=0
-            ).order_by('id').first()
-            if alt_variant:
-                variant = alt_variant
+    # If product has active variants and none was explicitly passed (e.g. from shop quick-add card), pick the first active in-stock variant
+    active_variants = product.variants.filter(is_active=True, is_deleted=False)
+    if active_variants.exists():
+        if not variant:
+            in_stock_var = active_variants.filter(stock__gt=0).order_by('id').first()
+            variant = in_stock_var or active_variants.first()
 
     available_stock = variant.stock if variant else product.stock
 
     if available_stock == 0:
-        msg = f"'{product.name}' is currently out of stock."
+        item_title = f"{product.name} ({variant.name})" if variant else product.name
+        msg = f"'{item_title}' is currently out of stock."
         if is_ajax(request):
             return JsonResponse({'status': 'error', 'message': msg})
         messages.error(request, msg)
