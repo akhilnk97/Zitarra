@@ -1,5 +1,6 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils import timezone
 
 
 class Category(models.Model):
@@ -23,7 +24,6 @@ class Category(models.Model):
         if not self.is_offer_active or not self.discount or self.discount <= 0:
             return False
         if self.expiry_date:
-            from django.utils import timezone
             if self.expiry_date < timezone.now().date():
                 return False
         return True

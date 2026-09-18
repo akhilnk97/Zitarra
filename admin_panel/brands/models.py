@@ -21,8 +21,6 @@ class Brand(models.Model):
 
     class Meta:
         ordering = ['name']
-        verbose_name = 'Brand'
-        verbose_name_plural = 'Brands'
 
     def save(self, *args, **kwargs):
         if not self.slug:

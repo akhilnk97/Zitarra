@@ -19,53 +19,6 @@ def admin_coupons_list_view(request):
     sort_by = request.GET.get('sort', 'newest').strip()
     page_num = request.GET.get('page', '1').strip()
 
-    # Seed default sample coupons if empty
-    if not Coupon.objects.exists():
-        Coupon.objects.get_or_create(
-            code='FIRSTBUY20',
-            defaults={
-                'campaign_name': 'New User Join',
-                'discount_type': 'PERCENTAGE',
-                'discount_value': Decimal('20.00'),
-                'min_purchase': Decimal('150.00'),
-                'usage_limit': 5,
-                'is_active': True,
-            }
-        )
-        Coupon.objects.get_or_create(
-            code='MAX150OFF',
-            defaults={
-                'campaign_name': 'Tier 2 Promo',
-                'discount_type': 'PERCENTAGE',
-                'discount_value': Decimal('15.00'),
-                'min_purchase': Decimal('1000.00'),
-                'usage_limit': 2,
-                'is_active': True,
-            }
-        )
-        Coupon.objects.get_or_create(
-            code='WELCOME20',
-            defaults={
-                'campaign_name': 'Welcome Gift',
-                'discount_type': 'PERCENTAGE',
-                'discount_value': Decimal('20.00'),
-                'min_purchase': Decimal('500.00'),
-                'usage_limit': 100,
-                'is_active': True,
-            }
-        )
-        Coupon.objects.get_or_create(
-            code='FLAT500',
-            defaults={
-                'campaign_name': 'Festival Special',
-                'discount_type': 'FIXED',
-                'discount_value': Decimal('500.00'),
-                'min_purchase': Decimal('2000.00'),
-                'usage_limit': 50,
-                'is_active': True,
-            }
-        )
-
     coupons_qs = Coupon.objects.all()
 
     if search_query:

@@ -11,6 +11,7 @@ from common.decorators import admin_required
 from common.services import is_ajax
 from .models import ProductOffer
 from admin_panel.products.models import Product
+import re
 
 
 @admin_required
@@ -106,7 +107,6 @@ def admin_add_offer_view(request):
     is_active = request.POST.get('is_active') == 'on' or 'is_active' in request.POST
     product_ids = request.POST.getlist('products')
 
-    # 1. Offer Name Validation
     if not name:
         messages.error(request, "Offer name is required.")
         return redirect('admin_offers')
@@ -124,7 +124,7 @@ def admin_add_offer_view(request):
         messages.error(request, f"An offer named '{name}' already exists.")
         return redirect('admin_offers')
 
-    # 2. Discount Validation
+    # Discount Validation
     try:
         discount = int(discount_str)
         if discount < 1 or discount > 99:
@@ -133,7 +133,6 @@ def admin_add_offer_view(request):
         messages.error(request, "Discount percentage must be an integer between 1% and 99%.")
         return redirect('admin_offers')
 
-    # 3. Dates Validation (No Past Dates)
     today = timezone.now().date()
     start_date = None
     if start_date_str:
@@ -161,7 +160,6 @@ def admin_add_offer_view(request):
         messages.error(request, "Expiry date cannot be earlier than start date.")
         return redirect('admin_offers')
 
-    # 4. Description Validation
     if len(description) > 500:
         messages.error(request, "Description cannot exceed 500 characters.")
         return redirect('admin_offers')
@@ -197,7 +195,6 @@ def admin_edit_offer_view(request, offer_id):
     is_active = request.POST.get('is_active') == 'on' or 'is_active' in request.POST
     product_ids = [int(p) for p in request.POST.getlist('products') if p.isdigit()]
 
-    # 1. Name Validation
     if not name:
         messages.error(request, "Offer name is required.")
         return redirect('admin_offers')
@@ -206,7 +203,6 @@ def admin_edit_offer_view(request, offer_id):
         messages.error(request, "Offer name must be between 3 and 100 characters.")
         return redirect('admin_offers')
 
-    import re
     if not re.match(r'^[a-zA-Z0-9_\-\s%]+$', name):
         messages.error(request, "Offer name can only contain letters, numbers, spaces, underscores, and hyphens.")
         return redirect('admin_offers')
@@ -215,7 +211,6 @@ def admin_edit_offer_view(request, offer_id):
         messages.error(request, f"Another offer named '{name}' already exists.")
         return redirect('admin_offers')
 
-    # 2. Discount Validation
     try:
         discount = int(discount_str)
         if discount < 1 or discount > 99:
@@ -224,7 +219,6 @@ def admin_edit_offer_view(request, offer_id):
         messages.error(request, "Discount percentage must be an integer between 1% and 99%.")
         return redirect('admin_offers')
 
-    # 3. Dates Validation
     today = timezone.now().date()
     start_date = None
     if start_date_str:
@@ -252,7 +246,6 @@ def admin_edit_offer_view(request, offer_id):
         messages.error(request, "Expiry date cannot be earlier than start date.")
         return redirect('admin_offers')
 
-    # 4. Description Validation
     if len(description) > 500:
         messages.error(request, "Description cannot exceed 500 characters.")
         return redirect('admin_offers')
@@ -310,7 +303,7 @@ def admin_delete_offer_view(request, offer_id):
     offer_name = offer.name
 
     with transaction.atomic():
-        # Clear FK from products explicitly (SET_NULL does this, but good practice)
+        # Clear FK from products explicitly
         Product.objects.filter(product_offer=offer).update(product_offer=None)
         offer.delete()
 
