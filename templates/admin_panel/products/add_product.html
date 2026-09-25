@@ -570,6 +570,60 @@
 
   // Intercept submit to pack data
   document.getElementById('add_product_form').addEventListener('submit', function (e) {
+    const nameInput = document.getElementsByName('name')[0];
+    const rawName = nameInput ? nameInput.value : '';
+    const nameVal = rawName.trim();
+    if (!nameVal || nameVal.length < 2) {
+      showCustomAlert("Please enter a valid product name (at least 2 characters).");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (rawName.startsWith(' ') || rawName.endsWith(' ')) {
+      showCustomAlert("Product name cannot start or end with a space.");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (/\s{2,}/.test(rawName)) {
+      showCustomAlert("Product name cannot contain consecutive spaces.");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (/[<>{}]/.test(nameVal)) {
+      showCustomAlert("Product name cannot contain special characters like < > { }.");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+
+    const catInput = document.getElementsByName('category')[0];
+    if (!catInput || !catInput.value) {
+      showCustomAlert("Please select a product category.");
+      if (catInput) catInput.focus();
+      e.preventDefault();
+      return;
+    }
+
+    const priceInput = document.getElementsByName('price')[0];
+    const priceVal = parseFloat(priceInput ? priceInput.value : 0);
+    if (isNaN(priceVal) || priceVal <= 0) {
+      showCustomAlert("Product regular price must be greater than zero.");
+      if (priceInput) priceInput.focus();
+      e.preventDefault();
+      return;
+    }
+
+    const stockInput = document.getElementsByName('stock')[0];
+    const stockVal = parseInt(stockInput ? stockInput.value : -1, 10);
+    if (isNaN(stockVal) || stockVal < 0) {
+      showCustomAlert("Product stock quantity cannot be negative.");
+      if (stockInput) stockInput.focus();
+      e.preventDefault();
+      return;
+    }
+
     if (croppedImages.length < 3) {
       showCustomAlert("You must upload and crop at least 3 images.");
       e.preventDefault();
@@ -582,16 +636,63 @@
       return;
     }
 
-    // Validate variant images counts
+    // Validate variant fields and images counts
     const indicesInput = document.getElementById('variantIndices');
     if (indicesInput && indicesInput.value) {
       const indices = indicesInput.value.split(',');
       for (let i = 0; i < indices.length; i++) {
-        const idx = indices[i];
-        const vNameInput = document.getElementsByName(`variant_name_${idx}`)[0];
-        const vName = vNameInput ? vNameInput.value.trim() : 'Variant';
-        const vImages = variantCroppedImages[idx] || [];
+        const idx = indices[i].trim();
+        if (!idx) continue;
 
+        const vNameInput = document.getElementsByName(`variant_name_${idx}`)[0];
+        const rawVName = vNameInput ? vNameInput.value : '';
+        const vName = rawVName.trim();
+        if (!vName) {
+          showCustomAlert("Variant name is required for all added variants.");
+          if (vNameInput) vNameInput.focus();
+          e.preventDefault();
+          return;
+        }
+        if (rawVName.startsWith(' ') || rawVName.endsWith(' ')) {
+          showCustomAlert(`Variant "${vName}": Variant name cannot start or end with a space.`);
+          if (vNameInput) vNameInput.focus();
+          e.preventDefault();
+          return;
+        }
+        if (/\s{2,}/.test(rawVName)) {
+          showCustomAlert(`Variant "${vName}": Variant name cannot contain consecutive spaces.`);
+          if (vNameInput) vNameInput.focus();
+          e.preventDefault();
+          return;
+        }
+        if (/[<>{}]/.test(vName)) {
+          showCustomAlert(`Variant "${vName}": Variant name cannot contain special characters like < > { }.`);
+          if (vNameInput) vNameInput.focus();
+          e.preventDefault();
+          return;
+        }
+
+        const vPriceInput = document.getElementsByName(`variant_price_${idx}`)[0];
+        if (vPriceInput && vPriceInput.value.trim() !== "") {
+          const vPrice = parseFloat(vPriceInput.value);
+          if (isNaN(vPrice) || vPrice <= 0) {
+            showCustomAlert(`Variant "${vName}": Price must be greater than zero.`);
+            vPriceInput.focus();
+            e.preventDefault();
+            return;
+          }
+        }
+
+        const vStockInput = document.getElementsByName(`variant_stock_${idx}`)[0];
+        const vStock = parseInt(vStockInput ? vStockInput.value : -1, 10);
+        if (isNaN(vStock) || vStock < 0) {
+          showCustomAlert(`Variant "${vName}": Stock quantity cannot be negative.`);
+          if (vStockInput) vStockInput.focus();
+          e.preventDefault();
+          return;
+        }
+
+        const vImages = variantCroppedImages[idx] || [];
         if (vImages.length < 3) {
           showCustomAlert(`Variant "${vName}": YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES.`);
           e.preventDefault();

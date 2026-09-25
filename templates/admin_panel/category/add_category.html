@@ -81,10 +81,11 @@
                 <div class="mb-5">
                   <label
                     class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Category
-                    Name</label>
+                    Name *</label>
                   <input type="text" name="name" id="categoryNameInput"
                     class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none"
                     placeholder="ACOUSTIC GUITARS" oninput="updateTitle(this.value)" required />
+                  <p id="categoryNameError" class="text-[0.6rem] font-bold text-red-600 mt-1 hidden"></p>
                 </div>
 
                 <div class="mb-8">
@@ -92,10 +93,11 @@
                     <label class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block">Description (Max 500 chars)</label>
                     <span id="catDescCounter" class="text-[0.55rem] font-mono font-bold text-gray-400 uppercase tracking-wider">0 / 500</span>
                   </div>
-                  <textarea name="description" rows="5" maxlength="500"
+                  <textarea name="description" id="categoryDescInput" rows="5" maxlength="500"
                     oninput="document.getElementById('catDescCounter').textContent = this.value.length + ' / 500'"
                     class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none resize-none"
                     placeholder="Premium handcrafted acoustic instruments featuring solid wood construction and professional grade hardware..."></textarea>
+                  <p id="categoryDescError" class="text-[0.6rem] font-bold text-red-600 mt-1 hidden"></p>
                 </div>
 
                 <!-- Offer Management -->
@@ -110,12 +112,13 @@
                       class="text-[0.52rem] font-bold uppercase tracking-[0.16em] text-gray-400 block mb-1.5">Campaign
                       Discount %</label>
                     <div class="relative">
-                      <input type="number" name="discount"
+                      <input type="number" name="discount" id="categoryDiscountInput"
                         class="w-full border border-gray-300 px-3.5 py-[11px] text-[0.72rem] font-medium text-[#1A1A1A] outline-none bg-white transition-colors duration-200 focus:border-[#1A1A1A] rounded-none pr-8"
-                        placeholder="15" min="0" max="100" />
+                        placeholder="15" min="0" max="90" />
                       <span
                         class="absolute right-3 top-1/2 -translate-y-1/2 text-[0.65rem] font-bold text-gray-400">%</span>
                     </div>
+                    <p id="categoryDiscountError" class="text-[0.6rem] font-bold text-red-600 mt-1 hidden"></p>
                   </div>
                   <div>
                     <label
@@ -255,47 +258,151 @@
     }
   }
 
-  // Auto-hide alert messages after 3 seconds
+  function showCategoryFieldError(id, errorId, message) {
+    const errEl = document.getElementById(errorId);
+    const inputEl = document.getElementById(id);
+    if (errEl) {
+      errEl.textContent = message;
+      errEl.classList.remove('hidden');
+    }
+    if (inputEl) {
+      inputEl.classList.add('border-red-500');
+    }
+  }
+
+  function clearCategoryFieldError(id, errorId) {
+    const errEl = document.getElementById(errorId);
+    const inputEl = document.getElementById(id);
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+    }
+    if (inputEl) {
+      inputEl.classList.remove('border-red-500');
+    }
+  }
+
+  function validateCategoryForm() {
+    clearCategoryFieldError('categoryNameInput', 'categoryNameError');
+    clearCategoryFieldError('categoryDiscountInput', 'categoryDiscountError');
+    clearCategoryFieldError('categoryExpiryDate', 'expiryDateError');
+    clearCategoryFieldError('categoryDescInput', 'categoryDescError');
+
+    let isValid = true;
+    let firstInvalid = null;
+
+    // 1. Name validation
+    const nameEl = document.getElementById('categoryNameInput');
+    const rawName = nameEl ? nameEl.value : '';
+    const nameVal = rawName.trim();
+    if (!nameVal) {
+      showCategoryFieldError('categoryNameInput', 'categoryNameError', 'Category name is required.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameEl;
+    } else if (rawName.startsWith(' ') || rawName.endsWith(' ')) {
+      showCategoryFieldError('categoryNameInput', 'categoryNameError', 'Category name cannot start or end with a space.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameEl;
+    } else if (/\s{2,}/.test(rawName)) {
+      showCategoryFieldError('categoryNameInput', 'categoryNameError', 'Category name cannot contain consecutive spaces.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameEl;
+    } else if (nameVal.length < 2) {
+      showCategoryFieldError('categoryNameInput', 'categoryNameError', 'Category name must be at least 2 characters.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameEl;
+    } else if (nameVal.length > 100) {
+      showCategoryFieldError('categoryNameInput', 'categoryNameError', 'Category name cannot exceed 100 characters.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameEl;
+    } else if (!/^[A-Za-z0-9]+([ \-&][A-Za-z0-9]+)*$/.test(nameVal)) {
+      showCategoryFieldError('categoryNameInput', 'categoryNameError', 'Category name can only contain letters, numbers, single spaces, hyphens, and &.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameEl;
+    }
+
+    // 2. Description validation
+    const descEl = document.getElementById('categoryDescInput');
+    const descVal = descEl ? descEl.value : '';
+    if (descVal && descVal.length > 500) {
+      showCategoryFieldError('categoryDescInput', 'categoryDescError', 'Description cannot exceed 500 characters.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = descEl;
+    }
+
+    // 3. Discount validation
+    const discEl = document.getElementById('categoryDiscountInput');
+    const discVal = discEl ? discEl.value.trim() : '';
+    if (discVal !== '') {
+      const discNum = parseInt(discVal, 10);
+      if (isNaN(discNum) || discNum < 0 || discNum > 90) {
+        showCategoryFieldError('categoryDiscountInput', 'categoryDiscountError', 'Discount must be an integer between 0% and 90%.');
+        isValid = false;
+        if (!firstInvalid) firstInvalid = discEl;
+      }
+    }
+
+    // 4. Expiry Date validation
+    const today = '{{ today_str|default:"" }}' || new Date().toISOString().split('T')[0];
+    const expiryEl = document.getElementById('categoryExpiryDate');
+    const expiryVal = expiryEl ? expiryEl.value : '';
+    if (expiryVal && expiryVal < today) {
+      showCategoryFieldError('categoryExpiryDate', 'expiryDateError', 'Campaign expiry date cannot be in the past.');
+      isValid = false;
+      if (!firstInvalid) firstInvalid = expiryEl;
+    }
+
+    if (!isValid && firstInvalid) {
+      firstInvalid.focus();
+      if (firstInvalid.scrollIntoView) {
+        firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    return isValid;
+  }
+
+  // Auto-hide alert messages and form setup
   document.addEventListener('DOMContentLoaded', () => {
-    // Campaign Expiry Date Validation & Restriction
     const today = '{{ today_str|default:"" }}' || new Date().toISOString().split('T')[0];
     const expiryInput = document.getElementById('categoryExpiryDate');
-    const errorEl = document.getElementById('expiryDateError');
     if (expiryInput) {
       if (!expiryInput.min || expiryInput.min < today) {
         expiryInput.min = today;
       }
-
-      function checkDate() {
-        const val = expiryInput.value;
-        if (val && val < today) {
-          if (errorEl) {
-            errorEl.textContent = "Campaign expiry date cannot be in the past.";
-            errorEl.classList.remove('hidden');
-          }
-          expiryInput.classList.add('border-red-500');
-          return false;
-        } else {
-          if (errorEl) errorEl.classList.add('hidden');
-          expiryInput.classList.remove('border-red-500');
-          return true;
+      expiryInput.addEventListener('change', () => {
+        if (expiryInput.value && expiryInput.value >= today) {
+          clearCategoryFieldError('categoryExpiryDate', 'expiryDateError');
         }
-      }
+      });
+    }
 
-      expiryInput.addEventListener('input', checkDate);
-      expiryInput.addEventListener('change', checkDate);
+    const nameInput = document.getElementById('categoryNameInput');
+    if (nameInput) {
+      nameInput.addEventListener('input', () => {
+        if (nameInput.value.trim().length >= 2) {
+          clearCategoryFieldError('categoryNameInput', 'categoryNameError');
+        }
+      });
+    }
 
-      const form = expiryInput.closest('form');
-      if (form) {
-        form.addEventListener('submit', function (e) {
-          if (!checkDate()) {
-            e.preventDefault();
-            showCustomAlert("CAMPAIGN EXPIRY DATE CANNOT BE IN THE PAST!");
-            expiryInput.focus();
-            return false;
-          }
-        });
-      }
+    const discInput = document.getElementById('categoryDiscountInput');
+    if (discInput) {
+      discInput.addEventListener('input', () => {
+        const val = parseInt(discInput.value, 10);
+        if (!discInput.value || (!isNaN(val) && val >= 0 && val <= 90)) {
+          clearCategoryFieldError('categoryDiscountInput', 'categoryDiscountError');
+        }
+      });
+    }
+
+    const form = document.querySelector('form');
+    if (form) {
+      form.addEventListener('submit', function (e) {
+        if (!validateCategoryForm()) {
+          e.preventDefault();
+        }
+      });
     }
 
     setTimeout(() => {

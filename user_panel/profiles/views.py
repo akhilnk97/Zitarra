@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib import messages
 from common.decorators import user_member_required
 from django.http import JsonResponse
+import re
 from user_panel.authentication.models import User, OTPVerification
 from common.services import (
     create_otp,
@@ -12,6 +13,9 @@ from common.services import (
     validate_full_name,
     validate_phone_number,
     validate_pincode,
+    validate_address_line,
+    validate_city,
+    validate_state,
 )
 from django.contrib.auth import update_session_auth_hash
 from django.utils import timezone
@@ -39,12 +43,14 @@ def profile_send_otp_view(request):
     if request.method != "POST":
         return redirect("profiles:profile_edit")
 
-    fullname = request.POST.get("fullname", "").strip()
+    raw_fullname = request.POST.get("fullname", "")
+    fullname = raw_fullname.strip()
     email = request.POST.get("email", "").strip().lower()
     mobile_number = request.POST.get("mobile_number", "").strip() or None
 
-    if not fullname:
-        messages.error(request, "Full name is required")
+    name_err = validate_full_name(raw_fullname)
+    if name_err:
+        messages.error(request, name_err)
         return render(request, "user/profile/profile_edit.html")
     if not email:
         messages.error(request, "Email is required")
@@ -61,11 +67,9 @@ def profile_send_otp_view(request):
         return render(request, "user/profile/profile_edit.html")
 
     if mobile_number:
-        if not mobile_number.isdigit():
-            messages.error(request, "Mobile number must contain only digits.")
-            return render(request, "user/profile/profile_edit.html")
-        if len(mobile_number) != 10:
-            messages.error(request, "Mobile number must be 10 digits.")
+        phone_err = validate_phone_number(mobile_number)
+        if phone_err:
+            messages.error(request, phone_err)
             return render(request, "user/profile/profile_edit.html")
 
     if User.objects.filter(email__iexact=email).exclude(id=request.user.id).exists():
@@ -147,9 +151,11 @@ def profile_edit_view(request):
 
             return redirect("/profile/?success=1")
 
-        fullname = request.POST.get("fullname", "").strip()
-        if not fullname:
-            messages.error(request, "Full name is required.")
+        raw_fullname = request.POST.get("fullname", "")
+        fullname = raw_fullname.strip()
+        name_err = validate_full_name(raw_fullname)
+        if name_err:
+            messages.error(request, name_err)
             return render(request, "user/profile/profile_edit.html")
 
         request.user.fullname = fullname
@@ -174,25 +180,41 @@ def address_save_view(request):
         return redirect("addresses")
 
     address_id     = request.POST.get("id", "").strip()
-    full_name      = request.POST.get("full_name", "").strip().upper()
-    phone_number   = request.POST.get("phone_number", "").strip().upper()
-    address_line_1 = request.POST.get("address_line_1", "").strip().upper()
-    address_line_2 = request.POST.get("address_line_2", "").strip().upper()
-    city           = request.POST.get("city", "").strip().upper()
-    state          = request.POST.get("state", "").strip().upper()
-    pincode        = request.POST.get("pincode", "").strip().upper()
+    raw_full_name  = request.POST.get("full_name", "")
+    raw_phone      = request.POST.get("phone_number", "")
+    raw_line1      = request.POST.get("address_line_1", "")
+    raw_line2      = request.POST.get("address_line_2", "")
+    raw_city       = request.POST.get("city", "")
+    raw_state      = request.POST.get("state", "")
+    raw_pincode    = request.POST.get("pincode", "")
     badge          = request.POST.get("badge", "").strip().upper()
     is_default     = request.POST.get("is_default") in ["true", "on"]
     label          = request.POST.get("label", "HOME").strip().upper()
 
-    if not full_name or not phone_number or not address_line_1 or not city or not state or not pincode:
+    if not raw_full_name.strip() or not raw_phone.strip() or not raw_line1.strip() or not raw_city.strip() or not raw_state.strip() or not raw_pincode.strip():
         messages.error(request, "All required fields must be filled.")
         return redirect("addresses")
 
-    error = validate_full_name(full_name) or validate_phone_number(phone_number) or validate_pincode(pincode)
+    error = (
+        validate_full_name(raw_full_name) or
+        validate_phone_number(raw_phone) or
+        validate_pincode(raw_pincode) or
+        validate_address_line(raw_line1, "Address line 1") or
+        (validate_address_line(raw_line2, "Address line 2") if raw_line2.strip() else None) or
+        validate_city(raw_city) or
+        validate_state(raw_state)
+    )
     if error:
         messages.error(request, error)
         return redirect("addresses")
+
+    full_name      = raw_full_name.strip().upper()
+    phone_number   = raw_phone.strip().upper()
+    address_line_1 = raw_line1.strip().upper()
+    address_line_2 = raw_line2.strip().upper() if raw_line2.strip() else None
+    city           = re.sub(r'\s+', ' ', raw_city).strip().upper()
+    state          = re.sub(r'\s+', ' ', raw_state).strip().upper()
+    pincode        = raw_pincode.strip().upper()
 
     badge_val = "DEFAULT" if is_default else (badge if badge != "DEFAULT" else "")
 
@@ -202,7 +224,7 @@ def address_save_view(request):
             addr.full_name      = full_name
             addr.phone_number   = phone_number
             addr.address_line_1 = address_line_1
-            addr.address_line_2 = address_line_2 or None
+            addr.address_line_2 = address_line_2
             addr.city           = city
             addr.state          = state
             addr.pincode        = pincode
@@ -219,7 +241,7 @@ def address_save_view(request):
             full_name=full_name,
             phone_number=phone_number,
             address_line_1=address_line_1,
-            address_line_2=address_line_2 or None,
+            address_line_2=address_line_2,
             city=city,
             state=state,
             pincode=pincode,

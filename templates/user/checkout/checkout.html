@@ -318,6 +318,17 @@
 
             <div class="space-y-3 font-mono text-[0.72rem]">
               <div class="flex justify-between items-center text-gray-600">
+                <span class="uppercase tracking-wider">Items Total</span>
+                <span id="summary-original-subtotal" class="font-bold text-brand-dark">₹{{ original_subtotal|floatformat:2 }}</span>
+              </div>
+
+              <!-- DYNAMIC OFFER DISCOUNT BREAKDOWN ROW -->
+              <div id="offer-discount-row" class="{% if not offer_discount or offer_discount == 0 %}hidden{% endif %} flex justify-between items-center text-emerald-600 font-bold">
+                <span class="uppercase tracking-wider">Offer Discount</span>
+                <span id="summary-offer-discount">-₹{{ offer_discount|floatformat:2 }}</span>
+              </div>
+
+              <div class="flex justify-between items-center text-gray-600">
                 <span class="uppercase tracking-wider">Subtotal</span>
                 <span id="summary-subtotal" class="font-bold text-brand-dark">₹{{ subtotal|floatformat:2 }}</span>
               </div>
@@ -504,14 +515,14 @@
               <label
                 class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
                 LINE 1 *</label>
-              <input type="text" name="address_line_1" required placeholder="Primary Street / Flat No."
+              <input type="text" name="address_line_1" id="add-addr-line1" required placeholder="Primary Street / Flat No."
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
               <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">CITY
                 *</label>
-              <input type="text" name="city" required placeholder="E.g. Kochi"
+              <input type="text" name="city" id="add-addr-city" required placeholder="E.g. Kochi"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
@@ -521,7 +532,7 @@
           <div>
             <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
               LINE 2</label>
-            <input type="text" name="address_line_2" placeholder="Apartment, Suite, Landmark (Optional)"
+            <input type="text" name="address_line_2" id="add-addr-line2" placeholder="Apartment, Suite, Landmark (Optional)"
               class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
             <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
           </div>
@@ -531,14 +542,14 @@
             <div>
               <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">POSTAL
                 CODE *</label>
-              <input type="text" name="pincode" maxlength="6" required placeholder="6-Digit PIN"
+              <input type="text" name="pincode" id="add-addr-pincode" maxlength="6" required placeholder="6-Digit PIN"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
             <div>
               <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">STATE
                 *</label>
-              <input type="text" name="state" required placeholder="E.g. Kerala"
+              <input type="text" name="state" id="add-addr-state" required placeholder="E.g. Kerala"
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
@@ -939,6 +950,18 @@
   function openAddAddressModal() {
     const modal = document.getElementById('add-address-modal');
     if (!modal) return;
+    const form = document.getElementById('add-address-form');
+    if (form) {
+      form.reset();
+      form.querySelectorAll('.field-error').forEach(p => {
+        p.textContent = '';
+        p.classList.add('hidden');
+      });
+      form.querySelectorAll('input').forEach(inp => {
+        inp.classList.remove('border-red-500');
+        inp.classList.add('border-gray-300');
+      });
+    }
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
     modal.classList.remove('hidden');
@@ -978,6 +1001,14 @@
     const editForm = document.getElementById('edit-address-form');
     if (editForm) {
       editForm.action = `/checkout/edit-address/${id}/`;
+      editForm.querySelectorAll('.field-error').forEach(p => {
+        p.textContent = '';
+        p.classList.add('hidden');
+      });
+      editForm.querySelectorAll('input').forEach(inp => {
+        inp.classList.remove('border-red-500');
+        inp.classList.add('border-gray-300');
+      });
     }
 
     // Select matching label dropdown option
@@ -998,51 +1029,102 @@
 
   function closeEditAddressModal() {
     const modal = document.getElementById('edit-address-modal');
-    if (modal) {
-      modal.classList.add('hidden');
-      document.body.style.overflow = '';
-    }
+    if (!modal) return;
+    modal.classList.add('hidden');
+    document.body.style.overflow = '';
   }
 
   // Form field validation function
   function validateAddressField(input) {
     const name = input.name;
-    const val = input.value.trim();
+    const rawVal = input.value;
+    const val = rawVal.trim();
     let errorMsg = '';
 
-    if (name === 'full_name') {
-      if (!val || val.length < 3) {
-        errorMsg = 'Full name must be at least 3 characters.';
-      } else if (!/^[A-Za-z\s]+$/.test(val)) {
-        errorMsg = 'Full name must contain letters and spaces only.';
-      }
-    } else if (name === 'address_line_1') {
-      if (!val || val.length < 3) {
-        errorMsg = 'Address line 1 must be at least 3 characters.';
-      }
-    } else if (name === 'address_line_2') {
-      if (val && val.length < 3) {
-        errorMsg = 'Address line 2 must be at least 3 characters.';
-      }
-    } else if (name === 'city') {
-      if (!val || val.length < 2) {
-        errorMsg = 'City must be at least 2 characters.';
-      } else if (!/^[A-Za-z\s\-'\.]+$/.test(val)) {
-        errorMsg = 'City must contain letters and spaces only.';
-      }
-    } else if (name === 'state') {
-      if (!val || val.length < 2) {
-        errorMsg = 'State must be at least 2 characters.';
-      } else if (!/^[A-Za-z\s\-'\.]+$/.test(val)) {
-        errorMsg = 'State must contain letters and spaces only.';
-      }
-    } else if (name === 'pincode') {
-      if (!val || !/^\d{6}$/.test(val)) {
-        errorMsg = 'Pincode must be exactly 6 numeric digits.';
-      }
-    } else if (name === 'phone_number') {
-      if (!val || !/^[6-9]\d{9}$/.test(val)) {
-        errorMsg = 'Enter a valid 10-digit mobile number starting with 6-9.';
+    // Check for leading or consecutive spaces
+    if (rawVal.startsWith(' ')) {
+      errorMsg = 'Cannot start with a space.';
+    } else if (/\s{2,}/.test(rawVal)) {
+      errorMsg = 'Cannot contain consecutive spaces.';
+    }
+
+    if (!errorMsg) {
+      if (name === 'full_name') {
+        if (!val || val.length < 3) {
+          errorMsg = 'Full name must be at least 3 characters.';
+        } else if (val.length > 60) {
+          errorMsg = 'Full name cannot exceed 60 characters.';
+        } else if (/[0-9]/.test(val)) {
+          errorMsg = 'Full name cannot contain numbers.';
+        } else if (/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(val)) {
+          errorMsg = 'Full name cannot contain special characters.';
+        } else if (!/^[A-Za-z]+( [A-Za-z]+)*$/.test(val)) {
+          errorMsg = 'Full name can only contain letters and single spaces between words.';
+        }
+      } else if (name === 'address_line_1') {
+        if (!val || val.length < 3) {
+          errorMsg = 'Address line 1 must be at least 3 characters.';
+        } else if (val.length > 255) {
+          errorMsg = 'Address line 1 cannot exceed 255 characters.';
+        } else {
+          const alnum = val.replace(/[^a-zA-Z0-9]/g, '');
+          if (alnum.length < 2) {
+            errorMsg = 'Address Line 1 must contain actual street/building details, not only symbols.';
+          } else if (!/^[A-Za-z0-9\s,\-/#\.:;']+$/.test(val)) {
+            errorMsg = 'Address Line 1 contains invalid special characters.';
+          }
+        }
+      } else if (name === 'address_line_2') {
+        if (val) {
+          if (val.length < 3) {
+            errorMsg = 'Address line 2 must be at least 3 characters.';
+          } else if (val.length > 255) {
+            errorMsg = 'Address line 2 cannot exceed 255 characters.';
+          } else {
+            const alnum = val.replace(/[^a-zA-Z0-9]/g, '');
+            if (alnum.length < 2) {
+              errorMsg = 'Address Line 2 must contain meaningful details, not only symbols.';
+            } else if (!/^[A-Za-z0-9\s,\-/#\.:;']+$/.test(val)) {
+              errorMsg = 'Address Line 2 contains invalid special characters.';
+            }
+          }
+        }
+      } else if (name === 'city') {
+        if (val === 'LOADING...') {
+          errorMsg = 'Fetching city details...';
+        } else if (!val || val.length < 2) {
+          errorMsg = 'City must be at least 2 characters.';
+        } else if (val.length > 60) {
+          errorMsg = 'City cannot exceed 60 characters.';
+        } else if (/[0-9]/.test(val)) {
+          errorMsg = 'City cannot contain numbers.';
+        } else if (!/^[A-Za-z]+([ \-][A-Za-z]+)*$/.test(val)) {
+          errorMsg = 'City must contain letters, hyphens, and single spaces only.';
+        }
+      } else if (name === 'state') {
+        if (val === 'LOADING...') {
+          errorMsg = 'Fetching state details...';
+        } else if (!val || val.length < 2) {
+          errorMsg = 'State must be at least 2 characters.';
+        } else if (val.length > 60) {
+          errorMsg = 'State cannot exceed 60 characters.';
+        } else if (/[0-9]/.test(val)) {
+          errorMsg = 'State cannot contain numbers.';
+        } else if (!/^[A-Za-z]+([ \-][A-Za-z]+)*$/.test(val)) {
+          errorMsg = 'State must contain letters, hyphens, and single spaces only.';
+        }
+      } else if (name === 'pincode') {
+        if (rawVal.includes(' ')) {
+          errorMsg = 'Pincode cannot contain spaces.';
+        } else if (!val || !/^[1-9]\d{5}$/.test(val)) {
+          errorMsg = 'Pincode must be exactly 6 numeric digits (cannot start with 0).';
+        }
+      } else if (name === 'phone_number') {
+        if (rawVal.includes(' ')) {
+          errorMsg = 'Phone number cannot contain spaces.';
+        } else if (!val || !/^[6-9]\d{9}$/.test(val)) {
+          errorMsg = 'Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.';
+        }
       }
     }
 
@@ -1069,9 +1151,62 @@
   document.querySelectorAll('#add-address-form input, #edit-address-modal form input').forEach(input => {
     if (input.type !== 'checkbox' && input.type !== 'hidden') {
       input.addEventListener('input', () => validateAddressField(input));
-      input.addEventListener('blur', () => validateAddressField(input));
+      input.addEventListener('blur', () => {
+        if (input.value.endsWith(' ')) {
+          input.value = input.value.trim();
+        }
+        validateAddressField(input);
+      });
     }
   });
+
+  // Pincode auto-lookup for city and state
+  function setupPincodeLookup(formId) {
+    const form = document.getElementById(formId);
+    if (!form) return;
+    const pinInput = form.querySelector('input[name="pincode"]');
+    const cityInput = form.querySelector('input[name="city"]');
+    const stateInput = form.querySelector('input[name="state"]');
+    if (!pinInput || !cityInput || !stateInput) return;
+
+    pinInput.addEventListener('input', () => {
+      const val = pinInput.value.trim();
+      if (/^\d{6}$/.test(val)) {
+        cityInput.value = 'LOADING...';
+        stateInput.value = 'LOADING...';
+        fetch(`https://api.postalpincode.in/pincode/${val}`)
+          .then(res => res.json())
+          .then(data => {
+            if (pinInput.value.trim() !== val) return;
+            if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
+              const info = data[0].PostOffice[0];
+              cityInput.value = (info.District || '').replace(/\s+/g, ' ').trim().toUpperCase();
+              stateInput.value = (info.State || '').replace(/\s+/g, ' ').trim().toUpperCase();
+              validateAddressField(cityInput);
+              validateAddressField(stateInput);
+              validateAddressField(pinInput);
+            } else {
+              cityInput.value = '';
+              stateInput.value = '';
+              const errorContainer = pinInput.parentElement.querySelector('.field-error');
+              if (errorContainer) {
+                errorContainer.textContent = 'Invalid or unregistered pincode.';
+                errorContainer.classList.remove('hidden');
+                pinInput.classList.add('border-red-500');
+                pinInput.classList.remove('border-gray-300');
+              }
+            }
+          })
+          .catch(() => {
+            if (cityInput.value === 'LOADING...') cityInput.value = '';
+            if (stateInput.value === 'LOADING...') stateInput.value = '';
+          });
+      }
+    });
+  }
+
+  setupPincodeLookup('add-address-form');
+  setupPincodeLookup('edit-address-form');
 
   // Handle Add Address form submit validation & AJAX
   const addForm = document.getElementById('add-address-form');

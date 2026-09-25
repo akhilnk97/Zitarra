@@ -77,16 +77,18 @@
 
           <!-- Title -->
           <div>
-            <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">BANNER TITLE</label>
-            <input type="text" name="title" required placeholder="WINTER_COLLECTION_24"
+            <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">BANNER TITLE *</label>
+            <input type="text" id="add_banner_title" name="title" required placeholder="WINTER_COLLECTION_24"
                    class="w-full bg-transparent border-b-2 border-gray-900 py-2 text-xs font-black uppercase tracking-wider text-[#1A1A1A] focus:outline-none focus:border-[#A33C08] transition-colors font-sans">
+            <p id="add_banner_title_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
           </div>
 
           <!-- Target URL -->
           <div>
             <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">TARGET URL</label>
-            <input type="text" name="target_url" required placeholder="/shop/new-arrivals"
+            <input type="text" id="add_banner_target_url" name="target_url" placeholder="/shop/new-arrivals"
                    class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-600 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+            <p id="add_banner_target_url_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
           </div>
 
           <!-- Display Mode & Priority -->
@@ -101,17 +103,19 @@
 
             <div>
               <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">PRIORITY</label>
-              <input type="number" name="priority" value="1" min="1" max="99" required
+              <input type="number" id="add_banner_priority" name="priority" value="1" min="1" max="99" required
                      class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-black uppercase text-[#1A1A1A] focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+              <p id="add_banner_priority_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
             </div>
           </div>
 
           <!-- Expiration Date (Optional) -->
           <div>
             <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">EXPIRATION DATE (OPTIONAL)</label>
-            <input type="date" name="end_date"
+            <input type="date" id="add_banner_end_date" name="end_date"
                    class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
             <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
+            <p id="add_banner_end_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
           </div>
 
           <!-- Drag & Drop Upload Zone -->
@@ -122,8 +126,9 @@
               </svg>
               <p class="text-[0.62rem] font-black uppercase tracking-wider text-gray-500 m-0 mb-1 group-hover:text-[#1A1A1A]">DROP HI-RES ASSET OR CLICK TO BROWSE</p>
               <span class="text-[0.5rem] font-bold text-gray-400 uppercase tracking-widest">RECOMMENDED: 2400X1200PX (EDITORIAL STANDARD)</span>
-              <input type="file" name="image" accept="image/*" required class="hidden" onchange="previewImage(this)">
+              <input type="file" id="add_banner_image" name="image" accept="image/*" required class="hidden" onchange="previewImage(this)">
             </label>
+            <p id="add_banner_image_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
             <div id="imagePreviewContainer" class="mt-3 hidden">
               <img id="imagePreview" src="" alt="Preview" class="w-full h-24 object-cover rounded-xl border border-gray-200">
             </div>
@@ -297,12 +302,14 @@
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BANNER TITLE *</label>
         <input type="text" id="edit_title" name="title" required
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        <p id="edit_banner_title_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">TARGET URL</label>
         <input type="text" id="edit_target_url" name="target_url"
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        <p id="edit_banner_target_url_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div class="grid grid-cols-2 gap-4">
@@ -319,6 +326,7 @@
           <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">PRIORITY</label>
           <input type="number" id="edit_priority" name="priority" min="1" max="99"
                  class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+          <p id="edit_banner_priority_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
         </div>
       </div>
 
@@ -335,12 +343,14 @@
         <input type="date" id="edit_end_date" name="end_date"
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
         <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
+        <p id="edit_banner_end_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">REPLACE IMAGE ASSET (OPTIONAL)</label>
-        <input type="file" name="image" accept="image/*"
+        <input type="file" id="edit_banner_image" name="image" accept="image/*"
                class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer font-sans">
+        <p id="edit_banner_image_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
@@ -454,10 +464,130 @@
     pendingFormToSubmit.submit();
   }
 
+  // Validation helpers for Banners
+  function showBannerError(id, errorId, message) {
+    const errEl = document.getElementById(errorId);
+    const inputEl = document.getElementById(id);
+    if (errEl) {
+      errEl.textContent = message;
+      errEl.classList.remove('hidden');
+    }
+    if (inputEl) {
+      inputEl.classList.add('border-red-500');
+    }
+  }
+
+  function clearBannerError(id, errorId) {
+    const errEl = document.getElementById(errorId);
+    const inputEl = document.getElementById(id);
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+    }
+    if (inputEl) {
+      inputEl.classList.remove('border-red-500');
+    }
+  }
+
+  function validateBannerForm(mode) {
+    const prefix = mode === 'add' ? 'add' : 'edit';
+    const titleId = `${prefix}_banner_title`;
+    const titleErrId = `${prefix}_banner_title_error`;
+    const urlId = `${prefix}_banner_target_url`;
+    const urlErrId = `${prefix}_banner_target_url_error`;
+    const priorityId = `${prefix}_banner_priority`;
+    const priorityErrId = `${prefix}_banner_priority_error`;
+    const endDateId = `${prefix}_banner_end_date`;
+    const endDateErrId = `${prefix}_banner_end_date_error`;
+    const imageId = `${prefix}_banner_image`;
+    const imageErrId = `${prefix}_banner_image_error`;
+
+    clearBannerError(titleId, titleErrId);
+    clearBannerError(urlId, urlErrId);
+    clearBannerError(priorityId, priorityErrId);
+    clearBannerError(endDateId, endDateErrId);
+    clearBannerError(imageId, imageErrId);
+
+    let isValid = true;
+    let firstInvalid = null;
+
+    // 1. Title validation
+    const titleEl = document.getElementById(titleId);
+    const titleVal = titleEl ? titleEl.value.trim() : '';
+    if (!titleVal) {
+      showBannerError(titleId, titleErrId, "Banner title is required.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = titleEl;
+    } else if (titleVal.length < 3) {
+      showBannerError(titleId, titleErrId, "Banner title must be at least 3 characters.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = titleEl;
+    } else if (titleVal.length > 120) {
+      showBannerError(titleId, titleErrId, "Banner title cannot exceed 120 characters.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = titleEl;
+    }
+
+    // 2. Priority validation
+    const priorityEl = document.getElementById(priorityId);
+    const priorityVal = priorityEl ? priorityEl.value.trim() : '';
+    const priorityNum = parseInt(priorityVal, 10);
+    if (!priorityVal || isNaN(priorityNum) || priorityNum < 1 || priorityNum > 99) {
+      showBannerError(priorityId, priorityErrId, "Priority must be a number between 1 and 99.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = priorityEl;
+    }
+
+    // 3. Expiration Date validation
+    const endDateEl = document.getElementById(endDateId);
+    const endDateVal = endDateEl ? endDateEl.value : '';
+    const today = new Date().toISOString().split('T')[0];
+    if (endDateVal && endDateVal < today) {
+      showBannerError(endDateId, endDateErrId, "Expiration date cannot be in the past.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = endDateEl;
+    }
+
+    // 4. Image Asset validation
+    const imageEl = document.getElementById(imageId);
+    if (mode === 'add') {
+      if (!imageEl || !imageEl.files || !imageEl.files[0]) {
+        showBannerError(imageId, imageErrId, "Please select an image asset.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = imageEl;
+      }
+    }
+    if (imageEl && imageEl.files && imageEl.files[0]) {
+      const file = imageEl.files[0];
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+      const ext = file.name.split('.').pop().toLowerCase();
+      const validExts = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+      if (!validTypes.includes(file.type) && !validExts.includes(ext)) {
+        showBannerError(imageId, imageErrId, "Invalid image format. Allowed formats: JPG, PNG, WEBP, AVIF.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = imageEl;
+      } else if (file.size > 10 * 1024 * 1024) {
+        showBannerError(imageId, imageErrId, "Asset file size cannot exceed 10MB.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = imageEl;
+      }
+    }
+
+    if (!isValid && firstInvalid) {
+      firstInvalid.focus();
+    }
+
+    return isValid;
+  }
+
   // Intercept Add Banner Form submit
   const addForm = document.getElementById('addBannerForm');
   if (addForm) {
     addForm.addEventListener('submit', function(e) {
+      if (!validateBannerForm('add')) {
+        e.preventDefault();
+        return;
+      }
       // If auto_reorder is already set, let it submit
       if (this.querySelector('input[name="auto_reorder"]')?.value === 'true') return;
 
@@ -465,12 +595,23 @@
         e.preventDefault();
       }
     });
+
+    const addTitleInput = document.getElementById('add_banner_title');
+    if (addTitleInput) {
+      addTitleInput.addEventListener('input', () => {
+        if (addTitleInput.value.trim().length >= 3) clearBannerError('add_banner_title', 'add_banner_title_error');
+      });
+    }
   }
 
   // Intercept Edit Banner Form submit
   const editForm = document.getElementById('editBannerForm');
   if (editForm) {
     editForm.addEventListener('submit', function(e) {
+      if (!validateBannerForm('edit')) {
+        e.preventDefault();
+        return;
+      }
       // If auto_reorder is already set, let it submit
       if (this.querySelector('input[name="auto_reorder"]')?.value === 'true') return;
 
@@ -479,6 +620,13 @@
         e.preventDefault();
       }
     });
+
+    const editTitleInput = document.getElementById('edit_title');
+    if (editTitleInput) {
+      editTitleInput.addEventListener('input', () => {
+        if (editTitleInput.value.trim().length >= 3) clearBannerError('edit_title', 'edit_banner_title_error');
+      });
+    }
   }
 
   function previewImage(input) {

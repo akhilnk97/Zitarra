@@ -24,11 +24,22 @@ def admin_users_view(request):
     queryset = User.objects.filter(is_staff=False)
 
     if search_query:
-        queryset = queryset.filter(
+        words = search_query.split()
+        q_obj = (
             Q(fullname__icontains=search_query) |
             Q(email__icontains=search_query) |
             Q(mobile_number__icontains=search_query)
         )
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (
+                    Q(fullname__icontains=w) |
+                    Q(email__icontains=w) |
+                    Q(mobile_number__icontains=w)
+                )
+            q_obj |= multi_q
+        queryset = queryset.filter(q_obj).distinct()
 
     if filter_val == "Active Accounts":
         queryset = queryset.filter(is_blocked=False)

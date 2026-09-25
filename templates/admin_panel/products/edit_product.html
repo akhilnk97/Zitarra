@@ -676,6 +676,64 @@
 
   // Intercept submit to pack data
   document.getElementById('edit_product_form').addEventListener('submit', function (e) {
+    const nameInput = document.getElementsByName('name')[0];
+    const rawName = nameInput ? nameInput.value : '';
+    const nameVal = rawName.trim();
+    if (!nameVal || nameVal.length < 2) {
+      showCustomAlert("Please enter a valid product name (at least 2 characters).");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (rawName.startsWith(' ') || rawName.endsWith(' ')) {
+      showCustomAlert("Product name cannot start or end with a space.");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (/\s{2,}/.test(rawName)) {
+      showCustomAlert("Product name cannot contain consecutive spaces.");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+    if (/[<>{}]/.test(nameVal)) {
+      showCustomAlert("Product name cannot contain special characters like < > { }.");
+      if (nameInput) nameInput.focus();
+      e.preventDefault();
+      return;
+    }
+
+    const catInput = document.getElementsByName('category')[0];
+    if (!catInput || !catInput.value) {
+      showCustomAlert("Please select a product category.");
+      if (catInput) catInput.focus();
+      e.preventDefault();
+      return;
+    }
+
+    const priceInput = document.querySelector('input[name="price"]:not([readonly])');
+    if (priceInput) {
+      const priceVal = parseFloat(priceInput.value);
+      if (isNaN(priceVal) || priceVal <= 0) {
+        showCustomAlert("Product regular price must be greater than zero.");
+        priceInput.focus();
+        e.preventDefault();
+        return;
+      }
+    }
+
+    const stockInput = document.querySelector('input[name="stock"]:not([readonly])');
+    if (stockInput) {
+      const stockVal = parseInt(stockInput.value, 10);
+      if (isNaN(stockVal) || stockVal < 0) {
+        showCustomAlert("Product stock quantity cannot be negative.");
+        stockInput.focus();
+        e.preventDefault();
+        return;
+      }
+    }
+
     // If they decided to replace current images, check that they uploaded at least 3
     if (croppedImages.length < 3) {
       showCustomAlert("You must upload and crop at least 3 images.");

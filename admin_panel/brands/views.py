@@ -3,7 +3,9 @@ from django.contrib import messages
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
 from common.decorators import admin_required
+from common.services import is_valid_image_file
 from .models import Brand
+import re
 
 
 @admin_required
@@ -14,9 +16,14 @@ def admin_brands_view(request):
     brands_qs = Brand.objects.filter(is_deleted=False)
 
     if search_query:
-        brands_qs = brands_qs.filter(
-            Q(name__icontains=search_query) | Q(description__icontains=search_query)
-        )
+        words = search_query.split()
+        q_obj = Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (Q(name__icontains=w) | Q(description__icontains=w))
+            q_obj |= multi_q
+        brands_qs = brands_qs.filter(q_obj).distinct()
 
     if status_filter and status_filter != 'all':
         brands_qs = brands_qs.filter(status=status_filter)
@@ -54,7 +61,8 @@ def admin_brands_view(request):
 @admin_required
 def add_brand_view(request):
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
+        raw_name = request.POST.get('name', '')
+        name = raw_name.strip()
         description = request.POST.get('description', '').strip()
         status = request.POST.get('status', 'ACTIVE').strip()
         logo = request.FILES.get('logo')
@@ -63,9 +71,37 @@ def add_brand_view(request):
             messages.error(request, "Brand name is required.")
             return redirect('admin_brands')
 
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Brand name cannot start or end with a space.")
+            return redirect('admin_brands')
+
+        if "  " in raw_name:
+            messages.error(request, "Brand name cannot contain consecutive spaces.")
+            return redirect('admin_brands')
+
+        if len(name) < 2 or len(name) > 100:
+            messages.error(request, "Brand name must be between 2 and 100 characters.")
+            return redirect('admin_brands')
+
+        if not re.match(r'^[A-Za-z0-9]+([ \-&][A-Za-z0-9]+)*$', name):
+            messages.error(request, "Brand name can only contain letters, numbers, single spaces, hyphens, and &.")
+            return redirect('admin_brands')
+
         if Brand.objects.filter(name__iexact=name, is_deleted=False).exists():
             messages.error(request, f"Brand '{name}' already exists.")
             return redirect('admin_brands')
+
+        if len(description) > 500:
+            messages.error(request, "Brand description cannot exceed 500 characters.")
+            return redirect('admin_brands')
+
+        if logo:
+            if logo.size > 5 * 1024 * 1024:
+                messages.error(request, "Logo file size cannot exceed 5MB.")
+                return redirect('admin_brands')
+            if not is_valid_image_file(logo):
+                messages.error(request, "Invalid logo format. Allowed formats: JPG, PNG, WEBP, AVIF.")
+                return redirect('admin_brands')
 
         brand = Brand.objects.create(
             name=name,
@@ -88,7 +124,8 @@ def edit_brand_view(request, brand_id):
     brand = get_object_or_404(Brand, id=brand_id, is_deleted=False)
 
     if request.method == 'POST':
-        name = request.POST.get('name', '').strip()
+        raw_name = request.POST.get('name', '')
+        name = raw_name.strip()
         description = request.POST.get('description', '').strip()
         status = request.POST.get('status', 'ACTIVE').strip()
         logo = request.FILES.get('logo')
@@ -97,9 +134,37 @@ def edit_brand_view(request, brand_id):
             messages.error(request, "Brand name is required.")
             return redirect('admin_brands')
 
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Brand name cannot start or end with a space.")
+            return redirect('admin_brands')
+
+        if "  " in raw_name:
+            messages.error(request, "Brand name cannot contain consecutive spaces.")
+            return redirect('admin_brands')
+
+        if len(name) < 2 or len(name) > 100:
+            messages.error(request, "Brand name must be between 2 and 100 characters.")
+            return redirect('admin_brands')
+
+        if not re.match(r'^[A-Za-z0-9]+([ \-&][A-Za-z0-9]+)*$', name):
+            messages.error(request, "Brand name can only contain letters, numbers, single spaces, hyphens, and &.")
+            return redirect('admin_brands')
+
         if Brand.objects.filter(name__iexact=name, is_deleted=False).exclude(id=brand.id).exists():
             messages.error(request, f"Another brand with name '{name}' already exists.")
             return redirect('admin_brands')
+
+        if len(description) > 500:
+            messages.error(request, "Brand description cannot exceed 500 characters.")
+            return redirect('admin_brands')
+
+        if logo:
+            if logo.size > 5 * 1024 * 1024:
+                messages.error(request, "Logo file size cannot exceed 5MB.")
+                return redirect('admin_brands')
+            if not is_valid_image_file(logo):
+                messages.error(request, "Invalid logo format. Allowed formats: JPG, PNG, WEBP, AVIF.")
+                return redirect('admin_brands')
 
         brand.name = name
         brand.description = description

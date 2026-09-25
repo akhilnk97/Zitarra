@@ -834,6 +834,32 @@
 
   // Form validator on submit
   function validateVariantImages() {
+    const nameInput = document.querySelector('#finish_box_container input, #finish_box_container select');
+    if (nameInput) {
+      const rawName = nameInput.value;
+      const val = rawName.trim();
+      if (!val) {
+        showCustomAlert("Variant name is required.");
+        nameInput.focus();
+        return false;
+      }
+      if (rawName.startsWith(' ') || rawName.endsWith(' ')) {
+        showCustomAlert("Variant name cannot start or end with a space.");
+        nameInput.focus();
+        return false;
+      }
+      if (/\s{2,}/.test(rawName)) {
+        showCustomAlert("Variant name cannot contain consecutive spaces.");
+        nameInput.focus();
+        return false;
+      }
+      if (/[<>{}]/.test(val)) {
+        showCustomAlert("Variant name cannot contain special characters like < > { }.");
+        nameInput.focus();
+        return false;
+      }
+    }
+
     const totalVisible = existingImages.filter(i => !i.isDeleted).length + croppedImages.length;
     if (totalVisible < 3) {
       showCustomAlert("YOU MUST UPLOAD AND CROP AT LEAST 3 IMAGES FOR THIS VARIANT.");

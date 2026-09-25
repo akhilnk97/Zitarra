@@ -12,6 +12,16 @@ class Cart(models.Model):
     def get_subtotal(self):
         return sum(item.get_subtotal() for item in self.items.all() if item.is_available)
 
+    def get_original_subtotal(self):
+        return sum(item.get_original_subtotal() for item in self.items.all() if item.is_available)
+
+    def get_total_offer_discount(self):
+        from decimal import Decimal
+        orig = Decimal(str(self.get_original_subtotal() or 0))
+        sub = Decimal(str(self.get_subtotal() or 0))
+        diff = orig - sub
+        return diff if diff > Decimal('0.00') else Decimal('0.00')
+
     def get_total_items(self):
         return sum(item.quantity for item in self.items.all() if item.is_available)
 

@@ -25,5 +25,27 @@ class WishlistItem(models.Model):
         unique_together = ('wishlist', 'product', 'variant')
         ordering = ['-created_at']
 
+    @property
+    def stock_info(self):
+        if self.variant:
+            return self.variant.stock_info
+        return self.product.stock_info
+
+    @property
+    def is_available(self):
+        if not self.product.is_available:
+            return False
+        if self.variant:
+            if not self.variant.is_active or self.variant.is_deleted:
+                return False
+        return True
+
+    @property
+    def stock(self):
+        if self.variant:
+            return self.variant.stock
+        return self.product.stock
+
     def __str__(self):
-        return f"{self.product.name} in {self.wishlist.user.email}'s wishlist"
+        variant_str = f" ({self.variant.name})" if self.variant else ""
+        return f"{self.product.name}{variant_str} in {self.wishlist.user.email}'s wishlist"

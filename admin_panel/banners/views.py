@@ -50,8 +50,21 @@ def add_banner_view(request):
             messages.error(request, "Banner title is required.")
             return redirect('admin_banners')
 
+        if len(title) < 3 or len(title) > 120:
+            messages.error(request, "Banner title must be between 3 and 120 characters.")
+            return redirect('admin_banners')
+
         if not image:
             messages.error(request, "Please upload a high-resolution image asset.")
+            return redirect('admin_banners')
+
+        if image.size > 10 * 1024 * 1024:
+            messages.error(request, "Banner asset size cannot exceed 10MB.")
+            return redirect('admin_banners')
+
+        ext = image.name.split('.')[-1].lower() if '.' in image.name else ''
+        if ext not in ['jpg', 'jpeg', 'png', 'webp', 'avif']:
+            messages.error(request, "Invalid image format. Allowed formats: JPG, PNG, WEBP, AVIF.")
             return redirect('admin_banners')
 
         auto_reorder = request.POST.get('auto_reorder') == 'true'
@@ -70,6 +83,9 @@ def add_banner_view(request):
                 if d:
                     dt = datetime.combine(d, time(23, 59, 59))
                     end_date = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
+                    if end_date < timezone.now():
+                        messages.error(request, "Expiration date cannot be in the past.")
+                        return redirect('admin_banners')
             except Exception:
                 end_date = None
 
@@ -127,6 +143,23 @@ def edit_banner_view(request, banner_id):
         image = request.FILES.get('image')
         auto_reorder = request.POST.get('auto_reorder') == 'true'
 
+        if not title:
+            messages.error(request, "Banner title is required.")
+            return redirect('admin_banners')
+
+        if len(title) < 3 or len(title) > 120:
+            messages.error(request, "Banner title must be between 3 and 120 characters.")
+            return redirect('admin_banners')
+
+        if image:
+            if image.size > 10 * 1024 * 1024:
+                messages.error(request, "Banner asset size cannot exceed 10MB.")
+                return redirect('admin_banners')
+            ext = image.name.split('.')[-1].lower() if '.' in image.name else ''
+            if ext not in ['jpg', 'jpeg', 'png', 'webp', 'avif']:
+                messages.error(request, "Invalid image format. Allowed formats: JPG, PNG, WEBP, AVIF.")
+                return redirect('admin_banners')
+
         target_mode = display_mode if display_mode else banner.display_mode
 
         if priority_val:
@@ -162,8 +195,7 @@ def edit_banner_view(request, banner_id):
             except ValueError:
                 pass
 
-        if title:
-            banner.title = title
+        banner.title = title
         if target_url:
             banner.target_url = target_url
         if display_mode:
@@ -171,24 +203,27 @@ def edit_banner_view(request, banner_id):
         if status in ['PUBLISHED', 'DRAFT']:
             banner.status = status
 
+        end_date_val = request.POST.get('end_date', '').strip()
+        if end_date_val:
+            try:
+                d = parse_date(end_date_val)
+                if d:
+                    dt = datetime.combine(d, time(23, 59, 59))
+                    end_dt = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
+                    if end_dt < timezone.now() and (not banner.end_date or end_dt != banner.end_date):
+                        messages.error(request, "Expiration date cannot be in the past.")
+                        return redirect('admin_banners')
+                    banner.end_date = end_dt
+            except Exception:
+                pass
+        else:
+            banner.end_date = None
+
         if image:
             banner.image = image
 
-        if 'end_date' in request.POST:
-            end_date_val = request.POST.get('end_date', '').strip()
-            if end_date_val:
-                try:
-                    d = parse_date(end_date_val)
-                    if d:
-                        dt = datetime.combine(d, time(23, 59, 59))
-                        banner.end_date = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
-                except Exception:
-                    pass
-            else:
-                banner.end_date = None
-
         banner.save()
-        messages.success(request, f"Banner '{banner.title}' updated successfully!")
+        messages.success(request, f"Banner '{banner.clean_title}' modified successfully!")
         return redirect('admin_banners')
 
     return redirect('admin_banners')

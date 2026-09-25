@@ -24,10 +24,14 @@ def admin_offers_list_view(request):
     offers_qs = ProductOffer.objects.all()
 
     if search_query:
-        offers_qs = offers_qs.filter(
-            Q(name__icontains=search_query) |
-            Q(description__icontains=search_query)
-        )
+        words = search_query.split()
+        q_obj = Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (Q(name__icontains=w) | Q(description__icontains=w))
+            q_obj |= multi_q
+        offers_qs = offers_qs.filter(q_obj).distinct()
 
     today = timezone.now().date()
 
@@ -107,17 +111,27 @@ def admin_add_offer_view(request):
     is_active = request.POST.get('is_active') == 'on' or 'is_active' in request.POST
     product_ids = request.POST.getlist('products')
 
+    raw_name = request.POST.get('name', '')
+    name = raw_name.strip()
+
     if not name:
         messages.error(request, "Offer name is required.")
+        return redirect('admin_offers')
+
+    if raw_name.startswith(' ') or raw_name.endswith(' '):
+        messages.error(request, "Offer name cannot start or end with a space.")
+        return redirect('admin_offers')
+
+    if '  ' in raw_name:
+        messages.error(request, "Offer name cannot contain consecutive spaces.")
         return redirect('admin_offers')
 
     if len(name) < 3 or len(name) > 100:
         messages.error(request, "Offer name must be between 3 and 100 characters.")
         return redirect('admin_offers')
 
-    import re
-    if not re.match(r'^[a-zA-Z0-9_\-\s%]+$', name):
-        messages.error(request, "Offer name can only contain letters, numbers, spaces, underscores, and hyphens.")
+    if not re.match(r'^[a-zA-Z0-9%]+([ \-_\/][a-zA-Z0-9%]+)*$', name):
+        messages.error(request, "Offer name can only contain letters, numbers, single spaces, underscores, hyphens, and %.")
         return redirect('admin_offers')
 
     if ProductOffer.objects.filter(name__iexact=name).exists():
@@ -187,7 +201,8 @@ def admin_edit_offer_view(request, offer_id):
     if request.method != 'POST':
         return redirect('admin_offers')
 
-    name = request.POST.get('name', '').strip()
+    raw_name = request.POST.get('name', '')
+    name = raw_name.strip()
     description = request.POST.get('description', '').strip()
     discount_str = request.POST.get('discount_percentage', '').strip()
     start_date_str = request.POST.get('start_date', '').strip()
@@ -199,12 +214,20 @@ def admin_edit_offer_view(request, offer_id):
         messages.error(request, "Offer name is required.")
         return redirect('admin_offers')
 
+    if raw_name.startswith(' ') or raw_name.endswith(' '):
+        messages.error(request, "Offer name cannot start or end with a space.")
+        return redirect('admin_offers')
+
+    if '  ' in raw_name:
+        messages.error(request, "Offer name cannot contain consecutive spaces.")
+        return redirect('admin_offers')
+
     if len(name) < 3 or len(name) > 100:
         messages.error(request, "Offer name must be between 3 and 100 characters.")
         return redirect('admin_offers')
 
-    if not re.match(r'^[a-zA-Z0-9_\-\s%]+$', name):
-        messages.error(request, "Offer name can only contain letters, numbers, spaces, underscores, and hyphens.")
+    if not re.match(r'^[a-zA-Z0-9%]+([ \-_\/][a-zA-Z0-9%]+)*$', name):
+        messages.error(request, "Offer name can only contain letters, numbers, single spaces, underscores, hyphens, and %.")
         return redirect('admin_offers')
 
     if ProductOffer.objects.filter(name__iexact=name).exclude(id=offer.id).exists():

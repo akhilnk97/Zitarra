@@ -10,6 +10,7 @@ from common.decorators import admin_required
 from user_panel.coupons.models import Coupon
 from admin_panel.category.models import Category
 from admin_panel.products.models import Product
+import re
 
 
 @admin_required
@@ -22,10 +23,14 @@ def admin_coupons_list_view(request):
     coupons_qs = Coupon.objects.all()
 
     if search_query:
-        coupons_qs = coupons_qs.filter(
-            Q(code__icontains=search_query) |
-            Q(campaign_name__icontains=search_query)
-        )
+        words = search_query.split()
+        q_obj = Q(code__icontains=search_query) | Q(campaign_name__icontains=search_query)
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (Q(code__icontains=w) | Q(campaign_name__icontains=w))
+            q_obj |= multi_q
+        coupons_qs = coupons_qs.filter(q_obj).distinct()
 
     now = timezone.now()
     if status_filter == 'ACTIVE':
@@ -83,11 +88,11 @@ def admin_add_coupon_view(request):
         campaign_name = request.POST.get('campaign_name', '').strip()
         offer_type = request.POST.get('offer_type', 'GENERAL').strip()
         discount_type = request.POST.get('discount_type', 'PERCENTAGE').strip()
-        discount_value = request.POST.get('discount_value', '0').strip()
-        min_purchase = request.POST.get('min_purchase', '0').strip()
-        max_discount = request.POST.get('max_discount', '').strip()
-        usage_limit = request.POST.get('usage_limit', '').strip()
-        usage_limit_per_user = request.POST.get('usage_limit_per_user', '1').strip()
+        discount_value_str = request.POST.get('discount_value', '').strip()
+        min_purchase_str = request.POST.get('min_purchase', '0').strip()
+        max_discount_str = request.POST.get('max_discount', '').strip()
+        usage_limit_str = request.POST.get('usage_limit', '').strip()
+        usage_limit_per_user_str = request.POST.get('usage_limit_per_user', '1').strip()
         valid_from = request.POST.get('valid_from', '').strip()
         valid_to = request.POST.get('valid_to', '').strip()
         is_active = request.POST.get('is_active') == 'on' or request.POST.get('is_active') == 'true' or 'is_active' in request.POST
@@ -96,20 +101,129 @@ def admin_add_coupon_view(request):
         category_ids = request.POST.getlist('applicable_categories')
         product_ids = request.POST.getlist('applicable_products')
 
+        # 1. Code Validation
+        raw_code = request.POST.get('code', '')
         if not code:
             messages.error(request, "Coupon code is required.")
+            return redirect('admin_coupons')
+
+        if ' ' in raw_code:
+            messages.error(request, "Coupon code cannot contain spaces.")
+            return redirect('admin_coupons')
+
+        if len(code) < 3 or len(code) > 30:
+            messages.error(request, "Coupon code must be between 3 and 30 characters.")
+            return redirect('admin_coupons')
+
+        if not re.match(r'^[A-Z0-9_-]+$', code):
+            messages.error(request, "Coupon code can only contain uppercase letters, numbers, hyphens, and underscores without spaces.")
             return redirect('admin_coupons')
 
         if Coupon.objects.filter(code__iexact=code).exists():
             messages.error(request, f"Coupon code '{code}' already exists.")
             return redirect('admin_coupons')
 
-        if valid_from and valid_to:
-            dt_from = datetime.fromisoformat(valid_from)
-            dt_to = datetime.fromisoformat(valid_to)
-            if dt_to < dt_from:
-                messages.error(request, "Expiry Date cannot be earlier than Start Date.")
+        # 2. Campaign Name Validation
+        raw_campaign = request.POST.get('campaign_name', '')
+        if raw_campaign:
+            if raw_campaign.startswith(' ') or raw_campaign.endswith(' '):
+                messages.error(request, "Campaign name cannot start or end with a space.")
                 return redirect('admin_coupons')
+            if '  ' in raw_campaign:
+                messages.error(request, "Campaign name cannot contain consecutive spaces.")
+                return redirect('admin_coupons')
+            if len(campaign_name) < 3:
+                messages.error(request, "Campaign name must be at least 3 characters.")
+                return redirect('admin_coupons')
+            if len(campaign_name) > 100:
+                messages.error(request, "Campaign name cannot exceed 100 characters.")
+                return redirect('admin_coupons')
+            if re.search(r'[<>{}]', campaign_name):
+                messages.error(request, "Campaign name cannot contain special characters like < > { }.")
+                return redirect('admin_coupons')
+
+        if offer_type == 'CATEGORY_SPECIFIC' and not category_ids:
+            messages.error(request, "Please select at least one applicable category for category-specific coupons.")
+            return redirect('admin_coupons')
+
+        if offer_type == 'PRODUCT_SPECIFIC' and not product_ids:
+            messages.error(request, "Please select at least one applicable product for product-specific coupons.")
+            return redirect('admin_coupons')
+
+        try:
+            discount_val = Decimal(discount_value_str)
+        except Exception:
+            messages.error(request, "Valid discount value is required.")
+            return redirect('admin_coupons')
+
+        if discount_type == 'PERCENTAGE':
+            if discount_val < 1 or discount_val > 99:
+                messages.error(request, "Percentage discount must be between 1% and 99%.")
+                return redirect('admin_coupons')
+        elif discount_type == 'FIXED':
+            if discount_val <= Decimal('0.00'):
+                messages.error(request, "Fixed discount amount must be greater than ₹0.00.")
+                return redirect('admin_coupons')
+        else:
+            discount_type = 'PERCENTAGE'
+
+        try:
+            min_purchase = Decimal(min_purchase_str) if min_purchase_str else Decimal('0.00')
+            if min_purchase < Decimal('0.00'):
+                raise ValueError
+        except Exception:
+            messages.error(request, "Minimum purchase amount must be a positive number or zero.")
+            return redirect('admin_coupons')
+
+        if discount_type == 'FIXED' and min_purchase > Decimal('0.00') and discount_val > min_purchase:
+            messages.error(request, f"Fixed discount (₹{discount_val}) cannot exceed the minimum subtotal (₹{min_purchase}).")
+            return redirect('admin_coupons')
+
+        usage_limit = None
+        if usage_limit_str:
+            try:
+                usage_limit = int(usage_limit_str)
+                if usage_limit < 1:
+                    messages.error(request, "Global usage limit must be at least 1.")
+                    return redirect('admin_coupons')
+            except ValueError:
+                messages.error(request, "Global usage limit must be an integer.")
+                return redirect('admin_coupons')
+
+        usage_limit_per_user = None
+        if usage_limit_per_user_str:
+            try:
+                usage_limit_per_user = int(usage_limit_per_user_str)
+                if usage_limit_per_user < 1:
+                    messages.error(request, "Usage limit per user must be at least 1.")
+                    return redirect('admin_coupons')
+                if usage_limit is not None and usage_limit_per_user > usage_limit:
+                    messages.error(request, "Usage limit per user cannot exceed global usage limit.")
+                    return redirect('admin_coupons')
+            except ValueError:
+                messages.error(request, "Usage limit per user must be an integer.")
+                return redirect('admin_coupons')
+
+        dt_from = None
+        dt_to = None
+        now = timezone.now()
+        if valid_from:
+            try:
+                dt_from = datetime.fromisoformat(valid_from)
+            except Exception:
+                messages.error(request, "Invalid start date format.")
+                return redirect('admin_coupons')
+
+        if valid_to:
+            try:
+                dt_to = datetime.fromisoformat(valid_to)
+            except Exception:
+                messages.error(request, "Invalid expiry date format.")
+                return redirect('admin_coupons')
+
+        if dt_from and dt_to and dt_to < dt_from:
+            messages.error(request, "Expiry Date cannot be earlier than Start Date.")
+            return redirect('admin_coupons')
 
         try:
             coupon = Coupon(
@@ -117,18 +231,16 @@ def admin_add_coupon_view(request):
                 campaign_name=campaign_name,
                 offer_type=offer_type,
                 discount_type=discount_type,
-                discount_value=Decimal(discount_value) if discount_value else Decimal('0.00'),
-                min_purchase=Decimal(min_purchase) if min_purchase else Decimal('0.00'),
-                max_discount=Decimal(max_discount) if max_discount else None,
-                usage_limit=int(usage_limit) if (usage_limit and int(usage_limit) > 0) else None,
-                usage_limit_per_user=int(usage_limit_per_user) if (usage_limit_per_user and int(usage_limit_per_user) > 0) else None,
+                discount_value=discount_val,
+                min_purchase=min_purchase,
+                max_discount=Decimal(max_discount_str) if max_discount_str else None,
+                usage_limit=usage_limit,
+                usage_limit_per_user=usage_limit_per_user,
                 is_first_order_only=is_first_order_only,
                 is_active=is_active,
+                valid_from=dt_from,
+                valid_to=dt_to,
             )
-            if valid_from:
-                coupon.valid_from = datetime.fromisoformat(valid_from)
-            if valid_to:
-                coupon.valid_to = datetime.fromisoformat(valid_to)
 
             coupon.save()
 
@@ -152,11 +264,11 @@ def admin_edit_coupon_view(request, coupon_id):
         campaign_name = request.POST.get('campaign_name', '').strip()
         offer_type = request.POST.get('offer_type', 'GENERAL').strip()
         discount_type = request.POST.get('discount_type', 'PERCENTAGE').strip()
-        discount_value = request.POST.get('discount_value', '0').strip()
-        min_purchase = request.POST.get('min_purchase', '0').strip()
-        max_discount = request.POST.get('max_discount', '').strip()
-        usage_limit = request.POST.get('usage_limit', '').strip()
-        usage_limit_per_user = request.POST.get('usage_limit_per_user', '').strip()
+        discount_value_str = request.POST.get('discount_value', '').strip()
+        min_purchase_str = request.POST.get('min_purchase', '0').strip()
+        max_discount_str = request.POST.get('max_discount', '').strip()
+        usage_limit_str = request.POST.get('usage_limit', '').strip()
+        usage_limit_per_user_str = request.POST.get('usage_limit_per_user', '').strip()
         valid_from = request.POST.get('valid_from', '').strip()
         valid_to = request.POST.get('valid_to', '').strip()
         is_active = request.POST.get('is_active') == 'on' or request.POST.get('is_active') == 'true' or 'is_active' in request.POST
@@ -165,37 +277,141 @@ def admin_edit_coupon_view(request, coupon_id):
         category_ids = request.POST.getlist('applicable_categories')
         product_ids = request.POST.getlist('applicable_products')
 
+        raw_code = request.POST.get('code', '')
         if not code:
             messages.error(request, "Coupon code is required.")
+            return redirect('admin_coupons')
+
+        if ' ' in raw_code:
+            messages.error(request, "Coupon code cannot contain spaces.")
+            return redirect('admin_coupons')
+
+        if len(code) < 3 or len(code) > 30:
+            messages.error(request, "Coupon code must be between 3 and 30 characters.")
+            return redirect('admin_coupons')
+
+        if not re.match(r'^[A-Z0-9_-]+$', code):
+            messages.error(request, "Coupon code can only contain uppercase letters, numbers, hyphens, and underscores without spaces.")
             return redirect('admin_coupons')
 
         if Coupon.objects.filter(code__iexact=code).exclude(id=coupon.id).exists():
             messages.error(request, f"Coupon code '{code}' already exists.")
             return redirect('admin_coupons')
 
-        if valid_from and valid_to:
-            dt_from = datetime.fromisoformat(valid_from)
-            dt_to = datetime.fromisoformat(valid_to)
-            if dt_to < dt_from:
-                messages.error(request, "Expiry Date cannot be earlier than Start Date.")
+        raw_campaign = request.POST.get('campaign_name', '')
+        if raw_campaign:
+            if raw_campaign.startswith(' ') or raw_campaign.endswith(' '):
+                messages.error(request, "Campaign name cannot start or end with a space.")
                 return redirect('admin_coupons')
+            if '  ' in raw_campaign:
+                messages.error(request, "Campaign name cannot contain consecutive spaces.")
+                return redirect('admin_coupons')
+            if len(campaign_name) < 3:
+                messages.error(request, "Campaign name must be at least 3 characters.")
+                return redirect('admin_coupons')
+            if len(campaign_name) > 100:
+                messages.error(request, "Campaign name cannot exceed 100 characters.")
+                return redirect('admin_coupons')
+            if re.search(r'[<>{}]', campaign_name):
+                messages.error(request, "Campaign name cannot contain special characters like < > { }.")
+                return redirect('admin_coupons')
+
+        if offer_type == 'CATEGORY_SPECIFIC' and not category_ids:
+            messages.error(request, "Please select at least one applicable category for category-specific coupons.")
+            return redirect('admin_coupons')
+
+        if offer_type == 'PRODUCT_SPECIFIC' and not product_ids:
+            messages.error(request, "Please select at least one applicable product for product-specific coupons.")
+            return redirect('admin_coupons')
+
+        try:
+            discount_val = Decimal(discount_value_str)
+        except Exception:
+            messages.error(request, "Valid discount value is required.")
+            return redirect('admin_coupons')
+
+        if discount_type == 'PERCENTAGE':
+            if discount_val < 1 or discount_val > 99:
+                messages.error(request, "Percentage discount must be between 1% and 99%.")
+                return redirect('admin_coupons')
+        elif discount_type == 'FIXED':
+            if discount_val <= Decimal('0.00'):
+                messages.error(request, "Fixed discount amount must be greater than ₹0.00.")
+                return redirect('admin_coupons')
+        else:
+            discount_type = 'PERCENTAGE'
+
+        try:
+            min_purchase = Decimal(min_purchase_str) if min_purchase_str else Decimal('0.00')
+            if min_purchase < Decimal('0.00'):
+                raise ValueError
+        except Exception:
+            messages.error(request, "Minimum purchase amount must be a positive number or zero.")
+            return redirect('admin_coupons')
+
+        if discount_type == 'FIXED' and min_purchase > Decimal('0.00') and discount_val > min_purchase:
+            messages.error(request, f"Fixed discount (₹{discount_val}) cannot exceed the minimum subtotal (₹{min_purchase}).")
+            return redirect('admin_coupons')
+
+        usage_limit = None
+        if usage_limit_str:
+            try:
+                usage_limit = int(usage_limit_str)
+                if usage_limit < 1:
+                    messages.error(request, "Global usage limit must be at least 1.")
+                    return redirect('admin_coupons')
+            except ValueError:
+                messages.error(request, "Global usage limit must be an integer.")
+                return redirect('admin_coupons')
+
+        usage_limit_per_user = None
+        if usage_limit_per_user_str:
+            try:
+                usage_limit_per_user = int(usage_limit_per_user_str)
+                if usage_limit_per_user < 1:
+                    messages.error(request, "Usage limit per user must be at least 1.")
+                    return redirect('admin_coupons')
+                if usage_limit is not None and usage_limit_per_user > usage_limit:
+                    messages.error(request, "Usage limit per user cannot exceed global usage limit.")
+                    return redirect('admin_coupons')
+            except ValueError:
+                messages.error(request, "Usage limit per user must be an integer.")
+                return redirect('admin_coupons')
+
+        dt_from = None
+        dt_to = None
+        if valid_from:
+            try:
+                dt_from = datetime.fromisoformat(valid_from)
+            except Exception:
+                messages.error(request, "Invalid start date format.")
+                return redirect('admin_coupons')
+
+        if valid_to:
+            try:
+                dt_to = datetime.fromisoformat(valid_to)
+            except Exception:
+                messages.error(request, "Invalid expiry date format.")
+                return redirect('admin_coupons')
+
+        if dt_from and dt_to and dt_to < dt_from:
+            messages.error(request, "Expiry Date cannot be earlier than Start Date.")
+            return redirect('admin_coupons')
 
         try:
             coupon.code = code
             coupon.campaign_name = campaign_name
             coupon.offer_type = offer_type
             coupon.discount_type = discount_type
-            coupon.discount_value = Decimal(discount_value) if discount_value else Decimal('0.00')
-            coupon.min_purchase = Decimal(min_purchase) if min_purchase else Decimal('0.00')
-            coupon.max_discount = Decimal(max_discount) if max_discount else None
-            coupon.usage_limit = int(usage_limit) if (usage_limit and int(usage_limit) > 0) else None
-            coupon.usage_limit_per_user = int(usage_limit_per_user) if (usage_limit_per_user and int(usage_limit_per_user) > 0) else None
+            coupon.discount_value = discount_val
+            coupon.min_purchase = min_purchase
+            coupon.max_discount = Decimal(max_discount_str) if max_discount_str else None
+            coupon.usage_limit = usage_limit
+            coupon.usage_limit_per_user = usage_limit_per_user
             coupon.is_first_order_only = is_first_order_only
             coupon.is_active = is_active
-
-            coupon.valid_from = datetime.fromisoformat(valid_from) if valid_from else None
-            coupon.valid_to = datetime.fromisoformat(valid_to) if valid_to else None
-
+            coupon.valid_from = dt_from
+            coupon.valid_to = dt_to
             coupon.save()
 
             if offer_type == 'CATEGORY_SPECIFIC':

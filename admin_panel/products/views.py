@@ -25,9 +25,24 @@ def admin_products_view(request):
     sort_by = request.GET.get('sort', 'newest').strip()
 
     if search:
-        products_list = products_list.filter(
-            Q(name__icontains=search) | Q(description__icontains=search)
+        words = search.split()
+        q_obj = (
+            Q(name__icontains=search) |
+            Q(description__icontains=search) |
+            Q(category__name__icontains=search) |
+            Q(brand__icontains=search)
         )
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (
+                    Q(name__icontains=w) |
+                    Q(description__icontains=w) |
+                    Q(category__name__icontains=w) |
+                    Q(brand__icontains=w)
+                )
+            q_obj |= multi_q
+        products_list = products_list.filter(q_obj).distinct()
 
     if category_id:
         products_list = products_list.filter(category_id=category_id)
@@ -65,12 +80,21 @@ def admin_products_view(request):
 @admin_required
 def admin_product_add_view(request):
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        raw_name = request.POST.get("name", "")
+        name = raw_name.strip()
         category_id = request.POST.get("category")
         category = get_object_or_404(Category, id=category_id)
 
         if not name:
             messages.error(request, "Product name is required.")
+            return redirect('admin_product_add')
+
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Product name cannot start or end with a space.")
+            return redirect('admin_product_add')
+
+        if "  " in raw_name:
+            messages.error(request, "Product name cannot contain consecutive spaces.")
             return redirect('admin_product_add')
 
         if Product.objects.filter(name__iexact=name, category=category, is_deleted=False).exists():
@@ -80,6 +104,27 @@ def admin_product_add_view(request):
         description = request.POST.get("description", "").strip()
         if len(description) > 500:
             messages.error(request, "Product description cannot exceed 500 characters.")
+            return redirect('admin_product_add')
+
+        # VALIDATE BASE PRICE & STOCK
+        raw_base_price = request.POST.get("price", "").strip()
+        raw_base_stock = request.POST.get("stock", "").strip()
+        try:
+            val_base_price = float(raw_base_price)
+            if val_base_price <= 0:
+                messages.error(request, "Product regular price must be greater than zero.")
+                return redirect('admin_product_add')
+        except ValueError:
+            messages.error(request, "Please enter a valid regular price.")
+            return redirect('admin_product_add')
+
+        try:
+            val_base_stock = int(raw_base_stock)
+            if val_base_stock < 0:
+                messages.error(request, "Product stock quantity cannot be negative.")
+                return redirect('admin_product_add')
+        except ValueError:
+            messages.error(request, "Please enter a valid stock quantity.")
             return redirect('admin_product_add')
         
         # VALIDATE MAIN PRODUCT IMAGES (Before creating anything in DB)
@@ -100,11 +145,20 @@ def admin_product_add_view(request):
                     variant_indices.append(int(idx))
             
             for idx in variant_indices:
-                v_name = request.POST.get(f"variant_name_{idx}", "").strip()
+                raw_v_name = request.POST.get(f"variant_name_{idx}", "")
+                v_name = raw_v_name.strip()
                 v_color = request.POST.get(f"variant_color_{idx}", "").strip()
                 v_price = request.POST.get(f"variant_price_{idx}", "").strip()
                 v_stock = request.POST.get(f"variant_stock_{idx}", "").strip()
                 v_image_data = request.POST.getlist(f"variant_images_{idx}")
+
+                if raw_v_name.startswith(" ") or raw_v_name.endswith(" "):
+                    messages.error(request, f"Variant name '{v_name}' cannot start or end with a space.")
+                    return redirect('admin_product_add')
+
+                if "  " in raw_v_name:
+                    messages.error(request, f"Variant name '{v_name}' cannot contain consecutive spaces.")
+                    return redirect('admin_product_add')
 
                 if v_name and v_color and v_stock:
                     is_base64 = len(v_image_data) > 0
@@ -117,13 +171,22 @@ def admin_product_add_view(request):
                     try:
                         v_stock = int(v_stock)
                         if v_stock < 0:
-                            v_stock = 0
+                            messages.error(request, f"VARIANT '{v_name.upper()}': Stock quantity cannot be negative.")
+                            return redirect('admin_product_add')
                     except ValueError:
-                        v_stock = 0    
+                        messages.error(request, f"VARIANT '{v_name.upper()}': Stock must be a valid integer.")
+                        return redirect('admin_product_add')
 
-                    try:
-                        v_price = float(v_price) if v_price and float(v_price) > 0 else None
-                    except ValueError:
+                    if v_price:
+                        try:
+                            v_price = float(v_price)
+                            if v_price <= 0:
+                                messages.error(request, f"VARIANT '{v_name.upper()}': Price must be greater than zero.")
+                                return redirect('admin_product_add')
+                        except ValueError:
+                            messages.error(request, f"VARIANT '{v_name.upper()}': Invalid price format.")
+                            return redirect('admin_product_add')
+                    else:
                         v_price = None
 
                     parsed_variants.append({
@@ -135,27 +198,18 @@ def admin_product_add_view(request):
                         "is_base64": is_base64
                     })  
         if not parsed_variants:
-            # If no manual variant added, automatically create the primary variant so every product is a variant
-            try:
-                auto_price = float(request.POST.get("price", 0) or 0)
-            except ValueError:
-                auto_price = 0.0
-            try:
-                auto_stock = int(request.POST.get("stock", 0) or 0)
-            except ValueError:
-                auto_stock = 0
-
+         # If no manual variant added, automatically create the primary variant so every product is a variant
             parsed_variants.append({
                 "name": "Standard Edition",
                 "color_code": "#1A1A1A",
-                "price": auto_price,
-                "stock": auto_stock,
+                "price": val_base_price,
+                "stock": val_base_stock,
                 "img_list": cropped_images_data,
                 "is_base64": True
             })
 
         # Sync product price and stock from variants
-        primary_var_price = parsed_variants[0]["price"] if parsed_variants[0]["price"] else request.POST.get("price")
+        primary_var_price = parsed_variants[0]["price"] if parsed_variants[0]["price"] else val_base_price
         total_var_stock = sum(v["stock"] for v in parsed_variants)
 
         offer_val = request.POST.get("offer_id") or request.POST.get("offer")
@@ -219,12 +273,21 @@ def admin_product_add_view(request):
 def admin_product_edit_view(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_deleted=False)
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        raw_name = request.POST.get("name", "")
+        name = raw_name.strip()
         category_id = request.POST.get("category")
         category = get_object_or_404(Category, id=category_id)
 
         if not name:
             messages.error(request, "Product name is required.")
+            return redirect('admin_product_edit', product_id=product.id)
+
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Product name cannot start or end with a space.")
+            return redirect('admin_product_edit', product_id=product.id)
+
+        if "  " in raw_name:
+            messages.error(request, "Product name cannot contain consecutive spaces.")
             return redirect('admin_product_edit', product_id=product.id)
 
         if Product.objects.filter(name__iexact=name, category=category, is_deleted=False).exclude(id=product.id).exists():
@@ -254,12 +317,38 @@ def admin_product_edit_view(request, product_id):
                 messages.error(request, "Invalid file format. Only JPG, PNG, WEBP, and AVIF image files are allowed.")
                 return redirect('admin_product_edit', product_id=product.id)
 
+        new_price = None
+        new_stock = None
+        if not product.has_active_variants:
+            raw_p = request.POST.get("price", "").strip()
+            raw_s = request.POST.get("stock", "").strip()
+            if raw_p:
+                try:
+                    new_price = float(raw_p)
+                    if new_price <= 0:
+                        messages.error(request, "Product regular price must be greater than zero.")
+                        return redirect('admin_product_edit', product_id=product.id)
+                except ValueError:
+                    messages.error(request, "Please enter a valid regular price.")
+                    return redirect('admin_product_edit', product_id=product.id)
+            if raw_s != "":
+                try:
+                    new_stock = int(raw_s)
+                    if new_stock < 0:
+                        messages.error(request, "Product stock quantity cannot be negative.")
+                        return redirect('admin_product_edit', product_id=product.id)
+                except ValueError:
+                    messages.error(request, "Please enter a valid stock quantity.")
+                    return redirect('admin_product_edit', product_id=product.id)
+
         with transaction.atomic():
             product.name = request.POST.get("name")
             product.description = request.POST.get("description")
             if not product.has_active_variants:
-                product.price = request.POST.get("price") or product.price
-                product.stock = request.POST.get("stock") or product.stock
+                if new_price is not None:
+                    product.price = new_price
+                if new_stock is not None:
+                    product.stock = new_stock
             product.category = category
             product.is_active = "is_active" in request.POST
             product.highlights = request.POST.get("highlights", "").strip()
@@ -475,7 +564,8 @@ def admin_product_toggle_view(request, product_id):
 def admin_product_variants_view(request, product_id):
     product = get_object_or_404(Product, id=product_id, is_deleted=False)
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        raw_name = request.POST.get("name", "")
+        name = raw_name.strip()
         color_code = request.POST.get("color_code", "").strip()
         price = request.POST.get("price", "").strip()
         stock = request.POST.get("stock", "").strip()
@@ -483,6 +573,14 @@ def admin_product_variants_view(request, product_id):
 
         if not name or not color_code or not stock:
             messages.error(request, "Please fill in all required fields.")
+            return redirect('admin_product_variants', product_id=product.id)
+
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Variant name cannot start or end with a space.")
+            return redirect('admin_product_variants', product_id=product.id)
+
+        if "  " in raw_name:
+            messages.error(request, "Variant name cannot contain consecutive spaces.")
             return redirect('admin_product_variants', product_id=product.id)
 
         try:
@@ -568,7 +666,8 @@ def admin_variant_delete_view(request, variant_id):
 def admin_variant_edit_view(request, variant_id):
     variant = get_object_or_404(ProductVariant, id=variant_id, is_deleted=False)
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        raw_name = request.POST.get("name", "")
+        name = raw_name.strip()
         color_code = request.POST.get("color_code", "").strip()
         price = request.POST.get("price", "").strip()
         stock = request.POST.get("stock", "").strip()
@@ -576,6 +675,14 @@ def admin_variant_edit_view(request, variant_id):
 
         if not name or not color_code or stock == "":
             messages.error(request, "Please fill in all required fields.")
+            return redirect('admin_product_variants', product_id=variant.product.id)
+
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Variant name cannot start or end with a space.")
+            return redirect('admin_product_variants', product_id=variant.product.id)
+
+        if "  " in raw_name:
+            messages.error(request, "Variant name cannot contain consecutive spaces.")
             return redirect('admin_product_variants', product_id=variant.product.id)
 
         try:

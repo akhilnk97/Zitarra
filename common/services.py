@@ -23,61 +23,103 @@ from decimal import Decimal
 def validate_full_name(name):
     """
     Validates a recipient full name.
-    Returns error message string if invalid, None if valid.
+    Must contain only letters and single spaces between words, min 3, max 60 chars.
+    Cannot have leading/trailing spaces or consecutive spaces.
     """
-    if not name or len(name) < 3:
+    if not name or len(name.strip()) < 3:
         return "Full name must be at least 3 characters."
     if name.startswith(" ") or name.endswith(" "):
-        return "Please enter a valid full name (letters and single spaces only)."
+        return "Full name cannot start or end with a space."
     if "  " in name:
-        return "Please enter a valid full name (letters and single spaces only)."
-    for char in name:
-        if not char.isalpha() and not char.isspace():
-            return "Please enter a valid full name (letters and single spaces only)."
+        return "Full name cannot contain consecutive spaces."
+    if len(name) > 60:
+        return "Full name cannot exceed 60 characters."
+    if not re.match(r"^[A-Za-z]+( [A-Za-z]+)*$", name):
+        return "Full name can only contain letters and single spaces between words."
     return None
 
 
 def validate_phone_number(phone):
     """
-    Validates a 10-digit mobile number.
-    Returns error message string if invalid, None if valid.
+    Validates a 10-digit mobile number starting with 6-9.
     """
-    if not phone or len(phone) != 10 or not phone.isdigit():
-        return "Phone number must be exactly 10 digits."
+    if not phone or len(phone.strip()) == 0:
+        return "Phone number is required."
+    if " " in phone:
+        return "Phone number cannot contain spaces."
+    if not re.match(r"^[6-9]\d{9}$", phone):
+        return "Phone number must be a valid 10-digit number starting with 6, 7, 8, or 9."
     return None
 
 
 def validate_pincode(pincode):
     """
-    Validates a 6-digit postal pincode.
-    Returns error message string if invalid, None if valid.
+    Validates a 6-digit postal pincode (cannot start with 0).
     """
-    if not pincode or len(pincode) != 6 or not pincode.isdigit():
-        return "Pincode must be exactly 6 digits."
+    if not pincode or len(pincode.strip()) == 0:
+        return "Pincode is required."
+    if " " in pincode:
+        return "Pincode cannot contain spaces."
+    if not re.match(r"^[1-9]\d{5}$", pincode):
+        return "Pincode must be exactly 6 digits and cannot start with 0."
     return None
 
 
 def validate_city(city):
-    if not city or len(city) < 2:
+    """
+    Validates city name.
+    """
+    if not city or len(city.strip()) < 2:
         return "City must be at least 2 characters."
-    for char in city:
-        if not char.isalpha() and not char.isspace() and char not in "-'.":
-            return "City name can only contain letters and spaces."
+    if city.startswith(" ") or city.endswith(" "):
+        return "City cannot start or end with a space."
+    if "  " in city:
+        return "City cannot contain consecutive spaces."
+    if len(city) > 60:
+        return "City cannot exceed 60 characters."
+    if not re.match(r"^[A-Za-z]+([ \-][A-Za-z]+)*$", city):
+        return "City can only contain letters, hyphens, and single spaces."
     return None
 
 
 def validate_state(state):
-    if not state or len(state) < 2:
+    """
+    Validates state name.
+    """
+    if not state or len(state.strip()) < 2:
         return "State must be at least 2 characters."
-    for char in state:
-        if not char.isalpha() and not char.isspace() and char not in "-'.":
-            return "State name can only contain letters and spaces."
+    if state.startswith(" ") or state.endswith(" "):
+        return "State cannot start or end with a space."
+    if "  " in state:
+        return "State cannot contain consecutive spaces."
+    if len(state) > 60:
+        return "State cannot exceed 60 characters."
+    if not re.match(r"^[A-Za-z]+([ \-][A-Za-z]+)*$", state):
+        return "State can only contain letters, hyphens, and single spaces."
     return None
 
 
-def validate_address_line(line):
+def validate_address_line(line, field_name="Address line"):
+    """
+    Validates an address line (e.g. street, building, apartment).
+    Must be at least 3 characters, cannot have consecutive spaces,
+    must contain alphanumeric characters and only standard address punctuation.
+    """
     if not line or len(line.strip()) < 3:
-        return "Address line must be at least 3 characters."
+        return f"{field_name} must be at least 3 characters."
+    if line.startswith(" ") or line.endswith(" "):
+        return f"{field_name} cannot start or end with a space."
+    if "  " in line:
+        return f"{field_name} cannot contain consecutive spaces."
+    if len(line) > 255:
+        return f"{field_name} cannot exceed 255 characters."
+    # Must have at least 2 alphanumeric characters so things like &&& or --- are rejected
+    alnum_count = sum(1 for c in line if c.isalnum())
+    if alnum_count < 2:
+        return f"{field_name} must contain meaningful address details, not only symbols."
+    # Disallow invalid symbols like &, $, %, *, ^, @, !, ~, `, etc.
+    if not re.match(r"^[A-Za-z0-9\s,\-/#\.:;']+$", line):
+        return f"{field_name} contains invalid special characters (only standard address punctuation like , - / # . allowed)."
     return None
 
 
@@ -138,7 +180,7 @@ def send_mail_safe(subject, message, recipient, html_template=None, context=None
     except Exception as e:
         if settings.DEBUG:
             print("\n" + "="*80)
-            print(f"SMTP SEND FAILED (DEBUG MODE). EMAIL DETAILS:")
+            print(f"SMTP SEND FAILED (DEBUG MODE). REASON: {e}")
             print(f"SUBJECT: {subject}")
             print(f"RECIPIENT: {recipient}")
             if html_template and context:

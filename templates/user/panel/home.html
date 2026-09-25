@@ -154,7 +154,14 @@
       <div class="p-4 pb-[18px] border-t border-gray-100 flex-1">
         <p class="text-[0.5rem] font-bold tracking-[0.2em] uppercase text-gray-300 mb-2">{{ product.brand_name }}</p>
         <p class="text-[0.8rem] font-bold uppercase tracking-[0.04em] text-brand-dark leading-[1.4] mb-3">{{ product.name }}</p>
-        <p class="text-[0.8rem] font-normal text-brand-dark">₹{{ product.price }}</p>
+        <div class="flex items-center gap-2">
+          {% if product.has_discount %}
+          <p class="text-[0.8rem] font-bold text-[#E8500A] m-0">₹{{ product.discounted_price|floatformat:2 }}</p>
+          <p class="text-[0.7rem] font-bold text-gray-400 line-through m-0">₹{{ product.display_base_price|floatformat:2 }}</p>
+          {% else %}
+          <p class="text-[0.8rem] font-normal text-brand-dark m-0">₹{{ product.display_base_price|default:product.price }}</p>
+          {% endif %}
+        </div>
       </div>
     </a>
     {% empty %}

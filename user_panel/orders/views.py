@@ -27,6 +27,7 @@ from django.urls import reverse
 from django.conf import settings
 import json
 import logging
+import re
 import razorpay
 from user_panel.orders.models import Order
 from user_panel.profiles.models import Referral
@@ -62,6 +63,8 @@ def checkout_view(request):
     default_address = addresses.filter(is_default=True).first() or addresses.first()
 
     subtotal = cart.get_subtotal()
+    original_subtotal = cart.get_original_subtotal()
+    offer_discount = cart.get_total_offer_discount()
 
     applied_coupon_code = request.session.get('applied_coupon')
     discount_amount = Decimal('0.00')
@@ -90,6 +93,8 @@ def checkout_view(request):
         'addresses': addresses,
         'default_address': default_address,
         'subtotal': subtotal,
+        'original_subtotal': original_subtotal,
+        'offer_discount': offer_discount,
         'discount_amount': discount_amount,
         'applied_coupon': applied_coupon,
         'available_coupons': available_coupons,
@@ -279,17 +284,17 @@ def checkout_add_address_view(request):
         messages.error(request, msg)
         return redirect('checkout')
 
-    full_name = request.POST.get('full_name', '').strip().upper()
-    phone_number = request.POST.get('phone_number', '').strip().upper()
-    address_line_1 = request.POST.get('address_line_1', '').strip().upper()
-    address_line_2 = request.POST.get('address_line_2', '').strip().upper()
-    city = request.POST.get('city', '').strip().upper()
-    state = request.POST.get('state', '').strip().upper()
-    pincode = request.POST.get('pincode', '').strip().upper()
+    raw_full_name = request.POST.get('full_name', '')
+    raw_phone = request.POST.get('phone_number', '')
+    raw_line1 = request.POST.get('address_line_1', '')
+    raw_line2 = request.POST.get('address_line_2', '')
+    raw_city = request.POST.get('city', '')
+    raw_state = request.POST.get('state', '')
+    raw_pincode = request.POST.get('pincode', '')
     label = request.POST.get('label', 'HOME').strip().upper()
     is_default = request.POST.get('is_default') in ['true', 'on', '1']
 
-    if not full_name or not phone_number or not address_line_1 or not city or not state or not pincode:
+    if not raw_full_name.strip() or not raw_phone.strip() or not raw_line1.strip() or not raw_city.strip() or not raw_state.strip() or not raw_pincode.strip():
         msg = "All required address fields must be filled."
         if is_ajax(request):
             return JsonResponse({'status': 'error', 'message': msg}, status=400)
@@ -297,18 +302,27 @@ def checkout_add_address_view(request):
         return redirect('checkout')
 
     error = (
-        validate_full_name(full_name) or
-        validate_phone_number(phone_number) or
-        validate_pincode(pincode) or
-        validate_address_line(address_line_1) or
-        validate_city(city) or
-        validate_state(state)
+        validate_full_name(raw_full_name) or
+        validate_phone_number(raw_phone) or
+        validate_pincode(raw_pincode) or
+        validate_address_line(raw_line1, "Address line 1") or
+        (validate_address_line(raw_line2, "Address line 2") if raw_line2.strip() else None) or
+        validate_city(raw_city) or
+        validate_state(raw_state)
     )
     if error:
         if is_ajax(request):
             return JsonResponse({'status': 'error', 'message': error}, status=400)
         messages.error(request, error)
         return redirect('checkout')
+
+    full_name = raw_full_name.strip().upper()
+    phone_number = raw_phone.strip().upper()
+    address_line_1 = raw_line1.strip().upper()
+    address_line_2 = raw_line2.strip().upper() if raw_line2.strip() else None
+    city = re.sub(r'\s+', ' ', raw_city).strip().upper()
+    state = re.sub(r'\s+', ' ', raw_state).strip().upper()
+    pincode = raw_pincode.strip().upper()
 
     if is_default:
         Address.objects.filter(user=request.user).update(is_default=False, badge='')
@@ -320,7 +334,7 @@ def checkout_add_address_view(request):
         full_name=full_name,
         phone_number=phone_number,
         address_line_1=address_line_1,
-        address_line_2=address_line_2 or None,
+        address_line_2=address_line_2,
         city=city,
         state=state,
         pincode=pincode,
@@ -344,17 +358,17 @@ def checkout_edit_address_view(request, address_id):
 
     address = get_object_or_404(Address, id=address_id, user=request.user)
 
-    full_name = request.POST.get('full_name', '').strip().upper()
-    phone_number = request.POST.get('phone_number', '').strip().upper()
-    address_line_1 = request.POST.get('address_line_1', '').strip().upper()
-    address_line_2 = request.POST.get('address_line_2', '').strip().upper()
-    city = request.POST.get('city', '').strip().upper()
-    state = request.POST.get('state', '').strip().upper()
-    pincode = request.POST.get('pincode', '').strip().upper()
+    raw_full_name = request.POST.get('full_name', '')
+    raw_phone = request.POST.get('phone_number', '')
+    raw_line1 = request.POST.get('address_line_1', '')
+    raw_line2 = request.POST.get('address_line_2', '')
+    raw_city = request.POST.get('city', '')
+    raw_state = request.POST.get('state', '')
+    raw_pincode = request.POST.get('pincode', '')
     label = request.POST.get('label', 'HOME').strip().upper()
     is_default = request.POST.get('is_default') in ['true', 'on', '1']
 
-    if not full_name or not phone_number or not address_line_1 or not city or not state or not pincode:
+    if not raw_full_name.strip() or not raw_phone.strip() or not raw_line1.strip() or not raw_city.strip() or not raw_state.strip() or not raw_pincode.strip():
         msg = "All required address fields must be filled."
         if is_ajax(request):
             return JsonResponse({'status': 'error', 'message': msg}, status=400)
@@ -362,18 +376,27 @@ def checkout_edit_address_view(request, address_id):
         return redirect('checkout')
 
     error = (
-        validate_full_name(full_name) or
-        validate_phone_number(phone_number) or
-        validate_pincode(pincode) or
-        validate_address_line(address_line_1) or
-        validate_city(city) or
-        validate_state(state)
+        validate_full_name(raw_full_name) or
+        validate_phone_number(raw_phone) or
+        validate_pincode(raw_pincode) or
+        validate_address_line(raw_line1, "Address line 1") or
+        (validate_address_line(raw_line2, "Address line 2") if raw_line2.strip() else None) or
+        validate_city(raw_city) or
+        validate_state(raw_state)
     )
     if error:
         if is_ajax(request):
             return JsonResponse({'status': 'error', 'message': error}, status=400)
         messages.error(request, error)
         return redirect('checkout')
+
+    full_name = raw_full_name.strip().upper()
+    phone_number = raw_phone.strip().upper()
+    address_line_1 = raw_line1.strip().upper()
+    address_line_2 = raw_line2.strip().upper() if raw_line2.strip() else None
+    city = re.sub(r'\s+', ' ', raw_city).strip().upper()
+    state = re.sub(r'\s+', ' ', raw_state).strip().upper()
+    pincode = raw_pincode.strip().upper()
 
     if is_default and not address.is_default:
         Address.objects.filter(user=request.user).update(is_default=False, badge='')
@@ -1055,7 +1078,26 @@ def payment_failed_view(request):
 
     items = cart.items.select_related('product__category', 'variant').all()
     subtotal = cart.get_subtotal()
-    shipping_cost, tax_amount, total_price = calculate_order_totals(subtotal)
+    original_subtotal = cart.get_original_subtotal()
+    offer_discount = cart.get_total_offer_discount()
+
+    applied_coupon_code = request.session.get('applied_coupon')
+    discount_amount = Decimal('0.00')
+    applied_coupon = None
+
+    if applied_coupon_code:
+        coupon = Coupon.objects.filter(code__iexact=applied_coupon_code, is_active=True).first()
+        if coupon:
+            disc = coupon.calculate_discount(subtotal)
+            if disc > Decimal('0.00'):
+                discount_amount = disc
+                applied_coupon = coupon
+            else:
+                request.session.pop('applied_coupon', None)
+        else:
+            request.session.pop('applied_coupon', None)
+
+    shipping_cost, tax_amount, total_price = calculate_order_totals(subtotal, discount_amount)
 
     address_id = request.session.get('razorpay_address_id')
     address = None
@@ -1070,7 +1112,11 @@ def payment_failed_view(request):
         'cart': cart,
         'items': items,
         'address': address,
+        'original_subtotal': original_subtotal,
+        'offer_discount': offer_discount,
         'subtotal': subtotal,
+        'applied_coupon': applied_coupon,
+        'discount_amount': discount_amount,
         'shipping_cost': shipping_cost,
         'tax_amount': tax_amount,
         'total_price': total_price,
@@ -1110,9 +1156,17 @@ def retry_payment_view(request):
         }, status=500)
 
     subtotal = cart.get_subtotal()
-    shipping_cost, tax_amount, calculated_total = calculate_order_totals(subtotal)
+    applied_coupon_code = request.session.get('applied_coupon')
     discount_amount = Decimal('0.00')
-    total_price = calculated_total - discount_amount
+
+    if applied_coupon_code:
+        coupon = Coupon.objects.filter(code__iexact=applied_coupon_code, is_active=True).first()
+        if coupon:
+            disc = coupon.calculate_discount(subtotal)
+            if disc > Decimal('0.00'):
+                discount_amount = disc
+
+    shipping_cost, tax_amount, total_price = calculate_order_totals(subtotal, discount_amount)
     amount_in_paise = int(total_price * 100)
 
     address_id = request.session.get('razorpay_address_id')

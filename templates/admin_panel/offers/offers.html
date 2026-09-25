@@ -784,9 +784,18 @@ function validateOfferForm(prefix) {
 
   // 1. Offer Name Validation
   const nameInput = document.getElementById(`${prefix}-name`);
-  const nameVal = nameInput ? nameInput.value.trim() : '';
+  const rawName = nameInput ? nameInput.value : '';
+  const nameVal = rawName.trim();
   if (!nameVal) {
     showFieldError(`${prefix}-name`, "Offer name is required.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = nameInput;
+  } else if (rawName.startsWith(' ') || rawName.endsWith(' ')) {
+    showFieldError(`${prefix}-name`, "Offer name cannot start or end with a space.");
+    isValid = false;
+    if (!firstInvalidEl) firstInvalidEl = nameInput;
+  } else if (/\s{2,}/.test(rawName)) {
+    showFieldError(`${prefix}-name`, "Offer name cannot contain consecutive spaces.");
     isValid = false;
     if (!firstInvalidEl) firstInvalidEl = nameInput;
   } else if (nameVal.length < 3) {
@@ -797,8 +806,8 @@ function validateOfferForm(prefix) {
     showFieldError(`${prefix}-name`, "Offer name cannot exceed 100 characters.");
     isValid = false;
     if (!firstInvalidEl) firstInvalidEl = nameInput;
-  } else if (!/^[A-Za-z0-9_\-\s%]+$/.test(nameVal)) {
-    showFieldError(`${prefix}-name`, "Only letters, numbers, spaces, underscores, hyphens, and % are allowed.");
+  } else if (!/^[A-Za-z0-9%]+([ \-_\/][A-Za-z0-9%]+)*$/.test(nameVal)) {
+    showFieldError(`${prefix}-name`, "Only letters, numbers, single spaces, underscores, hyphens, and % are allowed.");
     isValid = false;
     if (!firstInvalidEl) firstInvalidEl = nameInput;
   }
@@ -900,8 +909,8 @@ function filterOfferProducts(prefix) {
   let visibleCount = 0;
 
   items.forEach(item => {
-    const prodName = item.getAttribute('data-product-name') || '';
-    const catName = item.getAttribute('data-category-name') || '';
+    const prodName = (item.getAttribute('data-product-name') || '').toLowerCase();
+    const catName = (item.getAttribute('data-category-name') || '').toLowerCase();
     if (!query || prodName.includes(query) || catName.includes(query)) {
       item.style.display = 'flex';
       visibleCount++;

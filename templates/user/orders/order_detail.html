@@ -9,7 +9,7 @@
 
   <!-- TOP CONTAINER & BREADCRUMBS -->
   <div class="max-w-6xl mx-auto px-6 pt-10 pb-6 text-left">
-    
+
     <!-- Breadcrumb links -->
     <div class="flex items-center gap-2 text-[0.55rem] font-bold tracking-widest text-gray-400 uppercase mb-4">
       <a href="{% url 'home' %}" class="hover:text-[#E8500A] transition-colors no-underline">HOME</a>
@@ -26,7 +26,8 @@
     <!-- Header & Action Buttons -->
     <div class="flex flex-col lg:flex-row lg:items-end justify-between gap-6 pb-6 border-b border-gray-200">
       <div>
-        <h1 class="text-2xl md:text-3xl font-black uppercase tracking-tight text-brand-dark m-0 flex flex-wrap items-center gap-3">
+        <h1
+          class="text-2xl md:text-3xl font-black uppercase tracking-tight text-brand-dark m-0 flex flex-wrap items-center gap-3">
           ORDER #{{ order.order_id }}
           {% if selected_item %}
           <span class="text-[0.58rem] font-black uppercase tracking-widest text-white px-3 py-1 
@@ -52,15 +53,19 @@
       <div class="flex flex-wrap items-center gap-2.5">
         <!-- Print Tax Invoice Link -->
         <a href="{% url 'order_invoice' order.order_id %}" target="_blank"
-           class="px-4 py-2.5 bg-white border border-brand-dark text-brand-dark text-[0.6rem] font-black uppercase tracking-[0.18em] hover:bg-brand-dark hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm no-underline">
-          <svg class="w-4 h-4 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+          class="px-4 py-2.5 bg-white border border-brand-dark text-brand-dark text-[0.6rem] font-black uppercase tracking-[0.18em] hover:bg-brand-dark hover:text-white transition-colors cursor-pointer flex items-center gap-1.5 shadow-sm no-underline">
+          <svg class="w-4 h-4 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+          </svg>
           <span>INVOICE</span>
         </a>
       </div>
     </div>
 
     <!-- METRICS SUMMARY BAR (LEFT, CENTER, RIGHT ALIGNED) -->
-    <div class="grid grid-cols-1 md:grid-cols-3 items-center py-3.5 text-[0.58rem] font-bold tracking-widest uppercase border-b border-gray-200 gap-y-3">
+    <div
+      class="grid grid-cols-1 md:grid-cols-3 items-center py-3.5 text-[0.58rem] font-bold tracking-widest uppercase border-b border-gray-200 gap-y-3">
       <!-- Left Field: Order Date -->
       <div class="flex items-center gap-1.5 justify-start">
         <span class="text-gray-400">ORDER DATE:</span>
@@ -72,11 +77,11 @@
         <span class="text-gray-400">PAYMENT METHOD:</span>
         <span class="text-brand-dark font-black">
           {% if order.payment_method == 'CASH_ON_DELIVERY' or order.payment_method == 'COD' %}
-            CASH ON DELIVERY (COD)
+          CASH ON DELIVERY (COD)
           {% elif order.payment_method == 'RAZORPAY' or order.payment_method == 'ONLINE' %}
-            RAZORPAY ONLINE PAYMENT
+          RAZORPAY ONLINE PAYMENT
           {% else %}
-            {{ order.get_payment_method_display|default:order.payment_method|upper }}
+          {{ order.get_payment_method_display|default:order.payment_method|upper }}
           {% endif %}
         </span>
       </div>
@@ -85,13 +90,13 @@
       <div class="flex items-center gap-1.5 justify-start md:justify-end">
         <span class="text-gray-400">PAYMENT STATUS:</span>
         {% with curr_status=selected_item.item_status|default:order.order_status %}
-          {% if curr_status in 'RETURNED,REFUNDED' or order.payment_status == 'REFUNDED' %}
-            <span class="text-purple-600 font-black">REFUNDED</span>
-          {% elif order.payment_method in 'RAZORPAY,ONLINE' or curr_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' or order.payment_status in 'PAID,VERIFIED' %}
-            <span class="text-green-600 font-black">PAID</span>
-          {% else %}
-            <span class="text-[#E8500A] font-black">PENDING</span>
-          {% endif %}
+        {% if curr_status in 'RETURNED,REFUNDED' or order.payment_status == 'REFUNDED' %}
+        <span class="text-purple-600 font-black">REFUNDED</span>
+        {% elif order.payment_method in 'RAZORPAY,ONLINE' or curr_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' or order.payment_status in 'PAID,VERIFIED' %}
+        <span class="text-green-600 font-black">PAID</span>
+        {% else %}
+        <span class="text-[#E8500A] font-black">PENDING</span>
+        {% endif %}
         {% endwith %}
       </div>
     </div>
@@ -105,27 +110,28 @@
     <div class="bg-[#FAFAFA] border border-gray-200 p-6 md:p-8">
       <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-8">
         {% if active_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURNED,REFUNDED' %}
-          RETURN &amp; DISPATCH TIMELINE
+        RETURN &amp; DISPATCH TIMELINE
         {% else %}
-          DISPATCH TIMELINE
+        DISPATCH TIMELINE
         {% endif %}
       </p>
 
       <!-- Connected Progress Stepper Bar -->
       <div class="relative">
-        
+
         {% if active_status in 'RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED,REFUNDED' %}
         <!-- 7-STEP RETURN & REFUND TIMELINE GRAPH -->
         <div class="absolute top-[18px] left-[7%] right-[7%] h-[3px] bg-gray-200 z-0">
-          <div class="h-full bg-[#E8500A] transition-all duration-500" 
-               style="width: {% if active_status in 'RETURNED,REFUNDED' %}100%{% elif active_status == 'RETURN_PICKUP' %}83%{% elif active_status == 'RETURN_APPROVED' %}66%{% elif active_status == 'RETURN_REQUESTED' %}50%{% else %}33%{% endif %};">
+          <div class="h-full bg-[#E8500A] transition-all duration-500"
+            style="width: {% if active_status in 'RETURNED,REFUNDED' %}100%{% elif active_status == 'RETURN_PICKUP' %}83%{% elif active_status == 'RETURN_APPROVED' %}66%{% elif active_status == 'RETURN_REQUESTED' %}50%{% else %}33%{% endif %};">
           </div>
         </div>
         <div class="grid grid-cols-7 gap-1 relative z-10 text-center">
-          
+
           <!-- Step 1: Placed -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               ✓
             </div>
             <p class="text-[0.58rem] font-black uppercase tracking-wider text-brand-dark mb-0.5">PLACED</p>
@@ -134,7 +140,8 @@
 
           <!-- Step 2: Dispatched -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               ✓
             </div>
             <p class="text-[0.58rem] font-black uppercase tracking-wider text-brand-dark mb-0.5">DISPATCHED</p>
@@ -143,7 +150,8 @@
 
           <!-- Step 3: Delivered -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full bg-green-600 text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               ✓
             </div>
             <p class="text-[0.58rem] font-black uppercase tracking-wider text-green-600 mb-0.5">DELIVERED</p>
@@ -152,7 +160,8 @@
 
           <!-- Step 4: Return Requested -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               ✓
             </div>
             <p class="text-[0.58rem] font-black uppercase tracking-wider text-[#E8500A] mb-0.5">REQUESTED</p>
@@ -161,10 +170,13 @@
 
           <!-- Step 5: Return Approved -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full {% if active_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               {% if active_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}✓{% else %}•{% endif %}
             </div>
-            <p class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">RETURN APPROVED</p>
+            <p
+              class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">
+              RETURN APPROVED</p>
             <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-400 m-0">
               {% if active_status in 'RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}ACCEPTED{% else %}UPCOMING{% endif %}
             </p>
@@ -172,16 +184,22 @@
 
           <!-- Step 6: Pickup -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status == 'RETURNED' %}bg-[#E8500A] text-white shadow-md border-4 border-white{% elif active_status == 'RETURN_PICKUP' %}bg-[#E8500A] text-white shadow-md border-4 border-white ring-2 ring-[#E8500A]/30{% else %}bg-gray-200 text-gray-400 border-4 border-white{% endif %} flex items-center justify-center text-xs font-black mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full {% if active_status == 'RETURNED' %}bg-[#E8500A] text-white shadow-md border-4 border-white{% elif active_status == 'RETURN_PICKUP' %}bg-[#E8500A] text-white shadow-md border-4 border-white ring-2 ring-[#E8500A]/30{% else %}bg-gray-200 text-gray-400 border-4 border-white{% endif %} flex items-center justify-center text-xs font-black mb-2.5">
               {% if active_status == 'RETURNED' %}
-                ✓
+              ✓
               {% elif active_status == 'RETURN_PICKUP' %}
-                <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+              <svg class="w-4 h-4 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
               {% else %}
-                •
+              •
               {% endif %}
             </div>
-            <p class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status in 'RETURN_PICKUP,RETURNED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">PICKUP</p>
+            <p
+              class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status in 'RETURN_PICKUP,RETURNED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">
+              PICKUP</p>
             <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-400 m-0">
               {% if active_status == 'RETURNED' %}PICKED UP{% elif active_status == 'RETURN_PICKUP' %}SCHEDULED{% else %}UPCOMING{% endif %}
             </p>
@@ -189,10 +207,13 @@
 
           <!-- Step 7: Returned -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status == 'RETURNED' %}bg-purple-600 text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full {% if active_status == 'RETURNED' %}bg-purple-600 text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               {% if active_status == 'RETURNED' %}✓{% else %}•{% endif %}
             </div>
-            <p class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status == 'RETURNED' %}text-purple-600{% else %}text-gray-400{% endif %} mb-0.5">RETURNED</p>
+            <p
+              class="text-[0.58rem] font-black uppercase tracking-wider {% if active_status == 'RETURNED' %}text-purple-600{% else %}text-gray-400{% endif %} mb-0.5">
+              RETURNED</p>
             <p class="text-[0.48rem] font-bold uppercase tracking-widest text-gray-400 m-0">
               {% if active_status == 'RETURNED' %}COMPLETED{% else %}UPCOMING{% endif %}
             </p>
@@ -202,16 +223,17 @@
         {% else %}
         <!-- STANDARD 4-STEP DISPATCH TIMELINE GRAPH -->
         <div class="absolute top-[18px] left-[12%] right-[12%] h-[3px] bg-gray-200 z-0">
-          <div class="h-full bg-[#E8500A] transition-all duration-500" 
-               style="width: {% if active_status == 'DELIVERED' %}100%{% elif active_status == 'SHIPPED' %}66%{% elif active_status == 'PROCESSING' %}33%{% else %}0%{% endif %};">
+          <div class="h-full bg-[#E8500A] transition-all duration-500"
+            style="width: {% if active_status == 'DELIVERED' %}100%{% elif active_status == 'SHIPPED' %}66%{% elif active_status == 'PROCESSING' %}33%{% else %}0%{% endif %};">
           </div>
         </div>
 
         <div class="grid grid-cols-4 gap-2 relative z-10 text-center">
-          
+
           <!-- Step 1: Placed -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full bg-[#E8500A] text-white flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               ✓
             </div>
             <p class="text-[0.65rem] font-black uppercase tracking-wider text-brand-dark mb-0.5">ORDER PLACED</p>
@@ -220,10 +242,13 @@
 
           <!-- Step 2: Processing -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status in 'PROCESSING,SHIPPED,DELIVERED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full {% if active_status in 'PROCESSING,SHIPPED,DELIVERED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               {% if active_status in 'PROCESSING,SHIPPED,DELIVERED' %}✓{% else %}•{% endif %}
             </div>
-            <p class="text-[0.65rem] font-black uppercase tracking-wider {% if active_status in 'PROCESSING,SHIPPED,DELIVERED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">PROCESSING</p>
+            <p
+              class="text-[0.65rem] font-black uppercase tracking-wider {% if active_status in 'PROCESSING,SHIPPED,DELIVERED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">
+              PROCESSING</p>
             <p class="text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 m-0">
               {% if active_status in 'PROCESSING,SHIPPED,DELIVERED' %}{{ order.created_at|date:"M d" }} &bull; PACKED{% else %}PENDING{% endif %}
             </p>
@@ -231,10 +256,13 @@
 
           <!-- Step 3: Shipped -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status in 'SHIPPED,DELIVERED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full {% if active_status in 'SHIPPED,DELIVERED' %}bg-[#E8500A] text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               {% if active_status in 'SHIPPED,DELIVERED' %}✓{% else %}•{% endif %}
             </div>
-            <p class="text-[0.65rem] font-black uppercase tracking-wider {% if active_status in 'SHIPPED,DELIVERED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">DISPATCHED</p>
+            <p
+              class="text-[0.65rem] font-black uppercase tracking-wider {% if active_status in 'SHIPPED,DELIVERED' %}text-brand-dark{% else %}text-gray-400{% endif %} mb-0.5">
+              DISPATCHED</p>
             <p class="text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 m-0">
               {% if active_status in 'SHIPPED,DELIVERED' %}{{ order.created_at|date:"M d" }} &bull; IN TRANSIT{% else %}UPCOMING{% endif %}
             </p>
@@ -242,10 +270,13 @@
 
           <!-- Step 4: Delivered -->
           <div class="flex flex-col items-center">
-            <div class="w-9 h-9 rounded-full {% if active_status == 'DELIVERED' %}bg-green-600 text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
+            <div
+              class="w-9 h-9 rounded-full {% if active_status == 'DELIVERED' %}bg-green-600 text-white{% else %}bg-gray-200 text-gray-400{% endif %} flex items-center justify-center text-xs font-black shadow-md border-4 border-white mb-2.5">
               {% if active_status == 'DELIVERED' %}✓{% else %}•{% endif %}
             </div>
-            <p class="text-[0.65rem] font-black uppercase tracking-wider {% if active_status == 'DELIVERED' %}text-green-600{% else %}text-gray-400{% endif %} mb-0.5">DELIVERED</p>
+            <p
+              class="text-[0.65rem] font-black uppercase tracking-wider {% if active_status == 'DELIVERED' %}text-green-600{% else %}text-gray-400{% endif %} mb-0.5">
+              DELIVERED</p>
             <p class="text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 m-0">
               {% if active_status == 'DELIVERED' %}{{ order.expected_delivery_date|default:order.updated_at|date:"M d, Y" }}{% else %}EST. {{ order.default_delivery_date|date:"M d, Y" }}{% endif %}
             </p>
@@ -262,37 +293,46 @@
 
   <!-- MIDDLE SECTION: 2-COLUMN SPLIT GRID -->
   <div class="max-w-6xl mx-auto px-6 mb-12">
-    <div class="border border-gray-200 grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 text-left">
+    <div
+      class="border border-gray-200 grid grid-cols-1 lg:grid-cols-12 divide-y lg:divide-y-0 lg:divide-x divide-gray-200 text-left">
 
       <!-- LEFT COLUMN: PURCHASED ITEMS SHOWCASE (LG: 7 COLS) -->
       <div class="lg:col-span-7 p-6 md:p-8 flex flex-col justify-between">
         <div>
           <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-6">
             {% if selected_item %}
-              PURCHASED ITEM (01)
+            PURCHASED ITEM (01)
             {% else %}
-              PURCHASED ITEMS (0{{ order_items|length }})
+            PURCHASED ITEMS (0{{ order_items|length }})
             {% endif %}
           </p>
 
           <div class="divide-y divide-gray-200">
             {% for item in order_items %}
             <div class="py-6 first:pt-0 last:pb-0 flex flex-col sm:flex-row items-start sm:items-center gap-6">
-              
+
               <!-- Square Image Container -->
               {% if item.product %}
-              <a href="{% url 'product_detail' item.product.id %}" class="w-28 h-28 bg-[#0B0B0B] border border-gray-300 p-2 shrink-0 flex items-center justify-center relative overflow-hidden group/img block">
+              <a href="{% url 'product_detail' item.product.id %}"
+                class="w-28 h-28 bg-[#0B0B0B] border border-gray-300 p-2 shrink-0 flex items-center justify-center relative overflow-hidden group/img block">
                 {% if item.variant and item.variant.images.first %}
-                  <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product_name }}" class="max-h-full max-w-full object-contain group-hover/img:scale-105 transition-transform">
+                <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product_name }}"
+                  class="max-h-full max-w-full object-contain group-hover/img:scale-105 transition-transform">
                 {% elif item.product and item.product.images.first %}
-                  <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}" class="max-h-full max-w-full object-contain group-hover/img:scale-105 transition-transform">
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product_name }}"
+                  class="max-h-full max-w-full object-contain group-hover/img:scale-105 transition-transform">
                 {% else %}
-                  <div class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500 font-bold uppercase text-[0.5rem]">NO IMAGE</div>
+                <div
+                  class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500 font-bold uppercase text-[0.5rem]">
+                  NO IMAGE</div>
                 {% endif %}
               </a>
               {% else %}
-              <div class="w-28 h-28 bg-[#0B0B0B] border border-gray-300 p-2 shrink-0 flex items-center justify-center relative overflow-hidden">
-                <div class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500 font-bold uppercase text-[0.5rem]">NO IMAGE</div>
+              <div
+                class="w-28 h-28 bg-[#0B0B0B] border border-gray-300 p-2 shrink-0 flex items-center justify-center relative overflow-hidden">
+                <div
+                  class="w-full h-full bg-gray-900 flex items-center justify-center text-gray-500 font-bold uppercase text-[0.5rem]">
+                  NO IMAGE</div>
               </div>
               {% endif %}
 
@@ -303,7 +343,8 @@
                 </p>
                 {% if item.product %}
                 <h3 class="text-base font-black uppercase tracking-[0.06em] text-brand-dark mb-2 leading-tight">
-                  <a href="{% url 'product_detail' item.product.id %}" class="text-brand-dark hover:text-[#E8500A] transition-colors no-underline">
+                  <a href="{% url 'product_detail' item.product.id %}"
+                    class="text-brand-dark hover:text-[#E8500A] transition-colors no-underline">
                     {{ item.product_name }}
                   </a>
                 </h3>
@@ -328,34 +369,36 @@
                 <!-- Item Action Row: Cancel Item / Return Product / Item Status -->
                 <div class="flex flex-wrap items-center gap-3 mt-2">
                   {% if item.item_status == 'CANCELLED' %}
-                  <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-red-600">
+                  <span
+                    class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-red-600">
                     ITEM CANCELLED
                   </span>
                   {% else %}
 
                   {% if order.order_status in 'CONFIRMED,PROCESSING,SHIPPED' and item.item_status != 'CANCELLED' %}
                   <button type="button"
-                          onclick="openCancelProductModal('{% url 'cancel_order_item' order_id=order.order_id item_id=item.id %}', '{{ item.product_name|escapejs }}')"
-                          class="text-[0.58rem] font-bold uppercase tracking-widest text-red-600 hover:underline cursor-pointer p-0 border-none bg-transparent inline-flex items-center">
+                    onclick="openCancelProductModal('{% url 'cancel_order_item' order_id=order.order_id item_id=item.id %}', '{{ item.product_name|escapejs }}')"
+                    class="text-[0.58rem] font-bold uppercase tracking-widest text-red-600 hover:underline cursor-pointer p-0 border-none bg-transparent inline-flex items-center">
                     CANCEL PRODUCT
                   </button>
                   {% endif %}
 
                   {% if item.item_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP,RETURNED' %}
-                  <span class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-green-600">
+                  <span
+                    class="inline-flex items-center text-[0.58rem] font-black uppercase tracking-widest text-green-600">
                     DELIVERED
                   </span>
                   {% if item.item_status == 'DELIVERED' %}
-                    {% if not item.admin_note or 'reject' not in item.admin_note|lower %}
-                      {% if not item.cancel_reason or 'return rejected' not in item.cancel_reason|lower %}
-                      <span class="text-gray-300 text-xs">•</span>
-                      <button type="button"
-                              onclick="openReturnProductModal('{% url 'return_order_item' order_id=order.order_id item_id=item.id %}', '{{ item.product_name|escapejs }}')"
-                              class="text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors cursor-pointer p-0 border-none bg-transparent inline-flex items-center">
-                        RETURN PRODUCT
-                      </button>
-                      {% endif %}
-                    {% endif %}
+                  {% if not item.admin_note or 'reject' not in item.admin_note|lower %}
+                  {% if not item.cancel_reason or 'return rejected' not in item.cancel_reason|lower %}
+                  <span class="text-gray-300 text-xs">•</span>
+                  <button type="button"
+                    onclick="openReturnProductModal('{% url 'return_order_item' order_id=order.order_id item_id=item.id %}', '{{ item.product_name|escapejs }}')"
+                    class="text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors cursor-pointer p-0 border-none bg-transparent inline-flex items-center">
+                    RETURN PRODUCT
+                  </button>
+                  {% endif %}
+                  {% endif %}
                   {% endif %}
                   {% endif %}
 
@@ -364,9 +407,12 @@
 
                 {% if item.admin_note and 'reject' in item.admin_note|lower or item.cancel_reason and 'return rejected' in item.cancel_reason|lower %}
                 <div class="mt-3 p-3 bg-red-50 border-l-4 border-red-600 text-xs text-red-800 rounded-xs">
-                  <div class="flex items-center gap-2 font-bold uppercase tracking-wider text-[0.6rem] text-red-700 mb-1">
-                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  <div
+                    class="flex items-center gap-2 font-bold uppercase tracking-wider text-[0.6rem] text-red-700 mb-1">
+                    <svg class="w-4 h-4 text-red-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+                      stroke-width="2">
+                      <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                     </svg>
                     <span>RETURN REQUEST REJECTED BY ADMIN</span>
                   </div>
@@ -384,9 +430,12 @@
                 </div>
                 {% if item.item_status == 'DELIVERED' and item.product %}
                 <button type="button"
-                        onclick="openOrderReviewModal({{ item.product.id }}, '{{ item.product_name|escapejs }}')"
-                        class="inline-flex items-center gap-1.5 text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors border-none bg-transparent cursor-pointer p-0">
-                  <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                  onclick="openOrderReviewModal({{ item.product.id }}, '{{ item.product_name|escapejs }}')"
+                  class="inline-flex items-center gap-1.5 text-[0.58rem] font-bold uppercase tracking-widest text-[#1A1A1A] hover:text-[#E8500A] hover:underline transition-colors border-none bg-transparent cursor-pointer p-0">
+                  <svg class="w-3.5 h-3.5 text-amber-500 shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                    <path
+                      d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z" />
+                  </svg>
                   <span>WRITE A REVIEW</span>
                 </button>
                 {% endif %}
@@ -402,7 +451,7 @@
 
       <!-- RIGHT COLUMN: DESTINATION & INVOICE SUMMARY (LG: 5 COLS) -->
       <div class="lg:col-span-5 p-6 md:p-8 flex flex-col justify-between space-y-8 bg-gray-50/50">
-        
+
         <!-- SHIPPING DESTINATION -->
         <div>
           <div class="flex items-center justify-between border-b border-gray-200 pb-3 mb-4">
@@ -422,8 +471,10 @@
             {% if order.shipping_address_line_2 %}
             <p class="uppercase m-0">{{ order.shipping_address_line_2 }}</p>
             {% endif %}
-            <p class="uppercase font-bold text-brand-dark m-0">{{ order.shipping_city }}, {{ order.shipping_state }} — {{ order.shipping_pincode }}</p>
-            <div class="pt-3 border-t border-gray-200 mt-3 text-[0.58rem] font-bold uppercase tracking-wider text-gray-500">
+            <p class="uppercase font-bold text-brand-dark m-0">{{ order.shipping_city }}, {{ order.shipping_state }} —
+              {{ order.shipping_pincode }}</p>
+            <div
+              class="pt-3 border-t border-gray-200 mt-3 text-[0.58rem] font-bold uppercase tracking-wider text-gray-500">
               <span class="text-gray-400">CONTACT MOBILE:</span> {{ order.shipping_phone }}
             </div>
           </div>
@@ -431,8 +482,9 @@
 
         <!-- INVOICE SUMMARY -->
         <div>
-          <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-4 border-b border-gray-200 pb-3">
-           INVOICE BREAKDOWN
+          <p
+            class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-4 border-b border-gray-200 pb-3">
+            INVOICE BREAKDOWN
           </p>
 
           <div class="space-y-2.5 text-xs text-gray-600">
@@ -460,7 +512,8 @@
             </div>
             {% endif %}
 
-            <div class="border-t border-brand-dark pt-4 mt-4 flex items-baseline justify-between text-base font-black uppercase text-brand-dark">
+            <div
+              class="border-t border-brand-dark pt-4 mt-4 flex items-baseline justify-between text-base font-black uppercase text-brand-dark">
               <span>TOTAL PAID</span>
               <span class="text-2xl font-black text-[#E8500A]">₹{{ display_total|floatformat:2 }}</span>
             </div>
@@ -475,7 +528,7 @@
   <!-- BOTTOM ACTION FOOTER -->
   <div class="max-w-4xl mx-auto px-6 flex justify-center">
     <a href="{% url 'shop' %}"
-       class="w-full sm:w-80 bg-[#E8500A] text-white text-[0.65rem] font-black tracking-[0.2em] uppercase py-4 hover:bg-[#c94008] transition-colors text-center no-underline shadow-sm">
+      class="w-full sm:w-80 bg-[#E8500A] text-white text-[0.65rem] font-black tracking-[0.2em] uppercase py-4 hover:bg-[#c94008] transition-colors text-center no-underline shadow-sm">
       CONTINUE SHOPPING
     </a>
   </div>
@@ -483,28 +536,40 @@
 </div>
 
 <!-- CANCEL ENTIRE ORDER MODAL -->
-<div id="cancel-order-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
-  <div class="bg-white max-w-lg w-full p-6 md:p-8 shadow-2xl relative text-left border border-gray-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
-    <button type="button" onclick="closeCancelOrderModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
-    
+<div id="cancel-order-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
+  <div
+    class="bg-white max-w-lg w-full p-6 md:p-8 shadow-2xl relative text-left border border-gray-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
+    <button type="button" onclick="closeCancelOrderModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+
     <div class="flex items-center gap-3 mb-4">
       <div class="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
       </div>
       <div>
-        <h3 class="text-base font-black uppercase text-brand-dark tracking-wider m-0">CANCEL ORDER #{{ order.order_id }}</h3>
+        <h3 class="text-base font-black uppercase text-brand-dark tracking-wider m-0">CANCEL ORDER #{{ order.order_id }}
+        </h3>
       </div>
     </div>
 
-    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Are you sure you want to cancel this order? Once confirmed, your order will be cancelled immediately.</p>
+    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Are you sure you want to cancel this order? Once confirmed,
+      your order will be cancelled immediately.</p>
 
-    <form action="{% url 'cancel_order' order.order_id %}" method="POST" onsubmit="return validateReasonForm(this, 'cancel_reason_select', 'cancel-order-custom-reason')" class="space-y-4">
+    <form action="{% url 'cancel_order' order.order_id %}" method="POST"
+      onsubmit="return validateReasonForm(this, 'cancel_reason_select', 'cancel-order-custom-reason')"
+      class="space-y-4">
       {% csrf_token %}
-      
+
       <div>
-        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR CANCELLATION <span class="text-red-500">*</span></label>
-        <select name="cancel_reason_select" required onchange="handleReasonSelectChange(this, 'cancel-order-custom-reason')"
-                class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
+        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR
+          CANCELLATION <span class="text-red-500">*</span></label>
+        <select name="cancel_reason_select" required
+          onchange="handleReasonSelectChange(this, 'cancel-order-custom-reason')"
+          class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
           <option value="">-- Select a reason (Required) --</option>
           <option value="Changed my mind">Changed my mind</option>
           <option value="Ordered by mistake">Ordered by mistake</option>
@@ -512,15 +577,18 @@
           <option value="Shipping time is too long">Shipping time is too long</option>
           <option value="Other">Other (Please specify below)</option>
         </select>
-        <textarea name="cancel_reason" id="cancel-order-custom-reason" rows="3" placeholder="Provide additional details or reason..."
-                  class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
+        <textarea name="cancel_reason" id="cancel-order-custom-reason" rows="3"
+          placeholder="Provide additional details or reason..."
+          class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-        <button type="button" onclick="closeCancelOrderModal()" class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none">
+        <button type="button" onclick="closeCancelOrderModal()"
+          class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none">
           KEEP ORDER
         </button>
-        <button type="submit" class="px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-sm">
+        <button type="submit"
+          class="px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-sm">
           CONFIRM CANCELLATION
         </button>
       </div>
@@ -531,28 +599,40 @@
 
 
 <!-- REQUEST RETURN MODAL -->
-<div id="return-order-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
-  <div class="bg-white max-w-lg w-full p-6 md:p-8 shadow-2xl relative text-left border border-gray-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
-    <button type="button" onclick="closeReturnOrderModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
-    
+<div id="return-order-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
+  <div
+    class="bg-white max-w-lg w-full p-6 md:p-8 shadow-2xl relative text-left border border-gray-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
+    <button type="button" onclick="closeReturnOrderModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+
     <div class="flex items-center gap-3 mb-4">
-      <div class="w-10 h-10 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+      <div
+        class="w-10 h-10 rounded-full bg-orange-50 border border-orange-200 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-[#E8500A]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+        </svg>
       </div>
       <div>
-        <h3 id="return-order-title" class="text-base font-black uppercase text-brand-dark tracking-wider m-0">RETURN REQUEST #{{ order.order_id }}</h3>
+        <h3 id="return-order-title" class="text-base font-black uppercase text-brand-dark tracking-wider m-0">RETURN
+          REQUEST #{{ order.order_id }}</h3>
       </div>
     </div>
 
-    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Please select a reason for returning this item. Our team will verify and organize pick-up for your return.</p>
+    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Please select a reason for returning this item. Our team will
+      verify and organize pick-up for your return.</p>
 
-    <form id="return-order-form" action="{% url 'return_order' order.order_id %}" method="POST" enctype="multipart/form-data" onsubmit="return validateReturnForm(this)" class="space-y-4">
+    <form id="return-order-form" action="{% url 'return_order' order.order_id %}" method="POST"
+      enctype="multipart/form-data" onsubmit="return validateReturnForm(this)" class="space-y-4">
       {% csrf_token %}
-      
+
       <div>
-        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR RETURN <span class="text-red-500">*</span></label>
-        <select name="return_reason_select" required onchange="handleReturnReasonSelect(this, 'return-order-custom-reason')"
-                class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
+        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR RETURN
+          <span class="text-red-500">*</span></label>
+        <select name="return_reason_select" required
+          onchange="handleReturnReasonSelect(this, 'return-order-custom-reason')"
+          class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
           <option value="">-- Select a return reason (Required) --</option>
           <option value="Defective or Damaged Product">Defective or Damaged Product</option>
           <option value="Received Wrong Item / Size / Color">Received Wrong Item / Size / Color</option>
@@ -561,30 +641,37 @@
           <option value="Item No Longer Needed">Item No Longer Needed</option>
           <option value="Other">Other (Please specify below)</option>
         </select>
-        
+
         <!-- Photo Proof Upload Field -->
         <div id="return-photo-upload-section" class="hidden mb-3">
-          <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-red-600 mb-1 flex items-center gap-1">
-            <svg class="w-3.5 h-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+          <label
+            class="block text-[0.55rem] font-bold uppercase tracking-widest text-red-600 mb-1 flex items-center gap-1">
+            <svg class="w-3.5 h-3.5 text-red-600" fill="none" viewBox="0 0 24 24" stroke="currentColor"
+              stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round"
+                d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
               <path stroke-linecap="round" stroke-linejoin="round" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
             UPLOAD PROOF PHOTOS (REQUIRED - UP TO 3)
           </label>
-          <input type="file" name="return_images" id="return-images-input" multiple accept="image/*" onchange="handleReturnImagesPreview(this)"
-                 class="w-full bg-gray-50 border border-gray-300 p-2 text-xs font-sans text-brand-dark cursor-pointer" />
+          <input type="file" name="return_images" id="return-images-input" multiple accept="image/*"
+            onchange="handleReturnImagesPreview(this)"
+            class="w-full bg-gray-50 border border-gray-300 p-2 text-xs font-sans text-brand-dark cursor-pointer" />
           <div id="return-images-preview" class="flex flex-wrap gap-2 mt-2"></div>
         </div>
 
-        <textarea name="return_reason" id="return-order-custom-reason" rows="3" placeholder="Provide additional details about the return..."
-                  class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
+        <textarea name="return_reason" id="return-order-custom-reason" rows="3"
+          placeholder="Provide additional details about the return..."
+          class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-        <button type="button" onclick="closeReturnOrderModal()" class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none">
+        <button type="button" onclick="closeReturnOrderModal()"
+          class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none">
           KEEP ORDER
         </button>
-        <button type="submit" class="px-5 py-2.5 bg-[#E8500A] text-white hover:bg-black text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-sm">
+        <button type="submit"
+          class="px-5 py-2.5 bg-[#E8500A] text-white hover:bg-black text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-sm">
           SUBMIT RETURN REQUEST
         </button>
       </div>
@@ -594,42 +681,52 @@
 
 <!-- RETURN SUCCESS CONFIRMATION MODAL WITH EFFECT -->
 {% if messages %}
-  {% for message in messages %}
-    {% with msg_str=message|stringformat:"s" %}
-    {% if "Return request" in msg_str or "return" in msg_str|lower %}
-    <div id="return-success-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 min-h-screen overflow-y-auto">
-      <div class="bg-white max-w-md w-full p-6 md:p-8 shadow-2xl relative text-center border border-gray-100 my-auto rounded-xs transform transition-all duration-300 scale-100 opacity-100 max-h-[90vh] flex flex-col justify-center">
-        
-        <!-- Animated Success Checkmark Ring -->
-        <div class="w-16 h-16 rounded-full bg-green-50 border-2 border-green-500 text-green-600 flex items-center justify-center mx-auto mb-5 shadow-xs shrink-0">
-          <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-          </svg>
-        </div>
+{% for message in messages %}
+{% with msg_str=message|stringformat:"s" %}
+{% if 'success' in message.tags and "Return request" in msg_str or 'success' in message.tags and "return" in msg_str|lower %}
+<div id="return-success-modal"
+  class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[99999] flex items-center justify-center p-4 min-h-screen overflow-y-auto">
+  <div
+    class="bg-white max-w-md w-full p-6 md:p-8 shadow-2xl relative text-center border border-gray-100 my-auto rounded-xs transform transition-all duration-300 scale-100 opacity-100 max-h-[90vh] flex flex-col justify-center">
 
-        <h3 class="text-lg font-black uppercase text-brand-dark tracking-wider m-0 mb-2">RETURN REQUEST SUBMITTED</h3>
-        <p class="text-xs text-gray-600 mb-6 leading-relaxed font-sans">
-          {{ message }}
-        </p>
-
-        <button type="button" onclick="closeReturnSuccessModal()" class="w-full py-3 bg-[#E8500A] text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-black transition-colors cursor-pointer border-none shadow-sm">
-          GOT IT
-        </button>
-      </div>
+    <!-- Animated Success Checkmark Ring -->
+    <div
+      class="w-16 h-16 rounded-full bg-green-50 border-2 border-green-500 text-green-600 flex items-center justify-center mx-auto mb-5 shadow-xs shrink-0">
+      <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
+      </svg>
     </div>
-    {% endif %}
-    {% endwith %}
-  {% endfor %}
+
+    <h3 class="text-lg font-black uppercase text-brand-dark tracking-wider m-0 mb-2">RETURN REQUEST SUBMITTED</h3>
+    <p class="text-xs text-gray-600 mb-6 leading-relaxed font-sans">
+      {{ message }}
+    </p>
+
+    <button type="button" onclick="closeReturnSuccessModal()"
+      class="w-full py-3 bg-[#E8500A] text-white text-xs font-black uppercase tracking-[0.18em] hover:bg-black transition-colors cursor-pointer border-none shadow-sm">
+      GOT IT
+    </button>
+  </div>
+</div>
+{% endif %}
+{% endwith %}
+{% endfor %}
 {% endif %}
 
 <!-- CANCEL INDIVIDUAL PRODUCT MODAL -->
-<div id="cancel-product-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
-  <div class="bg-white max-w-lg w-full p-6 md:p-8 shadow-2xl relative text-left border border-gray-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
-    <button type="button" onclick="closeCancelProductModal()" class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
-    
+<div id="cancel-product-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[99999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
+  <div
+    class="bg-white max-w-lg w-full p-6 md:p-8 shadow-2xl relative text-left border border-gray-200 my-auto rounded-xs max-h-[90vh] overflow-y-auto">
+    <button type="button" onclick="closeCancelProductModal()"
+      class="absolute top-4 right-4 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+
     <div class="flex items-center gap-3 mb-4">
       <div class="w-10 h-10 rounded-full bg-red-50 border border-red-200 flex items-center justify-center shrink-0">
-        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        </svg>
       </div>
       <div>
         <h3 class="text-base font-black uppercase text-brand-dark tracking-wider m-0">CANCEL PRODUCT</h3>
@@ -637,15 +734,19 @@
       </div>
     </div>
 
-    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Are you sure you want to cancel this product? Once confirmed, this item will be cancelled and your order totals will be updated.</p>
+    <p class="text-xs text-gray-600 mb-6 leading-relaxed">Are you sure you want to cancel this product? Once confirmed,
+      this item will be cancelled and your order totals will be updated.</p>
 
-    <form id="cancel-product-form" action="" method="POST" onsubmit="return validateReasonForm(this, 'cancel_reason_select', 'cancel-product-custom-reason')" class="space-y-4">
+    <form id="cancel-product-form" action="" method="POST"
+      onsubmit="return validateReasonForm(this, 'cancel_reason_select', 'cancel-product-custom-reason')"
+      class="space-y-4">
       {% csrf_token %}
-      
+
       <div>
-        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR CANCELLATION <span class="text-red-500">*</span></label>
+        <label class="block text-[0.55rem] font-bold uppercase tracking-widest text-gray-500 mb-2">REASON FOR
+          CANCELLATION <span class="text-red-500">*</span></label>
         <select name="cancel_reason_select" required onchange="handleProductReasonChange(this)"
-                class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
+          class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark outline-none focus:border-[#E8500A] transition-colors mb-3">
           <option value="">-- Select a reason (Required) --</option>
           <option value="Changed my mind">Changed my mind</option>
           <option value="Ordered by mistake">Ordered by mistake</option>
@@ -653,15 +754,18 @@
           <option value="Shipping time is too long">Shipping time is too long</option>
           <option value="Other">Other (Please specify below)</option>
         </select>
-        <textarea name="cancel_reason" id="cancel-product-custom-reason" rows="3" placeholder="Provide additional details or reason..."
-                  class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
+        <textarea name="cancel_reason" id="cancel-product-custom-reason" rows="3"
+          placeholder="Provide additional details or reason..."
+          class="w-full bg-gray-50 border border-gray-300 p-2.5 text-xs font-sans text-brand-dark placeholder-gray-400 outline-none focus:border-[#E8500A] transition-colors resize-none"></textarea>
       </div>
 
       <div class="flex items-center justify-end gap-3 pt-4 border-t border-gray-100">
-        <button type="button" onclick="closeCancelProductModal()" class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none">
+        <button type="button" onclick="closeCancelProductModal()"
+          class="px-5 py-2.5 bg-gray-100 text-gray-700 hover:bg-gray-200 text-xs font-bold uppercase tracking-wider transition-colors cursor-pointer border-none">
           KEEP PRODUCT
         </button>
-        <button type="submit" class="px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-sm">
+        <button type="submit"
+          class="px-5 py-2.5 bg-red-600 text-white hover:bg-red-700 text-xs font-black uppercase tracking-wider transition-colors cursor-pointer border-none shadow-sm">
           CONFIRM CANCELLATION
         </button>
       </div>
@@ -670,15 +774,19 @@
 </div>
 
 <!-- WRITE A REVIEW MODAL (Order Detail Page) -->
-<div id="order-review-modal" class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[99999] flex items-center justify-center hidden p-4 overflow-y-auto min-h-screen">
-  <div class="bg-white max-w-lg w-full rounded-xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all my-auto">
+<div id="order-review-modal"
+  class="fixed inset-0 bg-black/60 backdrop-blur-xs z-[99999] flex items-center justify-center hidden p-4 overflow-y-auto min-h-screen">
+  <div
+    class="bg-white max-w-lg w-full rounded-xl shadow-2xl border border-gray-200 overflow-hidden transform transition-all my-auto">
     <!-- Modal Header -->
     <div class="bg-brand-dark text-white px-6 py-4 flex justify-between items-center">
       <div>
         <h3 class="text-sm font-black uppercase tracking-[0.14em] text-white m-0">Write a Product Review</h3>
-        <p id="order-review-product-name" class="text-[0.65rem] text-gray-300 uppercase tracking-wider truncate max-w-xs m-0 mt-0.5"></p>
+        <p id="order-review-product-name"
+          class="text-[0.65rem] text-gray-300 uppercase tracking-wider truncate max-w-xs m-0 mt-0.5"></p>
       </div>
-      <button type="button" onclick="closeOrderReviewModal()" class="text-gray-400 hover:text-white transition-colors text-2xl font-bold leading-none cursor-pointer border-none bg-transparent">&times;</button>
+      <button type="button" onclick="closeOrderReviewModal()"
+        class="text-gray-400 hover:text-white transition-colors text-2xl font-bold leading-none cursor-pointer border-none bg-transparent">&times;</button>
     </div>
 
     <!-- Review Form -->
@@ -687,58 +795,100 @@
 
       <!-- Interactive Star Rating Input -->
       <div>
-        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">Overall Star Rating <span class="text-red-500">*</span></label>
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1.5">Overall Star Rating <span
+            class="text-red-500">*</span></label>
         <div class="flex items-center gap-1" id="orderStarRatingContainer">
           <input type="hidden" name="rating" id="orderRatingInput" value="5">
-          <button type="button" onclick="setOrderRating(1)" onmouseenter="highlightOrderStars(1)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="1">★</button>
-          <button type="button" onclick="setOrderRating(2)" onmouseenter="highlightOrderStars(2)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="2">★</button>
-          <button type="button" onclick="setOrderRating(3)" onmouseenter="highlightOrderStars(3)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="3">★</button>
-          <button type="button" onclick="setOrderRating(4)" onmouseenter="highlightOrderStars(4)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="4">★</button>
-          <button type="button" onclick="setOrderRating(5)" onmouseenter="highlightOrderStars(5)" onmouseleave="resetOrderStars()" class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0" data-value="5">★</button>
-          <span id="orderRatingLabel" class="ml-3 text-xs font-bold text-gray-600 uppercase tracking-wider">5.0 - Excellent</span>
+          <button type="button" onclick="setOrderRating(1)" onmouseenter="highlightOrderStars(1)"
+            onmouseleave="resetOrderStars()"
+            class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0"
+            data-value="1">★</button>
+          <button type="button" onclick="setOrderRating(2)" onmouseenter="highlightOrderStars(2)"
+            onmouseleave="resetOrderStars()"
+            class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0"
+            data-value="2">★</button>
+          <button type="button" onclick="setOrderRating(3)" onmouseenter="highlightOrderStars(3)"
+            onmouseleave="resetOrderStars()"
+            class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0"
+            data-value="3">★</button>
+          <button type="button" onclick="setOrderRating(4)" onmouseenter="highlightOrderStars(4)"
+            onmouseleave="resetOrderStars()"
+            class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0"
+            data-value="4">★</button>
+          <button type="button" onclick="setOrderRating(5)" onmouseenter="highlightOrderStars(5)"
+            onmouseleave="resetOrderStars()"
+            class="order-star-btn text-2xl text-amber-500 focus:outline-none transition-transform hover:scale-110 cursor-pointer border-none bg-transparent p-0"
+            data-value="5">★</button>
+          <span id="orderRatingLabel" class="ml-3 text-xs font-bold text-gray-600 uppercase tracking-wider">5.0 -
+            Excellent</span>
         </div>
       </div>
 
       <!-- Reviewer Name -->
       <div>
-        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Your Name <span class="text-red-500">*</span></label>
-        <input type="text" name="reviewer_name" value="{% if request.user.is_authenticated %}{{ request.user.fullname|default:request.user.username }}{% endif %}" placeholder="e.g. Rahul Sharma" required class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans">
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Your Name <span
+            class="text-red-500">*</span></label>
+        <input type="text" name="reviewer_name"
+          value="{% if request.user.is_authenticated %}{{ request.user.fullname|default:request.user.username }}{% endif %}"
+          placeholder="e.g. Rahul Sharma" required
+          class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans">
       </div>
 
       <!-- Review Headline -->
       <div>
-        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Review Headline <span class="text-red-500">*</span></label>
-        <input type="text" name="title" placeholder="e.g. Exceptional sound resonance & build quality!" required class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans">
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Review Headline <span
+            class="text-red-500">*</span></label>
+        <input type="text" name="title" placeholder="e.g. Exceptional sound resonance & build quality!" required
+          class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans">
       </div>
 
       <!-- Review Body -->
       <div>
-        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Detailed Review <span class="text-red-500">*</span></label>
-        <textarea name="comment" rows="4" placeholder="Tell us about the tone, craftsmanship, packaging, and playability..." required class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans"></textarea>
+        <label class="block text-xs font-black uppercase tracking-wider text-gray-700 mb-1">Detailed Review <span
+            class="text-red-500">*</span></label>
+        <textarea name="comment" rows="4"
+          placeholder="Tell us about the tone, craftsmanship, packaging, and playability..." required
+          class="w-full px-3.5 py-2.5 border border-gray-300 rounded text-xs focus:ring-2 focus:ring-brand-dark focus:outline-none font-sans"></textarea>
       </div>
 
       <!-- Upload Photo & Video Fields -->
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-gray-100">
         <!-- Image Upload -->
         <div>
-          <label class="block text-[0.65rem] font-bold uppercase tracking-wider text-gray-600 mb-1">Attach Photo (Optional)</label>
-          <div class="relative border border-dashed border-gray-300 rounded p-2.5 text-center hover:bg-gray-50 transition-colors cursor-pointer">
-            <input type="file" name="image" accept="image/*" onchange="handleOrderFilePreview(this, 'orderImageFileName')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+          <label class="block text-[0.65rem] font-bold uppercase tracking-wider text-gray-600 mb-1">Attach Photo
+            (Optional)</label>
+          <div
+            class="relative border border-dashed border-gray-300 rounded p-2.5 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+            <input type="file" name="image" accept="image/*"
+              onchange="handleOrderFilePreview(this, 'orderImageFileName')"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
             <div class="flex flex-col items-center pointer-events-none">
-              <svg class="w-5 h-5 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
-              <span class="text-[0.62rem] text-gray-500 font-medium truncate max-w-[130px]" id="orderImageFileName">Choose Image</span>
+              <svg class="w-5 h-5 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+              <span class="text-[0.62rem] text-gray-500 font-medium truncate max-w-[130px]"
+                id="orderImageFileName">Choose Image</span>
             </div>
           </div>
         </div>
 
         <!-- Video Upload -->
         <div>
-          <label class="block text-[0.65rem] font-bold uppercase tracking-wider text-gray-600 mb-1">Attach Video (Optional)</label>
-          <div class="relative border border-dashed border-gray-300 rounded p-2.5 text-center hover:bg-gray-50 transition-colors cursor-pointer">
-            <input type="file" name="video" accept="video/*" onchange="handleOrderFilePreview(this, 'orderVideoFileName')" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+          <label class="block text-[0.65rem] font-bold uppercase tracking-wider text-gray-600 mb-1">Attach Video
+            (Optional)</label>
+          <div
+            class="relative border border-dashed border-gray-300 rounded p-2.5 text-center hover:bg-gray-50 transition-colors cursor-pointer">
+            <input type="file" name="video" accept="video/*"
+              onchange="handleOrderFilePreview(this, 'orderVideoFileName')"
+              class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
             <div class="flex flex-col items-center pointer-events-none">
-              <svg class="w-5 h-5 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
-              <span class="text-[0.62rem] text-gray-500 font-medium truncate max-w-[130px]" id="orderVideoFileName">Choose Video</span>
+              <svg class="w-5 h-5 text-gray-400 mb-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                  d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
+              <span class="text-[0.62rem] text-gray-500 font-medium truncate max-w-[130px]"
+                id="orderVideoFileName">Choose Video</span>
             </div>
           </div>
         </div>
@@ -746,29 +896,39 @@
 
       <!-- Submit Controls -->
       <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-200">
-        <button type="button" onclick="closeOrderReviewModal()" class="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors rounded cursor-pointer bg-white">Cancel</button>
-        <button type="submit" class="px-6 py-2.5 bg-brand-dark text-white text-xs font-black uppercase tracking-wider hover:bg-black transition-colors rounded shadow-md cursor-pointer border-none">Submit Review</button>
+        <button type="button" onclick="closeOrderReviewModal()"
+          class="px-5 py-2.5 border border-gray-300 text-gray-700 text-xs font-bold uppercase tracking-wider hover:bg-gray-100 transition-colors rounded cursor-pointer bg-white">Cancel</button>
+        <button type="submit"
+          class="px-6 py-2.5 bg-brand-dark text-white text-xs font-black uppercase tracking-wider hover:bg-black transition-colors rounded shadow-md cursor-pointer border-none">Submit
+          Review</button>
       </div>
     </form>
   </div>
 </div>
 
 <!-- REUSABLE CUSTOM ALERT / WARNING MODAL -->
-<div id="custom-alert-modal" class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[999999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
+<div id="custom-alert-modal"
+  class="fixed inset-0 bg-black/65 backdrop-blur-sm z-[999999] flex items-center justify-center hidden p-4 min-h-screen overflow-y-auto">
 
-  <div class="bg-white max-w-sm w-full p-6 text-center border border-gray-200 shadow-2xl relative my-auto rounded-xs transform transition-all duration-300">
-    <button type="button" onclick="closeCustomAlertModal()" class="absolute top-3 right-3 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
-    
-    <div class="w-14 h-14 rounded-full bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center mx-auto mb-4 shrink-0">
+  <div
+    class="bg-white max-w-sm w-full p-6 text-center border border-gray-200 shadow-2xl relative my-auto rounded-xs transform transition-all duration-300">
+    <button type="button" onclick="closeCustomAlertModal()"
+      class="absolute top-3 right-3 text-gray-400 hover:text-black text-xl font-bold bg-transparent border-none cursor-pointer">&times;</button>
+
+    <div
+      class="w-14 h-14 rounded-full bg-amber-50 border border-amber-300 text-amber-600 flex items-center justify-center mx-auto mb-4 shrink-0">
       <svg class="w-7 h-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
-        <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
       </svg>
     </div>
 
-    <h3 id="custom-alert-title" class="text-sm font-black uppercase text-brand-dark tracking-wider m-0 mb-2">ATTENTION REQUIRED</h3>
+    <h3 id="custom-alert-title" class="text-sm font-black uppercase text-brand-dark tracking-wider m-0 mb-2">ATTENTION
+      REQUIRED</h3>
     <p id="custom-alert-message" class="text-xs text-gray-600 mb-6 leading-relaxed font-sans"></p>
 
-    <button type="button" onclick="closeCustomAlertModal()" class="w-full py-2.5 bg-[#E8500A] text-white text-[0.68rem] font-black uppercase tracking-[0.18em] hover:bg-black transition-colors cursor-pointer border-none shadow-sm">
+    <button type="button" onclick="closeCustomAlertModal()"
+      class="w-full py-2.5 bg-[#E8500A] text-white text-[0.68rem] font-black uppercase tracking-[0.18em] hover:bg-black transition-colors cursor-pointer border-none shadow-sm">
       UNDERSTOOD
     </button>
   </div>
@@ -796,7 +956,7 @@
     if (modal) modal.classList.add('hidden');
     document.body.style.overflow = '';
     if (customAlertFocusElem) {
-      try { customAlertFocusElem.focus(); } catch(e) {}
+      try { customAlertFocusElem.focus(); } catch (e) { }
       customAlertFocusElem = null;
     }
   }
@@ -933,7 +1093,7 @@
     const container = document.getElementById('return-images-preview');
     if (!container) return;
     container.innerHTML = '';
-    
+
     if (input.files && input.files.length > 0) {
       if (input.files.length > 3) {
         showCustomAlert('You can upload a maximum of 3 proof photos.', 'MAX 3 PHOTOS ALLOWED', input);
@@ -942,7 +1102,7 @@
       }
       Array.from(input.files).forEach(file => {
         const reader = new FileReader();
-        reader.onload = function(e) {
+        reader.onload = function (e) {
           const img = document.createElement('img');
           img.src = e.target.result;
           img.className = 'w-14 h-14 object-cover rounded border border-gray-300 shadow-xs';
@@ -1015,7 +1175,7 @@
     }
   }
 
-  document.addEventListener('DOMContentLoaded', function() {
+  document.addEventListener('DOMContentLoaded', function () {
 
     const returnSuccessModal = document.getElementById('return-success-modal');
     if (returnSuccessModal) {

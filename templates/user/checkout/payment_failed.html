@@ -80,6 +80,10 @@
     <!-- Customer Cart Summary Bar -->
     <div class="inline-flex flex-wrap items-center justify-center gap-6 border-t border-b border-gray-200 py-3 px-8 font-mono text-[0.58rem] font-bold tracking-widest text-gray-500 uppercase">
       <div>PAYMENT METHOD: <span class="text-brand-dark font-extrabold">RAZORPAY (ONLINE PAYMENT)</span></div>
+      {% if applied_coupon and discount_amount > 0 %}
+      <div class="text-gray-300">|</div>
+      <div>COUPON: <span class="text-emerald-600 font-extrabold">{{ applied_coupon.code }} (-₹{{ discount_amount|floatformat:2 }})</span></div>
+      {% endif %}
       <div class="text-gray-300">|</div>
       <div>TOTAL DUE: <span class="text-red-600 font-extrabold">₹{{ total_price|floatformat:2 }}</span></div>
     </div>
@@ -158,6 +162,16 @@
 
           <!-- Price Calculation Breakdown -->
           <div class="mt-6 border-t border-gray-200 pt-4 space-y-2 font-mono text-xs">
+            {% if original_subtotal and offer_discount and offer_discount > 0 %}
+            <div class="flex justify-between text-gray-600">
+              <span>ITEMS TOTAL</span>
+              <span>₹{{ original_subtotal|floatformat:2 }}</span>
+            </div>
+            <div class="flex justify-between text-emerald-600 font-bold">
+              <span>OFFER DISCOUNT</span>
+              <span>-₹{{ offer_discount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
             <div class="flex justify-between text-gray-600">
               <span>SUBTOTAL</span>
               <span>₹{{ subtotal|floatformat:2 }}</span>
@@ -166,8 +180,14 @@
               <span>SHIPPING</span>
               <span>{% if shipping_cost == 0 %}FREE{% else %}₹{{ shipping_cost|floatformat:2 }}{% endif %}</span>
             </div>
+            {% if applied_coupon and discount_amount > 0 %}
+            <div class="flex justify-between text-emerald-600 font-bold">
+              <span>COUPON DISCOUNT ({{ applied_coupon.code }})</span>
+              <span>-₹{{ discount_amount|floatformat:2 }}</span>
+            </div>
+            {% endif %}
             <div class="flex justify-between text-gray-600">
-              <span>ESTIMATED TAX</span>
+              <span>ESTIMATED TAX (5% GST)</span>
               <span>₹{{ tax_amount|floatformat:2 }}</span>
             </div>
             <div class="flex justify-between text-brand-dark font-black text-sm pt-2 border-t border-gray-300">
@@ -175,6 +195,18 @@
               <span class="text-red-600">₹{{ total_price|floatformat:2 }}</span>
             </div>
           </div>
+
+          {% if applied_coupon and discount_amount > 0 %}
+          <div class="mt-4 bg-emerald-50 border border-emerald-200 p-3 rounded flex items-center justify-between font-mono text-xs">
+            <div class="flex items-center gap-2">
+              <span class="w-5 h-5 rounded-full bg-emerald-600 text-white flex items-center justify-center text-[10px] font-bold">✓</span>
+              <div>
+                <p class="font-bold text-emerald-950 uppercase tracking-wide">Coupon Applied: <span class="text-emerald-700 font-black">{{ applied_coupon.code }}</span></p>
+                <p class="text-[10px] text-emerald-700 font-semibold">₹{{ discount_amount|floatformat:2 }} saved on this order</p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         </div>
 
       </div>

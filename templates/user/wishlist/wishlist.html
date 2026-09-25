@@ -124,14 +124,19 @@
       {% if items %}
       <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
         {% for item in items %}
-        <div class="bg-white border border-[#EAE3DC] shadow-xs hover:shadow-md hover:border-[#E8500A] hover:-translate-y-0.5 transition-all duration-200 flex flex-col group relative overflow-hidden">
+        <div class="bg-white border border-[#EAE3DC] shadow-xs hover:shadow-lg hover:border-[#E8500A] transition-all duration-300 flex flex-col group relative overflow-hidden">
           
           <!-- Image Box Frame (Compact Height) -->
           <div class="h-44 bg-[#F7F5F0] border-b border-[#EAE3DC] relative p-3 flex items-center justify-center overflow-hidden shrink-0">
-            
+            {% if item.has_discount %}
+            <span class="absolute top-2.5 left-2.5 bg-[#A33C08] text-white text-[0.48rem] font-black tracking-widest uppercase px-2 py-0.5 z-10 shadow-sm">
+              {{ item.discount_percentage }}% OFF
+            </span>
+            {% endif %}
+
             <!-- Remove Button -->
-            <a href="{% url 'wishlist:remove_from_wishlist' item.product.id %}{% if from_profile %}?from=profile{% endif %}"
-               class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 hover:bg-red-600 hover:text-white text-gray-500 flex items-center justify-center transition-all z-20 no-underline border border-gray-200 shadow-xs"
+            <a href="{% url 'wishlist:remove_from_wishlist' item.product.id %}?variant_id={{ item.variant.id|default:'' }}{% if from_profile %}&from=profile{% endif %}"
+               class="absolute top-2.5 right-2.5 w-7 h-7 rounded-full bg-white/90 hover:bg-red-600 hover:text-white text-gray-500 flex items-center justify-center transition-colors duration-200 z-20 no-underline border border-gray-200 shadow-xs"
                title="Remove from Wishlist">
               <svg class="w-3 h-3 stroke-current" fill="none" viewBox="0 0 24 24" stroke-width="2.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -139,11 +144,11 @@
             </a>
 
             <!-- Product Image -->
-            <a href="{% url 'product_detail' item.product.id %}" class="w-full h-full flex items-center justify-center no-underline">
+            <a href="{% url 'product_detail' item.product.id %}{% if item.variant %}?variant={{ item.variant.id }}{% endif %}" class="w-full h-full flex items-center justify-center no-underline">
               {% if item.variant and item.variant.images.exists %}
-                <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product.name }}" class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105">
+                <img src="{{ item.variant.images.first.image.url }}" alt="{{ item.product.name }}" class="max-h-full max-w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform transform-gpu">
               {% elif item.product.images.exists %}
-                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="max-h-full max-w-full object-contain transition-transform duration-300 group-hover:scale-105">
+                <img src="{{ item.product.images.first.image.url }}" alt="{{ item.product.name }}" class="max-h-full max-w-full object-contain transition-transform duration-500 ease-out group-hover:scale-105 will-change-transform transform-gpu">
               {% else %}
                 <div class="w-full h-full flex items-center justify-center bg-gray-100 text-gray-400 font-bold text-[0.6rem] uppercase">No Image</div>
               {% endif %}
@@ -164,31 +169,38 @@
                 {% endif %}
               </div>
 
-              <a href="{% url 'product_detail' item.product.id %}" class="text-xs font-black uppercase tracking-wide text-[#1A1A1A] hover:text-[#E8500A] transition-colors no-underline block leading-snug line-clamp-1 mb-2">
+              <a href="{% url 'product_detail' item.product.id %}{% if item.variant %}?variant={{ item.variant.id }}{% endif %}" class="text-xs font-black uppercase tracking-wide text-[#1A1A1A] hover:text-[#E8500A] transition-colors no-underline block leading-snug truncate mb-2" title="{{ item.product.name }}">
                 {{ item.product.name }}
               </a>
 
               {% if item.variant %}
               <div class="text-[0.5rem] font-bold uppercase tracking-wider text-gray-500 mb-2 bg-[#FAF8F5] px-2 py-0.5 inline-block border border-[#EAE3DC]">
-                FINISH: <span class="text-[#1A1A1A] font-black">{{ item.variant.name }}</span>
+                COLOR: <span class="text-[#1A1A1A] font-black">{{ item.variant.name }}</span>
               </div>
               {% endif %}
 
               <div class="flex items-baseline justify-between gap-2 border-t border-b border-[#F2ECE6] py-2 my-1.5">
                 <span class="text-[0.5rem] font-bold uppercase tracking-widest text-gray-400">PRICE</span>
-                <span class="text-xs font-black text-[#1A1A1A]">₹{{ item.product.price|floatformat:2 }}</span>
+                <div class="text-right flex items-baseline gap-1.5">
+                  {% if item.has_discount %}
+                    <span class="text-xs font-black text-[#E8500A]">₹{{ item.discounted_price|floatformat:2 }}</span>
+                    <span class="text-[0.62rem] text-gray-400 line-through font-bold">₹{{ item.base_price|floatformat:2 }}</span>
+                  {% else %}
+                    <span class="text-xs font-black text-[#1A1A1A]">₹{{ item.base_price|floatformat:2 }}</span>
+                  {% endif %}
+                </div>
               </div>
 
               <!-- Stock Availability Badge -->
               <div class="flex items-center justify-between text-[0.52rem] font-bold uppercase tracking-wider mt-1">
                 <span class="text-gray-400">AVAILABILITY</span>
-                {% if item.product.stock_info.is_out %}
+                {% if item.stock_info.is_out %}
                   <span class="text-red-600 font-black flex items-center gap-1">
                     <span class="w-1.5 h-1.5 rounded-full bg-red-600 inline-block"></span> OUT OF STOCK
                   </span>
-                {% elif item.product.stock_info.status == 'low_stock' %}
+                {% elif item.stock_info.status == 'low_stock' %}
                   <span class="text-[#E8500A] font-black flex items-center gap-1">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#E8500A] inline-block"></span> {{ item.product.stock_info.label|upper }}
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#E8500A] inline-block"></span> {{ item.stock_info.label|upper }}
                   </span>
                 {% else %}
                   <span class="text-green-600 font-black flex items-center gap-1">
@@ -201,10 +213,11 @@
             <!-- Action Button: Move to Cart -->
             <form action="{% url 'wishlist:move_to_cart' item.product.id %}" method="POST" class="w-full mt-1">
               {% csrf_token %}
+              <input type="hidden" name="variant_id" value="{{ item.variant.id|default:'' }}">
               {% if from_profile %}
               <input type="hidden" name="from" value="profile">
               {% endif %}
-              {% if item.product.stock_info.is_out %}
+              {% if item.stock_info.is_out %}
                 <button type="button" disabled class="w-full bg-gray-100 text-gray-400 text-[0.58rem] font-bold uppercase tracking-[0.16em] py-2.5 border border-gray-200 cursor-not-allowed">
                   OUT OF STOCK
                 </button>

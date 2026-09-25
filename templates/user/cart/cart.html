@@ -234,6 +234,17 @@
         </h3>
         <div class="border-t border-gray-200 pt-4 space-y-4">
           <div class="flex justify-between items-center">
+            <p class="text-[0.66rem] font-bold uppercase tracking-wider text-gray-500">Items Total</p>
+            <p id="summary-original-subtotal" class="text-[0.82rem] font-black text-brand-dark">₹{{ original_subtotal|floatformat:2 }}</p>
+          </div>
+
+          <!-- Product/Category Offer Discount Row -->
+          <div id="cart-offer-row" class="{% if not offer_discount or offer_discount == 0 %}hidden{% endif %} flex justify-between items-center text-emerald-600">
+            <p class="text-[0.66rem] font-bold uppercase tracking-wider">Offer Discount</p>
+            <p id="cart-offer-amount" class="text-[0.82rem] font-black">-₹{{ offer_discount|floatformat:2 }}</p>
+          </div>
+
+          <div class="flex justify-between items-center">
             <p class="text-[0.66rem] font-bold uppercase tracking-wider text-gray-500">Subtotal</p>
             <p id="summary-subtotal" class="text-[0.82rem] font-black text-brand-dark">₹{{ subtotal|floatformat:2 }}</p>
           </div>
@@ -492,6 +503,24 @@
     const topSubtotal = document.getElementById('top-subtotal');
     if (topSubtotal) {
       topSubtotal.textContent = `₹${data.cart_subtotal}`;
+    }
+
+    // Items original subtotal
+    const summaryOriginal = document.getElementById('summary-original-subtotal');
+    if (summaryOriginal && data.cart_original_subtotal) {
+      summaryOriginal.textContent = `₹${data.cart_original_subtotal}`;
+    }
+
+    // Offer discount row
+    const offerRow = document.getElementById('cart-offer-row');
+    const offerAmount = document.getElementById('cart-offer-amount');
+    if (offerRow && offerAmount) {
+      if (data.has_offer_discount && parseFloat(String(data.cart_offer_discount).replace(/,/g, '')) > 0) {
+        offerAmount.textContent = `-₹${data.cart_offer_discount}`;
+        offerRow.classList.remove('hidden');
+      } else {
+        offerRow.classList.add('hidden');
+      }
     }
 
     // Order summary subtotal, shipping, tax & total

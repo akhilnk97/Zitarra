@@ -566,6 +566,10 @@
       showErr(nameWrap, nameErr, 'Recipient name cannot start with a space.');
       return false;
     }
+    if (/\s{2,}/.test(rawVal)) {
+      showErr(nameWrap, nameErr, 'Recipient name cannot contain consecutive spaces.');
+      return false;
+    }
     const val = rawVal.trim();
     if (!val) {
       showErr(nameWrap, nameErr, 'Full Name is required.');
@@ -573,6 +577,10 @@
     }
     if (val.length < 3) {
       showErr(nameWrap, nameErr, 'Recipient name must be at least 3 characters.');
+      return false;
+    }
+    if (val.length > 60) {
+      showErr(nameWrap, nameErr, 'Recipient name cannot exceed 60 characters.');
       return false;
     }
     if (/[0-9]/.test(val)) {
@@ -585,7 +593,7 @@
     }
     const nameRe = /^[a-zA-Z]+( [a-zA-Z]+)*$/;
     if (!nameRe.test(val)) {
-      showErr(nameWrap, nameErr, 'Please enter a valid recipient name.');
+      showErr(nameWrap, nameErr, 'Please enter a valid recipient name (letters and single spaces only).');
       return false;
     }
     clearErr(nameWrap, nameErr);
@@ -594,8 +602,8 @@
 
   function validatePhone() {
     const rawVal = phoneInput.value;
-    if (rawVal.startsWith(' ')) {
-      showErr(phoneWrap, phoneErr, 'Phone number cannot start with a space.');
+    if (rawVal.includes(' ')) {
+      showErr(phoneWrap, phoneErr, 'Phone number cannot contain spaces.');
       return false;
     }
     const val = rawVal.trim();
@@ -603,12 +611,8 @@
       showErr(phoneWrap, phoneErr, 'Phone Number is required.');
       return false;
     }
-    if (!/^\d+$/.test(val)) {
-      showErr(phoneWrap, phoneErr, 'Phone number must contain only digits.');
-      return false;
-    }
-    if (val.length !== 10) {
-      showErr(phoneWrap, phoneErr, 'Phone number must be exactly 10 digits.');
+    if (!/^[6-9]\d{9}$/.test(val)) {
+      showErr(phoneWrap, phoneErr, 'Enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.');
       return false;
     }
     clearErr(phoneWrap, phoneErr);
@@ -621,12 +625,67 @@
       showErr(line1Wrap, line1Err, 'Address Line 1 cannot start with a space.');
       return false;
     }
+    if (/\s{2,}/.test(rawVal)) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 cannot contain consecutive spaces.');
+      return false;
+    }
     const val = rawVal.trim();
     if (!val) {
       showErr(line1Wrap, line1Err, 'Address Line 1 is required.');
       return false;
     }
+    if (val.length < 3) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 must be at least 3 characters.');
+      return false;
+    }
+    if (val.length > 255) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 cannot exceed 255 characters.');
+      return false;
+    }
+    const alnum = val.replace(/[^a-zA-Z0-9]/g, '');
+    if (alnum.length < 2) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 must contain actual street/building details, not only symbols.');
+      return false;
+    }
+    if (!/^[A-Za-z0-9\s,\-/#\.:;']+$/.test(val)) {
+      showErr(line1Wrap, line1Err, 'Address Line 1 contains invalid special characters.');
+      return false;
+    }
     clearErr(line1Wrap, line1Err);
+    return true;
+  }
+
+  function validateLine2() {
+    const rawVal = line2Input.value;
+    if (rawVal.startsWith(' ')) {
+      showErr(line2Wrap, line2Err, 'Address Line 2 cannot start with a space.');
+      return false;
+    }
+    if (/\s{2,}/.test(rawVal)) {
+      showErr(line2Wrap, line2Err, 'Address Line 2 cannot contain consecutive spaces.');
+      return false;
+    }
+    const val = rawVal.trim();
+    if (val) {
+      if (val.length < 3) {
+        showErr(line2Wrap, line2Err, 'Address Line 2 must be at least 3 characters.');
+        return false;
+      }
+      if (val.length > 255) {
+        showErr(line2Wrap, line2Err, 'Address Line 2 cannot exceed 255 characters.');
+        return false;
+      }
+      const alnum = val.replace(/[^a-zA-Z0-9]/g, '');
+      if (alnum.length < 2) {
+        showErr(line2Wrap, line2Err, 'Address Line 2 must contain meaningful details, not only symbols.');
+        return false;
+      }
+      if (!/^[A-Za-z0-9\s,\-/#\.:;']+$/.test(val)) {
+        showErr(line2Wrap, line2Err, 'Address Line 2 contains invalid special characters.');
+        return false;
+      }
+    }
+    clearErr(line2Wrap, line2Err);
     return true;
   }
 
@@ -636,13 +695,33 @@
       showErr(cityWrap, cityErr, 'City cannot start with a space.');
       return false;
     }
+    if (/\s{2,}/.test(rawVal)) {
+      showErr(cityWrap, cityErr, 'City cannot contain consecutive spaces.');
+      return false;
+    }
     const val = rawVal.trim();
     if (!val) {
       showErr(cityWrap, cityErr, 'City is required.');
       return false;
     }
-    if (!/^[a-zA-Z\s.-]+$/.test(val)) {
-      showErr(cityWrap, cityErr, 'City must contain only letters.');
+    if (val === 'LOADING...') {
+      showErr(cityWrap, cityErr, 'Fetching city details...');
+      return false;
+    }
+    if (val.length < 2) {
+      showErr(cityWrap, cityErr, 'City must be at least 2 characters.');
+      return false;
+    }
+    if (val.length > 60) {
+      showErr(cityWrap, cityErr, 'City cannot exceed 60 characters.');
+      return false;
+    }
+    if (/[0-9]/.test(val)) {
+      showErr(cityWrap, cityErr, 'City cannot contain numbers.');
+      return false;
+    }
+    if (!/^[a-zA-Z]+([ \-][a-zA-Z]+)*$/.test(val)) {
+      showErr(cityWrap, cityErr, 'City can only contain letters, hyphens, and single spaces.');
       return false;
     }
     clearErr(cityWrap, cityErr);
@@ -655,13 +734,33 @@
       showErr(stateWrap, stateErr, 'State cannot start with a space.');
       return false;
     }
+    if (/\s{2,}/.test(rawVal)) {
+      showErr(stateWrap, stateErr, 'State cannot contain consecutive spaces.');
+      return false;
+    }
     const val = rawVal.trim();
     if (!val) {
       showErr(stateWrap, stateErr, 'State is required.');
       return false;
     }
-    if (!/^[a-zA-Z\s.-]+$/.test(val)) {
-      showErr(stateWrap, stateErr, 'State must contain only letters.');
+    if (val === 'LOADING...') {
+      showErr(stateWrap, stateErr, 'Fetching state details...');
+      return false;
+    }
+    if (val.length < 2) {
+      showErr(stateWrap, stateErr, 'State must be at least 2 characters.');
+      return false;
+    }
+    if (val.length > 60) {
+      showErr(stateWrap, stateErr, 'State cannot exceed 60 characters.');
+      return false;
+    }
+    if (/[0-9]/.test(val)) {
+      showErr(stateWrap, stateErr, 'State cannot contain numbers.');
+      return false;
+    }
+    if (!/^[a-zA-Z]+([ \-][a-zA-Z]+)*$/.test(val)) {
+      showErr(stateWrap, stateErr, 'State can only contain letters, hyphens, and single spaces.');
       return false;
     }
     clearErr(stateWrap, stateErr);
@@ -670,8 +769,8 @@
 
   function validatePincode() {
     const rawVal = pincodeInput.value;
-    if (rawVal.startsWith(' ')) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode cannot start with a space.');
+    if (rawVal.includes(' ')) {
+      showErr(pincodeWrap, pincodeErr, 'Pincode cannot contain spaces.');
       return false;
     }
     const val = rawVal.trim();
@@ -679,12 +778,8 @@
       showErr(pincodeWrap, pincodeErr, 'Pincode is required.');
       return false;
     }
-    if (!/^\d+$/.test(val)) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode must contain only digits.');
-      return false;
-    }
-    if (val.length !== 6) {
-      showErr(pincodeWrap, pincodeErr, 'Pincode must be exactly 6 digits.');
+    if (!/^[1-9]\d{5}$/.test(val)) {
+      showErr(pincodeWrap, pincodeErr, 'Pincode must be exactly 6 digits (cannot start with 0).');
       return false;
     }
     clearErr(pincodeWrap, pincodeErr);
@@ -699,6 +794,7 @@
   nameInput.addEventListener('input', () => handleInput(nameInput, nameWrap, nameErr));
   phoneInput.addEventListener('input', () => handleInput(phoneInput, phoneWrap, phoneErr));
   line1Input.addEventListener('input', () => handleInput(line1Input, line1Wrap, line1Err));
+  line2Input.addEventListener('input', () => handleInput(line2Input, line2Wrap, line2Err));
   cityInput.addEventListener('input', () => handleInput(cityInput, cityWrap, cityErr));
   stateInput.addEventListener('input', () => handleInput(stateInput, stateWrap, stateErr));
   pincodeInput.addEventListener('input', () => {
@@ -713,8 +809,8 @@
           if (pincodeInput.value.trim() !== val) return;
           if (data && data[0] && data[0].Status === 'Success' && data[0].PostOffice && data[0].PostOffice.length > 0) {
             const info = data[0].PostOffice[0];
-            cityInput.value = info.District.toUpperCase();
-            stateInput.value = info.State.toUpperCase();
+            cityInput.value = (info.District || '').replace(/\s+/g, ' ').trim().toUpperCase();
+            stateInput.value = (info.State || '').replace(/\s+/g, ' ').trim().toUpperCase();
             clearErr(cityWrap, cityErr);
             clearErr(stateWrap, stateErr);
           } else {
@@ -730,18 +826,41 @@
     }
   });
 
-  nameInput.addEventListener('blur', () => { if (nameInput.dataset.dirty === 'true') validateName(); });
-  phoneInput.addEventListener('blur', () => { if (phoneInput.dataset.dirty === 'true') validatePhone(); });
-  line1Input.addEventListener('blur', () => { if (line1Input.dataset.dirty === 'true') validateLine1(); });
-  cityInput.addEventListener('blur', () => { if (cityInput.dataset.dirty === 'true') validateCity(); });
-  stateInput.addEventListener('blur', () => { if (stateInput.dataset.dirty === 'true') validateState(); });
-  pincodeInput.addEventListener('blur', () => { if (pincodeInput.dataset.dirty === 'true') validatePincode(); });
+  nameInput.addEventListener('blur', () => {
+    if (nameInput.value.endsWith(' ')) nameInput.value = nameInput.value.trim();
+    if (nameInput.dataset.dirty === 'true') validateName();
+  });
+  phoneInput.addEventListener('blur', () => {
+    phoneInput.value = phoneInput.value.trim();
+    if (phoneInput.dataset.dirty === 'true') validatePhone();
+  });
+  line1Input.addEventListener('blur', () => {
+    if (line1Input.value.endsWith(' ')) line1Input.value = line1Input.value.trim();
+    if (line1Input.dataset.dirty === 'true') validateLine1();
+  });
+  line2Input.addEventListener('blur', () => {
+    if (line2Input.value.endsWith(' ')) line2Input.value = line2Input.value.trim();
+    if (line2Input.dataset.dirty === 'true') validateLine2();
+  });
+  cityInput.addEventListener('blur', () => {
+    if (cityInput.value.endsWith(' ')) cityInput.value = cityInput.value.trim();
+    if (cityInput.dataset.dirty === 'true') validateCity();
+  });
+  stateInput.addEventListener('blur', () => {
+    if (stateInput.value.endsWith(' ')) stateInput.value = stateInput.value.trim();
+    if (stateInput.dataset.dirty === 'true') validateState();
+  });
+  pincodeInput.addEventListener('blur', () => {
+    pincodeInput.value = pincodeInput.value.trim();
+    if (pincodeInput.dataset.dirty === 'true') validatePincode();
+  });
 
   form.addEventListener('submit', function (e) {
     let valid = true;
     if (!validateName()) valid = false;
     if (!validatePhone()) valid = false;
     if (!validateLine1()) valid = false;
+    if (!validateLine2()) valid = false;
     if (!validateCity()) valid = false;
     if (!validateState()) valid = false;
     if (!validatePincode()) valid = false;

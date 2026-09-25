@@ -1,6 +1,7 @@
 from django.db import models
 from django.conf import settings
 from admin_panel.category.models import Category
+from decimal import Decimal
 
 
 class Product(models.Model):
@@ -66,7 +67,7 @@ class Product(models.Model):
         }
 
     def get_discounted_price(self, base_price=None):
-        from decimal import Decimal
+        
         if base_price is None:
             var = self.variants.filter(is_active=True, is_deleted=False).first()
             base_price = var.price if (var and var.price) else self.price
@@ -150,6 +151,9 @@ class ProductVariant(models.Model):
     is_deleted = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['id']
 
     def __str__(self):
         return f"{self.product.name} - {self.name}"

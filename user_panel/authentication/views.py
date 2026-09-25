@@ -15,6 +15,7 @@ from .models import User, OTPVerification
 from common.services import (
     validate_password_strength,
     validate_full_name,
+    validate_phone_number,
     create_otp,
     send_signup_otp,
     send_reset_otp,
@@ -28,7 +29,8 @@ def signup_view(request):
 
     if request.method == "POST":
 
-        fullname         = request.POST.get("fullname", "").strip()
+        raw_fullname     = request.POST.get("fullname", "")
+        fullname         = raw_fullname.strip()
         email            = request.POST.get("email", "").strip().lower()
         mobile_number    = request.POST.get("mobile_number", "").strip()
         referral_code    = request.POST.get("referral_code", "").strip()
@@ -40,7 +42,7 @@ def signup_view(request):
         if not fullname:
             error = "Full name is required."
         else:
-            error = validate_full_name(fullname)
+            error = validate_full_name(raw_fullname)
 
         if not error and not email:
             error = "Email is required."
@@ -51,13 +53,10 @@ def signup_view(request):
                 error = "Enter a valid email address."
 
         if not error:
-            if not mobile_number:
-                error = "Mobile number is required."
-            elif not mobile_number.isdigit():
-                error = "Mobile number must contain only digits."
-            elif len(mobile_number) != 10:
-                error = "Mobile number must be exactly 10 digits."
-            elif User.objects.filter(email=email).exists():
+            error = validate_phone_number(mobile_number)
+
+        if not error:
+            if User.objects.filter(email=email).exists():
                 error = "Email already exists"
             elif User.objects.filter(mobile_number=mobile_number).exists():
                 error = "Mobile number already exists"

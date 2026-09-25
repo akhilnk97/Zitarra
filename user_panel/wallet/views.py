@@ -30,9 +30,22 @@ def wallet_view(request):
         transactions = transactions.filter(transaction_type=filter_type)
 
     if search_q:
-        transactions = transactions.filter(
-            description__icontains=search_q
+        words = search_q.split()
+        q_obj = (
+            Q(description__icontains=search_q) |
+            Q(purpose__icontains=search_q) |
+            Q(order__order_id__icontains=search_q)
         )
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (
+                    Q(description__icontains=w) |
+                    Q(purpose__icontains=w) |
+                    Q(order__order_id__icontains=w)
+                )
+            q_obj |= multi_q
+        transactions = transactions.filter(q_obj).distinct()
 
     total_refunded = wallet.transactions.filter(
         transaction_type='CREDIT',

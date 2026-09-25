@@ -13,6 +13,14 @@ def get_new_products():
     for product in products:
         first_word = product.name.split()[0].title()
         product.brand_name = product.brand if product.brand else (first_word if first_word in available_brands else "Zitarra")
+        active_vars = product.variants.filter(is_active=True, is_deleted=False).order_by('id')
+        primary_var = active_vars.first()
+        base_price = primary_var.price if (primary_var and primary_var.price) else product.price
+        eff = product.get_effective_discount()
+        product.display_base_price = base_price
+        product.has_discount = eff['has_discount']
+        product.discount_percent = eff['discount_percentage']
+        product.discounted_price = product.get_discounted_price(base_price) if eff['has_discount'] else base_price
     return products
 
 def get_active_banners():

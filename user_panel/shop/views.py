@@ -41,9 +41,24 @@ def shop_view(request):
     max_price = request.GET.get('max_price', '').strip()
 
     if search_query:
-        products_list = products_list.filter(
-            Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        words = search_query.split()
+        q_obj = (
+            Q(name__icontains=search_query) |
+            Q(description__icontains=search_query) |
+            Q(brand__icontains=search_query) |
+            Q(category__name__icontains=search_query)
         )
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (
+                    Q(name__icontains=w) |
+                    Q(description__icontains=w) |
+                    Q(brand__icontains=w) |
+                    Q(category__name__icontains=w)
+                )
+            q_obj |= multi_q
+        products_list = products_list.filter(q_obj).distinct()
         
     if category_id:
         if category_id.isdigit():
@@ -109,7 +124,7 @@ def shop_view(request):
         page_obj = paginator.page(paginator.num_pages)
 
     for product in page_obj:
-        active_vars = product.variants.filter(is_active=True, is_deleted=False)
+        active_vars = product.variants.filter(is_active=True, is_deleted=False).order_by('id')
         primary_var = active_vars.first()
         base_price = primary_var.price if (primary_var and primary_var.price) else product.price
         product.primary_variant_id = primary_var.id if primary_var else ""
@@ -216,11 +231,19 @@ def product_detail_view(request, product_id):
     offer_type = eff['offer_type']
     offer_name = eff['offer_name']
 
-    # Fetch active variants
-    variants = product.variants.filter(is_active=True, is_deleted=False)
+    # Fetch active variants with consistent ordering
+    variants = product.variants.filter(is_active=True, is_deleted=False).order_by('id')
 
-    # Determine initial item to feature on page load (prefer in-stock variant)
-    if variants.exists():
+    # Allow query parameter ?variant=<id> (e.g. from wishlist or shop cards)
+    requested_var_id = request.GET.get('variant')
+    requested_var = None
+    if requested_var_id and requested_var_id.isdigit():
+        requested_var = variants.filter(id=int(requested_var_id)).first()
+
+    # Determine initial item to feature on page load (prefer requested or in-stock variant)
+    if requested_var:
+        first_available = requested_var
+    elif variants.exists():
         first_available = variants.filter(stock__gt=0).first() or variants.first()
     else:
         first_available = product
@@ -265,7 +288,11 @@ def product_detail_view(request, product_id):
 
     is_in_wishlist = False
     if request.user.is_authenticated:
-        is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product).exists()
+        target_var = first_available if (first_available and hasattr(first_available, 'stock') and hasattr(first_available, 'sku')) else None
+        if target_var and getattr(target_var, 'id', None):
+            is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product, variant=target_var).exists()
+        else:
+            is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product).exists()
 
     active_coupons = get_eligible_coupons(user=request.user, limit=3)
 

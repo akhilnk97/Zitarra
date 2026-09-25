@@ -27,15 +27,22 @@
             <div class="w-full md:w-1/2 md:pr-12 md:border-r border-gray-300">
                 <div id="main-image-container"
                     class="bg-[#f7f7f5] border border-gray-200 mb-4 flex items-center justify-center h-[400px] overflow-hidden relative">
-                    <!-- Dynamically loads first variant/product image or falls back to unsplash image if none exist -->
+                    <!-- Dynamically loads first_available variant/product image or falls back to unsplash image if none exist -->
                     <img id="main-image"
-                        src="{% if variants and variants.0.images.all %}{{ variants.0.images.first.image.url }}{% elif product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85{% endif %}"
+                        src="{% if first_available and first_available.images.all %}{{ first_available.images.first.image.url }}{% elif variants and variants.0.images.all %}{{ variants.0.images.first.image.url }}{% elif product.images.all %}{{ product.images.first.image.url }}{% else %}https://images.unsplash.com/photo-1519892300165-cb5542fb47c7?w=800&q=85{% endif %}"
                         alt="{{ product.name }}"
                         class="max-h-[360px] max-w-[90%] w-auto h-auto object-contain cursor-zoom-in transition-opacity duration-200" />
                 </div>
                 <!-- Thumbnails list -->
                 <div class="flex justify-center gap-3" id="thumbnails-container">
-                    {% if variants and variants.0.images.all %}
+                    {% if first_available and first_available.images.all %}
+                    {% for img_obj in first_available.images.all %}
+                    <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
+                        onclick="changeImage(this,'{{ img_obj.image.url }}')">
+                        <img src="{{ img_obj.image.url }}" class="w-full h-full object-contain" />
+                    </div>
+                    {% endfor %}
+                    {% elif variants and variants.0.images.all %}
                     {% for img_obj in variants.0.images.all %}
                     <div class="thumbnail {% if forloop.first %}active border-brand-orange{% else %}border-gray-300{% endif %} hover:border-gray-600 bg-[#f7f7f5] border-2 w-[22%] aspect-square flex items-center justify-center p-2 cursor-pointer transition-all duration-200"
                         onclick="changeImage(this,'{{ img_obj.image.url }}')">
@@ -138,7 +145,7 @@
                         <div id="stock-status-container">
                             <p class="text-[0.65rem] font-bold tracking-[0.15em] uppercase text-gray-500 mb-2.5">
                                 Availability</p>
-                            {% with initial_item=product %}
+                            {% with initial_item=first_available|default:product %}
                             {% if initial_item.stock_info.is_out %}
                             <div class="inline-flex items-center gap-2.5 bg-red-50 border border-red-300 px-4 py-2.5">
                                 <div class="w-4 h-4 rounded-full bg-red-600 flex items-center justify-center shrink-0">
@@ -233,6 +240,7 @@
                             {% endwith %}
                             <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="w-full">
                                 {% csrf_token %}
+                                <input type="hidden" name="variant_id" id="wishlist-variant-id" value="{% if first_available and first_available.id %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
                                 {% if is_in_wishlist %}
                                 <button type="submit"
                                     class="w-full border border-red-600 text-red-600 text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-red-600 hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
@@ -874,6 +882,10 @@
             const varIdInput = document.getElementById('selected-variant-id');
             if (varIdInput) {
                 varIdInput.value = varId;
+            }
+            const wishVarInput = document.getElementById('wishlist-variant-id');
+            if (wishVarInput) {
+                wishVarInput.value = varId;
             }
 
             // Update selected finish name

@@ -2,10 +2,13 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.utils import timezone
+from django.db.models import Q
 from datetime import datetime
 
 from common.decorators import admin_required
+from common.services import is_valid_image_file
 from .models import Category
+import re
 
 
 @admin_required
@@ -17,7 +20,14 @@ def admin_category_view(request):
     categories = Category.objects.filter(is_deleted=False).order_by("-id")
 
     if search_query:
-        categories = categories.filter(name__icontains=search_query)
+        words = search_query.split()
+        q_obj = Q(name__icontains=search_query) | Q(description__icontains=search_query)
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (Q(name__icontains=w) | Q(description__icontains=w))
+            q_obj |= multi_q
+        categories = categories.filter(q_obj).distinct()
 
     if sort_val == "oldest":
         categories = categories.order_by("id")
@@ -50,7 +60,8 @@ def admin_add_category_view(request):
     today_str = today.strftime("%Y-%m-%d")
 
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        raw_name = request.POST.get("name", "")
+        name = raw_name.strip()
         description = request.POST.get("description", "").strip()
         discount_str = request.POST.get("discount", "0").strip()
         expiry_date_str = request.POST.get("expiry_date", "").strip()
@@ -59,6 +70,22 @@ def admin_add_category_view(request):
 
         if not name:
             messages.error(request, "Category name is required.")
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Category name cannot start or end with a space.")
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+
+        if "  " in raw_name:
+            messages.error(request, "Category name cannot contain consecutive spaces.")
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+
+        if len(name) < 2 or len(name) > 100:
+            messages.error(request, "Category name must be between 2 and 100 characters.")
+            return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+
+        if not re.match(r'^[A-Za-z0-9]+([ \-&][A-Za-z0-9]+)*$', name):
+            messages.error(request, "Category name can only contain letters, numbers, single spaces, hyphens, and &.")
             return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         if Category.objects.filter(name__iexact=name, is_deleted=False).exists():
@@ -71,11 +98,19 @@ def admin_add_category_view(request):
 
         try:
             discount = int(discount_str) if discount_str else 0
-            if discount < 0 or discount > 100:
+            if discount < 0 or discount > 90:
                 raise ValueError
         except ValueError:
-            messages.error(request, "Discount must be a number between 0 and 100.")
+            messages.error(request, "Discount must be an integer between 0% and 90%.")
             return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                messages.error(request, "Category image file size cannot exceed 5MB.")
+                return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
+            if not is_valid_image_file(image):
+                messages.error(request, "Invalid image format. Allowed formats: JPG, PNG, WEBP, AVIF.")
+                return render(request, "admin_panel/category/add_category.html", {"admin_name": request.user.fullname, "today_str": today_str})
 
         expiry_date = None
         if expiry_date_str:
@@ -114,7 +149,8 @@ def admin_edit_category_view(request, category_id):
     today_str = today.strftime("%Y-%m-%d")
 
     if request.method == "POST":
-        name = request.POST.get("name", "").strip()
+        raw_name = request.POST.get("name", "")
+        name = raw_name.strip()
         description = request.POST.get("description", "").strip()
         discount_str = request.POST.get("discount", "0").strip()
         expiry_date_str = request.POST.get("expiry_date", "").strip()
@@ -123,6 +159,21 @@ def admin_edit_category_view(request, category_id):
 
         if not name:
             messages.error(request, "Category name is required.")
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+
+        if raw_name.startswith(" ") or raw_name.endswith(" "):
+            messages.error(request, "Category name cannot start or end with a space.")
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+
+        if "  " in raw_name:
+            messages.error(request, "Category name cannot contain consecutive spaces.")
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+
+        if len(name) < 2 or len(name) > 100:
+            messages.error(request, "Category name must be between 2 and 100 characters.")
+            return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+        if not re.match(r'^[A-Za-z0-9]+([ \-&][A-Za-z0-9]+)*$', name):
+            messages.error(request, "Category name can only contain letters, numbers, single spaces, hyphens, and &.")
             return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
             
         if Category.objects.filter(name__iexact=name, is_deleted=False).exclude(id=category.id).exists():
@@ -135,11 +186,19 @@ def admin_edit_category_view(request, category_id):
     
         try:
             discount = int(discount_str) if discount_str else 0
-            if discount < 0 or discount > 100:
+            if discount < 0 or discount > 90:
                 raise ValueError
         except ValueError:
-            messages.error(request, "Discount must be a number between 0 and 100.")
+            messages.error(request, "Discount must be an integer between 0% and 90%.")
             return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+
+        if image:
+            if image.size > 5 * 1024 * 1024:
+                messages.error(request, "Category image file size cannot exceed 5MB.")
+                return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
+            if not is_valid_image_file(image):
+                messages.error(request, "Invalid image format. Allowed formats: JPG, PNG, WEBP, AVIF.")
+                return render(request, "admin_panel/category/edit_category.html", {"admin_name": request.user.fullname, "category": category, "today_str": today_str})
 
         expiry_date = None
         if expiry_date_str:

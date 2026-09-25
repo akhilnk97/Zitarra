@@ -266,12 +266,13 @@
       <button type="button" onclick="closeAddBrandModal()" class="text-gray-400 hover:text-black font-bold text-xl bg-transparent border-none cursor-pointer">&times;</button>
     </div>
 
-    <form method="POST" action="{% url 'add_brand' %}" enctype="multipart/form-data" class="space-y-4">
+    <form id="addBrandForm" method="POST" action="{% url 'add_brand' %}" enctype="multipart/form-data" class="space-y-4">
       {% csrf_token %}
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BRAND NAME *</label>
-        <input type="text" name="name" required placeholder="e.g. Fender, Yamaha, Gibson"
+        <input type="text" id="add_brand_name" name="name" required placeholder="e.g. Fender, Yamaha, Gibson"
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        <p id="add_brand_name_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div>
@@ -285,14 +286,15 @@
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BRAND TAGLINE / DESCRIPTION</label>
-        <textarea name="description" rows="3" placeholder="Brief description of the brand's heritage or specialty..."
+        <textarea name="description" id="add_brand_description" rows="3" placeholder="Brief description of the brand's heritage or specialty..."
                   class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors resize-none font-sans"></textarea>
       </div>
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BRAND LOGO (OPTIONAL)</label>
-        <input type="file" name="logo" accept="image/*"
+        <input type="file" id="add_brand_logo" name="logo" accept="image/*"
                class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer font-sans">
+        <p id="add_brand_logo_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
@@ -326,6 +328,7 @@
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BRAND NAME *</label>
         <input type="text" id="edit_name" name="name" required
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        <p id="edit_brand_name_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div>
@@ -345,8 +348,9 @@
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">REPLACE BRAND LOGO (OPTIONAL)</label>
-        <input type="file" name="logo" accept="image/*"
+        <input type="file" id="edit_brand_logo" name="logo" accept="image/*"
                class="w-full text-xs text-gray-500 file:mr-4 file:py-2.5 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-black file:uppercase file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 cursor-pointer font-sans">
+        <p id="edit_brand_logo_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div class="pt-4 flex items-center justify-end gap-3 border-t border-gray-100">
@@ -392,7 +396,99 @@
 </div>
 
 <script>
+  function showBrandError(id, errorId, message) {
+    const errEl = document.getElementById(errorId);
+    const inputEl = document.getElementById(id);
+    if (errEl) {
+      errEl.textContent = message;
+      errEl.classList.remove('hidden');
+    }
+    if (inputEl) {
+      inputEl.classList.add('border-red-500');
+    }
+  }
+
+  function clearBrandError(id, errorId) {
+    const errEl = document.getElementById(errorId);
+    const inputEl = document.getElementById(id);
+    if (errEl) {
+      errEl.textContent = '';
+      errEl.classList.add('hidden');
+    }
+    if (inputEl) {
+      inputEl.classList.remove('border-red-500');
+    }
+  }
+
+  function validateBrandForm(mode) {
+    const nameId = mode === 'add' ? 'add_brand_name' : 'edit_name';
+    const nameErrId = mode === 'add' ? 'add_brand_name_error' : 'edit_brand_name_error';
+    const logoId = mode === 'add' ? 'add_brand_logo' : 'edit_brand_logo';
+    const logoErrId = mode === 'add' ? 'add_brand_logo_error' : 'edit_brand_logo_error';
+
+    clearBrandError(nameId, nameErrId);
+    clearBrandError(logoId, logoErrId);
+
+    let isValid = true;
+    let firstInvalid = null;
+
+    const nameInput = document.getElementById(nameId);
+    const rawName = nameInput ? nameInput.value : '';
+    const nameVal = rawName.trim();
+
+    if (!nameVal) {
+      showBrandError(nameId, nameErrId, "Brand name is required.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameInput;
+    } else if (rawName.startsWith(' ') || rawName.endsWith(' ')) {
+      showBrandError(nameId, nameErrId, "Brand name cannot start or end with a space.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameInput;
+    } else if (/\s{2,}/.test(rawName)) {
+      showBrandError(nameId, nameErrId, "Brand name cannot contain consecutive spaces.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameInput;
+    } else if (nameVal.length < 2) {
+      showBrandError(nameId, nameErrId, "Brand name must be at least 2 characters.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameInput;
+    } else if (nameVal.length > 100) {
+      showBrandError(nameId, nameErrId, "Brand name cannot exceed 100 characters.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameInput;
+    } else if (!/^[A-Za-z0-9]+([ \-&][A-Za-z0-9]+)*$/.test(nameVal)) {
+      showBrandError(nameId, nameErrId, "Brand name can only contain letters, numbers, single spaces, hyphens, and &.");
+      isValid = false;
+      if (!firstInvalid) firstInvalid = nameInput;
+    }
+
+    const logoInput = document.getElementById(logoId);
+    if (logoInput && logoInput.files && logoInput.files[0]) {
+      const file = logoInput.files[0];
+      const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/avif'];
+      const ext = file.name.split('.').pop().toLowerCase();
+      const validExts = ['jpg', 'jpeg', 'png', 'webp', 'avif'];
+      if (!validTypes.includes(file.type) && !validExts.includes(ext)) {
+        showBrandError(logoId, logoErrId, "Invalid file format. Allowed formats: JPG, PNG, WEBP, AVIF.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = logoInput;
+      } else if (file.size > 5 * 1024 * 1024) {
+        showBrandError(logoId, logoErrId, "Logo file size cannot exceed 5MB.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = logoInput;
+      }
+    }
+
+    if (!isValid && firstInvalid) {
+      firstInvalid.focus();
+    }
+
+    return isValid;
+  }
+
   function openAddBrandModal() {
+    clearBrandError('add_brand_name', 'add_brand_name_error');
+    clearBrandError('add_brand_logo', 'add_brand_logo_error');
     document.getElementById('addBrandModal').classList.remove('hidden');
   }
   function closeAddBrandModal() {
@@ -400,6 +496,8 @@
   }
 
   function openEditBrandModal(id, name, description, status) {
+    clearBrandError('edit_name', 'edit_brand_name_error');
+    clearBrandError('edit_brand_logo', 'edit_brand_logo_error');
     const modal = document.getElementById('editBrandModal');
     const form = document.getElementById('editBrandForm');
     form.action = `/admin-panel/brands/edit/${id}/`;
@@ -439,6 +537,35 @@
     document.getElementById('toggleBrandModal').classList.add('hidden');
   }
 
+  document.addEventListener('DOMContentLoaded', () => {
+    const addForm = document.getElementById('addBrandForm');
+    if (addForm) {
+      addForm.addEventListener('submit', function (e) {
+        if (!validateBrandForm('add')) e.preventDefault();
+      });
+    }
+
+    const editForm = document.getElementById('editBrandForm');
+    if (editForm) {
+      editForm.addEventListener('submit', function (e) {
+        if (!validateBrandForm('edit')) e.preventDefault();
+      });
+    }
+
+    const addNameInput = document.getElementById('add_brand_name');
+    if (addNameInput) {
+      addNameInput.addEventListener('input', () => {
+        if (addNameInput.value.trim().length >= 2) clearBrandError('add_brand_name', 'add_brand_name_error');
+      });
+    }
+
+    const editNameInput = document.getElementById('edit_name');
+    if (editNameInput) {
+      editNameInput.addEventListener('input', () => {
+        if (editNameInput.value.trim().length >= 2) clearBrandError('edit_name', 'edit_brand_name_error');
+      });
+    }
+  });
 
   // Sidebar toggle JS
   const sidebarToggleBtn = document.getElementById('sidebar-toggle');

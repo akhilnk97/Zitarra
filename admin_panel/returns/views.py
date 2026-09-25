@@ -49,13 +49,28 @@ def admin_returns_management_view(request):
         )
 
     if search_query:
-        items_qs = items_qs.filter(
+        words = search_query.split()
+        q_obj = (
             Q(order__order_id__icontains=search_query) |
             Q(order__shipping_full_name__icontains=search_query) |
             Q(order__user__email__icontains=search_query) |
             Q(product_name__icontains=search_query) |
-            Q(cancel_reason__icontains=search_query)
-        ).distinct()
+            Q(cancel_reason__icontains=search_query) |
+            Q(admin_note__icontains=search_query)
+        )
+        if len(words) > 1:
+            multi_q = Q()
+            for w in words:
+                multi_q &= (
+                    Q(order__order_id__icontains=w) |
+                    Q(order__shipping_full_name__icontains=w) |
+                    Q(order__user__email__icontains=w) |
+                    Q(product_name__icontains=w) |
+                    Q(cancel_reason__icontains=w) |
+                    Q(admin_note__icontains=w)
+                )
+            q_obj |= multi_q
+        items_qs = items_qs.filter(q_obj).distinct()
 
     sort_raw = request.GET.get('sort', 'Latest First').strip()
     sort_upper = sort_raw.upper()

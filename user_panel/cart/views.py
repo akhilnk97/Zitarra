@@ -19,6 +19,8 @@ def cart_view(request):
     has_out_of_stock = any(item.is_available and item.stock == 0 for item in items)
     has_unavailable = any(not item.is_available for item in items)
     subtotal = cart.get_subtotal()
+    original_subtotal = cart.get_original_subtotal()
+    offer_discount = cart.get_total_offer_discount()
     applied_coupon_code = request.session.get('applied_coupon')
     discount_amount = Decimal('0.00')
     applied_coupon = None
@@ -42,6 +44,8 @@ def cart_view(request):
         'has_out_of_stock': has_out_of_stock,
         'has_unavailable': has_unavailable,
         'subtotal': subtotal,
+        'original_subtotal': original_subtotal,
+        'offer_discount': offer_discount,
         'discount_amount': discount_amount,
         'applied_coupon': applied_coupon,
         'shipping_cost': shipping_cost,
@@ -127,7 +131,7 @@ def add_to_cart(request, product_id):
             item.quantity = new_qty
             item.save()
             msg = f"{product.name}{var_suffix} (x{qty_requested}) added to cart"
-            WishlistItem.objects.filter(wishlist__user=request.user, product=product).delete()
+            WishlistItem.objects.filter(wishlist__user=request.user, product=product, variant=variant).delete()
             if is_ajax(request):
                 return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
             messages.success(request, msg)
@@ -137,7 +141,7 @@ def add_to_cart(request, product_id):
         item.quantity = actual_qty
         item.save()
         msg = f"{product.name}{var_suffix} (x{actual_qty}) added to cart"
-        WishlistItem.objects.filter(wishlist__user=request.user, product=product).delete()
+        WishlistItem.objects.filter(wishlist__user=request.user, product=product, variant=variant).delete()
         if is_ajax(request):
             return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
         messages.success(request, msg)
@@ -205,6 +209,8 @@ def update_quantity(request, item_id, action):
 
     cart = request.user.cart
     cart_subtotal = cart.get_subtotal()
+    cart_original_subtotal = cart.get_original_subtotal()
+    cart_offer_discount = cart.get_total_offer_discount()
     cart_total_items = cart.get_total_items()
     items_count = cart.items.count()
     has_out_of_stock = any(i.stock == 0 for i in cart.items.select_related('product', 'variant').all())
@@ -220,6 +226,9 @@ def update_quantity(request, item_id, action):
             'item_subtotal': f"{item.get_subtotal():,.2f}" if status_type != 'removed' else "0.00",
             'item_price': f"{item.get_unit_price():,.2f}" if status_type != 'removed' else "0.00",
             'cart_subtotal': f"{cart_subtotal:,.2f}",
+            'cart_original_subtotal': f"{cart_original_subtotal:,.2f}",
+            'cart_offer_discount': f"{cart_offer_discount:,.2f}",
+            'has_offer_discount': cart_offer_discount > Decimal('0.00'),
             'shipping_cost': f"{shipping_cost:,.2f}",
             'shipping_label': shipping_label,
             'tax_amount': f"{tax_amount:,.2f}",

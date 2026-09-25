@@ -170,8 +170,12 @@
 
   function validateName() {
     const rawVal = nameInput.value;
-    if (rawVal.startsWith(' ')) {
-      showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot start with a space.');
+    if (rawVal.startsWith(' ') || rawVal.endsWith(' ')) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot start or end with a space.');
+      return false;
+    }
+    if (/\s{2,}/.test(rawVal)) {
+      showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot contain consecutive spaces.');
       return false;
     }
     const val = rawVal.trim();
@@ -193,11 +197,7 @@
     }
     const nameRe = /^[a-zA-Z]+( [a-zA-Z]+)*$/;
     if (!nameRe.test(val)) {
-      if (/\s{2,}/.test(rawVal)) {
-        showErr(nameWrap, nameErr, nameErrTxt, 'Full name cannot contain consecutive spaces.');
-      } else {
-        showErr(nameWrap, nameErr, nameErrTxt, 'Please enter a valid full name.');
-      }
+      showErr(nameWrap, nameErr, nameErrTxt, 'Please enter a valid full name.');
       return false;
     }
     clearErr(nameWrap, nameErr);
