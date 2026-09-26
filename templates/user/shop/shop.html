@@ -444,7 +444,7 @@
                 </button>
               </form>
               {% endif %}
-              <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="shrink-0">
+              <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="shrink-0 wishlist-card-form">
                 {% csrf_token %}
                 <input type="hidden" name="variant_id" value="{{ product.primary_variant_id }}">
                 {% if product.id in user_wishlist_product_ids %}
@@ -837,10 +837,87 @@
         }
       });
     });
+
+    // Handle AJAX Add/Remove Wishlist from Shop listing cards
+    document.querySelectorAll('.wishlist-card-form').forEach(form => {
+      form.addEventListener('submit', async function (e) {
+        e.preventDefault();
+        const submitBtn = this.querySelector('button[type="submit"]');
+        if (submitBtn) submitBtn.disabled = true;
+
+        const formData = new FormData(this);
+
+        try {
+          const response = await fetch(this.action, {
+            method: 'POST',
+            body: formData,
+            headers: {
+              'X-Requested-With': 'XMLHttpRequest'
+            }
+          });
+
+          if (response.redirected && response.url.includes('/login/')) {
+            window.location.href = response.url;
+            return;
+          }
+
+          const data = await response.json();
+          if (response.ok && data.status === 'success') {
+            showToast(data.message, 'success');
+
+            // Toggle button icon and styles
+            if (submitBtn) {
+              if (data.in_wishlist) {
+                submitBtn.className = 'w-[34px] h-[34px] border border-red-500 bg-red-50 text-red-500 hover:bg-red-500 hover:text-white transition-all flex items-center justify-center cursor-pointer';
+                submitBtn.setAttribute('title', 'In Wishlist (Click to remove)');
+                submitBtn.setAttribute('aria-label', 'Remove from Wishlist');
+                submitBtn.innerHTML = `
+                  <svg class="w-3.5 h-3.5 fill-current stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                `;
+              } else {
+                submitBtn.className = 'w-[34px] h-[34px] border border-gray-300 text-gray-400 hover:border-red-500 hover:text-red-500 hover:bg-red-50 transition-all flex items-center justify-center cursor-pointer';
+                submitBtn.setAttribute('title', 'Add to Wishlist');
+                submitBtn.setAttribute('aria-label', 'Add to Wishlist');
+                submitBtn.innerHTML = `
+                  <svg class="w-3.5 h-3.5 fill-none stroke-current" viewBox="0 0 24 24" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+                  </svg>
+                `;
+              }
+            }
+
+            // Update navbar wishlist badge count
+            const badge = document.getElementById('nav-wishlist-badge');
+            if (badge) {
+              badge.textContent = data.wishlist_count || 0;
+              if (data.wishlist_count > 0) {
+                badge.classList.remove('hidden');
+                badge.style.display = 'flex';
+              } else {
+                badge.classList.add('hidden');
+                badge.style.display = 'none';
+              }
+            }
+          } else {
+            showToast(data.message || 'Unable to update wishlist.', 'error');
+          }
+        } catch (err) {
+          console.error('AJAX wishlist error:', err);
+        } finally {
+          if (submitBtn) submitBtn.disabled = false;
+        }
+      });
+    });
   });
 
   // Global Toast Notification Helper Function
   function showToast(msg, type = 'success') {
+    if (typeof window.showToastAlert === 'function') {
+      window.showToastAlert(msg, type);
+      return;
+    }
     let container = document.getElementById('zitarra-toast-container');
     if (!container) {
       container = document.createElement('div');

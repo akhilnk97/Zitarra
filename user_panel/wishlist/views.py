@@ -1,5 +1,7 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
+from django.http import JsonResponse
+from common.services import is_ajax
 from django.db import transaction
 from django.core.paginator import Paginator
 
@@ -58,15 +60,22 @@ def add_to_wishlist(request, product_id):
 
     if existing_item:
         existing_item.delete()
-        messages.success(request, f"{product.name}{var_suffix} removed from your wishlist.")
+        msg = f"{product.name}{var_suffix} removed from your wishlist."
+        in_wishlist = False
     else:
         WishlistItem.objects.create(
             wishlist=wishlist,
             product=product,
             variant=variant
         )
-        messages.success(request, f"{product.name}{var_suffix} added to your wishlist.")
-
+        msg = f"{product.name}{var_suffix} added to your wishlist."
+        in_wishlist = True
+    
+    if is_ajax(request):
+        wishlist_count = WishlistItem.objects.filter(wishlist=wishlist).count()
+        return JsonResponse({'status':'success', 'action':'added' if in_wishlist else 'removed', 'in_wishlist':in_wishlist, 'message':msg, 'wishlist_count':wishlist_count})
+    
+    messages.success(request, msg)
     redirect_url = request.META.get('HTTP_REFERER') or 'wishlist:wishlist_view'
     return redirect(redirect_url)
 

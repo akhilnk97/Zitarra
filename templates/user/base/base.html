@@ -79,6 +79,39 @@
       transition: width 0.25s ease-out;
       pointer-events: none;
     }
+
+    /* ── Toast Slide Animations (Right to Left) ── */
+    @keyframes toastSlideIn {
+      0% {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+      100% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    @keyframes toastSlideOut {
+      0% {
+        transform: translateX(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateX(120%);
+        opacity: 0;
+      }
+    }
+
+    .toast-slide-in {
+      animation: toastSlideIn 0.42s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      will-change: transform, opacity;
+    }
+
+    .toast-slide-out {
+      animation: toastSlideOut 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+      will-change: transform, opacity;
+    }
   </style>
 
   {% block extra_head %}{% endblock %}
@@ -87,10 +120,10 @@
 
   <!-- ── Floating Django Toast Messages ── -->
   {% if messages %}
-  <div id="django-toast-container" class="fixed top-20 right-6 z-[99999] flex flex-col gap-2.5 max-w-md w-full pointer-events-none">
+  <div id="django-toast-container" class="fixed top-20 right-6 z-[99999] flex flex-col gap-2.5 max-w-md w-full pointer-events-none overflow-hidden">
     {% for message in messages %}
     {% if 'success' in message.tags or 'info' in message.tags %}
-    <div class="pointer-events-auto p-4 bg-[#18181B] text-white border-l-4 border-green-500 text-[0.72rem] font-bold tracking-wide uppercase shadow-2xl flex items-center justify-between gap-3 msg-alert transition-all duration-300 transform border border-zinc-800">
+    <div class="pointer-events-auto p-4 bg-[#18181B] text-white border-l-4 border-green-500 text-[0.72rem] font-bold tracking-wide uppercase shadow-2xl flex items-center justify-between gap-3 msg-alert toast-slide-in border border-zinc-800">
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-5 h-5 rounded-full border border-green-500/30 bg-green-500/10 text-green-400 shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -99,10 +132,10 @@
         </div>
         <span class="flex-1 leading-snug">{{ message }}</span>
       </div>
-      <button type="button" onclick="this.parentElement.remove()" class="text-zinc-400 hover:text-white font-bold text-sm leading-none ml-2 border-none bg-transparent cursor-pointer">&times;</button>
+      <button type="button" onclick="dismissToastAlert(this.parentElement)" class="text-zinc-400 hover:text-white font-bold text-sm leading-none ml-2 border-none bg-transparent cursor-pointer">&times;</button>
     </div>
     {% else %}
-    <div class="pointer-events-auto p-4 bg-[#18181B] text-white border-l-4 border-red-500 text-[0.72rem] font-bold tracking-wide uppercase shadow-2xl flex items-center justify-between gap-3 msg-alert transition-all duration-300 transform border border-zinc-800">
+    <div class="pointer-events-auto p-4 bg-[#18181B] text-white border-l-4 border-red-500 text-[0.72rem] font-bold tracking-wide uppercase shadow-2xl flex items-center justify-between gap-3 msg-alert toast-slide-in border border-zinc-800">
       <div class="flex items-center gap-3">
         <div class="flex items-center justify-center w-5 h-5 rounded-full border border-red-500/30 bg-red-500/10 text-red-400 shrink-0">
           <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
@@ -111,7 +144,7 @@
         </div>
         <span class="flex-1 leading-snug">{{ message }}</span>
       </div>
-      <button type="button" onclick="this.parentElement.remove()" class="text-zinc-400 hover:text-white font-bold text-sm leading-none ml-2 border-none bg-transparent cursor-pointer">&times;</button>
+      <button type="button" onclick="dismissToastAlert(this.parentElement)" class="text-zinc-400 hover:text-white font-bold text-sm leading-none ml-2 border-none bg-transparent cursor-pointer">&times;</button>
     </div>
     {% endif %}
     {% endfor %}
@@ -182,12 +215,23 @@
       });
 
       // ── Global Floating Toast Alert System ──
+      window.dismissToastAlert = function(toastEl) {
+        if (!toastEl) return;
+        toastEl.classList.remove('toast-slide-in');
+        toastEl.classList.add('toast-slide-out');
+        setTimeout(() => {
+          if (toastEl.parentElement) {
+            toastEl.remove();
+          }
+        }, 360);
+      };
+
       window.showToastAlert = function(message, type = 'success') {
         let container = document.getElementById('floating-toast-container');
         if (!container) {
           container = document.createElement('div');
           container.id = 'floating-toast-container';
-          container.className = 'fixed top-20 right-6 z-[99999] flex flex-col gap-2.5 max-w-md w-full pointer-events-none';
+          container.className = 'fixed top-20 right-6 z-[99999] flex flex-col gap-2.5 max-w-md w-full pointer-events-none overflow-hidden';
           document.body.appendChild(container);
         } else {
           container.innerHTML = '';
@@ -195,7 +239,7 @@
 
         const isSuccess = type === 'success' || type === 'info';
         const toast = document.createElement('div');
-        toast.className = `pointer-events-auto p-4 bg-[#18181B] text-white border-l-4 ${isSuccess ? 'border-green-500' : 'border-red-500'} text-[0.72rem] font-bold tracking-wide uppercase shadow-2xl flex items-center justify-between gap-3 msg-alert transition-all duration-300 transform translate-x-10 opacity-0 border border-zinc-800`;
+        toast.className = `pointer-events-auto p-4 bg-[#18181B] text-white border-l-4 ${isSuccess ? 'border-green-500' : 'border-red-500'} text-[0.72rem] font-bold tracking-wide uppercase shadow-2xl flex items-center justify-between gap-3 msg-alert toast-slide-in border border-zinc-800`;
         
         toast.innerHTML = `
           <div class="flex items-center gap-3">
@@ -209,19 +253,14 @@
             </div>
             <span class="flex-1 leading-snug">${message}</span>
           </div>
-          <button type="button" onclick="this.parentElement.remove()" class="text-zinc-400 hover:text-white font-bold text-sm leading-none ml-2 border-none bg-transparent cursor-pointer">&times;</button>
+          <button type="button" onclick="dismissToastAlert(this.parentElement)" class="text-zinc-400 hover:text-white font-bold text-sm leading-none ml-2 border-none bg-transparent cursor-pointer">&times;</button>
         `;
 
         container.appendChild(toast);
 
         setTimeout(() => {
-          toast.classList.remove('translate-x-10', 'opacity-0');
-        }, 10);
-
-        setTimeout(() => {
           if (toast.parentElement) {
-            toast.classList.add('translate-x-10', 'opacity-0');
-            setTimeout(() => toast.remove(), 400);
+            window.dismissToastAlert(toast);
           }
         }, 3500);
       };
@@ -232,18 +271,16 @@
           const alerts = document.querySelectorAll('.msg-alert, .alert-auto-dismiss');
           alerts.forEach(function(el) {
             if (el.closest('form') || el.closest('.modal')) return;
-            el.style.transition = 'opacity 0.5s ease, transform 0.5s ease, max-height 0.5s ease, margin 0.5s ease, padding 0.5s ease';
-            el.style.opacity = '0';
-            el.style.transform = 'translateY(-10px)';
-            setTimeout(function() {
-              el.style.maxHeight = '0';
-              el.style.padding = '0';
-              el.style.margin = '0';
-              el.style.border = 'none';
-              setTimeout(function() { el.remove(); }, 500);
-            }, 300);
+            if (typeof window.dismissToastAlert === 'function') {
+              window.dismissToastAlert(el);
+            } else {
+              el.style.transition = 'opacity 0.35s ease, transform 0.35s ease';
+              el.style.opacity = '0';
+              el.style.transform = 'translateX(120%)';
+              setTimeout(() => el.remove(), 360);
+            }
           });
-        }, 3000);
+        }, 3200);
       }
       document.addEventListener('DOMContentLoaded', initAutoDismissAlerts);
 

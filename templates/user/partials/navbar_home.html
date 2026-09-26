@@ -95,10 +95,8 @@ document.addEventListener('DOMContentLoaded', function() {
         <path
           d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
       </svg>
-      {% if wishlist_item_count and wishlist_item_count > 0 %}
-      <span
-        class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full flex items-center justify-center leading-none">{{ wishlist_item_count }}</span>
-      {% endif %}
+      <span id="nav-wishlist-badge"
+        class="absolute -top-1.5 -right-1.5 bg-[#E8500A] text-white text-[0.45rem] font-black w-4 h-4 rounded-full {% if wishlist_item_count and wishlist_item_count > 0 %}flex{% else %}hidden{% endif %} items-center justify-center leading-none">{{ wishlist_item_count|default:0 }}</span>
     </a>
     <!-- Cart -->
     <a href="{% url 'cart_view' %}"

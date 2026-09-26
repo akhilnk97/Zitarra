@@ -1,206 +1,181 @@
-# ZITARRA — Mastercraft Musical Instruments & Accessories
+# ZITARRA — Handcrafted Musical Instruments & Premium Gear
 
-**Zitarra** is a full-featured, enterprise-grade e-commerce platform built specifically for handcrafted musical instruments, boutique acoustic & electric guitars, classical Indian string & percussion instruments, and premium musician accessories.
+![Python](https://img.shields.io/badge/Python-3.11%2B-blue?logo=python&logoColor=white)
+![Django](https://img.shields.io/badge/Django-5.x%20%2F%206.x-green?logo=django&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-14%2B-336791?logo=postgresql&logoColor=white)
+![Razorpay](https://img.shields.io/badge/Payments-Razorpay-0C2340?logo=razorpay&logoColor=white)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-v3-38B2AC?logo=tailwind-css&logoColor=white)
 
-Designed with clean software engineering patterns, Zitarra pairs a fast, responsive, and visually stunning storefront with a comprehensive administration command center for full catalog, order fulfillment, discount, and inventory control.
+Zitarra is an enterprise-grade e-commerce web platform engineered specifically for handcrafted professional musical instruments, boutique acoustic and electric guitars, traditional Indian percussion, and high-fidelity musician accessories.
+
+Designed with **Django**, **PostgreSQL**, and vanilla JavaScript with tailored Tailwind styling, Zitarra delivers a fast, responsive shopping experience for musicians, paired with a comprehensive administrative command center for store managers.
 
 ---
 
 ## Table of Contents
 
-- [Core Architectural Highlights](#core-architectural-highlights)
-- [Feature Matrix](#feature-matrix)
-  - [Customer Storefront](#customer-storefront)
-  - [Admin Command Center](#admin-command-center)
-- [Technology Stack](#technology-stack)
-- [Detailed Project Structure](#detailed-project-structure)
-- [Installation & Setup Guide](#installation--setup-guide)
-  - [1. Prerequisites](#1-prerequisites)
-  - [2. Clone Repository](#2-clone-repository)
-  - [3. Virtual Environment Setup](#3-virtual-environment-setup)
-  - [4. Install Dependencies](#4-install-dependencies)
-  - [5. PostgreSQL Database Setup](#5-postgresql-database-setup)
-  - [6. Environment Configuration (.env)](#6-environment-configuration-env)
-  - [7. Apply Database Migrations](#7-apply-database-migrations)
-  - [8. Create Administrative Superuser](#8-create-administrative-superuser)
-  - [9. Start Development Server](#9-start-development-server)
-- [External Services Setup](#external-services-setup)
-  - [Razorpay Gateway](#razorpay-gateway)
-  - [Google OAuth 2.0](#google-oauth-20)
-  - [SMTP Email / OTP Service](#smtp-email--otp-service)
-- [Application Endpoints](#application-endpoints)
+1. [Key Architecture & Highlights](#key-architecture--highlights)
+2. [Feature Matrix](#feature-matrix)
+   - [Storefront & Customer Features](#storefront--customer-features)
+   - [Admin Panel & Store Operations](#admin-panel--store-operations)
+3. [Technology Stack](#technology-stack)
+4. [Prerequisites](#prerequisites)
+5. [Step-by-Step Installation & Setup](#step-by-step-installation--setup)
+   - [1. Clone the Repository](#1-clone-the-repository)
+   - [2. Set Up Virtual Environment](#2-set-up-virtual-environment)
+   - [3. Install Python Dependencies](#3-install-python-dependencies)
+   - [4. Environment Variables Configuration (.env)](#4-environment-variables-configuration-env)
+   - [5. PostgreSQL Database Creation](#5-postgresql-database-creation)
+   - [6. Execute Migrations](#6-execute-migrations)
+   - [7. Create Administrator / Superuser](#7-create-administrator--superuser)
+   - [8. Collect Static Files (Optional for Dev)](#8-collect-static-files-optional-for-dev)
+   - [9. Launch the Development Server](#9-launch-the-development-server)
+6. [Application Routing & Default Endpoints](#application-routing--default-endpoints)
+7. [Comprehensive Project Structure](#comprehensive-project-structure)
+   - [Directory Tree](#directory-tree)
+   - [Core Apps & Modules Breakdown](#core-apps--modules-breakdown)
+8. [Core Architectural Workflows](#core-architectural-workflows)
+   - [Multi-Variant Inventory & Atomic Concurrency](#multi-variant-inventory--atomic-concurrency)
+   - [Multi-Channel Checkout & Payments](#multi-channel-checkout--payments)
+   - [Return Inspection & Automated Wallet Refunds](#return-inspection--automated-wallet-refunds)
+   - [Dynamic Frontend & Sliding Toast Feedback](#dynamic-frontend--sliding-toast-feedback)
+9. [Troubleshooting & Common Pitfalls](#troubleshooting--common-pitfalls)
+10. [License & Contributing](#license--contributing)
 
 ---
 
-## Core Architectural Highlights
+## Key Architecture & Highlights
 
-- **Master Product & Variant Hierarchy**:
-  - Implements industry-standard multi-variant architecture (e.g. Amazon / Nike).
-  - The parent `Product` model represents the core instrument specification.
-  - The child `ProductVariant` model captures purchasable finishes, hex color codes, independent SKUs, color-specific image galleries (3 to 5 cropped images), and dedicated stock quantities.
+- **True Product & Multi-Variant Hierarchy**:
+  - Follows production e-commerce specifications (similar to Amazon / Shopify architecture).
+  - The `Product` model represents the master parent entity (e.g. *Varanasi Pro Sitar*).
+  - The `ProductVariant` model represents purchasable color/finish variations with unique SKUs, color hex swatches, dedicated image galleries, specific prices, and isolated stock quantities.
 - **Strict Variant-Level Stock Enforcement**:
-  - Out-of-stock items and depleted variants are blocked from checkout and disabled dynamically on the Product Detail Page (PDP), Cart, and Wishlist.
-- **Universal Inventory & Ledger Synchronization**:
-  - Real-time stock decrement occurs simultaneously across all payment methods (**Razorpay**, **COD**, and **Digital Wallet**).
-  - Database row locks (`select_for_update()`) inside atomic transactions prevent race conditions and inventory overselling under high concurrency.
-- **Automated Stock Restoration & Refunds**:
-  - Order cancellations and returned items immediately restore inventory levels (`variant.stock += quantity`) and issue ledger-backed refunds to the user's digital wallet.
-- **Universal Case-Insensitive Search**:
-  - Search queries across User and Admin panels operate case-insensitively (`__icontains`) with intelligent multi-word token matching across names, descriptions, categories, brands, and order numbers.
-- **Strict Data Sanitization**:
-  - Real-time client and backend validations prevent irregular spacing, consecutive spaces, and illegal special characters across all customer and administrative forms.
+  - Stock validation occurs exclusively at the variant level.
+  - Zero-stock variants are dynamically flagged as out-of-stock, eliminating accidental over-selling.
+- **Universal Inventory Synchronization**:
+  - Checkout automatically decrements `variant.stock -= quantity` and synchronizes parent `product.stock` across all payment pathways:
+    - **Cash on Delivery (COD)**
+    - **Zitarra Digital Wallet**
+    - **Razorpay Online Payment Gateway**
+- **Concurrency Safety via Database Row Locks**:
+  - Employs `select_for_update()` inside `transaction.atomic()` blocks during checkout and cancellation to guarantee zero race conditions and prevent double-spending.
+- **Automated Stock Restoration & Wallet Refunds**:
+  - Customer and admin order cancellations restore `variant.stock += quantity` and recalibrate parent product totals.
+  - Approved return completions automatically restore inventory and credit the customer's wallet ledger with real-time transaction logs.
 
 ---
 
 ## Feature Matrix
 
-### Customer Storefront
+### Storefront & Customer Features
 
 1. **Authentication & Security**:
-   - Email/password authentication with time-limited OTP verification.
+   - Secure email & password registration with email verification OTP (time-limited expiration).
    - Google Social OAuth 2.0 single sign-on via `django-allauth`.
-   - Forgot/reset password recovery workflow with OTP authorization.
-   - Account status tracking (Active, Blocked, Soft-deleted).
-2. **Catalog & Interactive PDP**:
-   - Comprehensive instrument catalog with case-insensitive search, category filtering, multi-brand selection, price range dual-slider, and multiple sorting rules.
-   - Dynamic variant switcher with live hex swatch indicators, stock counters, and image gallery updates.
-   - High-resolution image zoom and multi-angle viewing.
-3. **Cart & Wishlist**:
-   - Real-time stock validation preventing over-limit quantities.
-   - Dedicated variant SKU and color preview in cart items.
-   - Instant wishlist management with one-click migration to cart.
-4. **Checkout & Multi-Payment Options**:
-   - Address Book with **Auto City/State Detection** via Postal Pincode API (`api.postalpincode.in`).
-   - Multiple payment rails:
-     - **Razorpay Online Gateway** (Cards, UPI, NetBanking, Wallets).
-     - **Zitarra Digital Wallet** (instant one-click debit).
-     - **Cash on Delivery (COD)** with minimum/maximum threshold safety limits.
-   - Interactive Coupon application with minimum spend requirements and user quotas.
-   - Payment failure recovery page with active coupon retention and one-click payment retry.
-5. **Orders, Invoices & Returns**:
-   - Step-by-step order tracking timeline (Pending, Confirmed, Shipped, Delivered, Cancelled, Returned).
-   - Instant automated wallet refund upon user or admin cancellation.
-   - Delivered item return request system with defect proof image uploads.
-   - Clean, professional, downloadable PDF tax invoices generated via `ReportLab`.
+   - Forgot/reset password with OTP verification.
+   - Account status protection (blocked/inactive users immediately barred from authenticated workflows).
+2. **Catalog & Interactive PDP (Product Detail Page)**:
+   - Dynamic product search, category browsing, brand filtering, price sliders, and multi-parameter sorting (Popularity, Price Low/High, Rating, A-Z/Z-A, New Arrivals).
+   - Interactive Color Variant Switcher with hex swatches, reactive SKU and stock counter updates, and dedicated high-resolution multi-image galleries.
+   - Dynamic image zoom, pan-on-hover, and thumbnail carousel.
+   - Star ratings and customer product reviews.
+3. **Cart & Wishlist (AJAX-Enabled)**:
+   - Real-time stock availability check (rejects out-of-stock items, prevents over-limit quantities per user).
+   - Asynchronous Wishlist add/remove without full-page reloads, featuring instant icon toggles and badge counter synchronization.
+   - One-click migration of wishlist items directly into the cart.
+4. **Checkout & Multi-Channel Payments**:
+   - Multi-address book (Add, edit, delete, set default delivery address with field validations).
+   - **Cash on Delivery (COD)** with configurable order amount thresholds (e.g., restricted for high-value orders).
+   - **Razorpay Payment Gateway**: Seamless popup modal supporting UPI, Credit/Debit Cards, Net Banking, and Wallets with cryptographic HMAC signature verification.
+   - **Zitarra Digital Wallet**: Instant one-click debit checkout from user's internal stored balance.
+   - Automated inventory deduction and order status management (`Pending`, `Confirmed`).
+5. **Discounts, Coupons & Referral Rewards**:
+   - Interactive coupon application at checkout with minimum purchase validation and per-user usage limits.
+   - Category-wide discount campaigns and product-level promotional offers with automatic best-discount calculations.
+   - Referral program awarding wallet credits to both referrer and referee upon successful order delivery.
+6. **Orders, Invoices & Returns**:
+   - Order history timeline with detailed step-by-step shipment tracking (`Pending`, `Confirmed`, `Processing`, `Shipped`, `Delivered`, `Cancelled`, `Returned`).
+   - Item-level and whole-order cancellation with instant automated wallet refund.
+   - Delivered item return request portal with mandatory photo defect/proof upload.
+   - Professional, printable PDF invoice generation with tax calculations, coupon allocation, and variant breakdown.
 
-### Admin Command Center
+### Admin Panel & Store Operations
 
 1. **Analytical Dashboard**:
-   - Real-time sales metrics, revenue charts, order counts, pending returns, and inventory status.
-   - Top 10 Best-Selling Products, Top Categories, and Top Brands analytics.
-2. **Product & Variant Suite**:
-   - Multi-image cropping with **Cropper.js** (enforcing 3 to 5 images per variant).
-   - Color picker with finish name suggestions, SKU auto-assignment, and stock management.
-3. **Categories & Brands**:
-   - Full CRUD management with active/inactive toggles, image uploads, and category-level discount campaigns with expiry limits.
-4. **Coupon & Offer Engine**:
-   - Category and Product promotional offers with automated discount calculations.
-   - Custom discount coupons with percentage/flat reductions, usage limits, and validity dates.
-5. **Order Fulfillment & Returns**:
-   - Centralized order fulfillment with status updates (Confirmed, Shipped, Delivered, Cancelled).
-   - Customer return inspection workflow: Approve, Schedule Pickup, Complete & Refund, or Reject with notes.
-6. **Sales Reporting**:
-   - Filterable sales performance reports by daily, weekly, monthly, or custom date ranges.
-   - Instant export to **PDF** and **Microsoft Excel (.xlsx)**.
+   - Real-time revenue analytics, total sales, daily/monthly revenue trends, pending returns counter, and order status breakdown.
+   - Top 10 Best-Selling Products, Top Categories, and Top Brands analytics with custom date range filters.
+2. **Product & Variant Management**:
+   - Interactive multi-image cropping with **Cropper.js** (mandatory 3 to 5 cropped images per variant).
+   - Color picker with auto-suggested palette swatches, hex code input, custom finish names, and SKU management.
+   - Parent product overview card detailing all associated color variants and aggregated inventory.
+3. **Category & Brand Management**:
+   - Category creation, description, custom imagery, active toggling, and category-level discount offers with expiry dates.
+   - Brand management with status control and catalog association.
+4. **Offer & Coupon Engine**:
+   - Promotional Offers module supporting category offers and product offers with auto-computed best discount rules.
+   - Coupon management with custom code, percentage/flat discounts, minimum spend, expiry date validation, and user quotas.
+5. **Order Fulfillment Pipeline**:
+   - Complete order list with multi-parameter status filter (`Delivered`, `Confirmed`, `Shipped`, `Cancelled`, `Returned`).
+   - Order details view with itemized transitions, expected delivery dates, pickup date scheduling, and customer communication notes.
+6. **Return Requests Management**:
+   - Centralized review portal for return requests with customer-submitted proof photos.
+   - Workflow actions: *Approve Request*, *Schedule Pickup Date*, *Complete Return & Refund*, or *Reject Request* with administrative notes.
+7. **Sales Reports**:
+   - Filter sales reports by custom date range, daily, weekly, or monthly periods.
+   - One-click export to **PDF** (via ReportLab) and **Microsoft Excel (.xlsx)** (via OpenPyXL) formats.
 
 ---
 
 ## Technology Stack
 
-| Layer | Technology |
-|---|---|
-| **Backend Framework** | Python 3.11+, Django 5.x / 6.x |
-| **Relational Database** | PostgreSQL 14+ with `psycopg3` driver |
-| **Authentication** | Django Auth, Django Allauth (Google OAuth 2.0) |
-| **Payment Gateway** | Razorpay Python SDK & Razorpay Checkout.js |
-| **Image Processing** | Pillow (PIL), Cropper.js |
-| **Document Generation** | ReportLab (PDF Invoices & Reports), OpenPyXL (Excel Reports) |
-| **Frontend & Styling** | HTML5, Vanilla CSS3, Tailwind CSS, Modern JavaScript (ES6+) |
-| **External APIs** | Postal Pincode API (`api.postalpincode.in`) |
+| Layer | Technology | Purpose |
+|---|---|---|
+| **Backend Framework** | Python 3.11+, Django 5.x / 6.x | Core Web MVC framework & ORM |
+| **Relational Database** | PostgreSQL 14+ | Relational data persistence with ACID guarantees |
+| **Database Driver** | `psycopg` (v3) / `psycopg-binary` | Next-generation PostgreSQL adapter for Python |
+| **Authentication** | Django Auth & `django-allauth` | Dual backends: Custom email model + Google Social OAuth 2.0 |
+| **Payment Processing** | Razorpay Python SDK & Checkout.js | Online payment gateway & webhook/signature validation |
+| **Image Processing** | Pillow (PIL) & Cropper.js | Image validation, multi-aspect cropping & variant galleries |
+| **Document Generation**| ReportLab & OpenPyXL | Printable PDF invoices, Sales PDF & Excel spreadsheets |
+| **Environment Management** | `python-dotenv` | Twelve-Factor application environment variable isolation |
+| **Frontend & Styling** | HTML5, Vanilla CSS3, Tailwind CSS | Responsive, mobile-first storefront & admin interface |
+| **UI Components** | SweetAlert2, Dynamic Toast, Canvas Confetti | User alerts, micro-animations, celebration effects |
 
 ---
 
-## Detailed Project Structure
+## Prerequisites
 
-```
-Zitarra/
-├── admin_panel/                  # Administrative management backoffice
-│   ├── authentication/           # Admin login, session security & decorators
-│   ├── banners/                  # Promotional hero banner management
-│   ├── brands/                   # Instrument brand registry & status control
-│   ├── category/                 # Product category taxonomy & category discounts
-│   ├── coupons/                  # Coupon creation, limits & campaign management
-│   ├── dashboard/                # Analytics, revenue charts & top performers
-│   ├── offers/                   # Product-level & category-level promotional offers
-│   ├── orders/                   # Order fulfillment pipeline & shipment status
-│   ├── products/                 # Master products & color variant management
-│   ├── returns/                  # Return request inspection & approval workflow
-│   ├── sales/                    # Sales reporting, date filtering, PDF & Excel export
-│   └── users/                    # Customer account management & block controls
-│
-├── user_panel/                   # Customer-facing storefront modules
-│   ├── authentication/           # Registration, login, OTP verification & social auth
-│   ├── banners/                  # Storefront banner endpoints
-│   ├── cart/                     # Shopping cart with real-time stock sync
-│   ├── coupons/                  # Customer coupon application & discount validation
-│   ├── home/                     # Homepage, landing page & 404 error views
-│   ├── orders/                   # Checkout, Razorpay callback, invoices & order history
-│   ├── profiles/                 # User profile, password management & address book
-│   ├── returns/                  # Return request filing & proof upload
-│   ├── shop/                     # Product catalog, search, filters, sorting & PDP
-│   ├── wallet/                   # Digital wallet balance, top-up & transaction ledger
-│   └── wishlist/                 # Customer wishlist & cart migration
-│
-├── common/                       # Shared platform utilities & services
-│   ├── decorators.py             # Role-based access control (@admin_required, @user_member_required)
-│   ├── services.py               # Validation suite, OTP dispatch, mailer, order math
-│   └── utils.py                  # Formatters, slug generators & helpers
-│
-├── config/                       # Core Django project configuration
-│   ├── settings.py               # Main application settings, DB, Auth, Razorpay configs
-│   ├── urls.py                   # Master URL routing table
-│   ├── wsgi.py                   # WSGI deployment entrypoint
-│   └── asgi.py                   # ASGI entrypoint
-│
-├── templates/                    # Server-rendered HTML templates
-│   ├── admin_panel/              # Administrative templates (Dashboard, Products, Orders, etc.)
-│   └── user/                     # Customer storefront templates (Home, Shop, Checkout, etc.)
-│
-├── static/                       # Static assets (CSS, JS, brand logos, icons)
-├── media/                        # User-uploaded files (Product images, cropped variants, return proofs)
-├── manage.py                     # Django administrative CLI
-├── requirements.txt              # Production Python package dependencies
-├── .env.example                  # Environment variables template
-└── README.md                     # Project documentation
-```
+Before setting up Zitarra, ensure the following software is installed on your local workstation:
+
+1. **Python 3.11+**:
+   - Verify with: `python --version` (or `python3 --version` on Unix).
+2. **PostgreSQL 14+**:
+   - Ensure the PostgreSQL server is running locally (default port `5432`).
+   - Verify with: `psql --version`.
+3. **Git**:
+   - Verify with: `git --version`.
+4. **Google Account (Optional)**:
+   - For Google OAuth 2.0 single sign-on testing.
+5. **Razorpay Test Account (Optional)**:
+   - For testing online card/UPI payments in test mode.
 
 ---
 
-## Installation & Setup Guide
+## Step-by-Step Installation & Setup
 
-Follow these instructions to configure and run Zitarra locally.
+### 1. Clone the Repository
 
-### 1. Prerequisites
-
-Ensure the following tools are installed on your machine:
-- **Python 3.11** or higher: `python --version`
-- **PostgreSQL 14** or higher: `psql --version`
-- **Git**: `git --version`
-
----
-
-### 2. Clone Repository
+Clone the project repository to your local machine and navigate into the root directory:
 
 ```bash
-git clone https://github.com/your-username/Zitarra.git
+git clone https://github.com/akhilnk97/Zitarra.git
 cd Zitarra
 ```
 
----
+### 2. Set Up Virtual Environment
 
-### 3. Virtual Environment Setup
-
-Create and activate an isolated Python virtual environment:
+It is strongly recommended to isolate project dependencies inside a Python virtual environment.
 
 **On Windows (PowerShell):**
 ```powershell
@@ -208,72 +183,64 @@ python -m venv venv
 .\venv\Scripts\Activate.ps1
 ```
 
-**On Windows (Command Prompt):**
+*Note for Windows users:* If PowerShell displays an execution policy error, enable script execution for the current session:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process
+.\venv\Scripts\Activate.ps1
+```
+
+**On Windows (Command Prompt `cmd`):**
 ```cmd
 python -m venv venv
 venv\Scripts\activate.bat
 ```
 
-**On macOS / Linux:**
+**On Linux / macOS:**
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
----
+### 3. Install Python Dependencies
 
-### 4. Install Dependencies
-
-Upgrade pip and install all required project packages:
+With your virtual environment active, install all required packages:
 
 ```bash
-python -m pip install --upgrade pip
+pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
----
-
-### 5. PostgreSQL Database Setup
-
-Log in to your local PostgreSQL server and create a dedicated database:
-
+Verify that key dependencies (`Django`, `psycopg`, `pillow`, `razorpay`, `django-allauth`, `reportlab`, `openpyxl`) are successfully installed:
 ```bash
-psql -U postgres
+pip list
 ```
 
-Inside the PostgreSQL prompt:
-```sql
-CREATE DATABASE zitarra_db;
-CREATE USER zitarra_user WITH PASSWORD 'your_secure_password';
-ALTER ROLE zitarra_user SET client_encoding TO 'utf8';
-ALTER ROLE zitarra_user SET default_transaction_isolation TO 'read committed';
-ALTER ROLE zitarra_user SET timezone TO 'UTC';
-GRANT ALL PRIVILEGES ON DATABASE zitarra_db TO zitarra_user;
-\q
-```
+### 4. Environment Variables Configuration (`.env`)
 
----
+Zitarra uses `python-dotenv` to load sensitive parameters from a root `.env` file. A sample configuration template is provided in `.env.example`.
 
-### 6. Environment Configuration (.env)
+Copy `.env.example` to create your active `.env` file:
 
-Copy the sample environment file to create your active `.env`:
-
-**Windows:**
-```cmd
+**On Windows (PowerShell / CMD):**
+```powershell
 copy .env.example .env
 ```
 
-**macOS / Linux:**
+**On Linux / macOS:**
 ```bash
 cp .env.example .env
 ```
 
-Open `.env` in your text editor and fill in your local credentials:
+Open `.env` in your editor and configure the variables according to your local setup:
 
 ```ini
-# Django Core
+# ==============================================================================
+# Zitarra E-Commerce Platform - Environment Configuration
+# ==============================================================================
+
+# Django Core Settings
 DEBUG=True
-SECRET_KEY=your-custom-django-secret-key-change-in-production
+SECRET_KEY=django-insecure-your-super-secret-random-key-here-for-local-development
 
 # PostgreSQL Database Configuration
 DB_NAME=zitarra_db
@@ -282,103 +249,369 @@ DB_PASSWORD=your_postgres_password
 DB_HOST=localhost
 DB_PORT=5432
 
-# Razorpay Payment Gateway Credentials
+# Razorpay Payment Gateway Credentials (Test Keys)
 RAZORPAY_KEY_ID=rzp_test_your_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 
-# Email SMTP Configuration (Gmail or custom SMTP for OTPs)
+# Email SMTP Configuration (Gmail SMTP for OTP & Email Notifications)
 EMAIL_HOST_USER=your_email@gmail.com
-EMAIL_HOST_PASSWORD=your_app_specific_password
+EMAIL_HOST_PASSWORD=your_16_digit_google_app_password
 
-# Google OAuth Social Authentication (Optional)
-GOOGLE_CLIENT_ID=your-google-client-id.apps.googleusercontent.com
-GOOGLE_CLIENT_SECRET=your-google-client-secret
+# Google OAuth 2.0 Social Authentication (Optional)
+GOOGLE_CLIENT_ID=your-google-oauth-client-id.apps.googleusercontent.com
+GOOGLE_CLIENT_SECRET=your-google-oauth-client-secret
 ```
 
----
+#### Detailed Environment Variable Guide:
 
-### 7. Apply Database Migrations
+| Variable | Required | Description | Example / Default |
+|---|---|---|---|
+| `DEBUG` | **Yes** | Enables Django debug mode for development | `True` |
+| `SECRET_KEY` | **Yes** | Cryptographic signing key for sessions/tokens | Long randomized string |
+| `DB_NAME` | **Yes** | PostgreSQL database name | `zitarra_db` |
+| `DB_USER` | **Yes** | PostgreSQL username | `postgres` |
+| `DB_PASSWORD` | **Yes** | PostgreSQL password for user | e.g. `postgres` or `admin` |
+| `DB_HOST` | **Yes** | Database host | `localhost` |
+| `DB_PORT` | **Yes** | Database connection port | `5432` |
+| `RAZORPAY_KEY_ID` | Optional | Key ID from Razorpay Dashboard (Test Mode) | `rzp_test_xxxxxx` |
+| `RAZORPAY_KEY_SECRET` | Optional | Key Secret from Razorpay Dashboard | `xxxxxxxxxxxxxx` |
+| `EMAIL_HOST_USER` | Optional | Gmail address used to dispatch OTP verification emails | `store@gmail.com` |
+| `EMAIL_HOST_PASSWORD` | Optional | 16-character Google App Password (not your Gmail login password) | `xxxx xxxx xxxx xxxx` |
+| `GOOGLE_CLIENT_ID` | Optional | Google Cloud Console OAuth 2.0 Client ID | `xxxx.apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Optional | Google Cloud Console OAuth 2.0 Client Secret | `GOCSPX-xxxxxx` |
 
-Apply all schema migrations to create the database tables:
+> [!TIP]
+> **Generating a secure Django SECRET_KEY:**
+> Run the following one-liner in your terminal to generate a secure secret key:
+> ```bash
+> python -c "from django.core.management.utils import get_random_secret_key; print(get_random_secret_key())"
+> ```
+
+> [!NOTE]
+> **Gmail App Password Setup:**
+> If testing email OTP functionality, standard Gmail accounts require 2-Step Verification to be enabled. Then navigate to *Google Account > Security > 2-Step Verification > App passwords* and generate an App Password for "Mail".
+
+### 5. PostgreSQL Database Creation
+
+Create the database in your local PostgreSQL instance:
+
+**Using PostgreSQL interactive terminal (`psql`):**
+```bash
+psql -U postgres
+```
+Inside the `psql` console, execute:
+```sql
+CREATE DATABASE zitarra_db;
+\q
+```
+
+Or via PowerShell / Bash in a single command:
+```bash
+psql -U postgres -c "CREATE DATABASE zitarra_db;"
+```
+
+### 6. Execute Migrations
+
+Generate and apply all database migrations to initialize tables for authentication, products, orders, coupons, returns, wallet, and administrative modules:
 
 ```bash
 python manage.py makemigrations
 python manage.py migrate
 ```
 
----
+Verify that all migrations apply with `OK` status.
 
-### 8. Create Administrative Superuser
+### 7. Create Administrator / Superuser
 
-Create an administrative account to access both the custom Admin Command Center and the default Django admin:
+Create a superuser account to access both the Django default admin interface and the custom Zitarra Admin Command Center:
 
 ```bash
 python manage.py createsuperuser
 ```
 
-Provide your desired username, email, full name, and password when prompted.
+Follow the interactive prompts to enter:
+- **Email**: `admin@zitarra.com`
+- **First Name / Last Name**: Admin User
+- **Password**: Secure administrator password
 
----
+### 8. Collect Static Files (Optional for Dev)
 
-### 9. Start Development Server
+In development (`DEBUG = True`), Django serves static assets directly from the `static/` folder. If you wish to compile and verify all static assets:
 
-Launch the Django local development server:
+```bash
+python manage.py collectstatic --noinput
+```
+
+### 9. Launch the Development Server
+
+Start the local Django development web server:
 
 ```bash
 python manage.py runserver
 ```
 
-Once started, open your browser and navigate to:
-- **Customer Storefront**: [http://127.0.0.1:8000/](http://127.0.0.1:8000/)
-- **Admin Command Center**: [http://127.0.0.1:8000/admin-panel/](http://127.0.0.1:8000/admin-panel/)
-- **Django Default Admin**: [http://127.0.0.1:8000/admin/](http://127.0.0.1:8000/admin/)
+Open your browser and navigate to:
+```
+http://127.0.0.1:8000/
+```
+
+You are now running the Zitarra platform!
 
 ---
 
-## External Services Setup
+## Application Routing & Default Endpoints
 
-### Razorpay Gateway
-1. Sign up for a [Razorpay Dashboard](https://dashboard.razorpay.com/) account.
-2. Navigate to **Settings > API Keys** and generate **Test Keys**.
-3. Copy `Key Id` and `Key Secret` into `.env` under `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET`.
-
-### Google OAuth 2.0
-1. Create a project in the [Google Cloud Console](https://console.cloud.google.com/).
-2. Configure your **OAuth Consent Screen**.
-3. Under **Credentials**, create an **OAuth 2.0 Client ID** (Web application).
-4. Add Authorized redirect URI:
-   `http://127.0.0.1:8000/accounts/google/login/callback/`
-5. Set `GOOGLE_CLIENT_ID` and `GOOGLE_CLIENT_SECRET` in `.env`.
-
-### SMTP Email / OTP Service
-For sending registration verification OTPs and order notifications via Gmail:
-1. Enable **2-Step Verification** on your Google account.
-2. Navigate to **Security > App passwords**.
-3. Generate a 16-character App Password.
-4. Set `EMAIL_HOST_USER` to your Gmail address and `EMAIL_HOST_PASSWORD` to the 16-character App Password in `.env`.
-
----
-
-## Application Endpoints
-
-| Route | Function |
-|---|---|
-| `/` | Storefront Homepage & Curated Showcase |
-| `/shop/` | Instrument Catalog, Search & Filtering |
-| `/shop/<product-slug>/` | Interactive Product Detail Page (PDP) & Variant Switcher |
-| `/cart/` | Customer Shopping Cart & Inventory Checks |
-| `/wishlist/` | User Wishlist |
-| `/checkout/` | Checkout, Address Selector & Payment Gateways |
-| `/checkout/payment-failed/` | Payment Failure Recovery & Retry Screen |
-| `/profile/` | Customer Account, Order History & Address Book |
-| `/wallet/` | Digital Wallet Ledger & Fund Top-Up |
-| `/admin-panel/` | Administrative Backoffice & Analytics Dashboard |
-| `/admin-panel/products/` | Product & Multi-Variant Catalog Management |
-| `/admin-panel/orders/` | Order Fulfillment & Shipment Tracking |
-| `/admin-panel/returns/` | Customer Return Request Inspection |
-| `/admin-panel/coupons/` | Discount Coupon Campaign Engine |
-| `/admin-panel/offers/` | Category & Product Promotional Offers |
-| `/admin-panel/sales/` | Sales Performance Reports (PDF / Excel) |
+| Portal | URL Path | Description | Access Requirement |
+|---|---|---|---|
+| **Storefront Home** | `http://127.0.0.1:8000/home/` or `/` | Landing page, hero banners, curated collections | Public |
+| **Catalog / Shop** | `http://127.0.0.1:8000/shop/` | Search, filters, sort, product grid | Public |
+| **Product Detail** | `http://127.0.0.1:8000/shop/product/<slug>/` | Color variant selector, gallery, reviews, stock | Public |
+| **User Sign-in** | `http://127.0.0.1:8000/login/` | Email & password customer sign in | Public / Anonymous |
+| **User Registration**| `http://127.0.0.1:8000/register/` | Account registration with OTP email trigger | Public / Anonymous |
+| **User OTP Verify** | `http://127.0.0.1:8000/verify-otp/` | OTP input modal with countdown timer | Registered User |
+| **Shopping Cart** | `http://127.0.0.1:8000/cart/` | Variant-level quantity, pricing, checkout trigger | Authenticated User |
+| **Wishlist** | `http://127.0.0.1:8000/wishlist/` | Saved favorites, one-click add to cart | Authenticated User |
+| **Checkout** | `http://127.0.0.1:8000/checkout/` | Address selector, coupons, payment options | Authenticated User |
+| **Customer Orders** | `http://127.0.0.1:8000/orders/` | Order history, tracking, cancellation, invoice PDF | Authenticated User |
+| **Digital Wallet** | `http://127.0.0.1:8000/wallet/` | Balance ledger, referral earnings, refunds | Authenticated User |
+| **Admin Login** | `http://127.0.0.1:8000/admin-panel/login/` | Admin backoffice credential authentication | Staff / Superuser |
+| **Admin Dashboard** | `http://127.0.0.1:8000/admin-panel/dashboard/` | KPI cards, sales analytics, top products/brands | Staff / Superuser |
+| **Admin Products** | `http://127.0.0.1:8000/admin-panel/products/` | Product catalog, variant image cropper, stock | Staff / Superuser |
+| **Admin Orders** | `http://127.0.0.1:8000/admin-panel/orders/` | Order fulfillment, delivery dates, status changes | Staff / Superuser |
+| **Admin Returns** | `http://127.0.0.1:8000/admin-panel/returns/` | Defect photo review, pickup schedule, refunds | Staff / Superuser |
+| **Admin Sales** | `http://127.0.0.1:8000/admin-panel/sales/` | Custom reports, PDF & Excel export | Staff / Superuser |
+| **Django Admin** | `http://127.0.0.1:8000/admin/` | Standard Django low-level administration | Superuser |
 
 ---
 
+## Comprehensive Project Structure
+
+### Directory Tree
+
+```
+Zitarra/
+├── .env.example                     # Environment template for local configuration
+├── manage.py                        # Django command-line execution entrypoint
+├── requirements.txt                 # Project Python dependencies
+├── README.md                        # Primary project documentation
+│
+├── config/                          # Project configuration root
+│   ├── __init__.py                  # Imports default settings
+│   ├── urls.py                      # Main URL routing and endpoint dispatcher
+│   ├── wsgi.py                      # WSGI server entrypoint
+│   └── settings/                    # Modular settings package
+│       ├── __init__.py              # Default settings loader (points to local.py)
+│       ├── base.py                  # Core settings (apps, middleware, templates, auth, razorpay)
+│       ├── local.py                 # Local development database, debug, email SMTP
+│       └── production.py            # Hardened production settings (HTTPS, static caching)
+│
+├── common/                          # Shared utilities across storefront and admin
+│   ├── adapters.py                  # Custom django-allauth adapter suppressing redundant alerts
+│   ├── decorators.py                # View guards (@admin_required, @user_required, etc.)
+│   └── services.py                  # Reusable business logic (stock validation, invoice helpers)
+│
+├── admin_panel/                     # Administrative backoffice applications
+│   ├── authentication/              # Admin login, session validation & logout
+│   ├── banners/                     # Homepage promotional hero banner manager
+│   ├── brands/                      # Brand creation, active toggling & metadata
+│   ├── category/                    # Categories, hierarchical grouping & category offers
+│   ├── coupons/                     # Discount coupons, minimum purchase & usage limits
+│   ├── dashboard/                   # Revenue KPIs, sales graphs & top selling metrics
+│   ├── offers/                      # Product and category discount campaigns
+│   ├── orders/                      # Order fulfillment pipeline & status transitions
+│   ├── products/                    # Product CRUD, color variants, SKU & Cropper.js images
+│   ├── returns/                     # Return inspection portal, photo proof verification
+│   ├── sales/                       # Sales reports with PDF & Excel (.xlsx) export
+│   └── users/                       # Customer account management (block/unblock/view)
+│
+├── user_panel/                      # Storefront customer-facing applications
+│   ├── authentication/              # Custom User model, registration, login, OTP & OAuth
+│   ├── banners/                     # Hero banner presentation queries
+│   ├── cart/                        # Cart persistence, quantity updates, stock checks
+│   ├── coupons/                     # Checkout coupon validation & discount calculation
+│   ├── home/                        # Landing page, featured highlights & custom 404 handler
+│   ├── orders/                      # Checkout flow, Razorpay handler, order history & PDF invoices
+│   ├── profiles/                    # Customer profile, multi-address book management
+│   ├── returns/                     # Return request submission with defect image uploads
+│   ├── shop/                        # Catalog browsing, facet filtering, search & PDP switcher
+│   ├── wallet/                      # Digital wallet, transaction ledger & referral bonuses
+│   └── wishlist/                    # Asynchronous wishlist management with AJAX
+│
+├── templates/                       # HTML template hierarchy
+│   ├── 404.html                     # Custom styled 404 error page
+│   ├── emails/                      # HTML email templates (OTP verification, welcome messages)
+│   ├── admin_panel/                 # Admin interface templates
+│   │   ├── base.html                # Admin dashboard layout, sidebar & navigation
+│   │   ├── authentication/          # Admin login view
+│   │   ├── banners/                 # Banner creation and list templates
+│   │   ├── brands/                  # Brand management templates
+│   │   ├── category/                # Category listing & modal forms
+│   │   ├── coupons/                 # Coupon creation and quota manager
+│   │   ├── dashboard/               # Main dashboard with charts and tables
+│   │   ├── offers/                  # Offer management interface
+│   │   ├── orders/                  # Order listing and detail management views
+│   │   ├── products/                # Product form, variant manager, Cropper.js modals
+│   │   ├── returns/                 # Return request approval and photo review modal
+│   │   ├── sales/                   # Sales report filter interface
+│   │   └── users/                   # Customer table with status toggling
+│   └── user/                        # Storefront customer templates
+│       ├── base/                    # Customer base layout (head, footer, dynamic toast)
+│       ├── partials/                # Reusable header/navbars (navbar_home, navbar_shop)
+│       ├── authentication/          # Customer login, register, OTP verification, forgot password
+│       ├── cart/                    # Shopping cart table, quantity adjusters, subtotal summary
+│       ├── checkout/                # Multi-step checkout, address picker, payment modal
+│       ├── orders/                  # Order list, tracking timeline, invoice PDF download
+│       ├── profile/                 # Profile editor, address book modal
+│       ├── returns/                 # Return filing form with photo upload
+│       ├── shop/                    # Shop catalog, filter sidebar, product_detail (PDP)
+│       ├── wallet/                  # Wallet balance card, transaction history table
+│       └── wishlist/                # Wishlist grid with direct 'Add to Cart' actions
+│
+├── static/                          # Static assets
+│   ├── css/                         # Custom CSS rules, typography, animation keyframes
+│   ├── js/                          # Client-side scripts (AJAX wishlist, Cropper.js, image zoom)
+│   └── images/                      # Default logos, placeholder assets, background textures
+│
+└── media/                           # User-generated and dynamic file uploads
+    ├── products/                    # Cropped high-resolution product variant images
+    ├── categories/                  # Category banner icons and thumbnails
+    ├── banners/                     # Storefront hero banners
+    ├── returns/                     # Customer-uploaded return defect proof images
+    └── invoices/                    # Cached or generated order invoice documents
+```
+
+---
+
+### Core Apps & Modules Breakdown
+
+#### 1. Configuration Package (`config/`)
+- **`config/settings/base.py`**: Declares all installed apps (split into `admin_panel` and `user_panel`), middleware stack, custom template context processors (`cart_item_count`, `wishlist_item_count`), session parameters (1-week retention), authentication backends, file upload limits (25MB to prevent memory truncation on high-res variant images), and Razorpay keys.
+- **`config/settings/local.py`**: Extends `base.py` for local development. Sets `DEBUG = True`, binds the PostgreSQL database engine via environment variables, enables SMTP email credentials, and configures `ALLOWED_HOSTS` and `CSRF_TRUSTED_ORIGINS`.
+- **`config/settings/production.py`**: Production overrides including security headers, SSL redirection, and optimized static asset handling.
+- **`config/urls.py`**: Central URL routing combining storefront namespaces, admin panel routes, Django allauth endpoints, media file serving in debug mode, and a catch-all route mapping to `custom_404_view`.
+
+#### 2. User Panel Apps (`user_panel/`)
+- **`authentication`**: Defines custom `User` model (app label `'accounts'`) using email as the unique identifier. Handles email OTP registration, login/logout, password reset, and Google OAuth integration.
+- **`shop`**: Powerhouse catalog app providing search, category and brand filters, price bounds, multi-parameter ordering, and the interactive Product Detail Page (PDP) with color variant switching.
+- **`cart`**: Handles session and database cart management, real-time stock limits, maximum allowed quantities per user, and item price calculations.
+- **`wishlist`**: Manages customer wishlists with AJAX support (no full page reload), updating navigation badges and heart icons dynamically.
+- **`orders`**: Directs checkout, address selection, payment processing (COD, Wallet, Razorpay modal), order placement, invoice PDF generation (ReportLab), and order cancellations.
+- **`wallet`**: Maintains customer digital wallets, tracking credit and debit transactions, automated refunds, and referral bonuses.
+- **`returns`**: Enables customers to file return requests for delivered orders with mandatory photo defect uploads.
+
+#### 3. Admin Panel Apps (`admin_panel/`)
+- **`dashboard`**: Renders analytical metrics, revenue figures, pending orders, return requests, and best-performing products/brands.
+- **`products`**: Full CRUD for master products and child `ProductVariant` entries. Integrates **Cropper.js** for 3–5 multi-angle cropped images per variant.
+- **`category` & `brands`**: Manages taxonomy, active visibility states, and category-level discount campaigns.
+- **`orders`**: Administrative fulfillment interface allowing staff to view orders, advance delivery stages, schedule pickups, or handle cancellations.
+- **`returns`**: Dedicated return review portal displaying customer photo evidence with actions to approve, schedule pickup, complete refund, or reject.
+- **`sales`**: Reporting hub generating filtered sales data with one-click export to PDF or Excel format.
+- **`coupons` & `offers`**: Configures discount codes, percentage/flat discounts, minimum order constraints, validity dates, and automatic product/category offer calculations.
+
+#### 4. Shared Utilities (`common/`)
+- **`decorators.py`**: Clean access-control decorators (`@admin_required`, `@user_required`, `@guest_required`, etc.) to prevent privilege escalation.
+- **`adapters.py`**: Custom `NoMessageAccountAdapter` suppressing redundant default Django-allauth messages in favor of custom UI toasts.
+- **`services.py`**: Centralized service layer for complex business operations such as variant stock verification, price calculation after coupon discounts, and invoice layout generation.
+
+---
+
+## Core Architectural Workflows
+
+### Multi-Variant Inventory & Atomic Concurrency
+
+```
+                        [ Master Product ]
+                       (e.g., Dreadnought Guitar)
+                                   |
+         +-------------------------+-------------------------+
+         |                                                   |
+ [ ProductVariant A ]                                [ ProductVariant B ]
+ Color: Vintage Sunburst                             Color: Natural Gloss
+ Hex: #8B4513                                        Hex: #F5DEB3
+ Stock: 5 (Tracked strictly)                         Stock: 0 (Out of stock)
+ Gallery: 4 Cropped Photos                           Gallery: 4 Cropped Photos
+```
+
+When an order is placed:
+1. An atomic transaction begins: `with transaction.atomic():`
+2. The specific `ProductVariant` is queried using `select_for_update()` to lock the database row against concurrent read-writes.
+3. If `variant.stock < ordered_quantity`, the transaction immediately aborts with an out-of-stock error.
+4. If available:
+   ```python
+   variant.stock -= quantity
+   variant.save()
+   # Synchronize aggregated master product stock
+   product.stock = sum(v.stock for v in product.variants.filter(is_active=True))
+   product.save()
+   ```
+5. On cancellation or completed return, the exact inverse operation safely restores variant and product stock.
+
+### Multi-Channel Checkout & Payments
+
+```
+                     +----------------------------+
+                     |  Checkout Review & Pay     |
+                     +--------------+-------------+
+                                    |
+            +-----------------------+-----------------------+
+            |                       |                       |
+     [ Cash on Delivery ]     [ Zitarra Wallet ]     [ Razorpay Online ]
+            |                       |                       |
+  Threshold validation     Checks wallet.balance    Razorpay order created
+  Sets status: Confirmed   Deducts balance ledger   Modal checkout popup
+  Decrements variant stock Decrements variant stock Verified via HMAC SHA256
+```
+
+### Return Inspection & Automated Wallet Refunds
+
+1. **Submission**: Customer submits a return request for a delivered item, providing reason and uploading defect photos (`user_panel/returns/`).
+2. **Review**: Admin reviews the request and inspects uploaded photos in the review portal (`admin_panel/returns/`).
+3. **Approval**: Admin schedules a courier pickup date.
+4. **Completion**: Upon physical receipt and inspection, admin clicks **Complete Return**:
+   - Return status transitions to `Completed`.
+   - Variant stock is restored: `variant.stock += quantity`.
+   - Refund amount is automatically credited to the customer's `Wallet` with a detailed transaction log.
+
+### Dynamic Frontend & Sliding Toast Feedback
+
+- **Asynchronous Wishlist**: Adding/removing items from the wishlist triggers an async `fetch()` request. On receiving `{ success: true, action: 'added' | 'removed', wishlist_count: N }`, the DOM updates without page refresh:
+  - Heart icon updates with filled/outline state.
+  - Navbar badge (`#nav-wishlist-badge`) dynamically reflects the current count.
+  - A right-to-left sliding toast alert slides into view from the right margin and smoothly dismisses after 3 seconds.
+
+---
+
+## Troubleshooting & Common Pitfalls
+
+### 1. PostgreSQL Connection Refused (`connection to server at "localhost", port 5432 failed`)
+- Ensure PostgreSQL service is started:
+  - **Windows**: Open `services.msc` and ensure `postgresql-x64-<version>` is in the **Running** state.
+  - **Linux**: Run `sudo systemctl status postgresql` (start with `sudo systemctl start postgresql`).
+- Verify credentials in `.env` match your PostgreSQL superuser (`DB_USER`, `DB_PASSWORD`, `DB_PORT`).
+
+### 2. Missing Database (`database "zitarra_db" does not exist`)
+- Create the database in `psql`:
+  ```sql
+  CREATE DATABASE zitarra_db;
+  ```
+
+### 3. Email OTP Not Sending (`SMTPAuthenticationError`)
+- Gmail requires a dedicated 16-character **App Password** when 2FA is active. Your regular Google account password will be rejected by Google SMTP.
+- Ensure `EMAIL_HOST_USER` and `EMAIL_HOST_PASSWORD` are correctly specified in your `.env`.
+
+### 4. Razorpay Modal Error (`Missing or Invalid Key ID`)
+- Ensure `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` in `.env` contain valid test credentials starting with `rzp_test_`.
+
+### 5. Large Image Upload Failures (`RequestDataTooBig`)
+- The project is pre-configured with `DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400` (25MB) in `config/settings/base.py` to allow multi-image cropping with Cropper.js. Ensure your test images do not exceed this threshold.
+
+---
+
+## License & Contributing
+
+- **License**: Developed for proprietary demonstration and production use.
+- **Contributions**: Pull requests are welcome! For major changes, please open an issue first to discuss intended enhancements.
+
+---
+
+*Engineered with precision for musicians by the Zitarra Development Team.*

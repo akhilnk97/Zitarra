@@ -160,8 +160,9 @@ def otp_verification_view(request):
         request.session.pop("otp_attempts", None)
         request.session.pop("otp_last_sent", None)
 
-        messages.success(request, "Your account has been verified successfully. Please login.")
-        return redirect("login")
+        login(request, user, backend='django.contrib.auth.backends.ModelBackend')
+        messages.success(request, f"Welcome to Zitarra, {user.fullname}! Your account has been verified.")
+        return redirect("home")
 
     return render(request, "user/authentication/otp_verification.html")
 

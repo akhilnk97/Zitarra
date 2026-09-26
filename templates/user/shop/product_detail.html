@@ -238,28 +238,17 @@
                                 </button>
                             </form>
                             {% endwith %}
-                            <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="w-full">
+                            <form id="product-detail-wishlist-form" action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="w-full">
                                 {% csrf_token %}
                                 <input type="hidden" name="variant_id" id="wishlist-variant-id" value="{% if first_available and first_available.id %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
-                                {% if is_in_wishlist %}
-                                <button type="submit"
-                                    class="w-full border border-red-600 text-red-600 text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-red-600 hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
-                                    <svg class="w-4 h-4 fill-current shrink-0" viewBox="0 0 24 24">
+                                <button id="product-detail-wishlist-btn" type="submit"
+                                    class="w-full {% if is_in_wishlist %}border border-red-600 text-red-600 hover:bg-red-600 hover:text-white{% else %}border border-black text-black hover:bg-black hover:text-white{% endif %} text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
+                                    <svg id="product-detail-wishlist-svg" class="w-4 h-4 {% if is_in_wishlist %}fill-current{% else %}fill-none stroke-current{% endif %} shrink-0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                         <path
                                             d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
                                     </svg>
-                                    <span class="leading-none">In Wishlist (Remove)</span>
+                                    <span id="product-detail-wishlist-text" class="leading-none">{% if is_in_wishlist %}In Wishlist (Remove){% else %}Add to Wishlist{% endif %}</span>
                                 </button>
-                                {% else %}
-                                <button type="submit"
-                                    class="w-full border border-black text-black text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-black hover:text-white transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
-                                    <svg class="w-4 h-4 fill-none stroke-current shrink-0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
-                                        <path
-                                            d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
-                                    </svg>
-                                    <span class="leading-none">Add to Wishlist</span>
-                                </button>
-                                {% endif %}
                             </form>
 
                             <!-- Express Checkout Reassurance Micro Badges -->
@@ -1040,6 +1029,77 @@
             }
         });
     });
+
+    // Handle AJAX Wishlist button on Product Detail page
+    const detailWishlistForm = document.getElementById('product-detail-wishlist-form');
+    if (detailWishlistForm) {
+        detailWishlistForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('product-detail-wishlist-btn');
+            const wishlistText = document.getElementById('product-detail-wishlist-text');
+            const svgIcon = document.getElementById('product-detail-wishlist-svg');
+            if (submitBtn) submitBtn.disabled = true;
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.redirected && response.url.includes('/login/')) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    if (window.showToastAlert) {
+                        window.showToastAlert(data.message, 'success');
+                    }
+
+                    if (submitBtn && wishlistText) {
+                        if (data.in_wishlist) {
+                            submitBtn.className = 'w-full border border-red-600 text-red-600 hover:bg-red-600 hover:text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5';
+                            wishlistText.textContent = 'In Wishlist (Remove)';
+                            if (svgIcon) {
+                                svgIcon.setAttribute('class', 'w-4 h-4 fill-current shrink-0');
+                            }
+                        } else {
+                            submitBtn.className = 'w-full border border-black text-black hover:bg-black hover:text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5';
+                            wishlistText.textContent = 'Add to Wishlist';
+                            if (svgIcon) {
+                                svgIcon.setAttribute('class', 'w-4 h-4 fill-none stroke-current shrink-0');
+                            }
+                        }
+                    }
+
+                    // Update navbar wishlist count badge
+                    const badge = document.getElementById('nav-wishlist-badge');
+                    if (badge) {
+                        badge.textContent = data.wishlist_count || 0;
+                        if (data.wishlist_count > 0) {
+                            badge.classList.remove('hidden');
+                            badge.style.display = 'flex';
+                        } else {
+                            badge.classList.add('hidden');
+                            badge.style.display = 'none';
+                        }
+                    }
+                } else {
+                    if (window.showToastAlert) window.showToastAlert(data.message || 'Unable to update wishlist.', 'error');
+                }
+            } catch (err) {
+                console.error('AJAX wishlist detail error:', err);
+            } finally {
+                if (submitBtn) submitBtn.disabled = false;
+            }
+        });
+    }
 
     function increaseQuantity() {
         const q = document.getElementById('quantity-input');
