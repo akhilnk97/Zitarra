@@ -57,4 +57,6 @@ class Referral(models.Model):
         db_table = 'orders_referral'
 
     def __str__(self):
-        return f"Referral {self.referral_code} by {self.referrer.username} -> {self.referred_user.username if self.referred_user else 'Pending'}"
+        referrer_id = getattr(self.referrer, 'email', str(self.referrer_id))
+        referred_id = getattr(self.referred_user, 'email', 'Pending') if self.referred_user else 'Pending'
+        return f"Referral {self.referral_code} by {referrer_id} -> {referred_id}"

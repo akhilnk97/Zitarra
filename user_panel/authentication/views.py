@@ -10,6 +10,7 @@ from django.urls import reverse
 from django.views.decorators.cache import cache_control
 from django.utils import timezone
 from user_panel.profiles.models import Referral
+from common.services import get_or_create_user_referral_code
 
 from .models import User, OTPVerification
 from common.services import (
@@ -110,40 +111,46 @@ def otp_verification_view(request):
         messages.error(request, "Session expired. Please signup again.")
         return redirect("signup")
 
+    user = User.objects.filter(id=pending_user_id).first()
+    if not user:
+        request.session.pop("pending_user_id", None)
+        messages.error(request, "Account not found. Please signup again.")
+        return redirect("signup")
+
     if request.method == "POST":
-        entered_otp = request.POST.get("otp")
+        entered_otp = (request.POST.get("otp") or "").strip()
 
         try:
             otp_record = OTPVerification.objects.filter(
-                user_id=pending_user_id,
+                user=user,
                 purpose="signup",
                 verified=False,
             ).latest("created_at")
         except OTPVerification.DoesNotExist:
-            messages.error(request, "OTP not found.")
-            return redirect("signup")
-
-        if entered_otp != otp_record.otp_code:
-            messages.error(request, "Invalid OTP. Please try again.")
+            messages.error(request, "OTP not found. Please request a new one.")
             return redirect("otp_verify")
 
+        # 1. Check expiration first so frontend resets cooldown timer
         if otp_record.expires_at < timezone.now():
             messages.error(request, "The OTP has expired. Please request a new one.")
+            return redirect("otp_verify")
+
+        # 2. Check entered code
+        if entered_otp != otp_record.otp_code.strip():
+            messages.error(request, "Invalid OTP. Please try again.")
             return redirect("otp_verify")
 
         otp_record.verified = True
         otp_record.save()
 
-        user = User.objects.get(id=pending_user_id)
         user.is_verified = True
         user.save()
 
         # Link Referral record for order-based reward fulfillment
-        ref_code = (user.referral_code or request.session.get('referral_code') or '').strip().upper()
+        ref_code = (request.session.get('referral_code') or user.referral_code or '').strip().upper()
         if ref_code:
             referrer_user = User.objects.filter(referral_code__iexact=ref_code).exclude(id=user.id).first()
             if referrer_user:
-
                 Referral.objects.get_or_create(
                     referred_user=user,
                     defaults={
@@ -155,13 +162,15 @@ def otp_verification_view(request):
                 )
                 request.session.pop('referral_code', None)
 
+        get_or_create_user_referral_code(user)
+
         OTPVerification.objects.filter(user=user, purpose="signup").delete()
         request.session.pop("pending_user_id", None)
         request.session.pop("otp_attempts", None)
         request.session.pop("otp_last_sent", None)
 
         login(request, user, backend='django.contrib.auth.backends.ModelBackend')
-        messages.success(request, f"Welcome to Zitarra, {user.fullname}! Your account has been verified.")
+        messages.success(request, f"Welcome to Zitarra, {user.fullname or 'there'}! Your account has been verified.")
         return redirect("home")
 
     return render(request, "user/authentication/otp_verification.html")
