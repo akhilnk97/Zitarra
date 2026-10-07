@@ -189,7 +189,10 @@ def admin_return_action_view(request, item_id):
                         order=item.order
                     )
 
-                item.order.payment_status = 'REFUNDED'
+                if not item.order.items.exclude(item_status__in=['CANCELLED', 'RETURNED']).exists():
+                    item.order.payment_status = 'REFUNDED'
+                else:
+                    item.order.payment_status = 'PARTIALLY_REFUNDED'
                 item.order.save(update_fields=['payment_status'])
                 item.order.recalculate_totals()
 

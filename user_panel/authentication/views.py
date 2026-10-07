@@ -11,6 +11,7 @@ from django.views.decorators.cache import cache_control
 from django.utils import timezone
 from user_panel.profiles.models import Referral
 from common.services import get_or_create_user_referral_code
+from django.utils.http import url_has_allowed_host_and_scheme
 
 from .models import User, OTPVerification
 from common.services import (
@@ -130,12 +131,11 @@ def otp_verification_view(request):
             messages.error(request, "OTP not found. Please request a new one.")
             return redirect("otp_verify")
 
-        # 1. Check expiration first so frontend resets cooldown timer
+        # Check expiration first so frontend resets cooldown timer
         if otp_record.expires_at < timezone.now():
             messages.error(request, "The OTP has expired. Please request a new one.")
             return redirect("otp_verify")
 
-        # 2. Check entered code
         if entered_otp != otp_record.otp_code.strip():
             messages.error(request, "Invalid OTP. Please try again.")
             return redirect("otp_verify")
@@ -205,6 +205,9 @@ def resend_otp_view(request):
 @cache_control(no_cache=True, no_store=True, must_revalidate=True)
 def login_view(request):
     if request.user.is_authenticated:
+        next_url = request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+            return redirect(next_url)
         return redirect("home")
 
     if request.method == "POST":
@@ -238,6 +241,9 @@ def login_view(request):
             return render(request, "user/authentication/login.html", status=403)
 
         login(request, user)
+        next_url = request.POST.get("next") or request.GET.get("next")
+        if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}):
+            return redirect(next_url)
         return redirect("home")
 
     return render(request, "user/authentication/login.html")

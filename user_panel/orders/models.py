@@ -29,6 +29,8 @@ class Order(models.Model):
         ('RETURN_PICKUP', 'Pickup Scheduled'),
         ('RETURNED', 'Returned'),
         ('RETURN_REJECTED', 'Return Rejected'),
+        ('PARTIALLY_DELIVERED', 'Partially Delivered'),
+        ('PARTIALLY_RETURNED', 'Partially Returned'),
     )
 
     order_id = models.CharField(max_length=50, unique=True, default=generate_order_id)
@@ -92,21 +94,108 @@ class Order(models.Model):
             active_statuses = set(active_items.values_list('item_status', flat=True))
             if active_statuses == {'DELIVERED'}:
                 self.order_status = 'DELIVERED'
-            elif 'RETURN_REQUESTED' in active_statuses:
-                self.order_status = 'RETURN_REQUESTED'
-            elif 'RETURN_APPROVED' in active_statuses:
-                self.order_status = 'RETURN_APPROVED'
-            elif 'RETURN_PICKUP' in active_statuses:
-                self.order_status = 'RETURN_PICKUP'
             elif active_statuses.issubset({'RETURNED'}):
                 self.order_status = 'RETURNED'
+            elif 'DELIVERED' in active_statuses and any(s.startswith('RETURN_') or s == 'RETURNED' for s in active_statuses):
+                # Mixed: delivered + returns
+                if any(s.startswith('RETURN_') for s in active_statuses):
+                    self.order_status = 'PARTIALLY_DELIVERED'
+                else:
+                    self.order_status = 'PARTIALLY_RETURNED'
+            elif 'RETURN_PICKUP' in active_statuses:
+                self.order_status = 'RETURN_PICKUP'
+            elif 'RETURN_APPROVED' in active_statuses:
+                self.order_status = 'RETURN_APPROVED'
+            elif 'RETURN_REQUESTED' in active_statuses:
+                self.order_status = 'RETURN_REQUESTED'
             elif 'SHIPPED' in active_statuses:
                 self.order_status = 'SHIPPED'
             elif 'PROCESSING' in active_statuses:
                 self.order_status = 'PROCESSING'
             elif 'CONFIRMED' in active_statuses:
                 self.order_status = 'CONFIRMED'
+
+            # Recalculate payment_status based on payment method and actual refunds
+            is_cod = self.payment_method in ['CASH_ON_DELIVERY', 'COD']
+            has_deliv = self.items.filter(item_status='DELIVERED').exists()
+            has_returned = self.items.filter(item_status='RETURNED').exists()
+
+            if is_cod:
+                # In Cash on Delivery:
+                # - Cancelled items are never paid for (no refund).
+                # - Return requested/approved/pickup items have not been refunded yet.
+                # - Only items with status 'RETURNED' have been accepted and refunded to the wallet.
+                if has_returned:
+                    if not self.items.exclude(item_status__in=['CANCELLED', 'RETURNED']).exists():
+                        self.payment_status = 'REFUNDED'
+                    elif has_deliv:
+                        self.payment_status = 'PARTIALLY_REFUNDED'
+                elif has_deliv:
+                    # Delivered items were paid in cash on delivery; no return has been completed
+                    self.payment_status = 'PAID'
+                elif not self.items.exclude(item_status='CANCELLED').exists():
+                    self.payment_status = 'CANCELLED'
+                elif self.payment_status not in ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED']:
+                    self.payment_status = 'PENDING'
+            else:
+                # In prepaid orders (Razorpay, Wallet, etc.):
+                # - Cancelled items were paid upfront and refunded to wallet.
+                # - Returned items were paid upfront and refunded to wallet upon completion.
+                # - Return requested/approved/pickup items have NOT been refunded yet.
+                has_ret_or_canc = self.items.filter(item_status__in=['CANCELLED', 'RETURNED']).exists()
+                all_ret_or_canc = not self.items.exclude(item_status__in=['CANCELLED', 'RETURNED']).exists()
+                if all_ret_or_canc:
+                    self.payment_status = 'REFUNDED'
+                elif has_ret_or_canc and (has_deliv or self.payment_status in ['PAID', 'VERIFIED', 'PARTIALLY_REFUNDED']):
+                    self.payment_status = 'PARTIALLY_REFUNDED'
+                elif has_deliv:
+                    self.payment_status = 'PAID'
         self.save()
+
+    @property
+    def has_mixed_statuses(self):
+        statuses = set(self.items.values_list('item_status', flat=True))
+        return len(statuses) > 1
+
+    @property
+    def has_delivered_items(self):
+        return self.items.filter(item_status='DELIVERED').exists()
+
+    @property
+    def has_returned_items(self):
+        return self.items.filter(item_status='RETURNED').exists()
+
+    @property
+    def has_cancelled_items(self):
+        return self.items.filter(item_status='CANCELLED').exists()
+
+    @property
+    def has_return_in_progress(self):
+        return self.items.filter(item_status__in=['RETURN_REQUESTED', 'RETURN_APPROVED', 'RETURN_PICKUP']).exists()
+
+    @property
+    def is_partially_refunded(self):
+        if self.payment_status == 'PARTIALLY_REFUNDED':
+            return True
+        is_cod = self.payment_method in ['CASH_ON_DELIVERY', 'COD']
+        if is_cod:
+            # In COD, it's only partially refunded if there are both delivered items AND completed returned items
+            return self.has_delivered_items and self.has_returned_items
+        # In prepaid, only if there are actual refunded items (CANCELLED or RETURNED) alongside remaining active items
+        return self.payment_status in ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED', 'VERIFIED'] and (self.has_returned_items or self.has_cancelled_items) and self.items.exclude(item_status__in=['CANCELLED', 'RETURNED']).exists()
+
+    @property
+    def total_refunded_amount(self):
+        is_cod = self.payment_method in ['CASH_ON_DELIVERY', 'COD']
+        if is_cod:
+            # In COD, cancelled items were never charged or paid; only delivered items that were returned got refunded
+            refunded_items = self.items.filter(item_status='RETURNED')
+        else:
+            # In prepaid, cancelled items and completed returned items were refunded
+            refunded_items = self.items.filter(item_status__in=['CANCELLED', 'RETURNED'])
+        net_subtotal = sum((max(Decimal('0.00'), i.item_subtotal - i.discount_amount) for i in refunded_items), Decimal('0.00'))
+        tax = round(net_subtotal * Decimal('0.05'), 2)
+        return net_subtotal + tax
 
     @property
     def default_delivery_date(self):
@@ -129,6 +218,13 @@ class Order(models.Model):
             return (self.created_at + timedelta(days=5)).date()
 
         return (timezone.now() + timedelta(days=5)).date()
+
+    @property
+    def can_generate_invoice(self):
+        """Returns True only if the order is eligible for tax invoice generation."""
+        if self.order_status in ['PENDING', 'CANCELLED', 'RETURNED', 'REFUNDED'] or self.payment_status in ['FAILED', 'REFUNDED']:
+            return False
+        return self.items.exclude(item_status__in=['CANCELLED', 'RETURNED', 'REFUNDED']).exists()
 
     def __str__(self):
         return f"Order {self.order_id}"

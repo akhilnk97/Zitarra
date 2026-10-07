@@ -80,7 +80,12 @@
 
       <!-- INVOICE META DATA -->
       <div class="text-left sm:text-right bg-gray-50 border border-gray-200 p-4 shrink-0 min-w-[240px]">
-        <h2 class="text-lg font-black uppercase tracking-widest text-[#E8500A] m-0 mb-2">INVOICE</h2>
+        <div class="flex items-center gap-2 justify-start sm:justify-end mb-2">
+          <h2 class="text-lg font-black uppercase tracking-widest text-[#E8500A] m-0">INVOICE</h2>
+          {% if is_fully_cancelled or order.order_status == 'CANCELLED' %}
+            <span class="bg-red-600 text-white text-[0.55rem] font-black px-2 py-0.5 tracking-widest uppercase">CANCELLED</span>
+          {% endif %}
+        </div>
         <div class="space-y-1 text-xs font-mono text-gray-700">
           <p class="m-0"><span class="text-gray-400">INVOICE NO:</span> <strong class="text-brand-dark">INV-{{ order.order_id }}</strong></p>
           <p class="m-0"><span class="text-gray-400">INVOICE DATE:</span> <strong class="text-brand-dark">{{ order.created_at|date:"d/m/Y" }}</strong></p>
@@ -89,6 +94,17 @@
         </div>
       </div>
     </div>
+
+    {% if is_fully_cancelled or order.order_status == 'CANCELLED' %}
+    <!-- VOID NOTICE BANNER -->
+    <div class="my-6 p-4 bg-red-50 border-l-4 border-red-600 flex items-center justify-between text-xs">
+      <div>
+        <p class="text-red-700 font-bold uppercase tracking-wider m-0">NOTICE: THIS ORDER WAS CANCELLED</p>
+        <p class="text-red-600 font-mono text-[0.65rem] m-0 mt-0.5">All item charges have been voided and refunded to the user's digital wallet/payment account.</p>
+      </div>
+      <span class="border border-red-600 text-red-600 font-mono font-black text-xs px-2.5 py-1 uppercase tracking-widest">VOID</span>
+    </div>
+    {% endif %}
 
     <!-- BILLED TO & PAYMENT DETAILS GRID -->
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8 py-6 border-b border-gray-200 text-xs">
@@ -107,24 +123,38 @@
 
       <!-- LOGISTICS & PAYMENT META -->
       <div class="md:text-right font-mono text-xs">
-        <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-2">PAYMENT &amp; LOGISTICS SUMMARY</p>
+        <p class="text-[0.52rem] font-bold tracking-[0.22em] uppercase text-gray-400 mb-2">PAYMENT &amp; FULFILLMENT STATUS</p>
         <div class="space-y-1 text-gray-700">
           <p class="m-0"><span class="text-gray-400">PAYMENT METHOD:</span> <strong class="text-brand-dark">
             {% if order.payment_method == 'CASH_ON_DELIVERY' or order.payment_method == 'COD' %}
               CASH ON DELIVERY (COD)
+            {% elif order.payment_method == 'WALLET' %}
+              ZITARRA DIGITAL WALLET
+            {% elif order.payment_method == 'RAZORPAY' or order.payment_method == 'ONLINE' %}
+              RAZORPAY ONLINE GATEWAY
             {% else %}
               {{ order.get_payment_method_display|default:order.payment_method|upper }}
             {% endif %}
           </strong></p>
+
+          <p class="m-0"><span class="text-gray-400">ORDER STATUS:</span> 
+            <strong class="{% if order.order_status == 'CANCELLED' %}text-red-600{% elif order.order_status == 'DELIVERED' %}text-green-600{% else %}text-brand-dark{% endif %}">
+              {{ order.get_order_status_display|upper }}
+            </strong>
+          </p>
+
           <p class="m-0"><span class="text-gray-400">PAYMENT STATUS:</span> 
-            {% if order.order_status in 'RETURNED,REFUNDED' or order.payment_status == 'REFUNDED' %}
-              <strong class="text-purple-600">REFUNDED</strong>
-            {% elif order.payment_method in 'RAZORPAY,ONLINE' or order.order_status in 'DELIVERED,RETURN_REQUESTED,RETURN_APPROVED,RETURN_PICKUP' or order.payment_status in 'PAID,VERIFIED' %}
+            {% if is_fully_cancelled or order.order_status == 'CANCELLED' or order.payment_status == 'REFUNDED' %}
+              <strong class="text-purple-600">REFUNDED / VOID</strong>
+            {% elif order.payment_method in 'RAZORPAY,ONLINE,WALLET' or order.payment_status in 'PAID,VERIFIED' or order.order_status == 'DELIVERED' %}
               <strong class="text-green-600">PAID</strong>
+            {% elif order.payment_method in 'CASH_ON_DELIVERY,COD' %}
+              <strong class="text-[#E8500A]">DUE ON DELIVERY</strong>
             {% else %}
-              <strong class="text-[#E8500A]">PENDING</strong>
+              <strong class="text-[#E8500A]">{{ order.payment_status|upper }}</strong>
             {% endif %}
           </p>
+
           <p class="m-0"><span class="text-gray-400">PLACE OF SUPPLY:</span> <strong class="text-brand-dark">{{ order.shipping_state|upper }}</strong></p>
           <p class="m-0"><span class="text-gray-400">REVERSE CHARGE:</span> <strong class="text-brand-dark">NO</strong></p>
         </div>
@@ -143,13 +173,13 @@
             <th class="py-3 px-3 text-right whitespace-nowrap">M.R.P.</th>
             <th class="py-3 px-3 text-right whitespace-nowrap">OFFER DISCOUNT</th>
             <th class="py-3 px-3 text-right whitespace-nowrap">NET PRICE</th>
-            <th class="py-3 px-3 text-center w-14 whitespace-nowrap">GST</th>
+            <th class="py-3 px-3 text-center w-14 whitespace-nowrap">GST RATE</th>
             <th class="py-3 px-4 text-right whitespace-nowrap">AMOUNT (₹)</th>
           </tr>
         </thead>
         <tbody class="divide-y divide-gray-200 font-mono text-xs">
           {% for item in order.items.all %}
-          <tr class="{% if item.item_status == 'CANCELLED' %}bg-red-50/50 text-gray-400{% endif %}">
+          <tr class="{% if item.item_status == 'CANCELLED' %}bg-red-50/40 text-gray-400{% endif %}">
             <td class="py-4 px-2 text-center font-bold text-gray-400 align-top">0{{ forloop.counter }}</td>
             <td class="py-4 px-4 font-sans align-top">
               <p class="font-bold text-brand-dark uppercase m-0 leading-snug">{{ item.product_name }}</p>
@@ -158,6 +188,8 @@
               </p>
               {% if item.item_status == 'CANCELLED' %}
               <span class="inline-block bg-red-100 text-red-600 text-[0.5rem] font-bold px-1.5 py-0.5 uppercase mt-1">CANCELLED</span>
+              {% elif item.item_status == 'RETURNED' %}
+              <span class="inline-block bg-purple-100 text-purple-600 text-[0.5rem] font-bold px-1.5 py-0.5 uppercase mt-1">RETURNED</span>
               {% endif %}
             </td>
             <td class="py-4 px-3 text-center font-bold align-top whitespace-nowrap">0{{ item.quantity }}</td>
@@ -181,8 +213,15 @@
               {% endif %}
             </td>
             <td class="py-4 px-3 text-right font-bold text-brand-dark align-top whitespace-nowrap">₹{{ item.price|floatformat:2 }}</td>
-            <td class="py-4 px-3 text-center text-gray-500 align-top whitespace-nowrap">18%</td>
-            <td class="py-4 px-4 text-right font-bold text-brand-dark align-top whitespace-nowrap">₹{{ item.item_subtotal|floatformat:2 }}</td>
+            <td class="py-4 px-3 text-center text-gray-500 align-top whitespace-nowrap">5%</td>
+            <td class="py-4 px-4 text-right font-bold align-top whitespace-nowrap">
+              {% if item.item_status == 'CANCELLED' %}
+                <span class="line-through text-gray-400">₹{{ item.item_subtotal|floatformat:2 }}</span>
+                <span class="block text-[0.52rem] text-red-500 font-normal">₹0.00 (VOID)</span>
+              {% else %}
+                <span class="text-brand-dark">₹{{ item.item_subtotal|floatformat:2 }}</span>
+              {% endif %}
+            </td>
           </tr>
           {% endfor %}
         </tbody>
@@ -198,7 +237,7 @@
         <ol class="list-decimal list-inside space-y-1 font-mono leading-relaxed m-0">
           <li>We declare that this invoice shows the actual price of goods described.</li>
           <li>All instruments include Zitarra Digital Certificate of Authenticity.</li>
-          <li>This is a computer-generated Tax Invoice under GST Act, 2017.</li>
+          <li>This is a computer-generated Tax Invoice under GST Act, 2017 (5% GST: CGST 2.5% + SGST 2.5%).</li>
         </ol>
       </div>
 
@@ -223,11 +262,11 @@
           <span class="font-bold text-green-600 uppercase">{% if order.shipping_cost == 0 %}FREE{% else %}₹{{ order.shipping_cost|floatformat:2 }}{% endif %}</span>
         </div>
         <div class="flex justify-between text-gray-600">
-          <span>CGST (9%):</span>
+          <span>CGST (2.5%):</span>
           <span class="font-bold text-brand-dark">₹{{ half_tax|floatformat:2 }}</span>
         </div>
         <div class="flex justify-between text-gray-600">
-          <span>SGST (9%):</span>
+          <span>SGST (2.5%):</span>
           <span class="font-bold text-brand-dark">₹{{ half_tax|floatformat:2 }}</span>
         </div>
         {% if order.discount_amount > 0 %}

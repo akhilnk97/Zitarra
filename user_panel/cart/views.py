@@ -115,6 +115,8 @@ def add_to_cart(request, product_id):
             msg = f"Maximum limit of {CartItem.MAX_QUANTITY} units per product reached."
             if is_ajax(request):
                 return JsonResponse({'status': 'warning', 'message': msg})
+        if item.quantity == 1:
+            messages.warning(request, "Maximum limit of 1 unit per product reached.")
             messages.warning(request, msg)
             referer = request.META.get('HTTP_REFERER')
             return redirect(referer or 'shop')

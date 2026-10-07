@@ -544,10 +544,13 @@ def order_detail_view(request, order_id):
             display_shipping = order.shipping_cost
             display_total = order.total_price
 
+    all_order_items = list(order.items.all())
     context = {
         'order': order,
         'order_items': order_items,
+        'all_order_items': all_order_items,
         'selected_item': selected_item,
+        'has_mixed_statuses': order.has_mixed_statuses,
         'display_subtotal': display_subtotal,
         'display_discount': display_discount,
         'display_tax': display_tax,
@@ -633,7 +636,10 @@ def cancel_order_item_view(request, order_id, item_id):
 
         order_item.order.recalculate_totals()
 
-    messages.success(request, f"Product '{order_item.product_name}' from Order #{order_item.order.order_id} has been cancelled & refunded to your Wallet.")
+    if order_item.order.payment_status == 'PAID' or order_item.order.payment_method in ['RAZORPAY', 'WALLET']:
+        messages.success(request, f"Product '{order_item.product_name}' from Order #{order_item.order.order_id} has been cancelled & refunded to your Wallet.")
+    else:
+        messages.success(request, f"Product '{order_item.product_name}' from Order #{order_item.order.order_id} has been cancelled successfully.")
     return redirect(next_url)
 
 
@@ -642,18 +648,34 @@ def cancel_order_item_view(request, order_id, item_id):
 
 @user_member_required
 def order_invoice_view(request, order_id):
-    
     order = get_object_or_404(
         Order.objects.prefetch_related('items__product', 'items__variant'),
         order_id=order_id,
         user=request.user
     )
-    half_tax = round(order.tax_amount / Decimal('2.0'), 2)
 
-    # Calculate M.R.P. subtotal and offer/coupon savings
-    gross_mrp_subtotal = sum((item.mrp * item.quantity for item in order.items.all()), Decimal('0.00'))
-    total_offer_savings = sum((item.total_offer_discount for item in order.items.all()), Decimal('0.00'))
+    # Disallow generating invoice if order is pending/failed, cancelled, returned, or refunded
+    if not order.can_generate_invoice:
+        if order.order_status == 'PENDING' or order.payment_status == 'FAILED':
+            messages.error(request, "Tax invoice cannot be generated for an unpaid or failed order.")
+        elif order.order_status in ['CANCELLED', 'RETURNED', 'REFUNDED'] or order.payment_status == 'REFUNDED':
+            messages.error(request, f"Tax invoice cannot be generated for a {order.get_order_status_display().lower()} order.")
+        else:
+            messages.error(request, "Tax invoice cannot be generated because all items in this order are cancelled or returned.")
+        return redirect('order_detail', order_id=order.order_id)
+
+    # Active items (excluding cancelled, returned, and refunded items)
+    active_items = order.items.exclude(item_status__in=['CANCELLED', 'RETURNED', 'REFUNDED'])
+
+    # Calculate 5% GST split: 2.5% CGST and 2.5% SGST
+    half_tax = round(order.tax_amount / Decimal('2.0'), 2)
+    # Compute M.R.P. and promotional savings strictly from fulfilled/active items
+    gross_mrp_subtotal = sum((item.mrp * item.quantity for item in active_items), Decimal('0.00'))
+    total_offer_savings = sum((item.total_offer_discount for item in active_items), Decimal('0.00'))
     total_savings = total_offer_savings + (order.discount_amount or Decimal('0.00'))
+
+    cancelled_items_count = order.items.filter(item_status='CANCELLED').count()
+    returned_items_count = order.items.filter(item_status='RETURNED').count()
 
     context = {
         'order': order,
@@ -661,6 +683,8 @@ def order_invoice_view(request, order_id):
         'gross_mrp_subtotal': gross_mrp_subtotal,
         'total_offer_savings': total_offer_savings,
         'total_savings': total_savings,
+        'cancelled_items_count': cancelled_items_count,
+        'returned_items_count': returned_items_count,
     }
     return render(request, 'user/orders/order_invoice.html', context)
 

@@ -186,7 +186,8 @@
                   <span class="text-xs font-bold uppercase tracking-wider text-gray-900">Cash on Delivery (COD)</span>
                 </div>
               </div>
-              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay cash to delivery officer upon shipment arrival. Zero surcharge.</p>
+              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay cash to
+                delivery officer upon shipment arrival. Zero surcharge.</p>
             </div>
 
             <!-- OPTION 2: RAZORPAY (ONLINE PAYMENT) -->
@@ -197,16 +198,18 @@
                 <div class="flex items-center gap-3">
                   <input type="radio" name="payment_method" value="RAZORPAY"
                     class="accent-[#A33C08] w-4 h-4 cursor-pointer">
-                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">Razorpay (Cards, Netbanking, Wallets)</span>
+                  <span class="text-xs font-bold uppercase tracking-wider text-gray-900">Razorpay (Cards, Netbanking,
+                    Wallets)</span>
                 </div>
               </div>
-              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay securely via Credit/Debit Card, Netbanking, or Digital Wallets.</p>
+              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">Pay
+                securely via Credit/Debit Card, Netbanking, or Digital Wallets.</p>
             </div>
 
             <!-- OPTION 3: ZITARRA DIGITAL WALLET -->
-            <div
+            <div id="wallet-option-card"
               class="scroll-bubble-card payment-option-card border border-gray-200 bg-white p-4 flex flex-col transition-all duration-200 cursor-pointer {% if wallet_balance < total_price %}opacity-60{% endif %}"
-              onclick="{% if wallet_balance >= total_price %}selectPaymentOption('WALLET', this){% endif %}">
+              onclick="selectPaymentOption('WALLET', this)">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-3">
                   <input type="radio" name="payment_method" value="WALLET" id="pay_wallet"
@@ -217,7 +220,8 @@
                   BALANCE: ₹{{ wallet_balance|floatformat:2 }}
                 </span>
               </div>
-              <p class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">
+              <p id="wallet-desc-text"
+                class="text-[0.6rem] font-sans font-medium text-gray-600 mt-2 ml-7 uppercase tracking-wide">
                 {% if wallet_balance >= total_price %}
                 Instant 1-click checkout using your Zitarra store balance.
                 {% else %}
@@ -286,7 +290,8 @@
                 <h5 class="text-[0.78rem] font-black uppercase tracking-wider text-brand-dark m-0 leading-tight">{{ item.product.name }}</h5>
                 {% if item.variant %}
                 <div class="flex items-center gap-1.5 mt-0.5">
-                  <span class="w-2 h-2 rounded-full border border-gray-300 shrink-0" style="background-color: {{ item.variant.color_code }};"></span>
+                  <span class="w-2 h-2 rounded-full border border-gray-300 shrink-0"
+                    style="background-color: {{ item.variant.color_code }};"></span>
                   <span class="text-[0.55rem] font-bold uppercase tracking-wider text-gray-600 font-mono">COLOR: {{ item.variant.name }}</span>
                 </div>
                 {% endif %}
@@ -296,7 +301,8 @@
                 </div>
                 {% if item.has_discount %}
                 <div class="mt-1">
-                  <span class="inline-block px-1.5 py-0.5 text-[0.48rem] font-black uppercase tracking-wider bg-[#FDEEE9] text-[#A33C08] border border-[#F5D5C8]">
+                  <span
+                    class="inline-block px-1.5 py-0.5 text-[0.48rem] font-black uppercase tracking-wider bg-[#FDEEE9] text-[#A33C08] border border-[#F5D5C8]">
                     {{ item.discount_percent }}% OFF ({{ item.offer_name|default:"OFFER" }})
                   </span>
                 </div>
@@ -323,7 +329,8 @@
               </div>
 
               <!-- DYNAMIC OFFER DISCOUNT BREAKDOWN ROW -->
-              <div id="offer-discount-row" class="{% if not offer_discount or offer_discount == 0 %}hidden{% endif %} flex justify-between items-center text-emerald-600 font-bold">
+              <div id="offer-discount-row"
+                class="{% if not offer_discount or offer_discount == 0 %}hidden{% endif %} flex justify-between items-center text-emerald-600 font-bold">
                 <span class="uppercase tracking-wider">Offer Discount</span>
                 <span id="summary-offer-discount">-₹{{ offer_discount|floatformat:2 }}</span>
               </div>
@@ -341,7 +348,8 @@
               </div>
 
               <!-- DYNAMIC COUPON DISCOUNT BREAKDOWN ROW -->
-              <div id="coupon-discount-row" class="{% if not discount_amount or discount_amount == 0 %}hidden{% endif %} flex justify-between items-center text-gray-600 pb-3 border-b border-gray-200">
+              <div id="coupon-discount-row"
+                class="{% if not discount_amount or discount_amount == 0 %}hidden{% endif %} flex justify-between items-center text-gray-600 pb-3 border-b border-gray-200">
                 <span class="uppercase tracking-wider">Coupon Discount (<span id="summary-coupon-code">{{ applied_coupon.code|default:"" }}</span>)</span>
                 <span id="summary-discount" class="font-bold text-brand-dark">-₹{{ discount_amount|floatformat:2 }}</span>
               </div>
@@ -354,27 +362,34 @@
 
             <!-- TOTAL DUE NOW -->
             <div class="mt-6 flex flex-col text-left pb-5 border-b border-gray-300">
-              <span class="text-[0.65rem] font-mono font-bold uppercase tracking-widest text-gray-500">Total Payment</span>
+              <span class="text-[0.65rem] font-mono font-bold uppercase tracking-widest text-gray-500">Total
+                Payment</span>
               <span id="summary-total-price" class="text-[1.8rem] font-black text-[#E8500A] leading-tight mt-1">₹{{ total_price|floatformat:2 }}</span>
             </div>
 
             <!-- PROMO CODE / COUPON INPUT & OFFERS BOX -->
             <div class="mt-5 select-none text-left">
-              <span class="text-[0.62rem] font-black uppercase tracking-[0.15em] text-gray-500 block mb-2">Have a Promo Code?</span>
-              
+              <span class="text-[0.62rem] font-black uppercase tracking-[0.15em] text-gray-500 block mb-2">Have a Promo
+                Code?</span>
+
               <!-- Applied Coupon Active Badge -->
-              <div id="applied-coupon-container" class="{% if not applied_coupon %}hidden{% endif %} bg-emerald-50/90 border border-emerald-200 p-3 mb-3 flex items-center justify-between transition-all">
+              <div id="applied-coupon-container"
+                class="{% if not applied_coupon %}hidden{% endif %} bg-emerald-50/90 border border-emerald-200 p-3 mb-3 flex items-center justify-between transition-all">
                 <div class="flex items-center gap-2.5">
-                  <span class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                  <span
+                    class="w-6 h-6 rounded-full bg-emerald-600 text-white flex items-center justify-center text-xs font-bold shrink-0">✓</span>
                   <div>
-                    <p class="text-xs font-black uppercase tracking-wider text-emerald-950 m-0">Coupon Applied: <span id="active-coupon-name" class="font-mono text-emerald-700">{{ applied_coupon.code }}</span></p>
-                    <p class="text-[0.58rem] text-emerald-700 font-medium m-0 mt-0.5">Discount: ₹<span id="active-coupon-discount">{{ discount_amount|floatformat:2 }}</span> saved on this order</p>
+                    <p class="text-xs font-black uppercase tracking-wider text-emerald-950 m-0">Coupon Applied: <span
+                        id="active-coupon-name" class="font-mono text-emerald-700">{{ applied_coupon.code }}</span></p>
+                    <p class="text-[0.58rem] text-emerald-700 font-medium m-0 mt-0.5">Discount: ₹<span
+                        id="active-coupon-discount">{{ discount_amount|floatformat:2 }}</span> saved on this order</p>
                   </div>
                 </div>
                 <button type="button" onclick="event.preventDefault(); handleCouponRemove();" title="Remove Coupon"
                   class="w-7 h-7 rounded-full bg-red-100/80 hover:bg-red-500 text-red-600 hover:text-white flex items-center justify-center transition-all duration-200 cursor-pointer border-none shadow-xs group shrink-0">
-                  <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12"/>
+                  <svg class="w-4 h-4 transition-transform duration-200 group-hover:rotate-90" fill="none"
+                    stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               </div>
@@ -386,23 +401,25 @@
                     class="w-full bg-[#FFFBF9] border border-dashed border-[#E8500A] px-3.5 py-2.5 text-[0.65rem] font-mono font-bold uppercase text-[#A04100] outline-none cursor-pointer appearance-none transition-colors hover:bg-[#FFF3EC]">
                     <option value="" selected>🏷️ SELECT AVAILABLE COUPON FROM LIST...</option>
                     {% for coupon in available_coupons %}
-                      <option value="{{ coupon.code }}">
-                        {{ coupon.code }} — 
-                        {% if coupon.discount_type == 'PERCENTAGE' %}
-                          Save {{ coupon.discount_value|floatformat:0 }}% Extra
-                        {% else %}
-                          Flat ₹{{ coupon.discount_value|floatformat:0 }} OFF
-                        {% endif %}
-                        {% if coupon.min_purchase > 0 %}
-                          (Min Cart: ₹{{ coupon.min_purchase|floatformat:0 }})
-                        {% endif %}
-                      </option>
+                    <option value="{{ coupon.code }}">
+                      {{ coupon.code }} —
+                      {% if coupon.discount_type == 'PERCENTAGE' %}
+                      Save {{ coupon.discount_value|floatformat:0 }}% Extra
+                      {% else %}
+                      Flat ₹{{ coupon.discount_value|floatformat:0 }} OFF
+                      {% endif %}
+                      {% if coupon.min_purchase > 0 %}
+                      (Min Cart: ₹{{ coupon.min_purchase|floatformat:0 }})
+                      {% endif %}
+                    </option>
                     {% empty %}
-                      <option value="" disabled>NO ACTIVE COUPONS AVAILABLE</option>
+                    <option value="" disabled>NO ACTIVE COUPONS AVAILABLE</option>
                     {% endfor %}
                   </select>
                   <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#E8500A]">
-                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/></svg>
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7" />
+                    </svg>
                   </div>
                 </div>
               </div>
@@ -515,7 +532,8 @@
               <label
                 class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
                 LINE 1 *</label>
-              <input type="text" name="address_line_1" id="add-addr-line1" required placeholder="Primary Street / Flat No."
+              <input type="text" name="address_line_1" id="add-addr-line1" required
+                placeholder="Primary Street / Flat No."
                 class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
               <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
             </div>
@@ -532,7 +550,8 @@
           <div>
             <label class="block text-[0.62rem] font-sans font-bold uppercase tracking-wider text-gray-600 mb-1">ADDRESS
               LINE 2</label>
-            <input type="text" name="address_line_2" id="add-addr-line2" placeholder="Apartment, Suite, Landmark (Optional)"
+            <input type="text" name="address_line_2" id="add-addr-line2"
+              placeholder="Apartment, Suite, Landmark (Optional)"
               class="w-full border-b border-gray-300 py-2 text-xs font-sans font-semibold text-gray-900 placeholder-gray-400 outline-none focus:border-[#A33C08] transition-colors bg-transparent">
             <p class="field-error text-[0.58rem] font-bold text-red-500 hidden mt-1 m-0"></p>
           </div>
@@ -792,12 +811,12 @@
   class="fixed top-0 left-0 w-screen h-screen bg-slate-950/40 backdrop-blur-sm z-[999999] flex items-center justify-center hidden opacity-0 transition-opacity duration-300 p-4 select-none">
   <div id="zitarra-modal-box"
     class="bg-white border border-[#EAE3DC] shadow-2xl rounded-xs w-full max-w-sm transform scale-95 opacity-0 transition-all duration-300 ease-out overflow-hidden font-sans relative p-7 text-center">
-    
+
     <!-- Close Button -->
     <button type="button" onclick="closeZitarraModal()" title="Close Modal"
       class="absolute top-4 right-4 w-7 h-7 rounded-full bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-800 flex items-center justify-center transition-colors border-none cursor-pointer">
       <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
       </svg>
     </button>
 
@@ -806,13 +825,15 @@
       <div id="zitarra-modal-icon-bg"
         class="w-13 h-13 rounded-full bg-[#FFF3ED] text-[#E8500A] border border-[#F5D5C8] flex items-center justify-center transition-all duration-300">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
         </svg>
       </div>
     </div>
 
     <!-- Category Pill -->
-    <span id="zitarra-modal-title" class="inline-block text-[0.55rem] font-mono font-bold uppercase tracking-[0.2em] text-[#E8500A] mb-1">
+    <span id="zitarra-modal-title"
+      class="inline-block text-[0.55rem] font-mono font-bold uppercase tracking-[0.2em] text-[#E8500A] mb-1">
       CHECKOUT NOTIFICATION
     </span>
 
@@ -913,6 +934,12 @@
   }
 
   function selectPaymentOption(type, element) {
+    if (type === 'WALLET') {
+      const radio = element.querySelector('input[type="radio"]');
+      if (radio && radio.disabled) {
+        return;
+      }
+    }
     console.log('[CHECKOUT] payment option selected:', type);
     document.querySelectorAll('.payment-option-card').forEach(card => {
       card.classList.remove('active', 'border-[#A33C08]', 'bg-[#FFFBF8]', 'shadow-xs');
@@ -936,6 +963,33 @@
             false
           );
         }
+      }
+    }
+  }
+
+  function updateWalletEligibility(totalPrice) {
+    const walletBalance = parseFloat('{{ wallet_balance|default:"0.00" }}') || 0;
+    const card = document.getElementById('wallet-option-card');
+    const radio = document.getElementById('pay_wallet');
+    const desc = document.getElementById('wallet-desc-text');
+    if (!card || !radio) return;
+
+    if (walletBalance >= totalPrice) {
+      card.classList.remove('opacity-60');
+      radio.disabled = false;
+      if (desc) {
+        desc.textContent = 'Instant 1-click checkout using your Zitarra store balance.';
+      }
+    } else {
+      card.classList.add('opacity-60');
+      radio.disabled = true;
+      if (radio.checked) {
+        radio.checked = false;
+        card.classList.remove('active', 'border-[#A33C08]', 'bg-[#FFFBF8]', 'shadow-xs');
+        card.classList.add('border-gray-200', 'bg-white');
+      }
+      if (desc) {
+        desc.textContent = `Insufficient balance (₹${walletBalance.toFixed(2)}). Select Razorpay or top up your wallet.`;
       }
     }
   }
@@ -1393,101 +1447,101 @@
             'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
           }
         })
-        .then(response => {
-          if (!response.ok && response.headers.get('content-type')?.includes('text/html')) {
-            throw new Error('Server returned HTML error ' + response.status);
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('[RAZORPAY] Create order response:', data);
-          if (data.status === 'success') {
-            const options = {
-              "key": data.razorpay_key,
-              "amount": data.amount,
-              "currency": data.currency,
-              "name": "Zitarra Store",
-              "description": "Order #" + data.order_id,
-              "order_id": data.razorpay_order_id,
-              "handler": function (response) {
-                console.log('[RAZORPAY] Payment succeeded in modal, verifying server-side...', response);
-                if (submitBtn) {
-                  submitBtn.innerHTML = 'Verifying Payment...';
-                }
-                fetch("{% url 'verify_razorpay_payment' %}", {
-                  method: 'POST',
-                  headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
-                  },
-                  body: new URLSearchParams({
-                    'razorpay_payment_id': response.razorpay_payment_id,
-                    'razorpay_order_id': response.razorpay_order_id,
-                    'razorpay_signature': response.razorpay_signature
-                  })
-                })
-                .then(res => res.json())
-                .then(verifyData => {
-                  console.log('[RAZORPAY] Verification response:', verifyData);
-                  if (verifyData.status === 'success') {
-                    // Verification success: redirect immediately, do NOT reset razorpayPaymentInProgress
-                    window.location.href = verifyData.redirect_url;
-                  } else if (verifyData.redirect_url) {
-                    window.location.href = verifyData.redirect_url;
-                  } else {
-                    showZitarraModal('PAYMENT ERROR', 'Verification Failed', verifyData.message || 'Payment verification failed.', false);
-                    razorpayPaymentInProgress = false;
-                    if (submitBtn) {
-                      submitBtn.disabled = false;
-                      submitBtn.innerHTML = origText;
-                    }
+          .then(response => {
+            if (!response.ok && response.headers.get('content-type')?.includes('text/html')) {
+              throw new Error('Server returned HTML error ' + response.status);
+            }
+            return response.json();
+          })
+          .then(data => {
+            console.log('[RAZORPAY] Create order response:', data);
+            if (data.status === 'success') {
+              const options = {
+                "key": data.razorpay_key,
+                "amount": data.amount,
+                "currency": data.currency,
+                "name": "Zitarra Store",
+                "description": "Order #" + data.order_id,
+                "order_id": data.razorpay_order_id,
+                "handler": function (response) {
+                  console.log('[RAZORPAY] Payment succeeded in modal, verifying server-side...', response);
+                  if (submitBtn) {
+                    submitBtn.innerHTML = 'Verifying Payment...';
                   }
-                })
-                .catch(err => {
-                  console.error('[RAZORPAY] Verification fetch error:', err);
-                  window.location.href = "{% url 'payment_failed' %}?error=Verification+error.+Please+contact+support.";
-                });
-              },
-              "prefill": {
-                "name": data.user_name,
-                "email": data.user_email,
-                "contact": data.user_phone
-              },
-              "theme": {
-                "color": "#A33C08"
-              },
-              "modal": {
-                "ondismiss": function() {
-                  console.log('[RAZORPAY] Modal dismissed by user');
-                  window.location.href = "{% url 'payment_failed' %}?error=Payment+window+was+closed+before+completion.";
+                  fetch("{% url 'verify_razorpay_payment' %}", {
+                    method: 'POST',
+                    headers: {
+                      'Content-Type': 'application/x-www-form-urlencoded',
+                      'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]')?.value || ''
+                    },
+                    body: new URLSearchParams({
+                      'razorpay_payment_id': response.razorpay_payment_id,
+                      'razorpay_order_id': response.razorpay_order_id,
+                      'razorpay_signature': response.razorpay_signature
+                    })
+                  })
+                    .then(res => res.json())
+                    .then(verifyData => {
+                      console.log('[RAZORPAY] Verification response:', verifyData);
+                      if (verifyData.status === 'success') {
+                        // Verification success: redirect immediately, do NOT reset razorpayPaymentInProgress
+                        window.location.href = verifyData.redirect_url;
+                      } else if (verifyData.redirect_url) {
+                        window.location.href = verifyData.redirect_url;
+                      } else {
+                        showZitarraModal('PAYMENT ERROR', 'Verification Failed', verifyData.message || 'Payment verification failed.', false);
+                        razorpayPaymentInProgress = false;
+                        if (submitBtn) {
+                          submitBtn.disabled = false;
+                          submitBtn.innerHTML = origText;
+                        }
+                      }
+                    })
+                    .catch(err => {
+                      console.error('[RAZORPAY] Verification fetch error:', err);
+                      window.location.href = "{% url 'payment_failed' %}?error=Verification+error.+Please+contact+support.";
+                    });
+                },
+                "prefill": {
+                  "name": data.user_name,
+                  "email": data.user_email,
+                  "contact": data.user_phone
+                },
+                "theme": {
+                  "color": "#A33C08"
+                },
+                "modal": {
+                  "ondismiss": function () {
+                    console.log('[RAZORPAY] Modal dismissed by user');
+                    window.location.href = "{% url 'payment_failed' %}?error=Payment+window+was+closed+before+completion.";
+                  }
                 }
+              };
+              const rzp = new Razorpay(options);
+              rzp.on('payment.failed', function (response) {
+                console.error('[RAZORPAY] Payment failed:', response.error);
+                const errMsg = encodeURIComponent(response.error.description || 'Payment was declined or cancelled.');
+                window.location.href = "{% url 'payment_failed' %}?error=" + errMsg;
+              });
+              rzp.open();
+            } else {
+              showZitarraModal('CHECKOUT NOTIFICATION', 'Action Required', data.message || 'Failed to initiate Razorpay order.', false);
+              razorpayPaymentInProgress = false;
+              if (submitBtn) {
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = origText;
               }
-            };
-            const rzp = new Razorpay(options);
-            rzp.on('payment.failed', function (response) {
-              console.error('[RAZORPAY] Payment failed:', response.error);
-              const errMsg = encodeURIComponent(response.error.description || 'Payment was declined or cancelled.');
-              window.location.href = "{% url 'payment_failed' %}?error=" + errMsg;
-            });
-            rzp.open();
-          } else {
-            showZitarraModal('CHECKOUT NOTIFICATION', 'Action Required', data.message || 'Failed to initiate Razorpay order.', false);
+            }
+          })
+          .catch(err => {
+            console.error('[RAZORPAY] Order creation fetch error:', err);
+            showZitarraModal('NETWORK ERROR', 'Connection Failed', err.message || 'Network error. Failed to initiate payment.', false);
             razorpayPaymentInProgress = false;
             if (submitBtn) {
               submitBtn.disabled = false;
               submitBtn.innerHTML = origText;
             }
-          }
-        })
-        .catch(err => {
-          console.error('[RAZORPAY] Order creation fetch error:', err);
-          showZitarraModal('NETWORK ERROR', 'Connection Failed', err.message || 'Network error. Failed to initiate payment.', false);
-          razorpayPaymentInProgress = false;
-          if (submitBtn) {
-            submitBtn.disabled = false;
-            submitBtn.innerHTML = origText;
-          }
-        });
+          });
       }
     });
   }
@@ -1552,87 +1606,90 @@
       },
       body: formData
     })
-    .then(res => {
-      if (!res.ok) {
-        throw new Error('Server HTTP ' + res.status);
-      }
-      return res.json();
-    })
-    .then(data => {
-      if (data.status === 'success') {
-        if (typeof showZitarraModal === 'function') {
-          showZitarraModal('Success!', 'Coupon Applied', data.message, true);
+      .then(res => {
+        if (!res.ok) {
+          throw new Error('Server HTTP ' + res.status);
         }
+        return res.json();
+      })
+      .then(data => {
+        if (data.status === 'success') {
+          if (typeof showZitarraModal === 'function') {
+            showZitarraModal('Success!', 'Coupon Applied', data.message, true);
+          }
 
-        // Update Breakdown UI
-        const elSub = document.getElementById('summary-subtotal');
-        if (elSub) elSub.textContent = '₹' + data.subtotal;
+          // Update Breakdown UI
+          const elSub = document.getElementById('summary-subtotal');
+          if (elSub) elSub.textContent = '₹' + data.subtotal;
 
-        const elShip = document.getElementById('summary-shipping');
-        if (elShip) elShip.textContent = (data.shipping_cost === '0.00' ? 'Free' : '₹' + data.shipping_cost);
+          const elShip = document.getElementById('summary-shipping');
+          if (elShip) elShip.textContent = (data.shipping_cost === '0.00' ? 'Free' : '₹' + data.shipping_cost);
 
-        const elTax = document.getElementById('summary-tax');
-        if (elTax) elTax.textContent = '₹' + data.tax_amount;
+          const elTax = document.getElementById('summary-tax');
+          if (elTax) elTax.textContent = '₹' + data.tax_amount;
 
-        const elTot = document.getElementById('summary-total-price');
-        if (elTot) elTot.textContent = '₹' + data.total_price;
+          const elTot = document.getElementById('summary-total-price');
+          if (elTot) elTot.textContent = '₹' + data.total_price;
+          if (typeof updateWalletEligibility === 'function') {
+            updateWalletEligibility(parseFloat(data.total_price));
+          }
 
-        const elCode = document.getElementById('summary-coupon-code');
-        if (elCode) elCode.textContent = data.coupon_code;
+          const elCode = document.getElementById('summary-coupon-code');
+          if (elCode) elCode.textContent = data.coupon_code;
 
-        const elDisc = document.getElementById('summary-discount');
-        if (elDisc) elDisc.textContent = '-₹' + data.discount_amount;
+          const elDisc = document.getElementById('summary-discount');
+          if (elDisc) elDisc.textContent = '-₹' + data.discount_amount;
 
-        const row = document.getElementById('coupon-discount-row');
-        if (row) row.classList.remove('hidden');
+          const row = document.getElementById('coupon-discount-row');
+          if (row) row.classList.remove('hidden');
 
-        const actName = document.getElementById('active-coupon-name');
-        if (actName) actName.textContent = data.coupon_code;
+          const actName = document.getElementById('active-coupon-name');
+          if (actName) actName.textContent = data.coupon_code;
 
-        const actDisc = document.getElementById('active-coupon-discount');
-        if (actDisc) actDisc.textContent = data.discount_amount;
+          const actDisc = document.getElementById('active-coupon-discount');
+          if (actDisc) actDisc.textContent = data.discount_amount;
 
-        const appContainer = document.getElementById('applied-coupon-container');
-        if (appContainer) appContainer.classList.remove('hidden');
+          const appContainer = document.getElementById('applied-coupon-container');
+          if (appContainer) appContainer.classList.remove('hidden');
 
-        const inContainer = document.getElementById('coupon-input-container');
-        if (inContainer) inContainer.classList.add('hidden');
+          const inContainer = document.getElementById('coupon-input-container');
+          if (inContainer) inContainer.classList.add('hidden');
 
-        const dropWrapper = document.getElementById('available-coupons-dropdown-wrapper');
-        if (dropWrapper) dropWrapper.classList.add('hidden');
-      } else {
-        if (typeof showZitarraModal === 'function') {
-          showZitarraModal(data.status === 'warning' ? 'Coupon Warning' : 'Coupon Error', 'Coupon Alert', data.message, false);
+          const dropWrapper = document.getElementById('available-coupons-dropdown-wrapper');
+          if (dropWrapper) dropWrapper.classList.add('hidden');
+        } else {
+          if (typeof showZitarraModal === 'function') {
+            showZitarraModal(data.status === 'warning' ? 'Coupon Warning' : 'Coupon Error', 'Coupon Alert', data.message, false);
+          }
+          if (feedback) {
+            feedback.className = 'mt-2 text-xs font-bold ' + (data.status === 'warning' ? 'text-amber-600' : 'text-red-600');
+            feedback.textContent = data.message;
+            feedback.classList.remove('hidden');
+          }
         }
-        if (feedback) {
-          feedback.className = 'mt-2 text-xs font-bold ' + (data.status === 'warning' ? 'text-amber-600' : 'text-red-600');
-          feedback.textContent = data.message;
-          feedback.classList.remove('hidden');
-        }
-      }
-    })
-    .catch(err => {
-      console.error('[COUPON ERROR]', err);
-      // Fallback: Submit form standard post if fetch fails
-      const tempForm = document.createElement('form');
-      tempForm.method = 'POST';
-      tempForm.action = "{% url 'apply_coupon' %}";
-      
-      const inputCsrf = document.createElement('input');
-      inputCsrf.type = 'hidden';
-      inputCsrf.name = 'csrfmiddlewaretoken';
-      inputCsrf.value = csrfToken;
-      tempForm.appendChild(inputCsrf);
+      })
+      .catch(err => {
+        console.error('[COUPON ERROR]', err);
+        // Fallback: Submit form standard post if fetch fails
+        const tempForm = document.createElement('form');
+        tempForm.method = 'POST';
+        tempForm.action = "{% url 'apply_coupon' %}";
 
-      const inputCode = document.createElement('input');
-      inputCode.type = 'hidden';
-      inputCode.name = 'coupon_code';
-      inputCode.value = code;
-      tempForm.appendChild(inputCode);
+        const inputCsrf = document.createElement('input');
+        inputCsrf.type = 'hidden';
+        inputCsrf.name = 'csrfmiddlewaretoken';
+        inputCsrf.value = csrfToken;
+        tempForm.appendChild(inputCsrf);
 
-      document.body.appendChild(tempForm);
-      tempForm.submit();
-    });
+        const inputCode = document.createElement('input');
+        inputCode.type = 'hidden';
+        inputCode.name = 'coupon_code';
+        inputCode.value = code;
+        tempForm.appendChild(inputCode);
+
+        document.body.appendChild(tempForm);
+        tempForm.submit();
+      });
   }
 
   function handleCouponRemove() {
@@ -1649,53 +1706,56 @@
       },
       body: formData
     })
-    .then(res => res.json())
-    .then(data => {
-      if (data.status === 'success') {
-        if (typeof showZitarraModal === 'function') {
-          showZitarraModal('Removed', 'Coupon Removed', data.message, true);
+      .then(res => res.json())
+      .then(data => {
+        if (data.status === 'success') {
+          if (typeof showZitarraModal === 'function') {
+            showZitarraModal('Removed', 'Coupon Removed', data.message, true);
+          }
+          if (feedback) {
+            feedback.className = 'mt-2 text-xs font-bold text-gray-600';
+            feedback.textContent = data.message;
+            feedback.classList.remove('hidden');
+          }
+
+          // Update Breakdown UI
+          const elSub = document.getElementById('summary-subtotal');
+          if (elSub) elSub.textContent = '₹' + data.subtotal;
+
+          const elShip = document.getElementById('summary-shipping');
+          if (elShip) elShip.textContent = (data.shipping_cost === '0.00' ? 'Free' : '₹' + data.shipping_cost);
+
+          const elTax = document.getElementById('summary-tax');
+          if (elTax) elTax.textContent = '₹' + data.tax_amount;
+
+          const elTot = document.getElementById('summary-total-price');
+          if (elTot) elTot.textContent = '₹' + data.total_price;
+          if (typeof updateWalletEligibility === 'function') {
+            updateWalletEligibility(parseFloat(data.total_price));
+          }
+
+          const row = document.getElementById('coupon-discount-row');
+          if (row) row.classList.add('hidden');
+
+          const appContainer = document.getElementById('applied-coupon-container');
+          if (appContainer) appContainer.classList.add('hidden');
+
+          const inContainer = document.getElementById('coupon-input-container');
+          if (inContainer) inContainer.classList.remove('hidden');
+
+          const dropWrapper = document.getElementById('available-coupons-dropdown-wrapper');
+          if (dropWrapper) dropWrapper.classList.remove('hidden');
+
+          const input = document.getElementById('checkout-coupon-input');
+          if (input) input.value = '';
+          const selectElem = document.getElementById('available-coupons-select');
+          if (selectElem) selectElem.selectedIndex = 0;
         }
-        if (feedback) {
-          feedback.className = 'mt-2 text-xs font-bold text-gray-600';
-          feedback.textContent = data.message;
-          feedback.classList.remove('hidden');
-        }
-
-        // Update Breakdown UI
-        const elSub = document.getElementById('summary-subtotal');
-        if (elSub) elSub.textContent = '₹' + data.subtotal;
-
-        const elShip = document.getElementById('summary-shipping');
-        if (elShip) elShip.textContent = (data.shipping_cost === '0.00' ? 'Free' : '₹' + data.shipping_cost);
-
-        const elTax = document.getElementById('summary-tax');
-        if (elTax) elTax.textContent = '₹' + data.tax_amount;
-
-        const elTot = document.getElementById('summary-total-price');
-        if (elTot) elTot.textContent = '₹' + data.total_price;
-
-        const row = document.getElementById('coupon-discount-row');
-        if (row) row.classList.add('hidden');
-
-        const appContainer = document.getElementById('applied-coupon-container');
-        if (appContainer) appContainer.classList.add('hidden');
-
-        const inContainer = document.getElementById('coupon-input-container');
-        if (inContainer) inContainer.classList.remove('hidden');
-
-        const dropWrapper = document.getElementById('available-coupons-dropdown-wrapper');
-        if (dropWrapper) dropWrapper.classList.remove('hidden');
-        
-        const input = document.getElementById('checkout-coupon-input');
-        if (input) input.value = '';
-        const selectElem = document.getElementById('available-coupons-select');
-        if (selectElem) selectElem.selectedIndex = 0;
-      }
-    })
-    .catch(err => {
-      console.error('[COUPON REMOVE ERROR]', err);
-      window.location.reload();
-    });
+      })
+      .catch(err => {
+        console.error('[COUPON REMOVE ERROR]', err);
+        window.location.reload();
+      });
   }
 
   // Scroll Bubble Spring Animation Trigger & Default Address Auto-Selection
