@@ -11,6 +11,7 @@ from admin_panel.banners.models import ShopShowcase
 from django.contrib import messages
 from user_panel.wishlist.models import WishlistItem
 from common.services import get_eligible_coupons
+from django.db.models import Prefetch
 
 
 
@@ -19,12 +20,16 @@ from common.services import get_eligible_coupons
 @user_not_blocked
 def shop_view(request):
 
+    active_variants_prefetch = Prefetch(
+        'variants', queryset=ProductVariant.objects.filter(is_active=True, is_deleted=False).order_by('id'), 
+        to_attr='prefetched_active_variants')
+
     products_list = Product.objects.filter(
         is_deleted=False,
         is_active=True,
         category__is_deleted=False, 
         category__is_active=True
-    )
+    ).select_related('category', 'product_offer').prefetch_related(active_variants_prefetch, 'images')
 
     # Determine maximum price of available products dynamically
     max_prod_price = products_list.aggregate(Max('price'))['price__max'] or 0
@@ -127,8 +132,7 @@ def shop_view(request):
         page_obj = paginator.page(paginator.num_pages)
 
     for product in page_obj:
-        active_vars = product.variants.filter(is_active=True, is_deleted=False).order_by('id')
-        primary_var = active_vars.first()
+        primary_var = product.prefetched_active_variants[0] if product.prefetched_active_variants else None
         base_price = primary_var.price if (primary_var and primary_var.price) else product.price
         product.primary_variant_id = primary_var.id if primary_var else ""
         product.display_base_price = base_price
