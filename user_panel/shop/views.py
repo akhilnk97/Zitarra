@@ -4,7 +4,7 @@ from django.db.models import Q, Min, Max
 import math
 from django.views.decorators.cache import cache_control
 from common.decorators import user_not_blocked
-from admin_panel.products.models import Product, ProductReview
+from admin_panel.products.models import Product, ProductReview, ProductVariant
 from admin_panel.category.models import Category
 from admin_panel.banners.models import ShopShowcase
 
@@ -27,8 +27,11 @@ def shop_view(request):
     )
 
     # Determine maximum price of available products dynamically
-    max_db_price = products_list.aggregate(Max('price'))['price__max']
-    if max_db_price is not None:
+    max_prod_price = products_list.aggregate(Max('price'))['price__max'] or 0
+    max_var_price = ProductVariant.objects.filter(product__in=products_list, is_active=True, is_deleted=False).aggregate(Max('price'))['price__max'] or 0
+    max_db_price = max(max_prod_price, max_var_price)
+
+    if max_db_price > 0:
         max_slider_val = max(10000, int(math.ceil(max_db_price)))
     else:
         max_slider_val = 10000

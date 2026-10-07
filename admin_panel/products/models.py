@@ -109,6 +109,17 @@ class Product(models.Model):
                 self.save(update_fields=['stock', 'updated_at'])
             return new_stock
         return self.stock
+        
+    def sync_price_from_variants(self):
+        """Synchronizes parent product.price to the primary active variant's price."""
+        active_var = self.variants.filter(is_active=True, is_deleted=False).order_by('id').first()
+        if active_var and active_var.price:
+            if self.price != active_var.price:
+                self.price = active_var.price
+                self.save(update_fields=['price', 'updated_at'])
+            return active_var.price
+        return self.price
+        
 
     @property
     def is_completely_out_of_stock(self):
@@ -173,6 +184,12 @@ class ProductVariant(models.Model):
         if not self.sku:
             self.sku = self.generate_sku()
             super().save(update_fields=['sku'])
+
+        # Automatically keep parent product price & stock in sync with variants
+        if self.product_id:
+            self.product.sync_stock_from_variants()
+            self.product.sync_price_from_variants()
+
 
     @property
     def effective_price(self):
