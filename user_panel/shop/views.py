@@ -143,7 +143,6 @@ def shop_view(request):
 
     user_wishlist_product_ids = set()
     if request.user.is_authenticated:
-        from user_panel.wishlist.models import WishlistItem
         user_wishlist_product_ids = set(
             WishlistItem.objects.filter(wishlist__user=request.user)
             .values_list('product_id', flat=True)
