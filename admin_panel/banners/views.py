@@ -5,7 +5,7 @@ from django.utils import timezone
 from common.decorators import admin_required
 from .models import Banner, ShopShowcase
 from admin_panel.products.models import Product
-from django.utils.dateparse import parse_date
+from django.utils.dateparse import parse_datetime
 from datetime import time, datetime
 
 
@@ -44,6 +44,7 @@ def add_banner_view(request):
         display_mode = request.POST.get('display_mode', 'HERO_SLIDER').strip()
         priority_val = request.POST.get('priority', '1').strip()
         image = request.FILES.get('image')
+        start_date_val = request.POST.get('start_date', '').strip()
         end_date_val = request.POST.get('end_date', '').strip()
 
         if not title:
@@ -77,17 +78,32 @@ def add_banner_view(request):
             priority = 1
 
         end_date = None
+        start_date = None
+        if start_date_val:
+            try:
+                s = parse_datetime(start_date_val)
+                if s:
+                    start_date = timezone.make_aware(s) if timezone.is_naive(s) else s
+                    if start_date < timezone.now():
+                        messages.error(request, "Start date cannot be in the past.")
+                        return redirect('admin_banners')
+            except Exception:
+                start_date = None
+
         if end_date_val:
             try:
-                d = parse_date(end_date_val)
+                d = parse_datetime(end_date_val)
                 if d:
-                    dt = datetime.combine(d, time(23, 59, 59))
-                    end_date = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
+                    end_date = timezone.make_aware(d) if timezone.is_naive(d) else d
                     if end_date < timezone.now():
                         messages.error(request, "Expiration date cannot be in the past.")
                         return redirect('admin_banners')
             except Exception:
                 end_date = None
+
+        if start_date and end_date and end_date <= start_date:
+            messages.error(request, "Expiration date/time must be after start date/time.")
+            return redirect('admin_banners')
 
         # Check for conflicting banner with the same priority in this display mode
         existing_banner = Banner.objects.filter(
@@ -120,6 +136,7 @@ def add_banner_view(request):
             display_mode=display_mode,
             priority=priority,
             image=image,
+            start_date=start_date,
             end_date=end_date,
             status='PUBLISHED'
         )
@@ -142,6 +159,23 @@ def edit_banner_view(request, banner_id):
         status = request.POST.get('status', '').strip()
         image = request.FILES.get('image')
         auto_reorder = request.POST.get('auto_reorder') == 'true'
+        start_date_val = request.POST.get('start_date', '').strip()
+        end_date_val = request.POST.get('end_date', '').strip()
+
+        if start_date_val:
+            try:
+                s = parse_datetime(start_date_val)
+                if s:
+                    start_dt = timezone.make_aware(s) if timezone.is_naive(s) else s
+                    if start_dt < timezone.now() and (not banner.start_date or start_dt != banner.start_date):
+                        messages.error(request, "Start date cannot be in the past.")
+                        return redirect('admin_banners')
+                    banner.start_date = start_dt
+            except Exception:
+                banner.start_date = None
+        else:
+            banner.start_date = None
+        
 
         if not title:
             messages.error(request, "Banner title is required.")
@@ -203,13 +237,11 @@ def edit_banner_view(request, banner_id):
         if status in ['PUBLISHED', 'DRAFT']:
             banner.status = status
 
-        end_date_val = request.POST.get('end_date', '').strip()
         if end_date_val:
             try:
-                d = parse_date(end_date_val)
+                d = parse_datetime(end_date_val)
                 if d:
-                    dt = datetime.combine(d, time(23, 59, 59))
-                    end_dt = timezone.make_aware(dt) if timezone.is_naive(dt) else dt
+                    end_dt = timezone.make_aware(d) if timezone.is_naive(d) else d
                     if end_dt < timezone.now() and (not banner.end_date or end_dt != banner.end_date):
                         messages.error(request, "Expiration date cannot be in the past.")
                         return redirect('admin_banners')
@@ -218,6 +250,10 @@ def edit_banner_view(request, banner_id):
                 pass
         else:
             banner.end_date = None
+
+        if banner.start_date and banner.end_date and banner.end_date <= banner.start_date:
+            messages.error(request, "Expiration date/time must be after start date/time.")
+            return redirect('admin_banners')
 
         if image:
             banner.image = image

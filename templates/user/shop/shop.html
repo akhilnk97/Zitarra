@@ -375,7 +375,8 @@
         {% for product in page_obj %}
         <div
           class="bg-white border border-gray-200 flex flex-col group transition-all duration-300 relative overflow-hidden hover:shadow-lg hover:border-[#E8500A]/60">
-          <a href="{% url 'product_detail' product.id %}{% if product.primary_variant_id %}?variant={{ product.primary_variant_id }}{% endif %}" class="block overflow-hidden">
+          <a href="{% url 'product_detail' product.id %}{% if product.primary_variant_id %}?variant={{ product.primary_variant_id }}{% endif %}"
+            class="block overflow-hidden">
             <div class="relative overflow-hidden bg-[#f7f7f5] aspect-[4/3] flex items-center justify-center p-4">
               {% if product.is_completely_out_of_stock %}
               <span
@@ -444,7 +445,8 @@
                 </button>
               </form>
               {% endif %}
-              <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="shrink-0 wishlist-card-form">
+              <form action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST"
+                class="shrink-0 wishlist-card-form">
                 {% csrf_token %}
                 <input type="hidden" name="variant_id" value="{{ product.primary_variant_id }}">
                 {% if product.id in user_wishlist_product_ids %}

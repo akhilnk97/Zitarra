@@ -110,17 +110,26 @@
           </div>
 
           <!-- Expiration Date (Optional) -->
-          <div>
-            <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">EXPIRATION DATE (OPTIONAL)</label>
-            <input type="date" id="add_banner_end_date" name="end_date"
-                   class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
-            <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
-            <p id="add_banner_end_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">START / PUBLISH DATE</label>
+              <input type="datetime-local" id="add_banner_start_date" name="start_date" min="{% now 'Y-m-d\TH:i' %}"
+                    class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+              <p id="add_banner_start_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+            </div>
+
+            <div>
+              <label class="block text-[0.6rem] font-bold uppercase tracking-[0.18em] text-gray-400 mb-2">EXPIRATION DATE (OPTIONAL)</label>
+              <input type="datetime-local" id="add_banner_end_date" name="end_date" min="{% now 'Y-m-d\TH:i' %}"
+                    class="w-full bg-transparent border-b-2 border-gray-300 py-2 text-xs font-semibold text-gray-700 focus:outline-none focus:border-[#1A1A1A] transition-colors font-sans">
+              <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
+              <p id="add_banner_end_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+            </div>
           </div>
 
           <!-- Drag & Drop Upload Zone -->
           <div class="pt-2">
-            <label class="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#A33C08] hover:bg-orange-50/30 transition-all group">
+            <label id="uploadDropZone" class="border-2 border-dashed border-gray-200 rounded-2xl p-6 flex flex-col items-center justify-center text-center cursor-pointer hover:border-[#A33C08] hover:bg-orange-50/30 transition-all group">
               <svg class="w-8 h-8 text-gray-300 group-hover:text-[#A33C08] transition-colors mb-2" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
               </svg>
@@ -129,8 +138,9 @@
               <input type="file" id="add_banner_image" name="image" accept="image/*" required class="hidden" onchange="previewImage(this)">
             </label>
             <p id="add_banner_image_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
-            <div id="imagePreviewContainer" class="mt-3 hidden">
+            <div id="imagePreviewContainer" class="mt-3 hidden cursor-pointer" onclick="document.getElementById('add_banner_image').click()" title="Click to replace image">
               <img id="imagePreview" src="" alt="Preview" class="w-full h-24 object-cover rounded-xl border border-gray-200">
+              <p class="text-[0.55rem] text-center text-gray-400 font-bold mt-1 uppercase">Click image to choose a defferent asset</p>
             </div>
           </div>
 
@@ -166,11 +176,15 @@
               <!-- Banner Media Preview with Badge -->
               <div class="w-full sm:w-44 h-36 bg-gray-900 rounded-xl overflow-hidden relative shrink-0 border border-gray-200 group">
                 <img src="{{ banner.image.url }}" alt="{{ banner.title }}" class="w-full h-full object-cover">
-                <span class="absolute bottom-2 left-2 px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-widest rounded-xs shadow-sm
-                  {% if banner.status == 'PUBLISHED' %}bg-[#A33C08] text-white
-                  {% else %}bg-gray-200 text-gray-700{% endif %}">
-                  {% if banner.status == 'PUBLISHED' %}LIVE_NOW{% else %}DRAFT{% endif %}
-                </span>
+                {% if banner.status == 'DRAFT' %}
+                  <span class="absolute bottom-2 left-2 px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-widest rounded-xs shadow-sm bg-gray-200 text-gray-700">DRAFT</span>
+                {% elif banner.end_date and banner.end_date < now %}
+                  <span class="absolute bottom-2 left-2 px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-widest rounded-xs shadow-sm bg-red-600 text-white">EXPIRED</span>
+                {% elif banner.start_date and banner.start_date > now %}
+                  <span class="absolute bottom-2 left-2 px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-widest rounded-xs shadow-sm bg-amber-500 text-white">SCHEDULED</span>
+                {% else %}
+                  <span class="absolute bottom-2 left-2 px-2.5 py-1 text-[0.52rem] font-black uppercase tracking-widest rounded-xs shadow-sm bg-[#A33C08] text-white">LIVE_NOW</span>
+                {% endif %}
               </div>
 
               <!-- Banner Details & Controls -->
@@ -185,7 +199,7 @@
 
                   <!-- Action Buttons (Edit / Delete) -->
                   <div class="flex items-center gap-2 shrink-0">
-                    <button type="button" onclick="openEditBannerModal('{{ banner.id }}', '{{ banner.title|escapejs }}', '{{ banner.target_url|escapejs }}', '{{ banner.display_mode }}', '{{ banner.priority }}', '{{ banner.status }}', '{{ banner.end_date|date:'Y-m-d'|default:'' }}')"
+                    <button type="button" onclick="openEditBannerModal('{{ banner.id }}', '{{ banner.title|escapejs }}', '{{ banner.target_url|escapejs }}', '{{ banner.display_mode }}', '{{ banner.priority }}', '{{ banner.status }}', '{{ banner.start_date|date:'Y-m-d\TH:i'|default:'' }}' , '{{ banner.end_date|date:'Y-m-d\TH:i'|default:'' }}')"
                             class="w-8 h-8 rounded-lg border border-gray-200 flex items-center justify-center text-gray-500 hover:text-black hover:border-black transition-colors cursor-pointer bg-white" title="Edit Banner">
                       <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"/>
@@ -202,8 +216,9 @@
 
                 <!-- Info Metrics Line -->
                 <div class="mt-3 flex items-center justify-between text-[0.58rem] font-bold uppercase tracking-wider text-gray-500">
-                  <div class="flex items-center gap-4">
-                    <span>📅 EXPIRES: {% if banner.end_date %}{{ banner.end_date|date:"d.b.Y" }}{% if banner.end_date < now %} <strong class="text-red-500 font-black">(EXPIRED)</strong>{% endif %}{% else %}ACTIVE / INDEFINITE{% endif %}</span>
+                  <div class="flex items-center gap-4 flex-wrap">
+                    <span>🚀 STARTS: {% if banner.start_date %}{{ banner.start_date|date:"d M Y, h:i A" }}{% else %}IMMEDIATE{% endif %}</span>
+                    <span>📅 EXPIRES: {% if banner.end_date %}{{ banner.end_date|date:"d M Y, h:i A" }}{% if banner.end_date < now %}{% endif %}{% else %}ACTIVE / INDEFINITE{% endif %}</span>
                     <span>🎯 CTR: {{ banner.ctr_percentage }}% <span class="text-gray-400 font-normal">({{ banner.clicks_count }} clicks / {{ banner.impressions_count }} views)</span></span>
                   </div>
 
@@ -300,14 +315,14 @@
       {% csrf_token %}
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">BANNER TITLE *</label>
-        <input type="text" id="edit_title" name="title" required
+        <input type="text" id="edit_banner_title" name="title" required
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
         <p id="edit_banner_title_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">TARGET URL</label>
-        <input type="text" id="edit_target_url" name="target_url"
+        <input type="text" id="edit_banner_target_url" name="target_url"
                class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
         <p id="edit_banner_target_url_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
       </div>
@@ -315,7 +330,7 @@
       <div class="grid grid-cols-2 gap-4">
         <div>
           <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">DISPLAY MODE</label>
-          <select id="edit_display_mode" name="display_mode" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+          <select id="edit_banner_display_mode" name="display_mode" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
             <option value="HERO_SLIDER">HERO_SLIDER</option>
             <option value="PROMO_STRIP">PROMO_STRIP</option>
 
@@ -324,7 +339,7 @@
 
         <div>
           <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">PRIORITY</label>
-          <input type="number" id="edit_priority" name="priority" min="1" max="99"
+          <input type="number" id="edit_banner_priority" name="priority" min="1" max="99"
                  class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
           <p id="edit_banner_priority_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
         </div>
@@ -332,18 +347,27 @@
 
       <div>
         <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">STATUS</label>
-        <select id="edit_status" name="status" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+        <select id="edit_banner_status" name="status" class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
           <option value="PUBLISHED">PUBLISHED (LIVE NOW)</option>
           <option value="DRAFT">DRAFT (INACTIVE)</option>
         </select>
       </div>
 
-      <div>
-        <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">EXPIRATION DATE (OPTIONAL)</label>
-        <input type="date" id="edit_end_date" name="end_date"
-               class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
-        <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
-        <p id="edit_banner_end_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">START DATE / TIME</label>
+          <input type="datetime-local" id="edit_banner_start_date" name="start_date"
+                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+          <p id="edit_banner_start_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
+        
+        <div>
+          <label class="block text-[0.65rem] font-black uppercase tracking-wider text-gray-500 mb-1">EXPIRATION DATE / TIME (OPTIONAL)</label>
+          <input type="datetime-local" id="edit_banner_end_date" name="end_date"
+                 class="w-full bg-gray-50 border border-gray-200 rounded-xl px-4 py-3 text-xs font-semibold focus:outline-none focus:border-black transition-colors font-sans">
+          <span class="text-[0.52rem] text-gray-400 font-medium">Leave blank for indefinite / ongoing campaign</span>
+          <p id="edit_banner_end_date_error" class="text-[0.62rem] text-red-600 font-bold mt-1 hidden"></p>
+        </div>
       </div>
 
       <div>
@@ -497,6 +521,8 @@
     const urlErrId = `${prefix}_banner_target_url_error`;
     const priorityId = `${prefix}_banner_priority`;
     const priorityErrId = `${prefix}_banner_priority_error`;
+    const startDateId = `${prefix}_banner_start_date`;
+    const startDateErrId = `${prefix}_banner_start_date_error`;
     const endDateId = `${prefix}_banner_end_date`;
     const endDateErrId = `${prefix}_banner_end_date_error`;
     const imageId = `${prefix}_banner_image`;
@@ -505,6 +531,7 @@
     clearBannerError(titleId, titleErrId);
     clearBannerError(urlId, urlErrId);
     clearBannerError(priorityId, priorityErrId);
+    clearBannerError(startDateId, startDateErrId);
     clearBannerError(endDateId, endDateErrId);
     clearBannerError(imageId, imageErrId);
 
@@ -538,14 +565,34 @@
       if (!firstInvalid) firstInvalid = priorityEl;
     }
 
-    // 3. Expiration Date validation
+    // 3. Start Date & Expiration Date validation
+    const startDateEl = document.getElementById(startDateId);
+    const startDateVal = startDateEl ? startDateEl.value : '';
     const endDateEl = document.getElementById(endDateId);
     const endDateVal = endDateEl ? endDateEl.value : '';
-    const today = new Date().toISOString().split('T')[0];
-    if (endDateVal && endDateVal < today) {
-      showBannerError(endDateId, endDateErrId, "Expiration date cannot be in the past.");
-      isValid = false;
-      if (!firstInvalid) firstInvalid = endDateEl;
+    const nowTime = new Date().getTime();
+
+    if (startDateVal && mode === 'add') {
+      const startMs = new Date(startDateVal).getTime();
+      // Allow 2 min buffer for clock drift
+      if (startMs < (nowTime - 2 * 60 * 1000)) {
+        showBannerError(startDateId, startDateErrId, "Start date/time cannot be in the past.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = startDateEl;
+      }
+    }
+
+    if (endDateVal) {
+      const endMs = new Date(endDateVal).getTime();
+      if (endMs < (nowTime - 2 * 60 * 1000)) {
+        showBannerError(endDateId, endDateErrId, "Expiration date/time cannot be in the past.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = endDateEl;
+      } else if (startDateVal && endMs <= new Date(startDateVal).getTime()) {
+        showBannerError(endDateId, endDateErrId, "Expiration date/time must be after start date/time.");
+        isValid = false;
+        if (!firstInvalid) firstInvalid = endDateEl;
+      }
     }
 
     // 4. Image Asset validation
@@ -621,10 +668,10 @@
       }
     });
 
-    const editTitleInput = document.getElementById('edit_title');
+    const editTitleInput = document.getElementById('edit_banner_title');
     if (editTitleInput) {
       editTitleInput.addEventListener('input', () => {
-        if (editTitleInput.value.trim().length >= 3) clearBannerError('edit_title', 'edit_banner_title_error');
+        if (editTitleInput.value.trim().length >= 3) clearBannerError('edit_banner_title', 'edit_banner_title_error');
       });
     }
   }
@@ -634,13 +681,14 @@
       const reader = new FileReader();
       reader.onload = function(e) {
         document.getElementById('imagePreview').src = e.target.result;
+        document.getElementById('uploadDropZone').classList.add('hidden');
         document.getElementById('imagePreviewContainer').classList.remove('hidden');
       }
       reader.readAsDataURL(input.files[0]);
     }
   }
 
-  function openEditBannerModal(id, title, targetUrl, displayMode, priority, status, endDate = '') {
+  function openEditBannerModal(id, title, targetUrl, displayMode, priority, status, startDate = '', endDate = '') {
     const modal = document.getElementById('editBannerModal');
     const form = document.getElementById('editBannerForm');
     form.action = `/admin-panel/banners/edit/${id}/`;
@@ -650,12 +698,40 @@
     const existingAutoReorder = form.querySelector('input[name="auto_reorder"]');
     if (existingAutoReorder) existingAutoReorder.remove();
 
-    document.getElementById('edit_title').value = title;
-    document.getElementById('edit_target_url').value = targetUrl;
-    document.getElementById('edit_display_mode').value = displayMode;
-    document.getElementById('edit_priority').value = priority;
-    document.getElementById('edit_status').value = status;
-    document.getElementById('edit_end_date').value = endDate || '';
+    const editStart = document.getElementById('edit_banner_start_date');
+    const editEnd = document.getElementById('edit_banner_end_date');
+
+    document.getElementById('edit_banner_title').value = title;
+    document.getElementById('edit_banner_target_url').value = targetUrl;
+    document.getElementById('edit_banner_display_mode').value = displayMode;
+    document.getElementById('edit_banner_priority').value = priority;
+    document.getElementById('edit_banner_status').value = status;
+    editStart.value = startDate || '';
+    editEnd.value = endDate || '';
+
+    // Clear any previous error messages
+    clearBannerError('edit_banner_title', 'edit_banner_title_error');
+    clearBannerError('edit_banner_priority', 'edit_banner_priority_error');
+    clearBannerError('edit_banner_start_date', 'edit_banner_start_date_error');
+    clearBannerError('edit_banner_end_date', 'edit_banner_end_date_error');
+
+    // Compute current local ISO string
+    const now = new Date();
+    const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    const minStr = localNow.toISOString().slice(0, 16);
+
+    // If banner already started in the past, do not block the existing past start time
+    if (startDate && startDate < minStr) {
+      editStart.min = startDate;
+    } else {
+      editStart.min = minStr;
+    }
+
+    if (endDate && endDate < minStr) {
+      editEnd.min = endDate;
+    } else {
+      editEnd.min = editStart.value || minStr;
+    }
 
     modal.classList.remove('hidden');
   }
@@ -663,6 +739,50 @@
   function closeEditBannerModal() {
     document.getElementById('editBannerModal').classList.add('hidden');
   }
+
+  // Ensure inputs cannot select past date/times and sync start/end dates
+  function enforceMinDateTimes() {
+    const now = new Date();
+    const localNow = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    const minStr = localNow.toISOString().slice(0, 16);
+
+    const addStart = document.getElementById('add_banner_start_date');
+    const addEnd = document.getElementById('add_banner_end_date');
+    const editStart = document.getElementById('edit_banner_start_date');
+    const editEnd = document.getElementById('edit_banner_end_date');
+
+    if (addStart) addStart.min = minStr;
+    if (addEnd) addEnd.min = minStr;
+
+    if (addStart && addEnd) {
+      addStart.addEventListener('input', () => {
+        if (addStart.value) {
+          addEnd.min = addStart.value;
+          if (addEnd.value && addEnd.value < addStart.value) {
+            addEnd.value = addStart.value;
+          }
+        } else {
+          addEnd.min = minStr;
+        }
+      });
+    }
+
+    if (editStart && editEnd) {
+      editStart.addEventListener('input', () => {
+        if (editStart.value) {
+          editEnd.min = editStart.value;
+          if (editEnd.value && editEnd.value < editStart.value) {
+            editEnd.value = editStart.value;
+          }
+        } else {
+          editEnd.min = minStr;
+        }
+      });
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', enforceMinDateTimes);
+  enforceMinDateTimes();
 
   // Sidebar toggle JS
   const sidebarToggleBtn = document.getElementById('sidebar-toggle');

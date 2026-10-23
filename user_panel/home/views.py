@@ -25,7 +25,7 @@ def get_new_products():
 
 def get_active_banners():
     now = timezone.now()
-    active_q = Q(is_deleted=False, status='PUBLISHED') & (Q(end_date__isnull=True) | Q(end_date__gte=now))
+    active_q = Q(is_deleted=False, status='PUBLISHED') & (Q(start_date__isnull=True) | (Q(start_date__lte=now))) & (Q(end_date__isnull=True) | Q(end_date__gte=now))
     hero_banners = list(Banner.objects.filter(active_q, display_mode='HERO_SLIDER').order_by('priority', '-created_at'))
     promo_strips = list(Banner.objects.filter(active_q, display_mode='PROMO_STRIP').order_by('priority', '-created_at'))
 
