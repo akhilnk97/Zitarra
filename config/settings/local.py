@@ -9,13 +9,11 @@ DEBUG = True
 ALLOWED_HOSTS = [
     "localhost",
     "127.0.0.1",
-    ".devtunnels.ms",
 ]
 
 CSRF_TRUSTED_ORIGINS = [
     "http://localhost:8000",
     "http://127.0.0.1:8000",
-    "https://5zxvpv3k-8000.inc1.devtunnels.ms",
 ]
 
 # Support HTTPS behind a reverse proxy (like Dev Tunnels)

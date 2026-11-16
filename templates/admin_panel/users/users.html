@@ -52,21 +52,6 @@
     <main class="flex-1 overflow-y-auto p-6 md:p-10 bg-[#FDFBF9]">
       <div class="max-w-7xl mx-auto space-y-8">
 
-        <!-- Django Alert Messages -->
-        {% if messages %}
-        <div class="space-y-2">
-          {% for message in messages %}
-          <div
-            class="msg-alert p-4 text-xs font-bold uppercase tracking-wider border flex items-center justify-between rounded-xs transition-all shadow-xs
-                      {% if message.tags == 'success' %}bg-[#DEF7EC] text-[#03543F] border-green-300{% else %}bg-[#FDE8E8] text-[#C53030] border-[#F8B4B4]{% endif %}">
-            <span>{{ message }}</span>
-            <button type="button" onclick="this.parentElement.remove()"
-              class="text-current hover:opacity-75 font-bold cursor-pointer">&times;</button>
-          </div>
-          {% endfor %}
-        </div>
-        {% endif %}
-
         <!-- PAGE HEADER: TITLE + FILTER/SORT BUTTONS -->
         <div
           class="flex flex-col sm:flex-row sm:items-end justify-between gap-4 pb-2 border-b border-[#EAE3DC] shrink-0">

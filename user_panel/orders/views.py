@@ -18,6 +18,8 @@ from common.services import (
     validate_address_line,
     calculate_order_totals,
     is_ajax,
+    send_order_confirmation_email,
+    send_order_status_email,
 )
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q
@@ -36,6 +38,8 @@ from user_panel.wallet.models import Wallet
 from decimal import Decimal
 from django.utils import timezone
 from common.services import get_eligible_coupons
+from user_panel.orders.invoice_generator import generate_invoice_pdf
+from django.http import HttpResponse
 
 logger = logging.getLogger(__name__)
 
@@ -169,7 +173,6 @@ def place_order_view(request):
     shipping_cost, tax_amount, total_price = calculate_order_totals(subtotal, discount_amount)
 
     if payment_method == 'WALLET':
-        from user_panel.wallet.models import Wallet
         user_wallet, _ = Wallet.objects.get_or_create(user=request.user)
         if user_wallet.balance < total_price:
             messages.error(request, f"Insufficient Zitarra Wallet balance. Your balance is ₹{user_wallet.balance:,.2f}, but total order amount is ₹{total_price:,.2f}.")
@@ -259,6 +262,9 @@ def place_order_view(request):
 
         cart.items.all().delete()
         process_referral_reward_on_first_order(request.user)
+
+        # Dispatch order confirmation email with PDF tax invoice
+        transaction.on_commit(lambda: send_order_confirmation_email(order))
 
         if is_ajax(request):
             return JsonResponse({
@@ -636,6 +642,13 @@ def cancel_order_item_view(request, order_id, item_id):
 
         order_item.order.recalculate_totals()
 
+        # Send cancellation notification email
+        order_ref = order_item.order
+        if order_ref.order_status == 'CANCELLED':
+            transaction.on_commit(lambda: send_order_status_email(order_ref, 'CANCELLED', note=reason))
+        else:
+            transaction.on_commit(lambda: send_order_status_email(order_ref, 'CANCELLED', note=f"Item '{order_item.product_name}' was cancelled. Reason: {reason}"))
+
     if order_item.order.payment_status == 'PAID' or order_item.order.payment_method in ['RAZORPAY', 'WALLET']:
         messages.success(request, f"Product '{order_item.product_name}' from Order #{order_item.order.order_id} has been cancelled & refunded to your Wallet.")
     else:
@@ -686,6 +699,13 @@ def order_invoice_view(request, order_id):
         'cancelled_items_count': cancelled_items_count,
         'returned_items_count': returned_items_count,
     }
+
+    if request.GET.get('format') == 'pdf' or request.GET.get('download') == '1':
+        pdf_bytes = generate_invoice_pdf(order)
+        response = HttpResponse(pdf_bytes, content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="Invoice_{order.order_id}.pdf"'
+        return response
+
     return render(request, 'user/orders/order_invoice.html', context)
 
 
@@ -716,7 +736,6 @@ def cancel_order_view(request, order_id):
             with transaction.atomic():
                 if order.payment_status == 'PAID' or order.payment_method in ['RAZORPAY', 'WALLET']:
                     if order.total_price > Decimal('0.00'):
-                        from user_panel.wallet.models import Wallet
                         wallet, _ = Wallet.objects.get_or_create(user=request.user)
                         wallet.credit(
                             amount=order.total_price,
@@ -749,6 +768,9 @@ def cancel_order_view(request, order_id):
                             item.product.save(update_fields=['stock', 'updated_at'])
 
                 order.recalculate_totals()
+
+                # Dispatch cancellation status update email
+                transaction.on_commit(lambda: send_order_status_email(order, 'CANCELLED', note=reason))
 
             messages.success(request, f"Order #{order.order_id} has been cancelled successfully.")
         else:
@@ -788,7 +810,7 @@ def create_razorpay_order_view(request):
 
     if not selected_address_id:
         return JsonResponse({'status': 'error', 'message': 'Please select a shipping address.'}, status=400)
-
+ 
     try:
         address = Address.objects.get(id=selected_address_id, user=request.user)
     except Address.DoesNotExist:
@@ -1029,6 +1051,9 @@ def verify_razorpay_payment_view(request):
             # Clear cart
             cart.items.all().delete()
             process_referral_reward_on_first_order(request.user)
+
+            # Dispatch order confirmation email with PDF tax invoice
+            transaction.on_commit(lambda: send_order_confirmation_email(order))
 
             # Clean session keys
             request.session.pop('applied_coupon', None)

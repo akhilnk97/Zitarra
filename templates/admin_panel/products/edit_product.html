@@ -139,7 +139,7 @@
                   required>
                   <option value="">Select Brand</option>
                   {% for b in brands %}
-                  <option value="{{ b.name }}" {% if product.brand == b.name %}selected{% endif %}>{{ b.name|upper }}</option>
+                  <option value="{{ b.id }}" {% if product.brand_id == b.id or product.brand == b %}selected{% endif %}>{{ b.name|upper }}</option>
                   {% endfor %}
                 </select>
 

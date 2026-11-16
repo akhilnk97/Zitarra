@@ -8,6 +8,7 @@ from django.utils import timezone
 from datetime import datetime
 
 from common.decorators import admin_required
+from common.services import send_order_status_email
 from user_panel.orders.models import Order, OrderItem
 from admin_panel.products.models import ProductVariant, Product
 
@@ -216,6 +217,7 @@ def admin_order_update_status_view(request, order_id):
                                 item.product.save(update_fields=['stock', 'updated_at'])
 
                     order.recalculate_totals()
+                    transaction.on_commit(lambda: send_order_status_email(order, 'CANCELLED', note=order.cancel_reason))
                 else:
                     order.order_status = new_status
                     today = timezone.now().date()
@@ -252,6 +254,8 @@ def admin_order_update_status_view(request, order_id):
 
                     order.save()
                     order.recalculate_totals()
+                    status_to_send = new_status
+                    transaction.on_commit(lambda: send_order_status_email(order, status_to_send))
 
                 messages.success(request, f"Order #{order.order_id} updated successfully.")
             else:
@@ -331,6 +335,13 @@ def admin_order_item_update_status_view(request, order_id, item_id):
 
             item.save()
             item.order.recalculate_totals()
+            if new_status and new_status != old_status:
+                order_ref = item.order
+                if new_status == 'CANCELLED':
+                    transaction.on_commit(lambda: send_order_status_email(order_ref, 'CANCELLED', note=f"Product '{item.product_name}' cancelled by admin."))
+                elif order_ref.order_status in ['SHIPPED', 'DELIVERED']:
+                    transaction.on_commit(lambda: send_order_status_email(order_ref, order_ref.order_status))
+
             messages.success(request, f"Item '{item.product_name}' updated successfully.")
 
     return redirect('admin_order_detail', order_id=order_id)

@@ -267,11 +267,10 @@ class OrderItem(models.Model):
     def effective_expected_pickup_date(self):
         if self.expected_pickup_date:
             return self.expected_pickup_date
-        from datetime import timedelta
+
         deliv_date = self.effective_expected_delivery_date
         if deliv_date:
             return deliv_date + timedelta(days=3)
-        from django.utils import timezone
         return timezone.now().date() + timedelta(days=3)
 
     @property

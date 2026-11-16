@@ -16,6 +16,7 @@
     background-color: #FFF9F6 !important;
   }
 
+
   .payment-option-card {
     transition: border-color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     cursor: pointer;
@@ -228,22 +229,6 @@
                 Insufficient balance (₹{{ wallet_balance|floatformat:2 }}). Select Razorpay or top up your wallet.
                 {% endif %}
               </p>
-            </div>
-
-            <!-- AVAILABLE COUPONS ACCORDION -->
-            <div class="border border-gray-200 p-4 bg-[#FAF9F7]">
-              <div class="flex items-center justify-between cursor-pointer" onclick="toggleCoupons()">
-                <span class="text-[0.65rem] font-black uppercase tracking-wider text-brand-dark">Available
-                  Coupons</span>
-                <svg id="coupon-arrow" class="w-4 h-4 text-gray-500 transition-transform" fill="none"
-                  stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                  <path d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-              <div id="coupon-content" class="hidden mt-3 pt-3 border-t border-gray-200">
-                <p class="text-[0.55rem] font-bold uppercase text-gray-400 tracking-wider">No promo codes active for
-                  this session.</p>
-              </div>
             </div>
 
           </div>
@@ -994,13 +979,6 @@
     }
   }
 
-  function toggleCoupons() {
-    const content = document.getElementById('coupon-content');
-    const arrow = document.getElementById('coupon-arrow');
-    content.classList.toggle('hidden');
-    arrow.classList.toggle('rotate-180');
-  }
-
   function openAddAddressModal() {
     const modal = document.getElementById('add-address-modal');
     if (!modal) return;
@@ -1401,7 +1379,7 @@
       const selectedAddress = document.querySelector('input[name="selected_address"]:checked')?.value;
       if (!selectedAddress) {
         e.preventDefault();
-        showZitarraModal(
+        showZitarraModal( 
           'ADDRESS REQUIRED',
           'Select Shipping Address',
           'Please select or add a shipping address before completing your order.',

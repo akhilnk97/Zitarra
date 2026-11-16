@@ -12,7 +12,7 @@ def get_new_products():
     products = list(Product.objects.filter(is_active=True, is_deleted=False).order_by('-created_at')[:4])
     for product in products:
         first_word = product.name.split()[0].title()
-        product.brand_name = product.brand if product.brand else (first_word if first_word in available_brands else "Zitarra")
+        product.brand_name = product.brand.name if product.brand else (first_word if first_word in available_brands else "Zitarra")
         active_vars = product.variants.filter(is_active=True, is_deleted=False).order_by('id')
         primary_var = active_vars.first()
         base_price = primary_var.price if (primary_var and primary_var.price) else product.price

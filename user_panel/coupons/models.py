@@ -1,5 +1,6 @@
 from decimal import Decimal
 from django.db import models
+from django.utils import timezone
 
 
 class Coupon(models.Model):
@@ -38,7 +39,6 @@ class Coupon(models.Model):
 
     @property
     def status_code(self):
-        from django.utils import timezone
         now = timezone.now()
         if not self.is_active:
             return 'DISABLED'
@@ -51,7 +51,6 @@ class Coupon(models.Model):
         return 'ACTIVE'
 
     def calculate_discount(self, subtotal, cart_items=None):
-        from django.utils import timezone
         now = timezone.now()
         subtotal = Decimal(str(subtotal))
 

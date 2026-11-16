@@ -2,6 +2,11 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser, BaseUserManager
 from allauth.socialaccount.signals import pre_social_login
 from django.dispatch import receiver
+from django.contrib import messages
+from allauth.core.exceptions import ImmediateHttpResponse
+from django.shortcuts import redirect
+from allauth.socialaccount.models import SocialAccount
+
 
 
 class UserManager(BaseUserManager):
@@ -81,7 +86,6 @@ def handle_google_login(sender, request, sociallogin, **kwargs):
     extra = sociallogin.account.extra_data
 
     # Check if this Google user has logged in before using Google auth
-    from allauth.socialaccount.models import SocialAccount
     uid = sociallogin.account.uid
     provider = sociallogin.account.provider
     if provider == 'google':
@@ -103,9 +107,6 @@ def handle_google_login(sender, request, sociallogin, **kwargs):
         try:
             db_user = User.objects.get(email__iexact=email.strip())
             if db_user.is_blocked:
-                from django.contrib import messages
-                from allauth.core.exceptions import ImmediateHttpResponse
-                from django.shortcuts import redirect
                 messages.error(request, "Your account has been blocked. Contact support.")
                 raise ImmediateHttpResponse(redirect('login'))
         except User.DoesNotExist:
@@ -115,9 +116,6 @@ def handle_google_login(sender, request, sociallogin, **kwargs):
         try:
             db_user = User.objects.get(pk=user.pk)
             if db_user.is_blocked:
-                from django.contrib import messages
-                from allauth.core.exceptions import ImmediateHttpResponse
-                from django.shortcuts import redirect
                 messages.error(request, "Your account has been blocked. Contact support.")
                 raise ImmediateHttpResponse(redirect('login'))
         except User.DoesNotExist:

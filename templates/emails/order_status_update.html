@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ email_subject }}</title>
+</head>
+<body style="margin: 0; padding: 0; background-color: #f6f6f4; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #111111; -webkit-font-smoothing: antialiased;">
+  <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f6f6f4; padding: 30px 10px;">
+    <tr>
+      <td align="center">
+        <table border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border: 1px solid #e5e5e0; border-collapse: collapse; box-shadow: 0 4px 15px rgba(0,0,0,0.03);">
+          
+          <!-- Brand Header -->
+          <tr>
+            <td align="center" style="padding: 28px 30px; background-color: #111111;">
+              <h1 style="margin: 0; font-size: 24px; font-weight: 900; letter-spacing: 0.2em; color: #ffffff; text-transform: uppercase;">
+                ZITARRA
+              </h1>
+              <div style="width: 40px; height: 3px; background-color: #e8500a; margin-top: 10px;"></div>
+            </td>
+          </tr>
+
+          <!-- Main Status Content -->
+          <tr>
+            <td style="padding: 35px 35px 25px 35px;">
+              
+              <!-- Status Pill -->
+              <div style="display: inline-block; padding: 5px 12px; background-color: {{ badge_color|default:'#111111' }}; color: #ffffff; font-size: 11px; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; border-radius: 2px; margin-bottom: 14px;">
+                {{ badge_label }}
+              </div>
+
+              <h2 style="margin: 0 0 12px 0; font-size: 20px; font-weight: 800; color: #111111; letter-spacing: -0.02em;">
+                {{ heading }}
+              </h2>
+
+              <p style="margin: 0 0 18px 0; font-size: 14px; line-height: 1.6; color: #555555;">
+                Hello <strong>{{ order.shipping_full_name }}</strong>,<br/>
+                {{ lead_text }}
+              </p>
+
+              <!-- Optional Date / Highlight Box -->
+              {% if highlight_text %}
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fbfbf9; border-left: 4px solid {{ badge_color|default:'#e8500a' }}; border-top: 1px solid #eeeeea; border-right: 1px solid #eeeeea; border-bottom: 1px solid #eeeeea; margin-bottom: 25px;">
+                <tr>
+                  <td style="padding: 14px 18px;">
+                    <p style="margin: 0; font-size: 13px; color: #222222; line-height: 1.5;">
+                      {{ highlight_text|safe }}
+                    </p>
+                  </td>
+                </tr>
+              </table>
+              {% endif %}
+
+              <!-- Order Overview Card -->
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f9f9f8; border: 1px solid #eeeeea; margin-bottom: 25px;">
+                <tr>
+                  <td style="padding: 16px 20px;">
+                    <table width="100%" cellpadding="3" cellspacing="0" style="font-size: 13px; color: #333333;">
+                      <tr>
+                        <td style="color: #777777; width: 140px;">Order ID:</td>
+                        <td style="font-weight: 700; color: #111111;">#{{ order.order_id }}</td>
+                      </tr>
+                      <tr>
+                        <td style="color: #777777;">Order Date:</td>
+                        <td>{{ order.created_at|date:"d M Y" }}</td>
+                      </tr>
+                      <tr>
+                        <td style="color: #777777;">Current Status:</td>
+                        <td><strong style="color: {{ badge_color|default:'#111111' }};">{{ order.get_order_status_display }}</strong></td>
+                      </tr>
+                      <tr>
+                        <td style="color: #777777;">Total Amount:</td>
+                        <td style="font-weight: 700;">₹{{ display_total|default:order.total_price }}</td>
+                      </tr>
+                    </table>
+                  </td>
+                </tr>
+              </table>
+
+              <!-- Order Items Listing -->
+              <h3 style="margin: 0 0 12px 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #111111; border-bottom: 2px solid #111111; padding-bottom: 8px;">
+                Items in This Order
+              </h3>
+              
+              <table border="0" cellpadding="0" cellspacing="0" width="100%" style="margin-bottom: 25px;">
+                {% for item in order.items.all %}
+                <tr>
+                  <td style="padding: 10px 0; border-bottom: 1px solid #eeeeee;">
+                    <div style="font-size: 13px; font-weight: 700; color: #111111;">
+                      {{ item.product_name }}
+                    </div>
+                    {% if item.variant_name %}
+                    <div style="font-size: 12px; color: #666666;">
+                      Variant: {{ item.variant_name }}
+                    </div>
+                    {% endif %}
+                    <div style="font-size: 12px; color: #888888;">
+                      Qty: {{ item.quantity }} &bull; Status: <span style="font-weight: 600; color: #333333;">{{ item.get_item_status_display }}</span>
+                    </div>
+                  </td>
+                  <td align="right" style="padding: 10px 0; border-bottom: 1px solid #eeeeee; font-size: 13px; font-weight: 700; color: #111111; vertical-align: top;">
+                    ₹{{ item.item_subtotal }}
+                  </td>
+                </tr>
+                {% endfor %}
+              </table>
+
+              <!-- Shipping Destination -->
+              <h3 style="margin: 0 0 8px 0; font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #111111;">
+                Shipping Address
+              </h3>
+              <div style="background-color: #fbfbf9; border: 1px solid #eeeeea; padding: 12px 16px; font-size: 12.5px; line-height: 1.5; color: #555555; margin-bottom: 15px;">
+                <strong>{{ order.shipping_full_name }}</strong><br/>
+                {{ order.shipping_address_line_1 }}{% if order.shipping_address_line_2 %}, {{ order.shipping_address_line_2 }}{% endif %}<br/>
+                {{ order.shipping_city }}, {{ order.shipping_state }} - {{ order.shipping_pincode }}
+              </div>
+
+            </td>
+          </tr>
+
+          <!-- Footer -->
+          <tr>
+            <td align="center" style="padding: 24px 30px; background-color: #f4f4f2; border-top: 1px solid #e5e5e0; font-size: 12px; color: #777777; line-height: 1.6;">
+              Need help? Check your order progress anytime from your Zitarra account or contact <a href="mailto:support@zitarra.com" style="color: #e8500a; text-decoration: none;">support@zitarra.com</a>.<br/>
+              &copy; Zitarra. All rights reserved.
+            </td>
+          </tr>
+
+        </table>
+      </td>
+    </tr>
+  </table>
+</body>
+</html>

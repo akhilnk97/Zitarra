@@ -439,6 +439,12 @@
   }
 
   async function updateCartQuantity(itemId, action) {
+    const qtyInput = document.getElementById(`qty-input-${itemId}`);
+    if (action === 'decrement' && qtyInput && parseInt(qtyInput.value) <= 1) {
+      showToastAlert('Minimum quantity is 1 unit. Click Remove to delete this item.', 'warning');
+      return;
+    }
+
     const lockKey = `${itemId}-${action}`;
     if (pendingUpdates.has(lockKey)) return;
     pendingUpdates.add(lockKey);

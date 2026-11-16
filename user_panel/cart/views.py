@@ -132,8 +132,15 @@ def add_to_cart(request, product_id):
             item.save()
             msg = f"{product.name}{var_suffix} (x{qty_requested}) added to cart"
             WishlistItem.objects.filter(wishlist__user=request.user, product=product, variant=variant).delete()
+            wishlist_count = WishlistItem.objects.filter(wishlist__user=request.user).count()
             if is_ajax(request):
-                return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
+                return JsonResponse({
+                    'status': 'success',
+                    'message': msg,
+                    'cart_count': cart.get_total_items(),
+                    'wishlist_count': wishlist_count,
+                    'variant_id': str(variant.id) if variant else 'base'
+                })
             messages.success(request, msg)
             
     else:
@@ -142,8 +149,15 @@ def add_to_cart(request, product_id):
         item.save()
         msg = f"{product.name}{var_suffix} (x{actual_qty}) added to cart"
         WishlistItem.objects.filter(wishlist__user=request.user, product=product, variant=variant).delete()
+        wishlist_count = WishlistItem.objects.filter(wishlist__user=request.user).count()
         if is_ajax(request):
-            return JsonResponse({'status': 'success', 'message': msg, 'cart_count': cart.get_total_items()})
+            return JsonResponse({
+                'status': 'success',
+                'message': msg,
+                'cart_count': cart.get_total_items(),
+                'wishlist_count': wishlist_count,
+                'variant_id': str(variant.id) if variant else 'base'
+            })
         messages.success(request, msg)
 
     referer = request.META.get('HTTP_REFERER')
@@ -196,11 +210,10 @@ def update_quantity(request, item_id, action):
 
     elif action == 'decrement':
         if item.quantity <= 1:
-            item.delete()
-            status_type = 'removed'
-            message_text = "Item removed from cart."
+            status_type = 'warning'
+            message_text = "Minimum quantity is 1 unit. Click Remove to delete this item."
             if not is_ajax(request):
-                messages.success(request, message_text)
+                messages.warning(request, message_text)
         else:
             item.quantity -= 1
             item.save()

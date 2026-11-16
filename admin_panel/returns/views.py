@@ -7,6 +7,7 @@ from django.db import transaction
 from django.db.models import Q
 from django.core.paginator import Paginator
 from common.decorators import admin_required
+from common.services import send_order_status_email
 from user_panel.orders.models import Order, OrderItem, Product, ProductVariant
 from user_panel.wallet.models import Wallet
 
@@ -125,6 +126,8 @@ def admin_return_action_view(request, item_id):
             item.admin_note = admin_note or 'Return request verified and approved.'
             item.save(update_fields=['item_status', 'admin_note', 'expected_pickup_date'])
             item.order.recalculate_totals()
+            order_ref = item.order
+            transaction.on_commit(lambda: send_order_status_email(order_ref, 'RETURN_APPROVED', note=admin_note))
             messages.success(request, f"Return approved for '{item.product_name}' in Order #{item.order.order_id}.")
 
         elif action == 'schedule_pickup':
@@ -139,6 +142,9 @@ def admin_return_action_view(request, item_id):
                         item.admin_note = f"Pickup scheduled for {item.expected_pickup_date.strftime('%d-%m-%Y')}."
                     item.save(update_fields=['item_status', 'expected_pickup_date', 'admin_note'])
                     item.order.recalculate_totals()
+                    order_ref = item.order
+                    pickup_str = item.expected_pickup_date.strftime('%d %B %Y') if item.expected_pickup_date else None
+                    transaction.on_commit(lambda: send_order_status_email(order_ref, 'RETURN_PICKUP', expected_date=pickup_str))
                     messages.success(request, f"Expected pickup date set to {item.expected_pickup_date.strftime('%d-%m-%Y')} for '{item.product_name}'.")
                 except ValueError:
                     messages.error(request, "Invalid pickup date format provided.")
@@ -151,6 +157,8 @@ def admin_return_action_view(request, item_id):
             item.admin_note = admin_note or 'Return request rejected after inspection.'
             item.save(update_fields=['item_status', 'cancel_reason', 'admin_note'])
             item.order.recalculate_totals()
+            order_ref = item.order
+            transaction.on_commit(lambda: send_order_status_email(order_ref, 'RETURN_REJECTED', note=admin_note))
             messages.error(request, f"Return request rejected for '{item.product_name}' in Order #{item.order.order_id}.")
 
         elif action == 'complete':
@@ -195,6 +203,8 @@ def admin_return_action_view(request, item_id):
                     item.order.payment_status = 'PARTIALLY_REFUNDED'
                 item.order.save(update_fields=['payment_status'])
                 item.order.recalculate_totals()
+                order_ref = item.order
+                transaction.on_commit(lambda: send_order_status_email(order_ref, 'RETURNED', note=f"₹{refund_amount:,.2f} refunded to Zitarra Wallet."))
 
                 logger.info(f"[RETURNS] Return action '{action}' executed for OrderItem #{item.id} (Order #{item.order.order_id}). Refunded ₹{refund_amount:.2f} to user #{item.order.user.id} wallet.")
                 messages.success(request, f"Return completed, stock restored & ₹{refund_amount:,.2f} refunded to {item.order.user.email}'s Zitarra Wallet.")

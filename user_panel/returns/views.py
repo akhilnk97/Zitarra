@@ -4,6 +4,7 @@ from django.contrib import messages
 from django.db import transaction
 from django.urls import reverse
 from common.decorators import user_member_required
+from common.services import send_order_status_email
 from user_panel.orders.models import Order, OrderItem
 from user_panel.returns.models import ReturnRequestImage
 from django.utils import timezone
@@ -53,6 +54,9 @@ def return_order_view(request, order_id):
 
                         for img_file in uploaded_images:
                             ReturnRequestImage.objects.create(order_item=item, image=img_file)
+
+                # Send return request acknowledgment email
+                transaction.on_commit(lambda: send_order_status_email(order, 'RETURN_REQUESTED'))
 
             messages.success(request, f"Return request submitted for Order #{order.order_id}. Our team will review your request shortly.")
         else:

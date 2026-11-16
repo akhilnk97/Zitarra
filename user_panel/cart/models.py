@@ -1,6 +1,8 @@
 from django.db import models
 from user_panel.authentication.models import User
 from admin_panel.products.models import Product, ProductVariant
+from decimal import Decimal
+
 
 
 class Cart(models.Model):
@@ -16,7 +18,6 @@ class Cart(models.Model):
         return sum(item.get_original_subtotal() for item in self.items.all() if item.is_available)
 
     def get_total_offer_discount(self):
-        from decimal import Decimal
         orig = Decimal(str(self.get_original_subtotal() or 0))
         sub = Decimal(str(self.get_subtotal() or 0))
         diff = orig - sub
@@ -81,7 +82,6 @@ class CartItem(models.Model):
         return self.effective_discount['offer_name']
 
     def get_unit_price(self):
-        from decimal import Decimal
         base = Decimal(str(self.get_base_unit_price()))
         eff = self.effective_discount
         if eff['has_discount']:

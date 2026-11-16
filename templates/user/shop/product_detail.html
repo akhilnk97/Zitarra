@@ -215,9 +215,9 @@
                         <!-- Buttons -->
                         <div class="flex flex-col gap-3">
                             {% with initial_item=first_available|default:product %}
-                            <form action="{% url 'add_to_cart' product.id %}" method="POST" class="w-full flex flex-col gap-3">
+                            <form id="product-detail-add-to-cart-form" action="{% url 'add_to_cart' product.id %}" method="POST" class="w-full flex flex-col gap-3">
                                 {% csrf_token %}
-                                <input type="hidden" name="variant_id" id="selected-variant-id" value="{% if first_available and first_available.id %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
+                                <input type="hidden" name="variant_id" id="selected-variant-id" value="{% if first_available and first_available.id and variants %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
                                 <!-- Quantity Selector Control -->
                                 <div class="flex items-center justify-between border border-gray-200 bg-[#FAF8F5] px-3 py-2 select-none">
                                     <span class="text-[0.62rem] font-bold tracking-[0.15em] uppercase text-gray-500">Quantity </span>
@@ -229,18 +229,19 @@
                                 </div>
 
                                 <button id="add-to-cart-btn" type="submit"
-                                    class="w-full bg-[#E8500A] text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none hover:bg-[#c94008] transition-colors flex items-center justify-center gap-2.5 cursor-pointer {% if initial_item.stock_info.is_out %}opacity-50 cursor-not-allowed{% endif %}"
-                                    {% if initial_item.stock_info.is_out %}disabled{% endif %}>
+                                    data-is-in-cart="{% if is_in_cart %}true{% else %}false{% endif %}"
+                                    class="w-full {% if is_in_cart %}bg-[#1A1A1A] hover:bg-black{% else %}bg-[#E8500A] hover:bg-[#c94008]{% endif %} text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none transition-colors flex items-center justify-center gap-2.5 cursor-pointer {% if initial_item.stock_info.is_out and not is_in_cart %}opacity-50 cursor-not-allowed{% endif %}"
+                                    {% if initial_item.stock_info.is_out and not is_in_cart %}disabled{% endif %}>
                                     <svg class="w-4 h-4 fill-none stroke-current shrink-0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
                                         <path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4zM3 6h18M16 10a4 4 0 0 1-8 0" />
                                     </svg>
-                                    <span id="add-to-cart-text" class="leading-none">{% if initial_item.stock_info.is_out %}Out of Stock{% else %}Add to Cart{% endif %}</span>
+                                    <span id="add-to-cart-text" class="leading-none">{% if is_in_cart %}Go to Cart{% elif initial_item.stock_info.is_out %}Out of Stock{% else %}Add to Cart{% endif %}</span>
                                 </button>
                             </form>
                             {% endwith %}
                             <form id="product-detail-wishlist-form" action="{% url 'wishlist:add_to_wishlist' product.id %}" method="POST" class="w-full">
                                 {% csrf_token %}
-                                <input type="hidden" name="variant_id" id="wishlist-variant-id" value="{% if first_available and first_available.id %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
+                                <input type="hidden" name="variant_id" id="wishlist-variant-id" value="{% if first_available and first_available.id and variants %}{{ first_available.id }}{% elif variants %}{{ variants.0.id }}{% else %}base{% endif %}">
                                 <button id="product-detail-wishlist-btn" type="submit"
                                     class="w-full {% if is_in_wishlist %}border border-red-600 text-red-600 hover:bg-red-600 hover:text-white{% else %}border border-black text-black hover:bg-black hover:text-white{% endif %} text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5">
                                     <svg id="product-detail-wishlist-svg" class="w-4 h-4 {% if is_in_wishlist %}fill-current{% else %}fill-none stroke-current{% endif %} shrink-0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24">
@@ -851,6 +852,36 @@
     {% endfor %}
     ];
 
+    const cartVariantIds = new Set(({{ cart_variant_json|default:"[]"|safe }}).map(String));
+    const cartPageUrl = "{% url 'cart_view' %}";
+
+    function updateCartButtonState(currentVarId, isOut) {
+        const btn = document.getElementById('add-to-cart-btn');
+        const cartText = document.getElementById('add-to-cart-text');
+        if (!btn || !cartText) return;
+
+        const inCart = cartVariantIds.has(String(currentVarId));
+        if (inCart) {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-[#E8500A]', 'hover:bg-[#c94008]');
+            btn.classList.add('bg-[#1A1A1A]', 'hover:bg-black');
+            btn.setAttribute('data-is-in-cart', 'true');
+            cartText.textContent = 'Go to Cart';
+        } else if (isOut) {
+            btn.disabled = true;
+            btn.classList.remove('bg-[#1A1A1A]', 'hover:bg-black');
+            btn.classList.add('bg-[#E8500A]', 'hover:bg-[#c94008]', 'opacity-50', 'cursor-not-allowed');
+            btn.setAttribute('data-is-in-cart', 'false');
+            cartText.textContent = 'Out of Stock';
+        } else {
+            btn.disabled = false;
+            btn.classList.remove('opacity-50', 'cursor-not-allowed', 'bg-[#1A1A1A]', 'hover:bg-black');
+            btn.classList.add('bg-[#E8500A]', 'hover:bg-[#c94008]');
+            btn.setAttribute('data-is-in-cart', 'false');
+            cartText.textContent = 'Add to Cart';
+        }
+    }
+
     document.querySelectorAll('.color-option').forEach(function (opt) {
         opt.addEventListener('click', function () {
             document.querySelectorAll('.color-option').forEach(function (o) {
@@ -1016,19 +1047,131 @@
                 }
             }
 
+            updateCartButtonState(varId, isOut);
+        });
+    });
+
+    // Handle Click and AJAX Submit on Add to Cart button on Product Detail page
+    const addToCartBtn = document.getElementById('add-to-cart-btn');
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function (e) {
+            if (this.getAttribute('data-is-in-cart') === 'true') {
+                e.preventDefault();
+                e.stopPropagation();
+                window.location.href = cartPageUrl;
+            }
+        });
+    }
+
+    const detailCartForm = document.getElementById('product-detail-add-to-cart-form');
+    if (detailCartForm) {
+        detailCartForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+            const submitBtn = document.getElementById('add-to-cart-btn');
             const cartText = document.getElementById('add-to-cart-text');
-            if (btn) {
-                btn.disabled = isOut;
-                if (isOut) {
-                    btn.classList.add('opacity-50', 'cursor-not-allowed');
-                    if (cartText) cartText.textContent = 'Out of Stock';
+            const isInCart = submitBtn && submitBtn.getAttribute('data-is-in-cart') === 'true';
+
+            if (isInCart) {
+                window.location.href = cartPageUrl;
+                return;
+            }
+
+            if (submitBtn) {
+                submitBtn.disabled = true;
+                if (cartText) cartText.textContent = 'Adding...';
+            }
+
+            const formData = new FormData(this);
+
+            try {
+                const response = await fetch(this.action, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                });
+
+                if (response.redirected && response.url.includes('/login/')) {
+                    window.location.href = response.url;
+                    return;
+                }
+
+                const data = await response.json();
+                if (response.ok && data.status === 'success') {
+                    if (window.showToastAlert) {
+                        window.showToastAlert(data.message || 'Product added to cart!', 'success');
+                    }
+
+                    // Update navbar cart count badge
+                    if (data.cart_count !== undefined) {
+                        const badge = document.getElementById('nav-cart-badge');
+                        if (badge) {
+                            badge.textContent = data.cart_count;
+                            if (data.cart_count > 0) {
+                                badge.classList.remove('hidden');
+                                badge.style.display = 'flex';
+                            } else {
+                                badge.classList.add('hidden');
+                                badge.style.display = 'none';
+                            }
+                        }
+                    }
+
+                    // Sync wishlist badge if item was in wishlist
+                    if (data.wishlist_count !== undefined) {
+                        const wishBadge = document.getElementById('nav-wishlist-badge');
+                        if (wishBadge) {
+                            wishBadge.textContent = data.wishlist_count;
+                            if (data.wishlist_count > 0) {
+                                wishBadge.classList.remove('hidden');
+                                wishBadge.style.display = 'flex';
+                            } else {
+                                wishBadge.classList.add('hidden');
+                                wishBadge.style.display = 'none';
+                            }
+                        }
+                    }
+
+                    const wishSubmitBtn = document.getElementById('product-detail-wishlist-btn');
+                    const wishText = document.getElementById('product-detail-wishlist-text');
+                    const wishSvg = document.getElementById('product-detail-wishlist-svg');
+                    if (wishSubmitBtn && wishText) {
+                        wishSubmitBtn.className = 'w-full border border-black text-black hover:bg-black hover:text-white text-[0.72rem] font-bold tracking-[0.15em] uppercase py-[13px] leading-none transition-colors bg-white cursor-pointer flex items-center justify-center gap-2.5';
+                        wishText.textContent = 'Add to Wishlist';
+                        if (wishSvg) {
+                            wishSvg.setAttribute('class', 'w-4 h-4 fill-none stroke-current shrink-0');
+                        }
+                    }
+
+                    const currentVarId = document.getElementById('selected-variant-id')?.value || 'base';
+                    const addedVarId = data.variant_id ? String(data.variant_id) : String(currentVarId);
+                    cartVariantIds.add(addedVarId);
+                    cartVariantIds.add(String(currentVarId));
+
+                    updateCartButtonState(currentVarId, false);
                 } else {
-                    btn.classList.remove('opacity-50', 'cursor-not-allowed');
-                    if (cartText) cartText.textContent = 'Add to Cart';
+                    if (window.showToastAlert) {
+                        window.showToastAlert(data.message || 'Unable to add to cart.', data.status === 'warning' ? 'warning' : 'error');
+                    }
+                    const currentVarId = document.getElementById('selected-variant-id')?.value || 'base';
+                    const activeColor = document.querySelector('.color-option.active');
+                    const isOut = activeColor ? activeColor.getAttribute('data-is-out') === 'true' : false;
+                    updateCartButtonState(currentVarId, isOut);
+                }
+            } catch (err) {
+                console.error('AJAX add to cart detail error:', err);
+                detailCartForm.submit();
+            } finally {
+                if (submitBtn) {
+                    const nowInCart = submitBtn.getAttribute('data-is-in-cart') === 'true';
+                    if (nowInCart) {
+                        submitBtn.disabled = false;
+                    }
                 }
             }
         });
-    });
+    }
 
     // Handle AJAX Wishlist button on Product Detail page
     const detailWishlistForm = document.getElementById('product-detail-wishlist-form');

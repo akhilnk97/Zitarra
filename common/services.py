@@ -2,7 +2,7 @@ import random
 import re
 from datetime import timedelta
 from django.utils import timezone
-from django.core.mail import send_mail
+from django.core.mail import send_mail, EmailMessage
 from django.conf import settings
 from user_panel.authentication.models import OTPVerification
 import base64
@@ -18,6 +18,8 @@ from user_panel.orders.models import Coupon, Order
 from django.db.models import Q
 from django.utils import timezone
 from decimal import Decimal
+from user_panel.orders.invoice_generator import generate_invoice_pdf
+
 
 
 def validate_full_name(name):
@@ -449,3 +451,201 @@ def get_or_create_user_referral_code(user):
             user.referral_code = code
             user.save(update_fields=['referral_code'])
             return code
+
+
+def send_order_confirmation_email(order):
+    """
+    Sends an order confirmation email to the customer with an attached PDF tax invoice.
+    Safely catches exceptions so email issues never disrupt checkout or transaction flow.
+    """
+    try:
+        recipient_email = getattr(order.user, 'email', None)
+        if not recipient_email:
+            return False
+
+        subject = f"Order Confirmed: #{order.order_id} — Zitarra"
+        context = {
+            'order': order,
+        }
+        html_message = render_to_string('emails/order_confirmation.html', context)
+        plain_message = strip_tags(html_message)
+
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+
+        email = EmailMessage(
+            subject=subject,
+            body=html_message,
+            from_email=from_email,
+            to=[recipient_email],
+        )
+        email.content_subtype = "html"
+
+        # Generate the PDF invoice
+        try:
+            pdf_bytes = generate_invoice_pdf(order)
+            email.attach(
+                filename=f"Invoice_{order.order_id}.pdf",
+                content=pdf_bytes,
+                mimetype="application/pdf"
+            )
+        except Exception as pdf_err:
+            if settings.DEBUG:
+                print(f"[PDF INVOICE ERROR] Failed to generate PDF for order {order.order_id}: {pdf_err}")
+
+        email.send(fail_silently=False)
+        return True
+
+    except Exception as e:
+        if settings.DEBUG:
+            print("\n" + "="*80)
+            print(f"SMTP SEND FAILED FOR ORDER CONFIRMATION #{order.order_id}. REASON: {e}")
+            print(f"RECIPIENT: {getattr(order.user, 'email', 'N/A')}")
+            print("="*80 + "\n")
+        return False
+
+
+def send_order_status_email(order, new_status, note=None, expected_date=None):
+    """
+    Dispatches a branded status update email to the customer when the order status changes
+    (e.g., Shipped / Dispatched, Delivered, Cancelled, Return updates).
+    """
+    try:
+        recipient_email = getattr(order.user, 'email', None)
+        if not recipient_email:
+            return False
+
+        status_key = (new_status or '').upper()
+
+        # Compute display total so cancelled orders show their original value instead of 0.00
+        if order.order_status == 'CANCELLED' or order.total_price == Decimal('0.00'):
+            all_items = list(order.items.all())
+            orig_sub = sum((i.item_subtotal for i in all_items), Decimal('0.00'))
+            orig_disc = sum((i.discount_amount for i in all_items), Decimal('0.00'))
+            net_sub = max(Decimal('0.00'), orig_sub - orig_disc)
+            display_total = net_sub + round(net_sub * Decimal('0.05'), 2) + (order.shipping_cost or Decimal('0.00'))
+        else:
+            display_total = order.total_price
+
+        is_prepaid = order.payment_status in ['PAID', 'REFUNDED', 'PARTIALLY_REFUNDED'] or order.payment_method in ['RAZORPAY', 'WALLET']
+        refund_notice = f"💰 <strong>Refund Notice:</strong> A full refund of ₹{display_total:,.2f} has been credited to your Zitarra Wallet." if is_prepaid else "💵 <strong>Payment Notice:</strong> Cash on Delivery order. No payment was charged."
+
+        status_configs = {
+            'SHIPPED': {
+                'badge_label': 'DISPATCHED / SHIPPED',
+                'badge_color': '#E8500A',
+                'heading': 'Your Order Has Been Dispatched!',
+                'subject': f"Order #{order.order_id} Dispatched — Zitarra",
+                'lead_text': "Great news! Your package has been dispatched from our fulfillment center and is on its way to you.",
+                'highlight_text': f"🚚 <strong>Estimated Delivery:</strong> {expected_date or (order.expected_delivery_date.strftime('%d %B %Y') if order.expected_delivery_date else order.default_delivery_date.strftime('%d %B %Y'))}."
+            },
+            'DELIVERED': {
+                'badge_label': 'DELIVERED',
+                'badge_color': '#059669',
+                'heading': 'Your Order Has Been Delivered!',
+                'subject': f"Order #{order.order_id} Delivered Successfully — Zitarra",
+                'lead_text': "Your package has been safely delivered to your shipping address. We hope you enjoy making great music with your new instrument!",
+                'highlight_text': "📦 <strong>Delivered:</strong> Please inspect your order. If you need any assistance, reach out to our concierge support."
+            },
+            'CANCELLED': {
+                'badge_label': 'CANCELLED',
+                'badge_color': '#DC2626',
+                'heading': 'Your Order Has Been Cancelled',
+                'subject': f"Order #{order.order_id} Cancellation Notice — Zitarra",
+                'lead_text': f"Your order #{order.order_id} has been cancelled.",
+                'highlight_text': (
+                    f"❌ <strong>Cancellation Reason:</strong> {note or order.cancel_reason or 'Requested by user / admin'}.<br/>"
+                    + refund_notice
+                )
+            },
+            'RETURN_APPROVED': {
+                'badge_label': 'RETURN APPROVED',
+                'badge_color': '#2563EB',
+                'heading': 'Return Request Approved',
+                'subject': f"Return Request Approved for Order #{order.order_id} — Zitarra",
+                'lead_text': "Your return request has been approved by our quality inspection team.",
+                'highlight_text': f"📅 <strong>Expected Pickup Date:</strong> {expected_date or (order.default_delivery_date.strftime('%d %B %Y') if order.default_delivery_date else 'Within 2-3 business days')}. Please keep the instrument safely in its original packaging with all included accessories."
+            },
+            'RETURN_REQUESTED': {
+                'badge_label': 'RETURN REQUESTED',
+                'badge_color': '#D97706',
+                'heading': 'Return Request Received',
+                'subject': f"Return Request Received for Order #{order.order_id} — Zitarra",
+                'lead_text': "We have received your return request. Our team is currently reviewing your submission.",
+                'highlight_text': "⏳ <strong>Review in Progress:</strong> You will be notified via email once approved and pickup is scheduled."
+            },
+            'RETURN_PICKUP': {
+                'badge_label': 'PICKUP SCHEDULED',
+                'badge_color': '#7C3AED',
+                'heading': 'Return Pickup Scheduled',
+                'subject': f"Pickup Scheduled for Return #{order.order_id} — Zitarra",
+                'lead_text': "A pickup courier has been scheduled to collect the return parcel.",
+                'highlight_text': f"🚚 <strong>Scheduled Pickup Date:</strong> {expected_date or 'Courier arriving shortly'}."
+            },
+            'RETURNED': {
+                'badge_label': 'RETURN COMPLETED',
+                'badge_color': '#059669',
+                'heading': 'Return Processed & Refunded',
+                'subject': f"Return Completed for Order #{order.order_id} — Zitarra",
+                'lead_text': "Your returned instrument has been received and inspected at our facility.",
+                'highlight_text': "✅ <strong>Return Verified:</strong> Your refund has been approved and credited to your Zitarra Wallet."
+            },
+            'RETURN_REJECTED': {
+                'badge_label': 'RETURN REJECTED',
+                'badge_color': '#DC2626',
+                'heading': 'Return Request Update',
+                'subject': f"Update on Return for Order #{order.order_id} — Zitarra",
+                'lead_text': "Your return request could not be accepted following inspection.",
+                'highlight_text': f"<strong>Reason:</strong> {note or order.cancel_reason or 'Item does not meet return eligibility criteria.'}"
+            },
+            'PROCESSING': {
+                'badge_label': 'PROCESSING',
+                'badge_color': '#111111',
+                'heading': 'Order is Being Processed',
+                'subject': f"Order #{order.order_id} is Processing — Zitarra",
+                'lead_text': "Our acoustic specialists and fulfillment staff are packaging your instrument with care.",
+                'highlight_text': "⚙️ Quality inspection in progress prior to dispatch."
+            }
+        }
+
+        config = status_configs.get(status_key, {
+            'badge_label': status_key.replace('_', ' '),
+            'badge_color': '#111111',
+            'heading': f"Order Status Update: {status_key.replace('_', ' ').title()}",
+            'subject': f"Order #{order.order_id} Status Update: {status_key.replace('_', ' ').title()} — Zitarra",
+            'lead_text': f"Your order #{order.order_id} has been updated to {status_key.replace('_', ' ').title()}.",
+            'highlight_text': note if note else None,
+        })
+
+        context = {
+            'order': order,
+            'display_total': display_total,
+            'email_subject': config['subject'],
+            'badge_label': config['badge_label'],
+            'badge_color': config['badge_color'],
+            'heading': config['heading'],
+            'lead_text': config['lead_text'],
+            'highlight_text': config.get('highlight_text'),
+        }
+
+        html_message = render_to_string('emails/order_status_update.html', context)
+        plain_message = strip_tags(html_message)
+
+        from_email = getattr(settings, 'DEFAULT_FROM_EMAIL', None) or getattr(settings, 'EMAIL_HOST_USER', None)
+
+        send_mail(
+            subject=config['subject'],
+            message=plain_message,
+            from_email=from_email,
+            recipient_list=[recipient_email],
+            html_message=html_message,
+            fail_silently=False,
+        )
+        return True
+
+    except Exception as e:
+        if settings.DEBUG:
+            print("\n" + "="*80)
+            print(f"SMTP SEND FAILED FOR STATUS UPDATE ({new_status}) ON #{order.order_id}. REASON: {e}")
+            print(f"RECIPIENT: {getattr(order.user, 'email', 'N/A')}")
+            print("="*80 + "\n")
+        return False

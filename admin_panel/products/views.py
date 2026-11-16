@@ -30,7 +30,7 @@ def admin_products_view(request):
             Q(name__icontains=search) |
             Q(description__icontains=search) |
             Q(category__name__icontains=search) |
-            Q(brand__icontains=search)
+            Q(brand__name__icontains=search)
         )
         if len(words) > 1:
             multi_q = Q()
@@ -39,7 +39,7 @@ def admin_products_view(request):
                     Q(name__icontains=w) |
                     Q(description__icontains=w) |
                     Q(category__name__icontains=w) |
-                    Q(brand__icontains=w)
+                    Q(brand__name__icontains=w)
                 )
             q_obj |= multi_q
         products_list = products_list.filter(q_obj).distinct()
@@ -217,6 +217,14 @@ def admin_product_add_view(request):
         if offer_val and str(offer_val).isdigit():
             product_offer = ProductOffer.objects.filter(id=offer_val, is_active=True).first()
 
+        brand_val = request.POST.get("brand", "").strip()
+        brand_obj = None
+        if brand_val:
+            if brand_val.isdigit():
+                brand_obj = Brand.objects.filter(id=int(brand_val)).first()
+            if not brand_obj:
+                brand_obj = Brand.objects.filter(name__iexact=brand_val).first()
+
         with transaction.atomic():
             product = Product.objects.create(
                 name=request.POST.get("name"),
@@ -226,7 +234,7 @@ def admin_product_add_view(request):
                 category=category,
                 is_active="is_active" in request.POST,
                 highlights=request.POST.get("highlights", "").strip(),
-                brand=request.POST.get("brand", "").strip(),
+                brand=brand_obj,
                 offer=product_offer.name if product_offer else (request.POST.get("offer", "").strip() or None),
                 product_offer=product_offer
             )
@@ -352,7 +360,14 @@ def admin_product_edit_view(request, product_id):
             product.category = category
             product.is_active = "is_active" in request.POST
             product.highlights = request.POST.get("highlights", "").strip()
-            product.brand = request.POST.get("brand", "").strip()
+            brand_val = request.POST.get("brand", "").strip()
+            brand_obj = None
+            if brand_val:
+                if brand_val.isdigit():
+                    brand_obj = Brand.objects.filter(id=int(brand_val)).first()
+                if not brand_obj:
+                    brand_obj = Brand.objects.filter(name__iexact=brand_val).first()
+            product.brand = brand_obj
             
             offer_val = request.POST.get("offer_id") or request.POST.get("offer")
             if offer_val and str(offer_val).isdigit():
@@ -467,7 +482,8 @@ def admin_product_detail_view(request, product_id):
     latest_review = reviews.first()
 
     # Generate professional SKU
-    brand_code = (product.brand or 'ZTR').replace(' ', '').upper()[:4]
+    brand_name = product.brand.name if product.brand else 'ZTR'
+    brand_code = brand_name.replace(' ', '').upper()[:4]
     cat_code = (category.name or 'GEN').replace(' ', '').upper()[:2]
     base_sku = f"{brand_code}-{cat_code}-{product.created_at.year if product.created_at else '2026'}-{product.id:04d}"
     initial_sku = f"{base_sku}-V{initial_variant.id:02d}" if initial_variant else base_sku

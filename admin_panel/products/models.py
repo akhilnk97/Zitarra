@@ -14,7 +14,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     is_deleted = models.BooleanField(default=False)
     updated_at = models.DateTimeField(auto_now=True)
-    brand = models.CharField(max_length=100, blank=True, null=True)
+    brand = models.ForeignKey('brands.Brand', on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     offer = models.CharField(max_length=100, blank=True, null=True)
     product_offer = models.ForeignKey('offers.ProductOffer', on_delete=models.SET_NULL, null=True, blank=True, related_name='products')
     highlights = models.TextField(blank=True, null=True, help_text="Product highlights separated by newlines")
@@ -170,8 +170,8 @@ class ProductVariant(models.Model):
         return f"{self.product.name} - {self.name}"
 
     def generate_sku(self):
-        """Generates a professional unique SKU for this variant."""
-        brand_code = (self.product.brand or 'ZTR').upper()[:3]
+        brand_name = self.product.brand.name if self.product.brand else 'ZTR'
+        brand_code = brand_name.upper()[:3]
         cat_code = (self.product.category.name or 'CAT').upper()[:3] if self.product.category else 'CAT'
         prod_id = self.product.id or 0
         var_id = self.id or 0

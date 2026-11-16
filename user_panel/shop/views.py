@@ -2,6 +2,7 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.db.models import Q, Min, Max
 import math
+import json
 from django.views.decorators.cache import cache_control
 from common.decorators import user_not_blocked
 from admin_panel.products.models import Product, ProductReview, ProductVariant
@@ -10,6 +11,7 @@ from admin_panel.banners.models import ShopShowcase
 
 from django.contrib import messages
 from user_panel.wishlist.models import WishlistItem
+from user_panel.cart.models import Cart
 from common.services import get_eligible_coupons
 from django.db.models import Prefetch
 
@@ -53,7 +55,7 @@ def shop_view(request):
         q_obj = (
             Q(name__icontains=search_query) |
             Q(description__icontains=search_query) |
-            Q(brand__icontains=search_query) |
+            Q(brand__name__icontains=search_query) |
             Q(category__name__icontains=search_query)
         )
         if len(words) > 1:
@@ -62,7 +64,7 @@ def shop_view(request):
                 multi_q &= (
                     Q(name__icontains=w) |
                     Q(description__icontains=w) |
-                    Q(brand__icontains=w) |
+                    Q(brand__name__icontains=w) |
                     Q(category__name__icontains=w)
                 )
             q_obj |= multi_q
@@ -79,7 +81,7 @@ def shop_view(request):
     if selected_brands_list:
         brand_queries = Q()
         for b in selected_brands_list:
-            brand_queries |= Q(brand__iexact=b)
+            brand_queries |= Q(brand__name__iexact=b)
         products_list = products_list.filter(brand_queries)
 
     has_price_filter = False
@@ -117,8 +119,7 @@ def shop_view(request):
     available_brands = list(
         Product.objects.filter(is_active=True, is_deleted=False)
         .exclude(brand__isnull=True)
-        .exclude(brand__exact='')
-        .values_list('brand', flat=True)
+        .values_list('brand__name', flat=True)
         .distinct()
     )
 
@@ -293,12 +294,28 @@ def product_detail_view(request, product_id):
         ]
 
     is_in_wishlist = False
+    is_in_cart = False
+    cart_variant_ids = []
     if request.user.is_authenticated:
         target_var = first_available if (first_available and hasattr(first_available, 'stock') and hasattr(first_available, 'sku')) else None
         if target_var and getattr(target_var, 'id', None):
             is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product, variant=target_var).exists()
         else:
             is_in_wishlist = WishlistItem.objects.filter(wishlist__user=request.user, product=product).exists()
+
+        cart = Cart.objects.filter(user=request.user).first()
+        if cart:
+            cart_items = cart.items.filter(product=product)
+            for ci in cart_items:
+                if ci.variant_id:
+                    cart_variant_ids.append(str(ci.variant_id))
+                else:
+                    cart_variant_ids.append('base')
+
+            if target_var and getattr(target_var, 'id', None):
+                is_in_cart = str(target_var.id) in cart_variant_ids
+            else:
+                is_in_cart = 'base' in cart_variant_ids
 
     active_coupons = get_eligible_coupons(user=request.user, limit=3)
 
@@ -333,6 +350,9 @@ def product_detail_view(request, product_id):
         "related_products": related_products,
         "highlights_list": highlights_list,
         "is_in_wishlist": is_in_wishlist,
+        "is_in_cart": is_in_cart,
+        "cart_variant_ids": cart_variant_ids,
+        "cart_variant_json": json.dumps(cart_variant_ids),
         "active_coupons": active_coupons,
         "reviews": reviews,
         "total_reviews": total_reviews,
