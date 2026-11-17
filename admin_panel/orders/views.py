@@ -10,6 +10,7 @@ from datetime import datetime
 from common.decorators import admin_required
 from common.services import send_order_status_email
 from user_panel.orders.models import Order, OrderItem
+from user_panel.wallet.models import Wallet
 from admin_panel.products.models import ProductVariant, Product
 
 STATUS_CHOICES = Order.STATUS_CHOICES
@@ -194,10 +195,25 @@ def admin_order_update_status_view(request, order_id):
             if new_status and new_status in allowed_statuses:
                 if new_status == 'CANCELLED' and old_status != 'CANCELLED':
                     order.order_status = 'CANCELLED'
-                    if order.payment_method in ['CASH_ON_DELIVERY', 'COD']:
-                        order.payment_status = 'PENDING'
                     if not order.cancel_reason:
                         order.cancel_reason = 'Cancelled by Admin'
+
+                    # Process Wallet refund if order was paid
+                    was_paid = (order.payment_status in ['PAID', 'PARTIALLY_REFUNDED'] or order.payment_method in ['RAZORPAY', 'WALLET'])
+                    if was_paid:
+                        refund_amount = order.total_price
+                        if refund_amount > Decimal('0.00'):
+                            wallet, _ = Wallet.objects.get_or_create(user=order.user)
+                            wallet.credit(
+                                amount=refund_amount,
+                                purpose='ORDER_CANCELLATION_REFUND',
+                                description=f"FULL REFUND FOR CANCELLED ORDER #{order.order_id}",
+                                order=order
+                            )
+                        order.payment_status = 'REFUNDED'
+                    elif order.payment_method in ['CASH_ON_DELIVERY', 'COD']:
+                        order.payment_status = 'PENDING'
+
                     order.save()
 
                     # Restore stock for all non-cancelled items
@@ -225,20 +241,32 @@ def admin_order_update_status_view(request, order_id):
                         order.payment_status = 'PAID'
                         order.expected_delivery_date = today
                     elif new_status == 'RETURNED':
-                        order.payment_status = 'REFUNDED'
                         order.expected_delivery_date = today
 
-                    # If marking entire order as RETURNED for the first time, restore inventory stock
-                    if new_status == 'RETURNED' and old_status != 'RETURNED':
-                        for item in order.items.exclude(item_status__in=['CANCELLED', 'RETURNED']):
-                            if item.variant:
-                                item.variant.stock += item.quantity
-                                item.variant.save(update_fields=['stock', 'updated_at'])
-                                if item.product:
-                                    item.product.sync_stock_from_variants()
-                            elif item.product:
-                                item.product.stock += item.quantity
-                                item.product.save(update_fields=['stock', 'updated_at'])
+                        # If marking entire order as RETURNED for the first time, restore inventory stock and process refund
+                        if old_status != 'RETURNED':
+                            was_paid = (order.payment_status in ['PAID', 'PARTIALLY_REFUNDED'] or order.payment_method in ['RAZORPAY', 'WALLET'])
+                            if was_paid:
+                                refund_amount = order.total_price
+                                if refund_amount > Decimal('0.00'):
+                                    wallet, _ = Wallet.objects.get_or_create(user=order.user)
+                                    wallet.credit(
+                                        amount=refund_amount,
+                                        purpose='ORDER_RETURN_REFUND',
+                                        description=f"FULL REFUND FOR RETURNED ORDER #{order.order_id}",
+                                        order=order
+                                    )
+                                order.payment_status = 'REFUNDED'
+
+                            for item in order.items.exclude(item_status__in=['CANCELLED', 'RETURNED']):
+                                if item.variant:
+                                    item.variant.stock += item.quantity
+                                    item.variant.save(update_fields=['stock', 'updated_at'])
+                                    if item.product:
+                                        item.product.sync_stock_from_variants()
+                                elif item.product:
+                                    item.product.stock += item.quantity
+                                    item.product.save(update_fields=['stock', 'updated_at'])
 
                     # Update all active items to new status and update dates
                     for item in order.items.exclude(item_status='CANCELLED'):
@@ -333,8 +361,36 @@ def admin_order_item_update_status_view(request, order_id, item_id):
                         p.stock += item.quantity
                         p.save(update_fields=['stock', 'updated_at'])
 
+                    # Process Wallet refund if order was paid
+                    was_paid = (item.order.payment_status in ['PAID', 'PARTIALLY_REFUNDED'] or item.order.payment_method in ['RAZORPAY', 'WALLET'])
+                    if was_paid:
+                        net_item_price = max(Decimal('0.00'), item.item_subtotal - item.discount_amount)
+                        item_tax = round(net_item_price * Decimal('0.05'), 2)
+                        item_refund = net_item_price + item_tax
+
+                        if item_refund > Decimal('0.00'):
+                            wallet, _ = Wallet.objects.get_or_create(user=item.order.user)
+                            purpose = 'ORDER_CANCELLATION_REFUND' if new_status == 'CANCELLED' else 'ORDER_RETURN_REFUND'
+                            desc_prefix = 'REFUND FOR CANCELLED ITEM' if new_status == 'CANCELLED' else 'RETURN REFUND FOR'
+                            wallet.credit(
+                                amount=item_refund,
+                                purpose=purpose,
+                                description=f"{desc_prefix} '{item.product_name}' IN ORDER #{item.order.order_id}",
+                                order=item.order
+                            )
+
             item.save()
             item.order.recalculate_totals()
+
+            if new_status in ['CANCELLED', 'RETURNED'] and old_status not in ['CANCELLED', 'RETURNED']:
+                was_paid = (item.order.payment_status in ['PAID', 'PARTIALLY_REFUNDED'] or item.order.payment_method in ['RAZORPAY', 'WALLET'])
+                if was_paid:
+                    has_other_active_items = item.order.items.exclude(id=item.id).exclude(item_status__in=['CANCELLED', 'RETURNED']).exists()
+                    if not has_other_active_items:
+                        item.order.payment_status = 'REFUNDED'
+                    else:
+                        item.order.payment_status = 'PARTIALLY_REFUNDED'
+                    item.order.save(update_fields=['payment_status'])
             if new_status and new_status != old_status:
                 order_ref = item.order
                 if new_status == 'CANCELLED':
