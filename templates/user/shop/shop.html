@@ -74,18 +74,36 @@
     position: relative;
     z-index: 10;
   }
+
+  #sidebar {
+    scrollbar-width: thin;
+    scrollbar-color: #D1D5DB #FAF6F2;
+  }
+  #sidebar::-webkit-scrollbar {
+    width: 4px;
+  }
+  #sidebar::-webkit-scrollbar-track {
+    background: #FAF6F2;
+  }
+  #sidebar::-webkit-scrollbar-thumb {
+    background: #D1D5DB;
+    border-radius: 2px;
+  }
+  #sidebar::-webkit-scrollbar-thumb:hover {
+    background: #E8500A;
+  }
 </style>
 {% endblock %}
 
 {% block content %}
 
 <!-- Page wrapper: sidebar + content -->
-<div class="flex w-full bg-white min-h-screen relative overflow-hidden">
+<div class="flex w-full bg-white min-h-screen relative overflow-x-clip">
 
-  <!-- LEFT SIDEBAR (collapsible) -->
+  <!-- LEFT SIDEBAR (collapsible & sticky) -->
   <aside id="sidebar"
-    class="w-[320px] shrink-0 border-r border-gray-200 flex flex-col bg-[#FAF6F2] absolute left-0 top-0 bottom-0 z-50 overflow-y-auto transition-all duration-350 {% if filter_applied %}ml-0 opacity-100{% else %}ml-[-320px] opacity-0{% endif %}">
-    <form method="GET" action="{% url 'shop' %}" id="filter-form" class="h-full flex flex-col">
+    class="w-[320px] shrink-0 border-r border-b border-gray-200 flex flex-col bg-[#FAF6F2] sticky top-[60px] h-fit max-h-[calc(100vh-60px)] self-start z-40 overflow-y-auto transition-all duration-350 ease-in-out {% if filter_applied %}ml-0 opacity-100 pointer-events-auto{% else %}ml-[-320px] opacity-0 pointer-events-none{% endif %}">
+    <form method="GET" action="{% url 'shop' %}" id="filter-form" class="flex flex-col">
       <!-- Preserve search and sort -->
       {% if search_query %}<input type="hidden" name="search" value="{{ search_query }}">{% endif %}
       {% if sort_by %}<input type="hidden" name="sort" id="filter-sort" value="{{ sort_by }}">{% endif %}
@@ -192,50 +210,12 @@
           Reset
         </button>
       </div>
-
-      <!-- Spacer -->
-      <div class="flex-grow"></div>
-
-      <!-- Special Offer (bottom) -->
-      {% if sidebar_promo_showcase %}
-      <div class="bg-brand-dark text-white px-6 py-6 text-center mb-8 mx-4 rounded-xs relative overflow-hidden group">
-        {% if sidebar_promo_showcase.display_image_url %}
-        <img src="{{ sidebar_promo_showcase.display_image_url }}" alt="{{ sidebar_promo_showcase.display_title }}"
-          class="absolute inset-0 w-full h-full object-cover object-center opacity-20 pointer-events-none group-hover:scale-105 transition-transform duration-500" />
-        {% endif %}
-        <div class="relative z-10">
-          <p class="text-[0.62rem] font-black tracking-[0.2em] uppercase text-[#E8500A] mb-1.5">
-            {{ sidebar_promo_showcase.badge_text|default:"Special Offer" }}
-          </p>
-          <p class="text-base font-black uppercase leading-tight mb-2 tracking-tight">
-            {{ sidebar_promo_showcase.display_title }}
-          </p>
-          {% if sidebar_promo_showcase.subtitle %}
-          <p class="text-gray-400 text-[0.62rem] tracking-wider uppercase mb-3.5">
-            {{ sidebar_promo_showcase.subtitle }}
-          </p>
-          {% elif sidebar_promo_showcase.product.has_discount %}
-          <p class="text-white text-xs font-black tracking-wide uppercase mb-3.5">
-            ₹{{ sidebar_promo_showcase.product.discounted_price|floatformat:2 }}
-            <span class="line-through text-gray-500 font-normal text-[0.62rem] ml-1">₹{{ sidebar_promo_showcase.product.price|floatformat:2 }}</span>
-          </p>
-          {% else %}
-          <div class="mb-3.5"></div>
-          {% endif %}
-          <a href="{% url 'product_detail' sidebar_promo_showcase.product.id %}"
-            class="inline-block bg-[#E8500A] text-white text-[0.65rem] font-bold tracking-[0.2em] uppercase px-6 py-2.5 hover:bg-[#c94008] hover:shadow-md transition-all no-underline cursor-pointer active:scale-95">
-            {{ sidebar_promo_showcase.button_label|default:"Discover" }}
-          </a>
-        </div>
-      </div>
-      {% endif %}
     </form>
   </aside>
 
   <!-- RIGHT COLUMN -->
   <div id="main-content"
-    class="flex-1 min-w-0 flex flex-col transition-all duration-350 ease-in-out {% if filter_applied %}ml-[320px]{% else %}ml-0{% endif %}"
-    {% if filter_applied %}style="margin-left: 320px;" {% endif %}>
+    class="flex-1 min-w-0 flex flex-col transition-all duration-350 ease-in-out">
 
     <!-- HERO BANNER (two panels side by side) -->
     {% if hero_left_showcase or hero_right_showcase %}
@@ -625,14 +605,12 @@
     }
 
     if (sidebarOpen) {
-      sidebar.classList.remove('ml-[-320px]', 'opacity-0');
-      sidebar.classList.add('ml-0', 'opacity-100');
-      main.style.marginLeft = '320px';
+      sidebar.classList.remove('ml-[-320px]', 'opacity-0', 'pointer-events-none');
+      sidebar.classList.add('ml-0', 'opacity-100', 'pointer-events-auto');
       if (btn) btn.className = 'flex items-center gap-2 text-[0.6rem] font-bold tracking-[0.14em] uppercase text-white bg-brand-dark border border-brand-dark px-3 py-[7px] transition-all cursor-pointer';
     } else {
-      sidebar.classList.add('ml-[-320px]', 'opacity-0');
-      sidebar.classList.remove('ml-0', 'opacity-100');
-      main.style.marginLeft = '0';
+      sidebar.classList.remove('ml-0', 'opacity-100', 'pointer-events-auto');
+      sidebar.classList.add('ml-[-320px]', 'opacity-0', 'pointer-events-none');
       if (btn) btn.className = 'flex items-center gap-2 text-[0.6rem] font-bold tracking-[0.14em] uppercase text-brand-dark bg-white border border-gray-300 px-3 py-[7px] hover:border-brand-dark hover:bg-brand-dark hover:text-white transition-all cursor-pointer';
     }
   }

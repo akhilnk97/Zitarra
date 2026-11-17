@@ -301,7 +301,6 @@ def admin_showcases_view(request):
         'hero_left': showcase_dict.get('HERO_LEFT'),
         'hero_right': showcase_dict.get('HERO_RIGHT'),
         'grid_spotlight': showcase_dict.get('GRID_SPOTLIGHT'),
-        'sidebar_promo': showcase_dict.get('SIDEBAR_PROMO'),
         'products': products,
     }
     return render(request, 'admin_panel/banners/showcases.html', context)

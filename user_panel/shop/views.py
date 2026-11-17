@@ -161,9 +161,8 @@ def shop_view(request):
     hero_left_showcase = showcases.get('HERO_LEFT')
     hero_right_showcase = showcases.get('HERO_RIGHT')
     grid_spotlight_showcase = showcases.get('GRID_SPOTLIGHT')
-    sidebar_promo_showcase = showcases.get('SIDEBAR_PROMO')
 
-    for sc in [hero_left_showcase, hero_right_showcase, grid_spotlight_showcase, sidebar_promo_showcase]:
+    for sc in [hero_left_showcase, hero_right_showcase, grid_spotlight_showcase]:
         if sc and sc.product:
             eff = sc.product.get_effective_discount()
             sc.product.has_discount = eff['has_discount']
@@ -209,7 +208,6 @@ def shop_view(request):
         "hero_left_showcase": hero_left_showcase,
         "hero_right_showcase": hero_right_showcase,
         "grid_spotlight_showcase": grid_spotlight_showcase,
-        "sidebar_promo_showcase": sidebar_promo_showcase,
     }
 
     return render(request, "user/shop/shop.html", context)

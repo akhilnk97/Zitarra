@@ -46,7 +46,7 @@
           Home Page Banners
         </a>
         <a href="{% url 'admin_showcases' %}" class="pb-3 text-xs font-black uppercase tracking-wider no-underline transition-colors border-b-2 border-[#A33C08] text-[#A33C08]">
-          Shop Featured Showcases (4 Slots)
+          Shop Featured Showcases
         </a>
       </div>
 
@@ -58,13 +58,13 @@
             <span class="text-2xl font-bold tracking-tight text-[#A33C08] uppercase">FEATURED SHOWCASES</span>
           </div>
           <p class="text-xs text-gray-500 max-w-2xl leading-relaxed m-0 font-medium">
-            Configure the 4 high-conversion promotional slots displayed on the main Shop page. Change assigned products, marketing badges, technical specifications, and custom banner imagery on demand.
+            Configure the high-conversion promotional slots displayed on the main Shop page. Change assigned products, marketing badges, technical specifications, and custom banner imagery on demand.
           </p>
         </div>
       </div>
 
-      <!-- Showcases Grid (4 Slots) -->
-      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6 mb-12">
+      <!-- Showcases Grid (3 Slots) -->
+      <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 mb-12">
 
         <!-- SLOT 1: HERO LEFT (TOP SELLER) -->
         <div class="bg-white border border-[#E8E8E8] rounded-3xl p-6 shadow-xs flex flex-col justify-between relative overflow-hidden group">
@@ -255,65 +255,6 @@
               <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
             </svg>
             CONFIGURE GRID SPOTLIGHT
-          </button>
-        </div>
-
-        <!-- SLOT 4: SIDEBAR PROMO (SPECIAL OFFER) -->
-        <div class="bg-white border border-[#E8E8E8] rounded-3xl p-6 shadow-xs flex flex-col justify-between relative overflow-hidden group">
-          <div class="flex items-center justify-between mb-4">
-            <span class="inline-block bg-[#1A1A1A] text-white text-[0.55rem] font-black tracking-[0.2em] uppercase px-3 py-1 rounded-sm">
-              SLOT 4 • SIDEBAR PROMO
-            </span>
-            <span class="inline-flex items-center gap-1.5 text-[0.58rem] font-bold uppercase tracking-wider {% if sidebar_promo and sidebar_promo.is_active %}text-green-600{% else %}text-gray-400{% endif %}">
-              <span class="w-2 h-2 rounded-full {% if sidebar_promo and sidebar_promo.is_active %}bg-green-500{% else %}bg-gray-300{% endif %}"></span>
-              {% if sidebar_promo and sidebar_promo.is_active %}ACTIVE{% else %}DISABLED{% endif %}
-            </span>
-          </div>
-
-          <!-- Preview Card -->
-          <div class="bg-brand-dark rounded-2xl p-5 mb-5 text-white text-center min-h-[190px] flex flex-col justify-center items-center relative overflow-hidden border border-black/10">
-            {% if sidebar_promo and sidebar_promo.display_image_url %}
-              <img src="{{ sidebar_promo.display_image_url }}" alt="Slot 4 Visual" class="absolute inset-0 w-full h-full object-cover object-center opacity-25">
-            {% endif %}
-            <div class="relative z-10 w-full">
-              <span class="text-[0.5rem] font-black tracking-[0.2em] uppercase text-[#E8500A] block mb-1">
-                {{ sidebar_promo.badge_text|default:"SPECIAL OFFER" }}
-              </span>
-              <h3 class="text-sm font-black uppercase leading-tight tracking-tight mb-1 text-white">
-                {{ sidebar_promo.display_title|default:"VINTAGE REISSUE 1964" }}
-              </h3>
-              <p class="text-[0.55rem] text-gray-400 tracking-wider uppercase mb-3">
-                {{ sidebar_promo.subtitle|default:"Limited Heritage Edition" }}
-              </p>
-              <span class="inline-block bg-[#E8500A] text-white text-[0.52rem] font-bold tracking-[0.2em] uppercase px-4 py-1.5 rounded-xs">
-                {{ sidebar_promo.button_label|default:"DISCOVER" }}
-              </span>
-            </div>
-          </div>
-
-          <!-- Details Table -->
-          <div class="space-y-2.5 text-xs mb-6 flex-1">
-            <div class="flex justify-between items-center py-1 border-b border-gray-100">
-              <span class="text-[0.62rem] font-bold text-gray-400 uppercase tracking-wider">Assigned Product:</span>
-              <span class="font-black text-[#1A1A1A] truncate max-w-[150px]">{{ sidebar_promo.product.name }}</span>
-            </div>
-            <div class="flex justify-between items-center py-1 border-b border-gray-100">
-              <span class="text-[0.62rem] font-bold text-gray-400 uppercase tracking-wider">Position:</span>
-              <span class="font-bold text-[#E8500A]">Sidebar Filter Drawer</span>
-            </div>
-            <div class="flex justify-between items-center py-1 border-b border-gray-100">
-              <span class="text-[0.62rem] font-bold text-gray-400 uppercase tracking-wider">Stock Status:</span>
-              <span class="font-bold text-gray-700">{{ sidebar_promo.product.stock }} Units in Stock</span>
-            </div>
-          </div>
-
-          <!-- Action Button -->
-          <button type="button" onclick="openEditModal({{ sidebar_promo.id }}, 'SIDEBAR_PROMO', '{{ sidebar_promo.product.id }}', '{{ sidebar_promo.badge_text|escapejs }}', '{{ sidebar_promo.custom_title|default:''|escapejs }}', '{{ sidebar_promo.subtitle|default:''|escapejs }}', '{{ sidebar_promo.button_label|escapejs }}', {{ sidebar_promo.is_active|yesno:'true,false' }})"
-            class="w-full bg-[#1A1A1A] hover:bg-[#A33C08] text-white text-xs font-black uppercase tracking-widest py-3 rounded-xl transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-xs">
-            <svg class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            CONFIGURE SIDEBAR PROMO
           </button>
         </div>
 

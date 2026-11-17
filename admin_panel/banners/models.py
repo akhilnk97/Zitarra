@@ -65,7 +65,6 @@ class ShopShowcase(models.Model):
         ('HERO_LEFT', 'Hero Left Banner (Top Seller)'),
         ('HERO_RIGHT', 'Hero Right Banner (Featured Flagship)'),
         ('GRID_SPOTLIGHT', 'In-Grid Spotlight (Premium Specs)'),
-        ('SIDEBAR_PROMO', 'Sidebar Special Offer (Filter Drawer)'),
     )
 
     slot = models.CharField(max_length=30, choices=SLOT_CHOICES, unique=True)
