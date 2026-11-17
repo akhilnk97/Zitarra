@@ -99,13 +99,25 @@
           <div class="w-8 h-[2px] bg-brand-orange mt-2 mb-1"></div>
 
         </div>
+        {% if addresses|length >= 3 %}
+        <div class="flex items-center gap-2.5 bg-amber-50 border border-amber-200 px-4 py-2.5 select-none" title="Address limit reached (3/3). Edit any existing address below to make changes.">
+          <svg class="w-4 h-4 text-amber-600 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <div>
+            <span class="text-[0.58rem] font-black tracking-[0.15em] uppercase text-amber-900 block leading-none">ADDRESS LIMIT REACHED ({{ addresses|length }}/3)</span>
+            <span class="text-[0.50rem] font-bold tracking-wider uppercase text-amber-700 block mt-0.5">EDIT AN EXISTING ADDRESS TO UPDATE</span>
+          </div>
+        </div>
+        {% else %}
         <button id="add-address-btn"
           class="flex items-center gap-2 bg-brand-orange text-white cursor-pointer text-[0.55rem] font-bold tracking-[0.18em] uppercase px-5 py-3 transition-colors duration-200 hover:bg-[#c94008] border-none shadow-[0_4px_14px_rgba(232,80,10,0.25)]">
           <svg class="w-3.5 h-3.5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
           </svg>
-          ADD NEW ADDRESS
+          ADD NEW ADDRESS ({{ addresses|length }}/3)
         </button>
+        {% endif %}
       </div>
 
       <!-- Alert Container -->

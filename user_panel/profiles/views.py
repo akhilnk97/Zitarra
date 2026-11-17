@@ -236,6 +236,10 @@ def address_save_view(request):
         except Address.DoesNotExist:
             messages.error(request, "Address record not found.")
     else:
+        if Address.objects.filter(user=request.user).count() >= 3:
+            messages.error(request, "Maximum limit of 3 saved addresses reached. Please edit an existing address to make changes.")
+            return redirect("addresses")
+
         Address.objects.create(
             user=request.user,
             full_name=full_name,
